@@ -1,0 +1,405 @@
+syntax = "proto3";
+
+package lcm.service.v1;
+
+option go_package = "github.com/go-tangra/go-tangra-portal/api/gen/go/lcm/service/v1;lcmV1";
+
+import "google/api/annotations.proto";
+import "google/protobuf/timestamp.proto";
+import "gnostic/openapi/v3/annotations.proto";
+
+// LCM Statistics Service provides aggregated statistics about the certificate lifecycle management system
+service LcmStatisticsService {
+  // GetStatistics returns comprehensive statistics about the LCM system
+  rpc GetStatistics (GetStatisticsRequest) returns (GetStatisticsResponse) {
+    option (google.api.http) = {
+      get: "/api/v1/lcm/statistics"
+    };
+  }
+
+  // GetTenantStatistics returns statistics for a specific tenant
+  rpc GetTenantStatistics (GetTenantStatisticsRequest) returns (TenantStatistics) {
+    option (google.api.http) = {
+      get: "/api/v1/lcm/statistics/tenant/{tenant_id}"
+    };
+  }
+}
+
+// GetStatisticsRequest is the request message for GetStatistics
+message GetStatisticsRequest {
+  // Number of days to consider for "expire soon" certificates (default: 30)
+  optional int32 expire_soon_days = 1 [
+    (gnostic.openapi.v3.property) = {description: "Days threshold for expire soon certificates"}
+  ];
+
+  // Number of recent errors to return (default: 10)
+  optional int32 recent_errors_limit = 2 [
+    (gnostic.openapi.v3.property) = {description: "Maximum number of recent errors to return"}
+  ];
+
+  // Filter by specific tenant ID (optional, admin only)
+  optional uint32 tenant_id = 3 [
+    (gnostic.openapi.v3.property) = {description: "Filter statistics by tenant ID"}
+  ];
+}
+
+// GetStatisticsResponse is the response message for GetStatistics
+message GetStatisticsResponse {
+  // Overall certificate statistics (DEPRECATED: use issued_certificates and mtls_certificates instead)
+  CertificateStatistics certificates = 1;
+
+  // Client statistics
+  ClientStatistics clients = 2;
+
+  // Issuer statistics
+  IssuerStatistics issuers = 3;
+
+  // Certificate job statistics
+  JobStatistics jobs = 4;
+
+  // Recent errors/failures
+  repeated RecentError recent_errors = 5;
+
+  // Per-tenant breakdown (only for platform admin requests)
+  repeated TenantStatistics tenant_breakdown = 6;
+
+  // Statistics generation timestamp
+  google.protobuf.Timestamp generated_at = 7;
+
+  // Issued certificate statistics (certificates issued to clients - the main certificates)
+  IssuedCertificateStatistics issued_certificates = 8;
+
+  // MTLS certificate statistics (certificates used for mTLS authentication - internal use)
+  MtlsCertificateStatistics mtls_certificates = 9;
+}
+
+// CertificateStatistics contains statistics about certificates
+message CertificateStatistics {
+  // Total number of certificates
+  int64 total_count = 1 [
+    (gnostic.openapi.v3.property) = {description: "Total number of certificates"}
+  ];
+
+  // Number of active certificates
+  int64 active_count = 2 [
+    (gnostic.openapi.v3.property) = {description: "Number of active certificates"}
+  ];
+
+  // Number of expired certificates
+  int64 expired_count = 3 [
+    (gnostic.openapi.v3.property) = {description: "Number of expired certificates"}
+  ];
+
+  // Number of revoked certificates
+  int64 revoked_count = 4 [
+    (gnostic.openapi.v3.property) = {description: "Number of revoked certificates"}
+  ];
+
+  // Number of suspended certificates
+  int64 suspended_count = 5 [
+    (gnostic.openapi.v3.property) = {description: "Number of suspended certificates"}
+  ];
+
+  // Number of certificates expiring soon
+  int64 expire_soon_count = 6 [
+    (gnostic.openapi.v3.property) = {description: "Number of certificates expiring soon"}
+  ];
+
+  // Days threshold used for expire_soon_count
+  int32 expire_soon_days = 7 [
+    (gnostic.openapi.v3.property) = {description: "Days threshold used for expire soon calculation"}
+  ];
+
+  // Number of wildcard certificates (CN or SAN contains *)
+  int64 wildcard_count = 8 [
+    (gnostic.openapi.v3.property) = {description: "Number of wildcard certificates"}
+  ];
+
+  // Certificates by type
+  CertificateTypeBreakdown by_type = 9;
+
+  // Certificates grouped by issuer
+  repeated IssuerCertificateCount by_issuer = 10;
+}
+
+// CertificateTypeBreakdown provides certificate counts by type
+message CertificateTypeBreakdown {
+  // Number of client certificates
+  int64 client_certs = 1;
+
+  // Number of internal certificates
+  int64 internal_certs = 2;
+
+  // Number of CA certificates
+  int64 ca_certs = 3;
+}
+
+// IssuedCertificateStatistics contains statistics about certificates issued to clients
+// These are the main certificates that users request and manage
+message IssuedCertificateStatistics {
+  // Total number of issued certificates
+  int64 total_count = 1 [
+    (gnostic.openapi.v3.property) = {description: "Total number of issued certificates"}
+  ];
+
+  // Number of active/issued certificates
+  int64 active_count = 2 [
+    (gnostic.openapi.v3.property) = {description: "Number of active certificates (status=issued)"}
+  ];
+
+  // Number of expired certificates
+  int64 expired_count = 3 [
+    (gnostic.openapi.v3.property) = {description: "Number of expired certificates"}
+  ];
+
+  // Number of revoked certificates
+  int64 revoked_count = 4 [
+    (gnostic.openapi.v3.property) = {description: "Number of revoked certificates"}
+  ];
+
+  // Number of pending certificates
+  int64 pending_count = 5 [
+    (gnostic.openapi.v3.property) = {description: "Number of pending certificates"}
+  ];
+
+  // Number of processing certificates
+  int64 processing_count = 6 [
+    (gnostic.openapi.v3.property) = {description: "Number of certificates being processed"}
+  ];
+
+  // Number of failed certificates
+  int64 failed_count = 7 [
+    (gnostic.openapi.v3.property) = {description: "Number of failed certificate requests"}
+  ];
+
+  // Number of certificates expiring soon
+  int64 expire_soon_count = 8 [
+    (gnostic.openapi.v3.property) = {description: "Number of certificates expiring soon"}
+  ];
+
+  // Days threshold used for expire_soon_count
+  int32 expire_soon_days = 9 [
+    (gnostic.openapi.v3.property) = {description: "Days threshold used for expire soon calculation"}
+  ];
+
+  // Number of wildcard certificates
+  int64 wildcard_count = 10 [
+    (gnostic.openapi.v3.property) = {description: "Number of wildcard certificates"}
+  ];
+
+  // Number of certificates with auto-renewal enabled
+  int64 auto_renew_enabled_count = 11 [
+    (gnostic.openapi.v3.property) = {description: "Number of certificates with auto-renewal enabled"}
+  ];
+
+  // Certificates grouped by issuer type
+  map<string, int64> by_issuer_type = 12;
+}
+
+// MtlsCertificateStatistics contains statistics about mTLS authentication certificates
+// These are internal certificates used for service-to-service authentication
+message MtlsCertificateStatistics {
+  // Total number of mTLS certificates
+  int64 total_count = 1 [
+    (gnostic.openapi.v3.property) = {description: "Total number of mTLS certificates"}
+  ];
+
+  // Number of active mTLS certificates
+  int64 active_count = 2 [
+    (gnostic.openapi.v3.property) = {description: "Number of active mTLS certificates"}
+  ];
+
+  // Number of expired mTLS certificates
+  int64 expired_count = 3 [
+    (gnostic.openapi.v3.property) = {description: "Number of expired mTLS certificates"}
+  ];
+
+  // Number of revoked mTLS certificates
+  int64 revoked_count = 4 [
+    (gnostic.openapi.v3.property) = {description: "Number of revoked mTLS certificates"}
+  ];
+
+  // Number of suspended mTLS certificates
+  int64 suspended_count = 5 [
+    (gnostic.openapi.v3.property) = {description: "Number of suspended mTLS certificates"}
+  ];
+
+  // Number of mTLS certificates expiring soon
+  int64 expire_soon_count = 6 [
+    (gnostic.openapi.v3.property) = {description: "Number of mTLS certificates expiring soon"}
+  ];
+
+  // Days threshold used for expire_soon_count
+  int32 expire_soon_days = 7 [
+    (gnostic.openapi.v3.property) = {description: "Days threshold used for expire soon calculation"}
+  ];
+
+  // Certificates by type (client, internal)
+  CertificateTypeBreakdown by_type = 8;
+}
+
+// IssuerCertificateCount represents certificate count for an issuer
+message IssuerCertificateCount {
+  // Issuer name
+  string issuer_name = 1;
+
+  // Issuer type (self-signed, acme)
+  string issuer_type = 2;
+
+  // Total certificates issued by this issuer
+  int64 total_count = 3;
+
+  // Active certificates
+  int64 active_count = 4;
+
+  // Expired certificates
+  int64 expired_count = 5;
+
+  // Revoked certificates
+  int64 revoked_count = 6;
+}
+
+// ClientStatistics contains statistics about LCM clients
+message ClientStatistics {
+  // Total number of registered clients
+  int64 total_count = 1 [
+    (gnostic.openapi.v3.property) = {description: "Total number of registered clients"}
+  ];
+
+  // Number of active clients
+  int64 active_count = 2 [
+    (gnostic.openapi.v3.property) = {description: "Number of active clients"}
+  ];
+
+  // Number of disabled clients
+  int64 disabled_count = 3 [
+    (gnostic.openapi.v3.property) = {description: "Number of disabled clients"}
+  ];
+
+  // Number of suspended clients
+  int64 suspended_count = 4 [
+    (gnostic.openapi.v3.property) = {description: "Number of suspended clients"}
+  ];
+
+  // Clients grouped by status
+  map<string, int64> by_status = 5;
+}
+
+// IssuerStatistics contains statistics about certificate issuers
+message IssuerStatistics {
+  // Total number of issuers
+  int64 total_count = 1;
+
+  // Number of active issuers
+  int64 active_count = 2;
+
+  // Number of disabled issuers
+  int64 disabled_count = 3;
+
+  // Number of issuers in error state
+  int64 error_count = 4;
+
+  // Issuers by type
+  map<string, int64> by_type = 5;
+}
+
+// JobStatistics contains statistics about certificate jobs
+message JobStatistics {
+  // Total number of jobs
+  int64 total_count = 1;
+
+  // Number of pending jobs
+  int64 pending_count = 2;
+
+  // Number of processing jobs
+  int64 processing_count = 3;
+
+  // Number of completed jobs
+  int64 completed_count = 4;
+
+  // Number of failed jobs
+  int64 failed_count = 5;
+
+  // Number of cancelled jobs
+  int64 cancelled_count = 6;
+
+  // Jobs in the last 24 hours
+  JobTimeBreakdown last_24_hours = 7;
+
+  // Jobs in the last 7 days
+  JobTimeBreakdown last_7_days = 8;
+}
+
+// JobTimeBreakdown provides job counts within a time period
+message JobTimeBreakdown {
+  // Total jobs in period
+  int64 total = 1;
+
+  // Successful jobs
+  int64 succeeded = 2;
+
+  // Failed jobs
+  int64 failed = 3;
+
+  // Success rate percentage (0-100)
+  double success_rate = 4;
+}
+
+// RecentError represents a recent certificate issuance failure
+message RecentError {
+  // Error timestamp
+  google.protobuf.Timestamp occurred_at = 1;
+
+  // Job ID that failed
+  string job_id = 2;
+
+  // Client ID that requested the certificate
+  string client_id = 3;
+
+  // Common name of the requested certificate
+  string common_name = 4;
+
+  // Issuer name
+  string issuer_name = 5;
+
+  // Error message
+  string error_message = 6;
+
+  // Tenant ID
+  uint32 tenant_id = 7;
+}
+
+// GetTenantStatisticsRequest is the request for GetTenantStatistics
+message GetTenantStatisticsRequest {
+  // Tenant ID to get statistics for
+  uint32 tenant_id = 1 [
+    (gnostic.openapi.v3.property) = {description: "Tenant ID"}
+  ];
+
+  // Number of days for expire soon calculation (default: 30)
+  optional int32 expire_soon_days = 2;
+}
+
+// TenantStatistics provides statistics for a specific tenant
+message TenantStatistics {
+  // Tenant ID
+  uint32 tenant_id = 1;
+
+  // Certificate statistics for this tenant (DEPRECATED)
+  CertificateStatistics certificates = 2;
+
+  // Client statistics for this tenant
+  ClientStatistics clients = 3;
+
+  // Issuer statistics for this tenant
+  IssuerStatistics issuers = 4;
+
+  // Job statistics for this tenant
+  JobStatistics jobs = 5;
+
+  // Issued certificate statistics for this tenant
+  IssuedCertificateStatistics issued_certificates = 6;
+
+  // MTLS certificate statistics for this tenant
+  MtlsCertificateStatistics mtls_certificates = 7;
+}

@@ -1,0 +1,106 @@
+package data
+
+import (
+	"context"
+	"github.com/go-tangra/go-tangra-portal/pkg/constants"
+
+	"github.com/go-kratos/kratos/v2/log"
+	paginationV1 "github.com/tx7do/go-crud/api/gen/go/pagination/v1"
+	"github.com/tx7do/go-utils/trans"
+	"github.com/tx7do/kratos-bootstrap/bootstrap"
+
+	permissionV1 "github.com/go-tangra/go-tangra-portal/api/gen/go/permission/service/v1"
+)
+
+const defaultDomain = "*"
+
+// AuthorizerData 权限数据
+type AuthorizerData struct {
+	Path   string
+	Method string
+	Domain string
+}
+
+type AuthorizerDataArray []AuthorizerData
+
+// AuthorizerDataMap 权限数据映射
+type AuthorizerDataMap map[string]AuthorizerDataArray
+
+// AuthorizerProvider 权限数据提供者
+type AuthorizerProvider struct {
+	log *log.Helper
+
+	roleRepo *RoleRepo
+	apiRepo  *ApiRepo
+}
+
+func NewAuthorizerProvider(
+	ctx *bootstrap.Context,
+	roleRepo *RoleRepo,
+	apiRepo *ApiRepo,
+) *AuthorizerProvider {
+	return &AuthorizerProvider{
+		log:      ctx.NewLoggerHelper("authorizer-data-provider/data/admin-service"),
+		roleRepo: roleRepo,
+		apiRepo:  apiRepo,
+	}
+}
+
+// Provide 提供权限数据
+func (p *AuthorizerProvider) Provide(ctx context.Context) (AuthorizerDataMap, error) {
+	roles, err := p.roleRepo.List(ctx, &paginationV1.PagingRequest{NoPaging: trans.Ptr(true)})
+	if err != nil {
+		p.log.Errorf("failed to list roles: %v", err)
+		return nil, err
+	}
+
+	result := make(AuthorizerDataMap)
+	var apiIDs []uint32
+	var apis []*permissionV1.Api
+	for _, role := range roles.Items {
+		//p.log.Infof("processing role: %s", role.GetCode())
+		if role == nil {
+			continue
+		}
+		if role.GetCode() == "" {
+			continue
+		}
+		if constants.IsTemplateRoleCode(role.GetCode()) {
+			continue
+		}
+
+		apiIDs, err = p.roleRepo.GetRolePermissionApiIDs(ctx, role.GetId())
+		if err != nil {
+			p.log.Errorf("failed to get role [%d] permission api ids: %v", role.GetId(), err)
+			continue
+		}
+
+		apis, err = p.apiRepo.GetApiByIDs(ctx, apiIDs)
+		if err != nil {
+			p.log.Errorf("failed to list apis by ids: %v", err)
+			continue
+		}
+
+		var authorizerDataArray AuthorizerDataArray
+		for _, api := range apis {
+			if api == nil {
+				continue
+			}
+			if api.GetPath() == "" || api.GetMethod() == "" {
+				continue
+			}
+
+			var data = AuthorizerData{
+				Domain: defaultDomain,
+				Path:   api.GetPath(),
+				Method: api.GetMethod(),
+			}
+			authorizerDataArray = append(authorizerDataArray, data)
+		}
+		if len(authorizerDataArray) > 0 {
+			result[role.GetCode()] = authorizerDataArray
+		}
+	}
+
+	return result, nil
+}

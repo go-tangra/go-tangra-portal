@@ -1,0 +1,9 @@
+authn:
+  type: "jwt"
+
+  jwt:
+    method: "HS256"
+    key: "e2e-test-jwt-key"
+
+authz:
+  type: "opa"

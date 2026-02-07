@@ -1,0 +1,82 @@
+# LCM Functional Test Configuration
+# Copy this file to dns_config.yaml and fill in your credentials
+#
+# WARNING: This file contains sensitive credentials. Never commit the actual
+# dns_config.yaml file to version control!
+
+# LCM Server configuration
+server:
+  # Server address (host:port)
+  address: "localhost:9100"
+  # Path to CA certificate file (relative to this config file or absolute)
+  ca_file: "../../../../../data/ca/ca.crt"
+  # Shared secret for client registration
+  shared_secret: "changeme"
+
+# ACME configuration
+acme:
+  # Let's Encrypt staging is recommended for testing
+  # Staging: https://acme-staging-v02.api.letsencrypt.org/directory
+  # Production: https://acme-v02.api.letsencrypt.org/directory
+  endpoint: "https://acme-staging-v02.api.letsencrypt.org/directory"
+  email: "admin@server-lab.info"
+
+# DNS provider configuration
+# Uncomment and configure the provider you want to use
+dns_provider:
+  # Provider name (must match one of the registered providers)
+  name: "cloudflare"
+
+  # Provider-specific configuration
+  config:
+    # Cloudflare configuration
+    # Required: dnsApiToken
+    # Optional: zoneApiToken, dnsPropagationTimeout, dnsTTL
+    dnsApiToken: "EAfxsFQmbYANaYUT_cLhG4xQRJSsLK_3JQxelFSZ"
+    # zoneApiToken: "your-zone-api-token"  # Optional
+    # dnsPropagationTimeout: "120"  # seconds
+    # dnsTTL: "300"  # seconds
+
+# Alternative providers (uncomment the one you want to use):
+
+# Route53 (AWS)
+# dns_provider:
+#   name: "route53"
+#   config:
+#     AccessKeyId: "your-access-key-id"
+#     SecretAccessKey: "your-secret-access-key"
+#     Region: "us-east-1"
+#     HostedZoneId: "Z1234567890ABC"
+
+# Google Cloud DNS
+# dns_provider:
+#   name: "gcloud"
+#   config:
+#     Project: "your-gcp-project-id"
+#     ServiceAccountFile: "/path/to/service-account.json"
+
+# DigitalOcean
+# dns_provider:
+#   name: "digitalocean"
+#   config:
+#     AuthToken: "your-digitalocean-api-token"
+
+# Test domain configuration
+test_domain:
+  # The domain to use for certificate testing
+  # This domain must be managed by the configured DNS provider
+  domain: "server-lab.eu"
+
+  # DNS names to include in the certificate
+  dns_names:
+    - "test.server-lab.eu"
+# Test timeouts
+timeouts:
+  # Maximum time to wait for DNS propagation (in seconds)
+  dns_propagation: 300
+
+  # Maximum time to wait for certificate issuance (in seconds)
+  certificate_issuance: 600
+
+  # Interval between job status polls (in seconds)
+  poll_interval: 5

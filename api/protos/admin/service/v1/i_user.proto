@@ -1,0 +1,75 @@
+syntax = "proto3";
+
+package admin.service.v1;
+
+import "gnostic/openapi/v3/annotations.proto";
+import "google/api/annotations.proto";
+import "google/protobuf/empty.proto";
+import "redact/v3/redact.proto";
+
+import "pagination/v1/pagination.proto";
+
+import "user/service/v1/user.proto";
+
+// User management service
+service UserService {
+  // Get user list
+  rpc List (pagination.PagingRequest) returns (user.service.v1.ListUserResponse) {
+    option (redact.v3.internal_method) = true;
+    option (google.api.http) = {
+      get: "/admin/v1/users"
+    };
+  }
+
+  // Get user data
+  rpc Get (user.service.v1.GetUserRequest) returns (user.service.v1.User) {
+    option (redact.v3.internal_method) = true;
+    option (google.api.http) = {
+      get: "/admin/v1/users/{id}"
+      additional_bindings {
+        get: "/admin/v1/users/username/{username}"
+      }
+    };
+  }
+
+  // Create user
+  rpc Create (user.service.v1.CreateUserRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      post: "/admin/v1/users"
+      body: "*"
+    };
+  }
+
+  // Update user
+  rpc Update (user.service.v1.UpdateUserRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      put: "/admin/v1/users/{id}"
+      body: "*"
+    };
+  }
+
+  // Delete user
+  rpc Delete (user.service.v1.DeleteUserRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      delete: "/admin/v1/users/{id}"
+      additional_bindings {
+        delete: "/admin/v1/users/username/{username}"
+      }
+    };
+  }
+
+  // Check if user exists
+  rpc UserExists (user.service.v1.UserExistsRequest) returns (user.service.v1.UserExistsResponse) {
+    option (google.api.http) = {
+      get: "/admin/v1/users:exists"
+    };
+  }
+
+  // Edit user password
+  rpc EditUserPassword(user.service.v1.EditUserPasswordRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      post: "/admin/v1/users/{user_id}/password"
+      body: "*"
+    };
+  }
+}

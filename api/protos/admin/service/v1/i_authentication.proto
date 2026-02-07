@@ -1,0 +1,41 @@
+syntax = "proto3";
+
+package admin.service.v1;
+
+import "gnostic/openapi/v3/annotations.proto";
+import "google/api/annotations.proto";
+import "google/protobuf/empty.proto";
+
+import "user/service/v1/user.proto";
+import "authentication/service/v1/authentication.proto";
+
+// User backend login authentication service
+service AuthenticationService {
+  // Login
+  rpc Login (authentication.service.v1.LoginRequest) returns (authentication.service.v1.LoginResponse) {
+    option (google.api.http) = {
+      post: "/admin/v1/login"
+      body: "*"
+    };
+
+    option(gnostic.openapi.v3.operation) = {
+      security: {}
+    };
+  }
+
+  // Logout
+  rpc Logout (google.protobuf.Empty) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      post: "/admin/v1/logout"
+      body: "*"
+    };
+  }
+
+  // Refresh authentication token
+  rpc RefreshToken (authentication.service.v1.LoginRequest) returns (authentication.service.v1.LoginResponse) {
+    option (google.api.http) = {
+      post: "/admin/v1/refresh-token"
+      body: "*"
+    };
+  }
+}

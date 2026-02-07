@@ -1,0 +1,48 @@
+server:
+  rest:
+    addr: ":7788"
+    timeout: 30s
+    enable_swagger: true
+    enable_pprof: false
+    cors:
+      headers:
+        - "X-Requested-With"
+        - "X-Request-ID"
+        - "Content-Type"
+        - "Authorization"
+      methods:
+        - "GET"
+        - "POST"
+        - "PUT"
+        - "DELETE"
+        - "HEAD"
+        - "OPTIONS"
+      origins:
+        - "*"
+    middleware:
+      enable_logging: true
+      enable_recovery: true
+      enable_tracing: false
+      enable_validate: true
+      enable_circuit_breaker: true
+      enable_metadata: true
+      auth:
+        method: "HS256"
+        key: "e2e-test-jwt-key"
+        access_token_expires: 7200s
+        refresh_token_expires: 604800s
+        access_token_key_prefix: "uat_"
+        refresh_token_key_prefix: "urt_"
+
+  asynq:
+    uri: "redis://:e2e-test-password@redis:6379/1"
+    enable_gracefully_shutdown: true
+    shutdown_timeout: 3s
+    codec: "json"
+
+  sse:
+    addr: ":7789"
+    codec: "json"
+    path: "/events"
+    auto_stream: true
+    auto_reply: false

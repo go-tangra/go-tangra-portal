@@ -1,0 +1,38 @@
+server:
+  grpc:
+    addr: "0.0.0.0:9500"
+    timeout: 30s
+    middleware:
+      enable_logging: true
+      enable_recovery: true
+      enable_tracing: false
+      enable_validate: true
+      enable_metadata: true
+
+data:
+  database:
+    driver: postgres
+    source: "postgresql://wind:wind@localhost:5432/wind_paperless?sslmode=disable"
+    max_idle_connections: 5
+    max_open_connections: 20
+    connection_max_lifetime: 3600s
+  redis:
+    network: tcp
+    addr: "localhost:6379"
+    password: ""
+    read_timeout: 1s
+    write_timeout: 1s
+  storage:
+    endpoint: "localhost:9000"
+    bucket: "paperless"
+    access_key: "minioadmin"
+    secret_key: "minioadmin"
+    use_ssl: false
+
+registration:
+  admin_endpoint: "localhost:9000"
+  module_id: "paperless"
+  module_name: "Document Management"
+  heartbeat_interval: 30s
+  retry_interval: 5s
+  max_retries: 10

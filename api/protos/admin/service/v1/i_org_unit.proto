@@ -1,0 +1,52 @@
+syntax = "proto3";
+
+package admin.service.v1;
+
+import "gnostic/openapi/v3/annotations.proto";
+import "google/api/annotations.proto";
+import "google/protobuf/empty.proto";
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/field_mask.proto";
+
+import "pagination/v1/pagination.proto";
+import "user/service/v1/org_unit.proto";
+
+// Organization unit service
+service OrgUnitService {
+  // Query organization unit list
+  rpc List (pagination.PagingRequest) returns (user.service.v1.ListOrgUnitResponse) {
+    option (google.api.http) = {
+      get: "/admin/v1/org-units"
+    };
+  }
+
+  // Query organization unit details
+  rpc Get (user.service.v1.GetOrgUnitRequest) returns (user.service.v1.OrgUnit) {
+    option (google.api.http) = {
+      get: "/admin/v1/org-units/{id}"
+    };
+  }
+
+  // Create organization unit
+  rpc Create (user.service.v1.CreateOrgUnitRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      post: "/admin/v1/org-units"
+      body: "*"
+    };
+  }
+
+  // Update organization unit
+  rpc Update (user.service.v1.UpdateOrgUnitRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      put: "/admin/v1/org-units/{id}"
+      body: "*"
+    };
+  }
+
+  // Delete organization unit
+  rpc Delete (user.service.v1.DeleteOrgUnitRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      delete: "/admin/v1/org-units/{id}"
+    };
+  }
+}

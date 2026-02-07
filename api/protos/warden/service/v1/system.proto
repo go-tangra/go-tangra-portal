@@ -1,0 +1,63 @@
+syntax = "proto3";
+
+package warden.service.v1;
+
+import "google/api/annotations.proto";
+import "google/protobuf/empty.proto";
+
+// System Service - health checks and system info
+service WardenSystemService {
+  // Health check
+  rpc Health(google.protobuf.Empty) returns (HealthResponse) {
+    option (google.api.http) = {
+      get: "/v1/health"
+    };
+  }
+
+  // Get service info
+  rpc GetInfo(google.protobuf.Empty) returns (GetInfoResponse) {
+    option (google.api.http) = {
+      get: "/v1/info"
+    };
+  }
+
+  // Check Vault connectivity
+  rpc CheckVault(google.protobuf.Empty) returns (CheckVaultResponse) {
+    option (google.api.http) = {
+      get: "/v1/vault/check"
+    };
+  }
+}
+
+// Health status
+enum HealthStatus {
+  HEALTH_STATUS_UNSPECIFIED = 0;
+  HEALTH_STATUS_HEALTHY = 1;
+  HEALTH_STATUS_DEGRADED = 2;
+  HEALTH_STATUS_UNHEALTHY = 3;
+}
+
+message HealthResponse {
+  HealthStatus status = 1 [json_name = "status"];
+  string message = 2 [json_name = "message"];
+  map<string, ComponentHealth> components = 3 [json_name = "components"];
+}
+
+message ComponentHealth {
+  HealthStatus status = 1 [json_name = "status"];
+  string message = 2 [json_name = "message"];
+}
+
+message GetInfoResponse {
+  string version = 1 [json_name = "version"];
+  string build_time = 2 [json_name = "buildTime"];
+  string go_version = 3 [json_name = "goVersion"];
+  string git_commit = 4 [json_name = "gitCommit"];
+}
+
+message CheckVaultResponse {
+  bool connected = 1 [json_name = "connected"];
+  string vault_version = 2 [json_name = "vaultVersion"];
+  bool sealed = 3 [json_name = "sealed"];
+  string message = 4 [json_name = "message"];
+}

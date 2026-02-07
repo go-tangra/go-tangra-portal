@@ -1,0 +1,5 @@
+deployer:
+  endpoint: "deployer-service:9200"
+  timeout: 30s
+  tls:
+    enabled: false

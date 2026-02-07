@@ -1,0 +1,51 @@
+syntax = "proto3";
+
+package admin.service.v1;
+
+import "gnostic/openapi/v3/annotations.proto";
+import "google/api/annotations.proto";
+import "google/protobuf/empty.proto";
+
+import "pagination/v1/pagination.proto";
+
+import "user/service/v1/role.proto";
+
+// Role management service
+service RoleService {
+  // Query role list
+  rpc List (pagination.PagingRequest) returns (user.service.v1.ListRoleResponse) {
+    option (google.api.http) = {
+      get: "/admin/v1/roles"
+    };
+  }
+
+  // Query role details
+  rpc Get (user.service.v1.GetRoleRequest) returns (user.service.v1.Role) {
+    option (google.api.http) = {
+      get: "/admin/v1/roles/{id}"
+    };
+  }
+
+  // Create role
+  rpc Create (user.service.v1.CreateRoleRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      post: "/admin/v1/roles"
+      body: "*"
+    };
+  }
+
+  // Update role
+  rpc Update (user.service.v1.UpdateRoleRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      put: "/admin/v1/roles/{id}"
+      body: "*"
+    };
+  }
+
+  // Delete role
+  rpc Delete (user.service.v1.DeleteRoleRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      delete: "/admin/v1/roles/{id}"
+    };
+  }
+}

@@ -1,0 +1,114 @@
+syntax = "proto3";
+
+package user.service.v1;
+
+import "gnostic/openapi/v3/annotations.proto";
+import "google/protobuf/empty.proto";
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/field_mask.proto";
+
+import "pagination/v1/pagination.proto";
+
+// Role permission override
+message RoleOverride {
+  // Permission delta
+  message PermissionDelta {
+    repeated string added_permissions = 1;   // Additional permissions added by tenant
+    repeated string removed_permissions = 2; // Permissions explicitly disabled by tenant (disabled even if template has them)
+  }
+
+  PermissionDelta permissions = 1;
+
+  // Basic field modifications (use template values if empty)
+  optional string display_name = 2;
+  optional string description = 3;
+
+  // Extended configuration
+  map<string, string> extended_settings = 4; // Stores settings like "ui_color": "#FF0000"
+
+  // Policy override
+  message SecurityPolicy {
+    bool force_mfa = 1;
+    repeated string ip_allow_list = 2;
+  }
+  SecurityPolicy security_policy = 5;
+}
+
+// Role metadata
+message RoleMetadata {
+  // Sync policy
+  enum SyncPolicy {
+    AUTO = 0;        // Automatic sync
+    MANUAL = 1;      // Manual sync
+    BLOCKED = 2;     // Sync blocked
+  }
+
+  // Scope
+  enum Scope {
+    PLATFORM = 0;     // Platform level
+    TENANT = 1;       // Tenant level
+  }
+
+  optional uint32 id = 1 [
+    json_name = "id",
+    (gnostic.openapi.v3.property) = {description: "Role metadata ID"}
+  ];  // Role metadata ID
+
+  optional uint32 role_id = 2 [
+    json_name = "roleId",
+    (gnostic.openapi.v3.property) = {description: "Role ID"}
+  ];  // Role ID
+
+  optional bool is_template = 3 [
+    json_name = "isTemplate",
+    (gnostic.openapi.v3.property) = {description: "Whether this is a template"}
+  ];  // Whether this is a template
+
+  optional string template_for = 4 [
+    json_name = "templateFor",
+    (gnostic.openapi.v3.property) = {description: "Template applicable target"}
+  ];  // Template applicable target
+
+  optional int32 template_version = 5 [
+    json_name = "templateVersion",
+    (gnostic.openapi.v3.property) = {description: "Template version number"}
+  ];  // Template version number
+
+  optional int32 last_synced_version = 6 [
+    json_name = "lastSyncedVersion",
+    (gnostic.openapi.v3.property) = {description: "Last synced version number"}
+  ];  // Last synced version number
+
+  optional google.protobuf.Timestamp last_synced_at = 7 [
+    json_name = "lastSyncedAt",
+    (gnostic.openapi.v3.property) = {description: "Last sync time"}
+  ];  // Last sync time
+
+  optional SyncPolicy sync_policy = 8 [
+    json_name = "syncPolicy",
+    (gnostic.openapi.v3.property) = {description: "Sync policy"}
+  ];  // Sync policy
+
+  optional Scope scope = 9 [
+    json_name = "scope",
+    (gnostic.openapi.v3.property) = {description: "Scope"}
+  ];  // Scope
+
+  RoleOverride custom_overrides = 10 [
+    json_name = "customOverrides",
+    (gnostic.openapi.v3.property) = {description: "Tenant custom overrides"}
+  ];  // Tenant custom overrides
+
+  optional uint32 tenant_id = 20 [
+    json_name = "tenantId",
+    (gnostic.openapi.v3.property) = {description: "Tenant ID, 0 represents system global role"}
+  ];  // Tenant ID, 0 represents system global role
+
+  optional uint32 created_by = 100 [json_name = "createdBy", (gnostic.openapi.v3.property) = {description: "Creator ID"}]; // Creator ID
+  optional uint32 updated_by = 101 [json_name = "updatedBy", (gnostic.openapi.v3.property) = {description: "Updater ID"}]; // Updater ID
+  optional uint32 deleted_by = 102 [json_name = "deletedBy", (gnostic.openapi.v3.property) = {description: "Deleter user ID"}]; // Deleter user ID
+
+  optional google.protobuf.Timestamp created_at = 200 [json_name = "createdAt", (gnostic.openapi.v3.property) = {description: "Created time"}];// Created time
+  optional google.protobuf.Timestamp updated_at = 201 [json_name = "updatedAt", (gnostic.openapi.v3.property) = {description: "Updated time"}];// Updated time
+  optional google.protobuf.Timestamp deleted_at = 202 [json_name = "deletedAt", (gnostic.openapi.v3.property) = {description: "Deleted time"}];// Deleted time
+}

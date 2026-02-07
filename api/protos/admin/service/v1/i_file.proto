@@ -1,0 +1,51 @@
+syntax = "proto3";
+
+package admin.service.v1;
+
+import "gnostic/openapi/v3/annotations.proto";
+import "google/api/annotations.proto";
+import "google/protobuf/empty.proto";
+
+import "pagination/v1/pagination.proto";
+
+import "file/service/v1/file.proto";
+
+// File management service
+service FileService {
+  // Query file list
+  rpc List (pagination.PagingRequest) returns (file.service.v1.ListFileResponse) {
+    option (google.api.http) = {
+      get: "/admin/v1/files"
+    };
+  }
+
+  // Query file details
+  rpc Get (file.service.v1.GetFileRequest) returns (file.service.v1.File) {
+    option (google.api.http) = {
+      get: "/admin/v1/files/{id}"
+    };
+  }
+
+  // Create file
+  rpc Create (file.service.v1.CreateFileRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      post: "/admin/v1/files"
+      body: "*"
+    };
+  }
+
+  // Update file
+  rpc Update (file.service.v1.UpdateFileRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      put: "/admin/v1/files/{id}"
+      body: "*"
+    };
+  }
+
+  // Delete file
+  rpc Delete (file.service.v1.DeleteFileRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      delete: "/admin/v1/files/{id}"
+    };
+  }
+}

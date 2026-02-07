@@ -1,0 +1,218 @@
+syntax = "proto3";
+
+package audit.service.v1;
+
+import "gnostic/openapi/v3/annotations.proto";
+
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/field_mask.proto";
+import "google/protobuf/empty.proto";
+
+import "pagination/v1/pagination.proto";
+
+import "audit/service/v1/geo_location.proto";
+import "audit/service/v1/device_info.proto";
+
+// Login Audit Log Management Service
+service LoginAuditLogService {
+  // Query login audit log list
+  rpc List (pagination.PagingRequest) returns (ListLoginAuditLogResponse) {}
+
+  // Query login audit log details
+  rpc Get (GetLoginAuditLogRequest) returns (LoginAuditLog) {}
+
+  // Create login audit log
+  rpc Create (CreateLoginAuditLogRequest) returns (google.protobuf.Empty) {}
+}
+
+// Login Audit Log
+message LoginAuditLog {
+  // Event action
+  enum ActionType {
+    ACTION_TYPE_UNSPECIFIED = 0; // Unspecified
+
+    LOGIN = 1;            // User active login
+    LOGOUT = 2;           // User active logout
+    SESSION_EXPIRED = 3;  // System-triggered session expiration (not user action)
+    KICKED_OUT = 4;       // User forcibly logged out
+    PASSWORD_RESET = 5;   // Forced logout after password reset
+  }
+
+  // Operation status
+  enum Status {
+    STATUS_UNSPECIFIED = 0;
+
+    SUCCESS = 1;  // Operation successful
+    FAILED = 2;   // Operation failed
+    PARTIAL = 3;  // Partially successful (e.g., during MFA verification)
+    LOCKED = 4;   // Account locked
+  }
+
+  // Risk level
+  enum RiskLevel {
+    RISK_LEVEL_UNSPECIFIED = 0;
+
+    LOW = 1;      // Low risk (no anomaly)
+    MEDIUM = 2;   // Medium risk (requires post-review)
+    HIGH = 3;     // High risk (abnormal login behavior)
+  }
+
+  // Login method
+  enum LoginMethod {
+    LOGIN_METHOD_UNSPECIFIED = 0;
+
+    PASSWORD = 1; // Password
+    SMS_CODE = 2; // SMS verification code
+    QR_CODE = 3; // QR code
+    OIDC_SOCIAL = 4; // Third-party login
+    BIOMETRIC = 5;   // Fingerprint/Face
+    FIDO2 = 6;       // Hardware key
+  }
+
+  optional uint32 id = 1 [
+    json_name = "id",
+    (gnostic.openapi.v3.property) = {description: "Login audit log ID"}
+  ]; // Login audit log ID
+
+  optional uint32 tenant_id = 2 [
+    json_name = "tenantId",
+    (gnostic.openapi.v3.property) = {description: "Tenant ID"}
+  ]; // Tenant ID
+
+  optional string tenant_name = 3 [
+    json_name = "tenantName",
+    (gnostic.openapi.v3.property) = {description: "Tenant name"}
+  ]; // Tenant name
+
+  optional uint32 user_id = 4 [
+    json_name = "userId",
+    (gnostic.openapi.v3.property) = {description: "User ID"}
+  ]; // User ID
+
+  optional string username = 5 [
+    json_name = "username",
+    (gnostic.openapi.v3.property) = {description: "Username"}
+  ]; // Username
+
+  // ========== Terminal Information ==========
+
+  optional string ip_address = 10 [
+    json_name = "ipAddress",
+    (gnostic.openapi.v3.property) = {description: "IP address"}
+  ]; // IP address
+
+  optional GeoLocation geo_location = 11 [
+    json_name = "geoLocation",
+    (gnostic.openapi.v3.property) = {description: "Geolocation (from IP database)"}
+  ]; // Geolocation (from IP database)
+
+  optional string session_id = 12 [
+    json_name = "sessionId",
+    (gnostic.openapi.v3.property) = {description: "Session ID"}
+  ]; // Session ID
+
+  optional DeviceInfo device_info = 13 [
+    json_name = "deviceInfo",
+    (gnostic.openapi.v3.property) = {description: "Device information"}
+  ]; // Device information
+
+  optional string request_id = 16 [
+    json_name = "requestId",
+    (gnostic.openapi.v3.property) = {description: "Global request ID (linked to gateway logs)"}
+  ]; // Global request ID (linked to gateway logs)
+
+  optional string trace_id = 17 [
+    json_name = "traceId",
+    (gnostic.openapi.v3.property) = {description: "Global trace ID"}
+  ]; // Global trace ID
+
+  // ========== Operation/Status ==========
+
+  optional ActionType action_type = 20 [
+    json_name = "actionType",
+    (gnostic.openapi.v3.property) = {description: "Event action type"}
+  ]; // Event action type
+
+  optional Status status = 21 [
+    (gnostic.openapi.v3.property).description = "Operation result status"
+  ]; // Operation result status
+
+  optional string failure_reason = 22 [
+    json_name = "failureReason",
+    (gnostic.openapi.v3.property) = {description: "Failure reason: wrong password/MFA verification failed/IP blacklist, etc."}
+  ]; // Failure reason
+
+  optional string mfa_status = 23 [
+    json_name = "mfaStatus",
+    (gnostic.openapi.v3.property) = {description: "MFA status: UNVERIFIED/VERIFYING/VERIFIED/FAILED"}
+  ]; // MFA status (required for MFA scenarios)
+
+  optional LoginMethod login_method = 24 [
+    json_name = "loginMethod",
+    (gnostic.openapi.v3.property) = {description: "Login method"}
+  ];
+
+  // ========== Risk Control ==========
+
+  optional uint32 risk_score = 30 [
+    json_name = "riskScore",
+    (gnostic.openapi.v3.property) = {description: "Risk score (0-100, higher score means higher risk)"}
+  ]; // Risk score (0-100, higher score means higher risk)
+
+  optional RiskLevel risk_level = 31 [
+    json_name = "riskLevel",
+    (gnostic.openapi.v3.property) = {description: "Risk level (high risk requires real-time alerts)"}
+  ]; // Risk level (high risk requires real-time alerts)
+
+  repeated string risk_factors = 32 [
+    json_name = "riskFactors",
+    (gnostic.openapi.v3.property).description = "Risk factors (ISO 27001 standard, e.g., remote login/new device/too many password attempts)"
+  ]; // Risk factors (ISO 27001 standard, e.g., remote login/new device/too many password attempts)
+
+  // ========== Compliance Verification ==========
+
+  optional string log_hash = 40 [
+    json_name = "logHash",
+    (gnostic.openapi.v3.property).description = "Log content hash (SHA256, hexadecimal string)"
+  ]; // Log content hash (SHA256, hexadecimal string)
+
+  optional bytes signature = 41 [
+    json_name = "signature",
+    (gnostic.openapi.v3.property).description = "Log digital signature (ECDSA, signed content: tenant_id+user_id+created_at+log_hash)"
+  ]; // Log digital signature (ECDSA, signed content: tenant_id+user_id+created_at+log_hash)
+
+  // ========== Time Fields ==========
+
+  optional google.protobuf.Timestamp created_at = 50 [
+    json_name = "createdAt",
+    (gnostic.openapi.v3.property) = {description: "Log creation time"}
+  ];// Log creation time
+}
+
+// Query login audit log list - Response
+message ListLoginAuditLogResponse {
+  repeated LoginAuditLog items = 1;
+  uint64 total = 2;
+}
+
+// Query login audit log details - Request
+message GetLoginAuditLogRequest {
+  oneof query_by {
+    uint32 id = 1 [
+      (gnostic.openapi.v3.property) = {description: "ID", read_only: true},
+      json_name = "id"
+    ]; // ID
+  }
+
+  optional google.protobuf.FieldMask view_mask = 100 [
+    json_name = "viewMask",
+    (gnostic.openapi.v3.property) = {
+      description: "View field filter for controlling returned fields"
+    }
+  ]; // View field filter for controlling returned fields
+}
+
+// Create login audit log - Request
+message CreateLoginAuditLogRequest {
+  LoginAuditLog data = 1;
+}

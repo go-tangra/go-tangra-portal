@@ -1,0 +1,51 @@
+syntax = "proto3";
+
+package warden.service.v1;
+
+import "errors/errors.proto";
+
+enum WardenErrorReason {
+  option (errors.default_code) = 500;
+
+  // 400 - Bad Request
+  BAD_REQUEST = 0 [(errors.code) = 400];
+  INVALID_FOLDER_PATH = 1 [(errors.code) = 400];
+  INVALID_SECRET_NAME = 2 [(errors.code) = 400];
+  INVALID_PASSWORD = 3 [(errors.code) = 400];
+  CIRCULAR_FOLDER_REFERENCE = 4 [(errors.code) = 400];
+  FOLDER_NOT_EMPTY = 5 [(errors.code) = 400];
+  INVALID_PERMISSION = 6 [(errors.code) = 400];
+  INVALID_FORMAT = 7 [(errors.code) = 400];
+
+  // 401 - Unauthorized
+  UNAUTHORIZED = 100 [(errors.code) = 401];
+  INVALID_TOKEN = 101 [(errors.code) = 401];
+
+  // 403 - Forbidden
+  FORBIDDEN = 300 [(errors.code) = 403];
+  ACCESS_DENIED = 301 [(errors.code) = 403];
+  INSUFFICIENT_PERMISSIONS = 302 [(errors.code) = 403];
+
+  // 404 - Not Found
+  NOT_FOUND = 400 [(errors.code) = 404];
+  FOLDER_NOT_FOUND = 401 [(errors.code) = 404];
+  SECRET_NOT_FOUND = 402 [(errors.code) = 404];
+  VERSION_NOT_FOUND = 403 [(errors.code) = 404];
+  PERMISSION_NOT_FOUND = 404 [(errors.code) = 404];
+
+  // 409 - Conflict
+  CONFLICT = 900 [(errors.code) = 409];
+  FOLDER_ALREADY_EXISTS = 901 [(errors.code) = 409];
+  SECRET_ALREADY_EXISTS = 902 [(errors.code) = 409];
+  PERMISSION_ALREADY_EXISTS = 903 [(errors.code) = 409];
+
+  // 500 - Internal Server Error
+  INTERNAL_SERVER_ERROR = 2000 [(errors.code) = 500];
+  VAULT_CONNECTION_ERROR = 2001 [(errors.code) = 500];
+  VAULT_OPERATION_ERROR = 2002 [(errors.code) = 500];
+  DATABASE_ERROR = 2003 [(errors.code) = 500];
+
+  // 503 - Service Unavailable
+  SERVICE_UNAVAILABLE = 2300 [(errors.code) = 503];
+  VAULT_UNAVAILABLE = 2301 [(errors.code) = 503];
+}

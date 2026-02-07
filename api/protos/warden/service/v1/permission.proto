@@ -1,0 +1,344 @@
+syntax = "proto3";
+
+package warden.service.v1;
+
+import "buf/validate/validate.proto";
+import "google/api/annotations.proto";
+import "google/api/field_behavior.proto";
+import "google/protobuf/empty.proto";
+import "google/protobuf/timestamp.proto";
+
+// Permission Service - Zanzibar-like authorization for secrets
+service WardenPermissionService {
+  // Grant access to a resource
+  rpc GrantAccess(GrantAccessRequest) returns (GrantAccessResponse) {
+    option (google.api.http) = {
+      post: "/v1/permissions"
+      body: "*"
+    };
+  }
+
+  // Revoke access from a resource
+  rpc RevokeAccess(RevokeAccessRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      delete: "/v1/permissions"
+    };
+  }
+
+  // List permissions on a resource
+  rpc ListPermissions(ListPermissionsRequest) returns (ListPermissionsResponse) {
+    option (google.api.http) = {
+      get: "/v1/permissions"
+    };
+  }
+
+  // Check if a subject has access to a resource
+  rpc CheckAccess(CheckAccessRequest) returns (CheckAccessResponse) {
+    option (google.api.http) = {
+      post: "/v1/permissions/check"
+      body: "*"
+    };
+  }
+
+  // List resources accessible by a subject
+  rpc ListAccessibleResources(ListAccessibleResourcesRequest) returns (ListAccessibleResourcesResponse) {
+    option (google.api.http) = {
+      get: "/v1/permissions/accessible"
+    };
+  }
+
+  // Get effective permissions for a subject on a resource
+  rpc GetEffectivePermissions(GetEffectivePermissionsRequest) returns (GetEffectivePermissionsResponse) {
+    option (google.api.http) = {
+      get: "/v1/permissions/effective"
+    };
+  }
+}
+
+// Resource type
+enum ResourceType {
+  RESOURCE_TYPE_UNSPECIFIED = 0;
+  RESOURCE_TYPE_FOLDER = 1;
+  RESOURCE_TYPE_SECRET = 2;
+}
+
+// Relation (permission level)
+enum Relation {
+  RELATION_UNSPECIFIED = 0;
+  RELATION_OWNER = 1;   // Full control: read, write, share, delete
+  RELATION_EDITOR = 2;  // Modify: read, write
+  RELATION_VIEWER = 3;  // Read-only: read
+  RELATION_SHARER = 4;  // Can share: read, share
+}
+
+// Subject type
+enum SubjectType {
+  SUBJECT_TYPE_UNSPECIFIED = 0;
+  SUBJECT_TYPE_USER = 1;
+  SUBJECT_TYPE_ROLE = 2;
+  SUBJECT_TYPE_TENANT = 3;
+}
+
+// Permission (action that can be checked)
+enum Permission {
+  PERMISSION_UNSPECIFIED = 0;
+  PERMISSION_READ = 1;
+  PERMISSION_WRITE = 2;
+  PERMISSION_DELETE = 3;
+  PERMISSION_SHARE = 4;
+}
+
+// Permission tuple entity
+message PermissionTuple {
+  uint32 id = 1 [json_name = "id"];
+  uint32 tenant_id = 2 [json_name = "tenantId"];
+  ResourceType resource_type = 3 [json_name = "resourceType"];
+  string resource_id = 4 [json_name = "resourceId"];
+  Relation relation = 5 [json_name = "relation"];
+  SubjectType subject_type = 6 [json_name = "subjectType"];
+  string subject_id = 7 [json_name = "subjectId"];
+  optional uint32 granted_by = 8 [json_name = "grantedBy"];
+  optional google.protobuf.Timestamp expires_at = 9 [json_name = "expiresAt"];
+  google.protobuf.Timestamp create_time = 10 [json_name = "createTime"];
+}
+
+// Request to grant access
+message GrantAccessRequest {
+  // Resource type
+  ResourceType resource_type = 1 [
+    json_name = "resourceType",
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).enum = {defined_only: true, not_in: [0]}
+  ];
+
+  // Resource ID
+  string resource_id = 2 [
+    json_name = "resourceId",
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).string = {
+      min_len: 1
+      max_len: 36
+      pattern: "^[a-fA-F0-9\\-]+$"
+    }
+  ];
+
+  // Relation to grant
+  Relation relation = 3 [
+    json_name = "relation",
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).enum = {defined_only: true, not_in: [0]}
+  ];
+
+  // Subject type
+  SubjectType subject_type = 4 [
+    json_name = "subjectType",
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).enum = {defined_only: true, not_in: [0]}
+  ];
+
+  // Subject ID
+  string subject_id = 5 [
+    json_name = "subjectId",
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).string = {
+      min_len: 1
+      max_len: 36
+    }
+  ];
+
+  // Optional expiration time
+  optional google.protobuf.Timestamp expires_at = 6 [json_name = "expiresAt"];
+}
+
+message GrantAccessResponse {
+  PermissionTuple permission = 1 [json_name = "permission"];
+}
+
+// Request to revoke access
+message RevokeAccessRequest {
+  // Resource type
+  ResourceType resource_type = 1 [
+    json_name = "resourceType",
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).enum = {defined_only: true, not_in: [0]}
+  ];
+
+  // Resource ID
+  string resource_id = 2 [
+    json_name = "resourceId",
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).string = {
+      min_len: 1
+      max_len: 36
+      pattern: "^[a-fA-F0-9\\-]+$"
+    }
+  ];
+
+  // Relation to revoke (optional - if not specified, revokes all)
+  optional Relation relation = 3 [json_name = "relation"];
+
+  // Subject type
+  SubjectType subject_type = 4 [
+    json_name = "subjectType",
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).enum = {defined_only: true, not_in: [0]}
+  ];
+
+  // Subject ID
+  string subject_id = 5 [
+    json_name = "subjectId",
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).string = {
+      min_len: 1
+      max_len: 36
+    }
+  ];
+}
+
+// Request to list permissions
+message ListPermissionsRequest {
+  // Resource type (optional - filter by type)
+  optional ResourceType resource_type = 1 [json_name = "resourceType"];
+
+  // Resource ID (optional - list for specific resource)
+  optional string resource_id = 2 [
+    json_name = "resourceId",
+    (buf.validate.field).string = {
+      max_len: 36
+      pattern: "^[a-fA-F0-9\\-]*$"
+    }
+  ];
+
+  // Subject type (optional - filter by subject type)
+  optional SubjectType subject_type = 3 [json_name = "subjectType"];
+
+  // Subject ID (optional - list for specific subject)
+  optional string subject_id = 4 [
+    json_name = "subjectId",
+    (buf.validate.field).string = {max_len: 36}
+  ];
+
+  // Pagination
+  optional uint32 page = 5 [json_name = "page"];
+  optional uint32 page_size = 6 [json_name = "pageSize"];
+}
+
+message ListPermissionsResponse {
+  repeated PermissionTuple permissions = 1 [json_name = "permissions"];
+  uint32 total = 2 [json_name = "total"];
+}
+
+// Request to check access
+message CheckAccessRequest {
+  // User ID to check
+  string user_id = 1 [
+    json_name = "userId",
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).string = {
+      min_len: 1
+      max_len: 36
+    }
+  ];
+
+  // Resource type
+  ResourceType resource_type = 2 [
+    json_name = "resourceType",
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).enum = {defined_only: true, not_in: [0]}
+  ];
+
+  // Resource ID
+  string resource_id = 3 [
+    json_name = "resourceId",
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).string = {
+      min_len: 1
+      max_len: 36
+      pattern: "^[a-fA-F0-9\\-]+$"
+    }
+  ];
+
+  // Permission to check
+  Permission permission = 4 [
+    json_name = "permission",
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).enum = {defined_only: true, not_in: [0]}
+  ];
+}
+
+message CheckAccessResponse {
+  bool allowed = 1 [json_name = "allowed"];
+  optional string reason = 2 [json_name = "reason"];
+}
+
+// Request to list accessible resources
+message ListAccessibleResourcesRequest {
+  // User ID
+  string user_id = 1 [
+    json_name = "userId",
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).string = {
+      min_len: 1
+      max_len: 36
+    }
+  ];
+
+  // Resource type to list
+  ResourceType resource_type = 2 [
+    json_name = "resourceType",
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).enum = {defined_only: true, not_in: [0]}
+  ];
+
+  // Minimum permission level
+  Permission permission = 3 [
+    json_name = "permission",
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).enum = {defined_only: true, not_in: [0]}
+  ];
+
+  // Pagination
+  optional uint32 page = 4 [json_name = "page"];
+  optional uint32 page_size = 5 [json_name = "pageSize"];
+}
+
+message ListAccessibleResourcesResponse {
+  repeated string resource_ids = 1 [json_name = "resourceIds"];
+  uint32 total = 2 [json_name = "total"];
+}
+
+// Request to get effective permissions
+message GetEffectivePermissionsRequest {
+  // User ID
+  string user_id = 1 [
+    json_name = "userId",
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).string = {
+      min_len: 1
+      max_len: 36
+    }
+  ];
+
+  // Resource type
+  ResourceType resource_type = 2 [
+    json_name = "resourceType",
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).enum = {defined_only: true, not_in: [0]}
+  ];
+
+  // Resource ID
+  string resource_id = 3 [
+    json_name = "resourceId",
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).string = {
+      min_len: 1
+      max_len: 36
+      pattern: "^[a-fA-F0-9\\-]+$"
+    }
+  ];
+}
+
+message GetEffectivePermissionsResponse {
+  repeated Permission permissions = 1 [json_name = "permissions"];
+  Relation highest_relation = 2 [json_name = "highestRelation"];
+}

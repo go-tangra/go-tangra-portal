@@ -1,0 +1,54 @@
+syntax = "proto3";
+
+package audit.service.v1;
+
+import "gnostic/openapi/v3/annotations.proto";
+import "validate/validate.proto";
+
+// Sensitivity level
+enum SensitiveLevel {
+  SENSITIVE_LEVEL_UNSPECIFIED = 0;
+
+  PUBLIC = 1;      // Public data
+  INTERNAL = 2;    // Internal data
+  CONFIDENTIAL = 3; // Confidential data (personally identifiable information)
+  SECRET = 4;      // Secret data (financial transactions)
+}
+
+// Retention policy
+enum RetentionPolicy {
+  RETENTION_POLICY_UNSPECIFIED = 0;
+
+  DAYS_90 = 1;   // 90 days (regular operations)
+  DAYS_180 = 2;  // 180 days (minimum requirement for compliance)
+  DAYS_365 = 3;  // 365 days (financial core)
+  PERMANENT = 4; // Permanent (legal requirement)
+}
+
+// Business resource information
+message BusinessResource {
+  optional string resource_type = 1 [
+    json_name = "resourceType",
+    (gnostic.openapi.v3.property) = {description: "Resource type"}
+  ]; // Resource type
+
+  optional uint32 resource_key = 2 [
+    json_name = "resourceKey",
+    (gnostic.openapi.v3.property) = {description: "Business key"}
+  ]; // Business key
+
+  repeated string accessed_fields = 3 [
+    json_name = "accessedFields",
+    (gnostic.openapi.v3.property) = {description: "Accessed fields list"}
+  ]; // Accessed fields list
+}
+
+// Digital signature
+message DigitalSignature {
+  string algorithm = 1 [ // Algorithm identifier
+    (validate.rules).string = {
+      in: "ECDSA_P256_SHA256,RSA_2048_PKCS1_V1_5_SHA256"
+    }
+  ];
+  bytes value = 2; // Signature value
+}

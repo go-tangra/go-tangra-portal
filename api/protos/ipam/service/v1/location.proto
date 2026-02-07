@@ -1,0 +1,296 @@
+syntax = "proto3";
+
+package ipam.service.v1;
+
+import "buf/validate/validate.proto";
+import "google/api/annotations.proto";
+import "google/api/field_behavior.proto";
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/empty.proto";
+import "google/protobuf/field_mask.proto";
+
+// Location represents a physical site/datacenter/building
+message Location {
+  // Unique identifier
+  optional string id = 1 [json_name = "id"];
+
+  // Tenant ID for multi-tenancy
+  optional uint32 tenant_id = 2 [json_name = "tenantId"];
+
+  // Location name
+  optional string name = 3 [json_name = "name"];
+
+  // Location code (short identifier)
+  optional string code = 4 [json_name = "code"];
+
+  // Location type
+  optional LocationType location_type = 5 [json_name = "locationType"];
+
+  // Description
+  optional string description = 6 [json_name = "description"];
+
+  // Parent location ID (for hierarchy)
+  optional string parent_id = 7 [json_name = "parentId"];
+
+  // Full path (e.g., "Region/Country/City/DC")
+  optional string path = 8 [json_name = "path"];
+
+  // Physical address
+  optional string address = 9 [json_name = "address"];
+
+  // City
+  optional string city = 10 [json_name = "city"];
+
+  // State/Province
+  optional string state = 11 [json_name = "state"];
+
+  // Country
+  optional string country = 12 [json_name = "country"];
+
+  // Postal code
+  optional string postal_code = 13 [json_name = "postalCode"];
+
+  // Latitude
+  optional double latitude = 14 [json_name = "latitude"];
+
+  // Longitude
+  optional double longitude = 15 [json_name = "longitude"];
+
+  // Contact person
+  optional string contact = 16 [json_name = "contact"];
+
+  // Contact phone
+  optional string phone = 17 [json_name = "phone"];
+
+  // Contact email
+  optional string email = 18 [json_name = "email"];
+
+  // Number of child locations
+  optional int32 child_count = 20 [json_name = "childCount"];
+
+  // Number of devices at this location
+  optional int32 device_count = 21 [json_name = "deviceCount"];
+
+  // Number of subnets at this location
+  optional int32 subnet_count = 22 [json_name = "subnetCount"];
+
+  // Number of VLANs at this location
+  optional int32 vlan_count = 23 [json_name = "vlanCount"];
+
+  // Location status
+  optional LocationStatus status = 25 [json_name = "status"];
+
+  // Custom tags (JSON)
+  optional string tags = 26 [json_name = "tags"];
+
+  // Custom metadata (JSON)
+  optional string metadata = 27 [json_name = "metadata"];
+
+  // Rack size in U (only applicable when location_type is RACK)
+  optional int32 rack_size_u = 28 [json_name = "rackSizeU"];
+
+  // Creation timestamp
+  optional google.protobuf.Timestamp created_at = 30 [json_name = "createdAt"];
+
+  // Last update timestamp
+  optional google.protobuf.Timestamp updated_at = 31 [json_name = "updatedAt"];
+
+  // Creator user ID
+  optional uint32 created_by = 32 [json_name = "createdBy"];
+
+  // Last updater user ID
+  optional uint32 updated_by = 33 [json_name = "updatedBy"];
+}
+
+enum LocationType {
+  LOCATION_TYPE_UNSPECIFIED = 0;
+  LOCATION_TYPE_REGION = 1;
+  LOCATION_TYPE_COUNTRY = 2;
+  LOCATION_TYPE_CITY = 3;
+  LOCATION_TYPE_DATACENTER = 4;
+  LOCATION_TYPE_BUILDING = 5;
+  LOCATION_TYPE_FLOOR = 6;
+  LOCATION_TYPE_ROOM = 7;
+  LOCATION_TYPE_RACK = 8;
+  LOCATION_TYPE_SITE = 9;
+  LOCATION_TYPE_BRANCH = 10;
+}
+
+enum LocationStatus {
+  LOCATION_STATUS_UNSPECIFIED = 0;
+  LOCATION_STATUS_ACTIVE = 1;
+  LOCATION_STATUS_PLANNED = 2;
+  LOCATION_STATUS_DECOMMISSIONED = 3;
+}
+
+// CreateLocationRequest creates a new location
+message CreateLocationRequest {
+  optional uint32 tenant_id = 1 [
+    json_name = "tenantId",
+    (google.api.field_behavior) = REQUIRED
+  ];
+
+  optional string name = 2 [
+    json_name = "name",
+    (buf.validate.field).string.min_len = 1,
+    (buf.validate.field).string.max_len = 255,
+    (google.api.field_behavior) = REQUIRED
+  ];
+
+  optional string code = 3 [json_name = "code"];
+  optional LocationType location_type = 4 [json_name = "locationType"];
+  optional string description = 5 [json_name = "description"];
+  optional string parent_id = 6 [json_name = "parentId"];
+  optional string address = 7 [json_name = "address"];
+  optional string city = 8 [json_name = "city"];
+  optional string state = 9 [json_name = "state"];
+  optional string country = 10 [json_name = "country"];
+  optional string postal_code = 11 [json_name = "postalCode"];
+  optional double latitude = 12 [json_name = "latitude"];
+  optional double longitude = 13 [json_name = "longitude"];
+  optional string contact = 14 [json_name = "contact"];
+  optional string phone = 15 [json_name = "phone"];
+  optional string email = 16 [json_name = "email"];
+  optional LocationStatus status = 17 [json_name = "status"];
+  optional string tags = 18 [json_name = "tags"];
+  optional string metadata = 19 [json_name = "metadata"];
+  optional int32 rack_size_u = 20 [json_name = "rackSizeU"];
+}
+
+message CreateLocationResponse {
+  Location location = 1 [json_name = "location"];
+}
+
+// GetLocationRequest retrieves a location by ID
+message GetLocationRequest {
+  string id = 1 [
+    json_name = "id",
+    (buf.validate.field).string.min_len = 1,
+    (google.api.field_behavior) = REQUIRED
+  ];
+}
+
+message GetLocationResponse {
+  Location location = 1 [json_name = "location"];
+}
+
+// ListLocationsRequest lists locations with filtering
+message ListLocationsRequest {
+  optional uint32 tenant_id = 1 [json_name = "tenantId"];
+  optional int32 page = 2 [json_name = "page"];
+  optional int32 page_size = 3 [json_name = "pageSize"];
+  optional bool no_paging = 4 [json_name = "noPaging"];
+  optional string query = 5 [json_name = "query"];
+  repeated string order_by = 6 [json_name = "orderBy"];
+  optional string field_mask = 7 [json_name = "fieldMask"];
+
+  // Filter by parent
+  optional string parent_id = 10 [json_name = "parentId"];
+
+  // Filter by type
+  optional LocationType location_type = 11 [json_name = "locationType"];
+
+  // Filter by country
+  optional string country = 12 [json_name = "country"];
+
+  // Filter by status
+  optional LocationStatus status = 13 [json_name = "status"];
+}
+
+message ListLocationsResponse {
+  repeated Location items = 1 [json_name = "items"];
+  optional int32 total = 2 [json_name = "total"];
+}
+
+// UpdateLocationRequest updates a location
+message UpdateLocationRequest {
+  string id = 1 [
+    json_name = "id",
+    (buf.validate.field).string.min_len = 1,
+    (google.api.field_behavior) = REQUIRED
+  ];
+
+  optional Location data = 2 [json_name = "data"];
+
+  google.protobuf.FieldMask update_mask = 3 [json_name = "updateMask"];
+}
+
+message UpdateLocationResponse {
+  Location location = 1 [json_name = "location"];
+}
+
+// DeleteLocationRequest deletes a location
+message DeleteLocationRequest {
+  string id = 1 [
+    json_name = "id",
+    (buf.validate.field).string.min_len = 1,
+    (google.api.field_behavior) = REQUIRED
+  ];
+
+  // Force delete even if location has children
+  optional bool force = 2 [json_name = "force"];
+}
+
+// GetLocationTreeRequest retrieves location hierarchy
+message GetLocationTreeRequest {
+  optional uint32 tenant_id = 1 [json_name = "tenantId"];
+  optional string root_id = 2 [json_name = "rootId"];
+  optional int32 max_depth = 3 [json_name = "maxDepth"];
+  optional bool include_counts = 4 [json_name = "includeCounts"];
+}
+
+message LocationTreeNode {
+  Location location = 1 [json_name = "location"];
+  repeated LocationTreeNode children = 2 [json_name = "children"];
+}
+
+message GetLocationTreeResponse {
+  repeated LocationTreeNode nodes = 1 [json_name = "nodes"];
+}
+
+// LocationService manages physical locations
+service LocationService {
+  // Create a new location
+  rpc CreateLocation(CreateLocationRequest) returns (CreateLocationResponse) {
+    option (google.api.http) = {
+      post: "/v1/locations"
+      body: "*"
+    };
+  }
+
+  // Get a location by ID
+  rpc GetLocation(GetLocationRequest) returns (GetLocationResponse) {
+    option (google.api.http) = {
+      get: "/v1/locations/{id}"
+    };
+  }
+
+  // List locations with filtering
+  rpc ListLocations(ListLocationsRequest) returns (ListLocationsResponse) {
+    option (google.api.http) = {
+      get: "/v1/locations"
+    };
+  }
+
+  // Update a location
+  rpc UpdateLocation(UpdateLocationRequest) returns (UpdateLocationResponse) {
+    option (google.api.http) = {
+      put: "/v1/locations/{id}"
+      body: "*"
+    };
+  }
+
+  // Delete a location
+  rpc DeleteLocation(DeleteLocationRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      delete: "/v1/locations/{id}"
+    };
+  }
+
+  // Get location tree hierarchy
+  rpc GetLocationTree(GetLocationTreeRequest) returns (GetLocationTreeResponse) {
+    option (google.api.http) = {
+      get: "/v1/locations/tree"
+    };
+  }
+}

@@ -1,0 +1,358 @@
+# Docker Compose for E2E Testing
+# This file sets up a complete test environment from scratch
+#
+# Usage:
+#   ./scripts/run-e2e.sh
+#
+# Or manually:
+#   docker compose -f docker-compose.e2e.yaml down -v
+#   docker compose -f docker-compose.e2e.yaml up -d --build
+#   docker compose -f docker-compose.e2e.yaml exec nginx-lcm /e2e/test-full-flow.sh
+
+networks:
+  e2e-network:
+    driver: bridge
+
+volumes:
+  e2e-postgres-data:
+  e2e-redis-data:
+  e2e-minio-data:
+  e2e-lcm-data:
+  e2e-admin-data:
+  e2e-deployer-data:
+  e2e-nginx-data:
+
+services:
+  # ===========================================
+  # Frontend (for debugging)
+  # ===========================================
+
+  frontend:
+    build:
+      context: ../../frontend
+      dockerfile: Dockerfile
+    image: go-tangra/go-tangra-portal-frontend:e2e
+    restart: "no"
+    ports:
+      - "8080:8080"
+    networks:
+      - e2e-network
+    environment:
+      - BACKEND_HOST=admin-service
+      - BACKEND_PORT=7788
+      - SSE_PORT=7789
+      - VITE_GLOB_API_URL=/admin
+      - VITE_GLOB_SSE_URL=/sse/events
+    volumes:
+      - ../../frontend/nginx.conf:/etc/nginx/nginx.conf.template:ro
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+      - |
+        envsubst '$${BACKEND_HOST} $${BACKEND_PORT} $${SSE_PORT}' < /etc/nginx/nginx.conf.template > /etc/nginx/nginx.conf
+        /docker-entrypoint.sh nginx -g 'daemon off;'
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    depends_on:
+      admin-service:
+        condition: service_healthy
+
+  # ===========================================
+  # Infrastructure Services
+  # ===========================================
+
+  postgres:
+    image: docker.io/timescale/timescaledb:latest-pg15
+    restart: "no"
+    networks:
+      - e2e-network
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=e2e-test-password
+      - POSTGRES_DB=gwa
+    volumes:
+      - e2e-postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  redis:
+    image: docker.io/bitnami/redis:latest
+    restart: "no"
+    networks:
+      - e2e-network
+    environment:
+      - ALLOW_EMPTY_PASSWORD=no
+      - REDIS_PASSWORD=e2e-test-password
+      - REDIS_AOF_ENABLED=no
+    volumes:
+      - e2e-redis-data:/bitnami/redis/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "e2e-test-password", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  minio:
+    image: docker.io/minio/minio:latest
+    restart: "no"
+    networks:
+      - e2e-network
+    environment:
+      - MINIO_ROOT_USER=root
+      - MINIO_ROOT_PASSWORD=e2e-test-password
+      - MINIO_DEFAULT_BUCKETS=images
+    volumes:
+      - e2e-minio-data:/data
+    command: server /data --console-address ':9001'
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  # ===========================================
+  # Application Services
+  # ===========================================
+
+  lcm-service:
+    build:
+      context: ..
+      dockerfile: app/lcm/service/Dockerfile
+    image: menta2k/lcm-service:e2e
+    restart: "no"
+    networks:
+      - e2e-network
+    environment:
+      - TZ=UTC
+    volumes:
+      - ./configs/lcm:/app/configs:ro
+      - e2e-lcm-data:/app/data
+    healthcheck:
+      # LCM service only exposes gRPC, check if process is running
+      test: ["CMD", "pgrep", "-f", "lcm-server"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+      start_period: 10s
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  # Wait for LCM to generate certificates
+  lcm-init:
+    build:
+      context: ..
+      dockerfile: app/lcm/service/Dockerfile
+    image: menta2k/lcm-service:e2e
+    restart: "no"
+    networks:
+      - e2e-network
+    volumes:
+      - ./configs/lcm:/app/configs:ro
+      - e2e-lcm-data:/app/data
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+      - |
+        echo "Waiting for LCM to generate certificates..."
+        counter=0
+        while [ $$counter -lt 120 ]; do
+          if [ -f /app/data/admin/admin.crt ] && [ -f /app/data/ca/ca.crt ] && [ -f /app/data/deployer/deployer.crt ]; then
+            echo "All certificates found!"
+            mkdir -p /app/data/shared
+            cp /app/data/admin/admin.crt /app/data/shared/
+            cp /app/data/admin/admin.key /app/data/shared/
+            cp /app/data/deployer/deployer.crt /app/data/shared/
+            cp /app/data/deployer/deployer.key /app/data/shared/
+            cp /app/data/ca/ca.crt /app/data/shared/
+            chmod 644 /app/data/shared/*.crt
+            chmod 600 /app/data/shared/admin.key /app/data/shared/deployer.key
+            echo "Certificates ready!"
+            exit 0
+          fi
+          counter=$$((counter + 1))
+          echo "Waiting for certificates... ($$counter/120)"
+          sleep 2
+        done
+        echo "Timeout waiting for certificates"
+        exit 1
+    depends_on:
+      lcm-service:
+        condition: service_healthy
+
+  admin-service:
+    build:
+      context: ..
+      dockerfile: app/admin/service/Dockerfile
+    image: menta2k/admin-service:e2e
+    restart: "no"
+    networks:
+      - e2e-network
+    environment:
+      - TZ=UTC
+      - LCM_GRPC_ENDPOINT=lcm-service:9100
+      - LCM_CA_CERT_PATH=/app/lcm-certs/ca/ca.crt
+      - LCM_CLIENT_CERT_PATH=/app/lcm-certs/admin/admin.crt
+      - LCM_CLIENT_KEY_PATH=/app/lcm-certs/admin/admin.key
+      - DEPLOYER_GRPC_ENDPOINT=deployer-service:9200
+    volumes:
+      - ./configs/admin:/app/configs:ro
+      - e2e-admin-data:/app/data
+      - e2e-lcm-data:/app/lcm-certs:ro
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:7788/health"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+      start_period: 15s
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
+      lcm-init:
+        condition: service_completed_successfully
+
+  deployer-service:
+    build:
+      context: ..
+      dockerfile: app/deployer/service/Dockerfile
+    image: menta2k/deployer-service:e2e
+    restart: "no"
+    networks:
+      - e2e-network
+    environment:
+      - TZ=UTC
+      - LCM_GRPC_ENDPOINT=lcm-service:9100
+      - LCM_CA_CERT_PATH=/app/lcm-certs/ca/ca.crt
+      - LCM_CLIENT_CERT_PATH=/app/lcm-certs/deployer/deployer.crt
+      - LCM_CLIENT_KEY_PATH=/app/lcm-certs/deployer/deployer.key
+    volumes:
+      - ./configs/deployer:/app/configs:ro
+      - e2e-deployer-data:/app/data
+      - e2e-lcm-data:/app/lcm-certs:ro
+    healthcheck:
+      # Deployer service only exposes gRPC, check if process is running
+      test: ["CMD", "pgrep", "-f", "deployer-server"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+      start_period: 15s
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      lcm-init:
+        condition: service_completed_successfully
+
+  # Database initialization
+  db-init:
+    image: docker.io/timescale/timescaledb:latest-pg15
+    restart: "no"
+    networks:
+      - e2e-network
+    environment:
+      - PGPASSWORD=e2e-test-password
+    volumes:
+      - ../sql:/sql:ro
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+      - |
+        echo "Waiting for database and schema..."
+
+        until pg_isready -h postgres -U postgres; do
+          echo "Database not ready..."
+          sleep 2
+        done
+
+        echo "Waiting for sys_menus table..."
+        RETRY=0
+        MAX_RETRIES=120
+        while [ $$RETRY -lt $$MAX_RETRIES ]; do
+          if psql -h postgres -U postgres -d gwa -c "SELECT 1 FROM sys_menus LIMIT 1;" >/dev/null 2>&1; then
+            echo "Schema ready!"
+            break
+          fi
+          RETRY=$$((RETRY + 1))
+          echo "Waiting for schema... ($$RETRY/$$MAX_RETRIES)"
+          sleep 2
+        done
+
+        if [ $$RETRY -eq $$MAX_RETRIES ]; then
+          echo "Timeout waiting for schema"
+          exit 1
+        fi
+
+        COUNT=$$(psql -h postgres -U postgres -d gwa -t -c "SELECT COUNT(*) FROM sys_menus;" 2>/dev/null | tr -d ' ')
+
+        if [ "$$COUNT" = "0" ] || [ -z "$$COUNT" ]; then
+          echo "Seeding database..."
+          psql -h postgres -U postgres -d gwa -f /sql/postgresql-default-data.sql
+          echo "Database seeded!"
+        else
+          echo "Database already seeded ($$COUNT menus)"
+        fi
+        exit 0
+    depends_on:
+      admin-service:
+        condition: service_healthy
+
+  # ===========================================
+  # Test Client (nginx-lcm)
+  # ===========================================
+
+  nginx-lcm:
+    build:
+      context: ..
+      dockerfile: app/lcm/service/docker/nginx-lcm/Dockerfile
+    image: menta2k/nginx-lcm:e2e
+    container_name: nginx-lcm-e2e
+    restart: "no"
+    networks:
+      - e2e-network
+    ports:
+      - "8880:80"
+      - "8443:443"
+    environment:
+      # LCM server connection (gRPC with mTLS after registration)
+      - LCM_SERVER=lcm-service:9100
+      - LCM_HTTP_SERVER=http://lcm-service:8000
+      - LCM_CLIENT_ID=${LCM_CLIENT_ID:-nginx-e2e-test}
+      - LCM_SHARED_SECRET=${LCM_SHARED_SECRET:-e2e-test-secret}
+      # Test configuration
+      - TEST_DOMAIN=${TEST_DOMAIN:-e2e-test.example.com}
+      - VERBOSE=${VERBOSE:-false}
+      - SKIP_ACME_TESTS=${SKIP_ACME_TESTS:-true}
+      # ACME configuration (for real certificate tests)
+      - ACME_EMAIL=${ACME_EMAIL:-}
+      - ACME_ENDPOINT=${ACME_ENDPOINT:-https://acme-staging-v02.api.letsencrypt.org/directory}
+      # Cloudflare DNS (for DNS-01 challenges)
+      - CLOUDFLARE_API_TOKEN=${CLOUDFLARE_API_TOKEN:-}
+      - CLOUDFLARE_ZONE_ID=${CLOUDFLARE_ZONE_ID:-}
+    volumes:
+      - e2e-nginx-data:/root/.lcm-client
+      - ./scripts:/e2e:ro
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost/"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    depends_on:
+      db-init:
+        condition: service_completed_successfully
+      admin-service:
+        condition: service_healthy
+      lcm-service:
+        condition: service_healthy
+      deployer-service:
+        condition: service_healthy

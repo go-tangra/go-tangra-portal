@@ -1,0 +1,61 @@
+syntax = "proto3";
+
+package ipam.service.v1;
+
+import "errors/errors.proto";
+
+enum IpamErrorReason {
+  option (errors.default_code) = 500;
+
+  // 400
+  BAD_REQUEST = 0 [(errors.code) = 400]; // Bad request
+  SUBNET_CIDR_INVALID = 1 [(errors.code) = 400]; // Invalid CIDR format
+  ADDRESS_INVALID = 2 [(errors.code) = 400]; // Invalid IP address
+  ADDRESS_NOT_IN_SUBNET = 3 [(errors.code) = 400]; // IP address not in subnet range
+  VLAN_ID_INVALID = 4 [(errors.code) = 400]; // Invalid VLAN ID (must be 1-4094)
+  VALIDATION_FAILED = 5 [(errors.code) = 400]; // Validation failed
+
+  // 404
+  NOT_FOUND = 100 [(errors.code) = 404]; // Resource not found
+  SUBNET_NOT_FOUND = 101 [(errors.code) = 404]; // Subnet not found
+  ADDRESS_NOT_FOUND = 102 [(errors.code) = 404]; // IP address not found
+  VLAN_NOT_FOUND = 103 [(errors.code) = 404]; // VLAN not found
+  DEVICE_NOT_FOUND = 104 [(errors.code) = 404]; // Device not found
+  LOCATION_NOT_FOUND = 105 [(errors.code) = 404]; // Location not found
+  SCAN_JOB_NOT_FOUND = 106 [(errors.code) = 404]; // Scan job not found
+  IP_GROUP_NOT_FOUND = 107 [(errors.code) = 404]; // IP group not found
+  IP_GROUP_MEMBER_NOT_FOUND = 108 [(errors.code) = 404]; // IP group member not found
+  HOST_GROUP_NOT_FOUND = 109 [(errors.code) = 404]; // Host group not found
+  HOST_GROUP_MEMBER_NOT_FOUND = 110 [(errors.code) = 404]; // Host group member not found
+
+  // 409
+  CONFLICT = 200 [(errors.code) = 409]; // Conflict
+  SUBNET_ALREADY_EXISTS = 201 [(errors.code) = 409]; // Subnet already exists
+  SUBNET_CIDR_OVERLAP = 202 [(errors.code) = 409]; // Subnet CIDR overlaps with existing subnet
+  SUBNET_HAS_ADDRESSES = 203 [(errors.code) = 409]; // Subnet has allocated addresses
+  ADDRESS_ALREADY_EXISTS = 204 [(errors.code) = 409]; // IP address already exists
+  ADDRESS_ALREADY_ALLOCATED = 205 [(errors.code) = 409]; // IP address already allocated
+  VLAN_ALREADY_EXISTS = 206 [(errors.code) = 409]; // VLAN already exists
+  VLAN_HAS_SUBNETS = 207 [(errors.code) = 409]; // VLAN has associated subnets
+  DEVICE_ALREADY_EXISTS = 208 [(errors.code) = 409]; // Device already exists
+  DEVICE_HAS_ADDRESSES = 209 [(errors.code) = 409]; // Device has allocated addresses
+  LOCATION_ALREADY_EXISTS = 210 [(errors.code) = 409]; // Location already exists
+  LOCATION_HAS_CHILDREN = 211 [(errors.code) = 409]; // Location has child locations or subnets
+  SCAN_ALREADY_IN_PROGRESS = 212 [(errors.code) = 409]; // Scan already in progress for subnet
+  SUBNET_TOO_LARGE = 213 [(errors.code) = 400]; // Subnet too large for scanning (max 1024 addresses)
+  IPV6_NOT_SUPPORTED = 214 [(errors.code) = 400]; // IPv6 subnets not supported for scanning
+  IP_GROUP_ALREADY_EXISTS = 215 [(errors.code) = 409]; // IP group already exists
+  IP_GROUP_MEMBER_DUPLICATE = 216 [(errors.code) = 409]; // IP group member already exists
+  IP_GROUP_MEMBER_INVALID = 217 [(errors.code) = 400]; // IP group member value is invalid
+  HOST_GROUP_ALREADY_EXISTS = 218 [(errors.code) = 409]; // Host group already exists
+  HOST_GROUP_MEMBER_DUPLICATE = 219 [(errors.code) = 409]; // Host group member already exists
+
+  // 500
+  INTERNAL_SERVER_ERROR = 300 [(errors.code) = 500]; // Internal server error
+
+  // 503
+  SERVICE_UNAVAILABLE = 400 [(errors.code) = 503]; // Service unavailable
+
+  // 507
+  NO_AVAILABLE_ADDRESSES = 500 [(errors.code) = 507]; // No available addresses in subnet
+}

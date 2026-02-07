@@ -1,0 +1,229 @@
+syntax = "proto3";
+
+package ipam.service.v1;
+
+import "buf/validate/validate.proto";
+import "google/api/annotations.proto";
+import "google/api/field_behavior.proto";
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/empty.proto";
+import "google/protobuf/field_mask.proto";
+
+// Vlan represents a Virtual LAN
+message Vlan {
+  // Unique identifier
+  optional string id = 1 [json_name = "id"];
+
+  // Tenant ID for multi-tenancy
+  optional uint32 tenant_id = 2 [json_name = "tenantId"];
+
+  // VLAN ID (1-4094)
+  optional int32 vlan_id = 3 [json_name = "vlanId"];
+
+  // Human-readable name
+  optional string name = 4 [json_name = "name"];
+
+  // Description
+  optional string description = 5 [json_name = "description"];
+
+  // Domain/VTP domain
+  optional string domain = 6 [json_name = "domain"];
+
+  // Location/site ID
+  optional string location_id = 7 [json_name = "locationId"];
+
+  // VLAN status
+  optional VlanStatus status = 8 [json_name = "status"];
+
+  // Number of associated subnets
+  optional int32 subnet_count = 9 [json_name = "subnetCount"];
+
+  // Custom tags (JSON)
+  optional string tags = 10 [json_name = "tags"];
+
+  // Custom metadata (JSON)
+  optional string metadata = 11 [json_name = "metadata"];
+
+  // Creation timestamp
+  optional google.protobuf.Timestamp created_at = 20 [json_name = "createdAt"];
+
+  // Last update timestamp
+  optional google.protobuf.Timestamp updated_at = 21 [json_name = "updatedAt"];
+
+  // Creator user ID
+  optional uint32 created_by = 22 [json_name = "createdBy"];
+
+  // Last updater user ID
+  optional uint32 updated_by = 23 [json_name = "updatedBy"];
+}
+
+enum VlanStatus {
+  VLAN_STATUS_UNSPECIFIED = 0;
+  VLAN_STATUS_ACTIVE = 1;
+  VLAN_STATUS_RESERVED = 2;
+  VLAN_STATUS_DEPRECATED = 3;
+}
+
+// CreateVlanRequest creates a new VLAN
+message CreateVlanRequest {
+  optional uint32 tenant_id = 1 [
+    json_name = "tenantId",
+    (google.api.field_behavior) = REQUIRED
+  ];
+
+  optional int32 vlan_id = 2 [
+    json_name = "vlanId",
+    (buf.validate.field).int32.gte = 1,
+    (buf.validate.field).int32.lte = 4094,
+    (google.api.field_behavior) = REQUIRED
+  ];
+
+  optional string name = 3 [
+    json_name = "name",
+    (buf.validate.field).string.min_len = 1,
+    (buf.validate.field).string.max_len = 255,
+    (google.api.field_behavior) = REQUIRED
+  ];
+
+  optional string description = 4 [json_name = "description"];
+  optional string domain = 5 [json_name = "domain"];
+  optional string location_id = 6 [json_name = "locationId"];
+  optional VlanStatus status = 7 [json_name = "status"];
+  optional string tags = 8 [json_name = "tags"];
+  optional string metadata = 9 [json_name = "metadata"];
+}
+
+message CreateVlanResponse {
+  Vlan vlan = 1 [json_name = "vlan"];
+}
+
+// GetVlanRequest retrieves a VLAN by ID
+message GetVlanRequest {
+  string id = 1 [
+    json_name = "id",
+    (buf.validate.field).string.min_len = 1,
+    (google.api.field_behavior) = REQUIRED
+  ];
+}
+
+message GetVlanResponse {
+  Vlan vlan = 1 [json_name = "vlan"];
+}
+
+// ListVlansRequest lists VLANs with filtering
+message ListVlansRequest {
+  optional uint32 tenant_id = 1 [json_name = "tenantId"];
+  optional int32 page = 2 [json_name = "page"];
+  optional int32 page_size = 3 [json_name = "pageSize"];
+  optional bool no_paging = 4 [json_name = "noPaging"];
+  optional string query = 5 [json_name = "query"];
+  repeated string order_by = 6 [json_name = "orderBy"];
+  optional string field_mask = 7 [json_name = "fieldMask"];
+
+  // Filter by location
+  optional string location_id = 10 [json_name = "locationId"];
+
+  // Filter by domain
+  optional string domain = 11 [json_name = "domain"];
+
+  // Filter by status
+  optional VlanStatus status = 12 [json_name = "status"];
+
+  // Filter by VLAN ID range
+  optional int32 vlan_id_min = 13 [json_name = "vlanIdMin"];
+  optional int32 vlan_id_max = 14 [json_name = "vlanIdMax"];
+}
+
+message ListVlansResponse {
+  repeated Vlan items = 1 [json_name = "items"];
+  optional int32 total = 2 [json_name = "total"];
+}
+
+// UpdateVlanRequest updates a VLAN
+message UpdateVlanRequest {
+  string id = 1 [
+    json_name = "id",
+    (buf.validate.field).string.min_len = 1,
+    (google.api.field_behavior) = REQUIRED
+  ];
+
+  optional Vlan data = 2 [json_name = "data"];
+
+  google.protobuf.FieldMask update_mask = 3 [json_name = "updateMask"];
+}
+
+message UpdateVlanResponse {
+  Vlan vlan = 1 [json_name = "vlan"];
+}
+
+// DeleteVlanRequest deletes a VLAN
+message DeleteVlanRequest {
+  string id = 1 [
+    json_name = "id",
+    (buf.validate.field).string.min_len = 1,
+    (google.api.field_behavior) = REQUIRED
+  ];
+
+  // Force delete even if VLAN has subnets
+  optional bool force = 2 [json_name = "force"];
+}
+
+// GetVlanSubnetsRequest gets subnets associated with a VLAN
+message GetVlanSubnetsRequest {
+  string id = 1 [
+    json_name = "id",
+    (buf.validate.field).string.min_len = 1,
+    (google.api.field_behavior) = REQUIRED
+  ];
+}
+
+message GetVlanSubnetsResponse {
+  repeated string subnet_ids = 1 [json_name = "subnetIds"];
+}
+
+// VlanService manages VLANs
+service VlanService {
+  // Create a new VLAN
+  rpc CreateVlan(CreateVlanRequest) returns (CreateVlanResponse) {
+    option (google.api.http) = {
+      post: "/v1/vlans"
+      body: "*"
+    };
+  }
+
+  // Get a VLAN by ID
+  rpc GetVlan(GetVlanRequest) returns (GetVlanResponse) {
+    option (google.api.http) = {
+      get: "/v1/vlans/{id}"
+    };
+  }
+
+  // List VLANs with filtering
+  rpc ListVlans(ListVlansRequest) returns (ListVlansResponse) {
+    option (google.api.http) = {
+      get: "/v1/vlans"
+    };
+  }
+
+  // Update a VLAN
+  rpc UpdateVlan(UpdateVlanRequest) returns (UpdateVlanResponse) {
+    option (google.api.http) = {
+      put: "/v1/vlans/{id}"
+      body: "*"
+    };
+  }
+
+  // Delete a VLAN
+  rpc DeleteVlan(DeleteVlanRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      delete: "/v1/vlans/{id}"
+    };
+  }
+
+  // Get subnets associated with a VLAN
+  rpc GetVlanSubnets(GetVlanSubnetsRequest) returns (GetVlanSubnetsResponse) {
+    option (google.api.http) = {
+      get: "/v1/vlans/{id}/subnets"
+    };
+  }
+}

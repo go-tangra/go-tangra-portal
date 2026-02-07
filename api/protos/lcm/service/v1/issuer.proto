@@ -1,0 +1,277 @@
+syntax = "proto3";
+
+package lcm.service.v1;
+
+import "buf/validate/validate.proto";
+import "google/api/annotations.proto";
+import "google/protobuf/empty.proto";
+import "google/protobuf/timestamp.proto";
+
+service LcmIssuerService {
+  // ACME issuer management (authenticated)
+  rpc ListIssuers(google.protobuf.Empty) returns (ListIssuersResponse) {
+    option (google.api.http) = {
+      get: "/v1/issuers"
+    };
+  }
+
+  rpc GetIssuerInfo(GetIssuerInfoRequest) returns (GetIssuerInfoResponse) {
+    option (google.api.http) = {
+      get: "/v1/issuers/{issuer_name}"
+    };
+  }
+
+  rpc CreateIssuer(CreateIssuerRequest) returns (CreateIssuerResponse) {
+    option (google.api.http) = {
+      post: "/v1/issuers"
+      body: "*"
+    };
+  }
+
+  rpc UpdateIssuer(UpdateIssuerRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      put: "/v1/issuers/{name}"
+      body: "*"
+    };
+  }
+
+  rpc DeleteIssuer(DeleteIssuerRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      delete: "/v1/issuers/{name}"
+    };
+  }
+
+  // DNS challenge provider information
+  rpc ListDnsProviders(google.protobuf.Empty) returns (ListDnsProvidersResponse) {
+    option (google.api.http) = {
+      get: "/v1/dns-providers"
+    };
+  }
+
+  rpc GetDnsProviderInfo(GetDnsProviderInfoRequest) returns (DnsProviderInfo) {
+    option (google.api.http) = {
+      get: "/v1/dns-providers/{name}"
+    };
+  }
+}
+
+message ListIssuersResponse {
+  repeated IssuerInfo issuers = 1;
+}
+
+message GetIssuerInfoRequest {
+  string issuer_name = 1 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 100
+    pattern: "^[a-zA-Z0-9\\-_]+$"
+  }];
+}
+
+message GetIssuerInfoResponse {
+  IssuerInfo issuer = 1;
+}
+
+enum ChallengeType {
+  HTTP = 0;
+  DNS = 1;
+}
+
+// Issuer status enumeration
+enum IssuerStatus {
+  ISSUER_STATUS_UNSPECIFIED = 0;
+  ISSUER_STATUS_ACTIVE = 1;
+  ISSUER_STATUS_DISABLED = 2;
+  ISSUER_STATUS_ERROR = 3;
+}
+
+message IssuerInfo {
+  string name = 1; // Issuer name/identifier
+  string type = 2; // "self-signed", "acme", etc.
+  optional IssuerStatus status = 3; // Whether the issuer is enabled
+  string description = 4; // Human-readable description
+  map<string, string> config = 5; // Issuer-specific configuration (sanitized for security)
+  google.protobuf.Timestamp create_time = 6;
+  google.protobuf.Timestamp update_time = 7;
+}
+
+// Issuer creation and management messages
+message CreateIssuerRequest {
+  string name = 1 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 100
+    pattern: "^[a-zA-Z0-9\\-_]+$"
+  }];
+  string type = 2 [(buf.validate.field).string = {
+    in: [
+      "self-signed",
+      "acme"
+    ]
+  }];
+  string key_type = 3 [(buf.validate.field).string = {
+    in: [
+      "ecdsa",
+      "rsa",
+      "ECDSA",
+      "RSA"
+    ]
+  }];
+  string description = 4;
+  optional SelfIssuer self_issuer = 5; // Configuration for self-signed issuer
+  optional AcmeIssuer acme_issuer = 6; // Configuration for ACME issuer
+  IssuerStatus status = 7; // Initial status for the issuer
+}
+message SelfIssuer {
+  string common_name = 1 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 253
+    pattern: "^[a-zA-Z0-9\\-\\.]+$"
+  }];
+  repeated string dns_names = 2 [(buf.validate.field).repeated = {
+    min_items: 1
+    max_items: 10
+    items: {
+      string: {
+        min_len: 1
+        max_len: 253
+        pattern: "^[a-zA-Z0-9\\*\\-\\.]+$"
+      }
+    }
+  }];
+  repeated string ip_addresses = 3 [(buf.validate.field).repeated = {
+    min_items: 0
+    max_items: 10
+    items: {
+      string: {ip: true}
+    }
+  }];
+  // CA certificate configuration
+  string ca_common_name = 4 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 253
+    pattern: "^[a-zA-Z0-9\\-\\. ]+$"
+  }];
+  string ca_organization = 5 [(buf.validate.field).string = {
+    max_len: 64
+    pattern: "^[a-zA-Z0-9\\-\\. ]*$"
+  }];
+  string ca_organizational_unit = 6 [(buf.validate.field).string = {
+    max_len: 64
+    pattern: "^[a-zA-Z0-9\\-\\. ]*$"
+  }];
+  string ca_country = 7 [(buf.validate.field).string = {
+    max_len: 2
+    pattern: "^[A-Z]*$"
+  }];
+  string ca_province = 8 [(buf.validate.field).string = {
+    max_len: 128
+    pattern: "^[a-zA-Z0-9\\-\\. ]*$"
+  }];
+  string ca_locality = 9 [(buf.validate.field).string = {
+    max_len: 128
+    pattern: "^[a-zA-Z0-9\\-\\. ]*$"
+  }];
+  int32 ca_validity_days = 10 [(buf.validate.field).int32 = {
+    gte: 30
+    lte: 3650
+  }];
+}
+message AcmeIssuer {
+  string email = 1 [(buf.validate.field).string = {
+    min_len: 3
+    max_len: 254
+    pattern: "^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$"
+  }];
+  string endpoint = 2 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 255
+    pattern: "^https?://.*$"
+  }];
+  string key_type = 3 [(buf.validate.field).string = {
+    in: [
+      "rsa",
+      "ec",
+      "RSA",
+      "EC"
+    ]
+  }];
+  int32 key_size = 4 [(buf.validate.field).int32 = {
+    gte: 2048
+    lte: 4096
+  }]; // Key size in bits (e.g., 2048, 3072, 4096)
+  int32 max_retries = 5 [(buf.validate.field).int32 = {
+    gte: 0
+    lte: 100
+  }];
+  string base_delay = 6 [(buf.validate.field).string = {pattern: "^\\d+[smhd]$"}]; // e.g., "2s", "5m", "1h"
+  ChallengeType challenge_type = 7;
+  string provider_name = 8 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 100
+    pattern: "^[a-zA-Z0-9\\-_]+$"
+  }]; // DNS provider name for DNS challenges
+  map<string, string> provider_config = 9; // Provider-specific configuration for ACME challenges
+  // External Account Binding (EAB) for ACME providers that require it (e.g., ZeroSSL, Google Trust Services)
+  optional string eab_kid = 10 [(buf.validate.field).string = {
+    max_len: 255
+  }]; // EAB Key Identifier
+  optional string eab_hmac_key = 11 [(buf.validate.field).string = {
+    max_len: 512
+  }]; // EAB HMAC Key (base64 encoded)
+}
+message CreateIssuerResponse {
+  IssuerInfo issuer = 1;
+}
+
+message UpdateIssuerRequest {
+  string name = 1 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 100
+    pattern: "^[a-zA-Z0-9\\-_]+$"
+  }];
+  string type = 2 [(buf.validate.field).string = {
+    in: [
+      "self-signed",
+      "acme"
+    ]
+  }];
+  string key_type = 3 [(buf.validate.field).string = {
+    in: [
+      "ecdsa",
+      "rsa",
+      "ECDSA",
+      "RSA"
+    ]
+  }];
+  string description = 4;
+  optional SelfIssuer self_issuer = 5; // Configuration for self-signed issuer
+  optional AcmeIssuer acme_issuer = 6; // Configuration for ACME issuer
+  IssuerStatus status = 7; // Initial status for the issuer
+}
+
+message DeleteIssuerRequest {
+  string name = 1 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 100
+    pattern: "^[a-zA-Z0-9\\-_]+$"
+  }];
+}
+
+// DNS Provider messages for DNS challenge support
+message ListDnsProvidersResponse {
+  repeated DnsProviderInfo providers = 1;
+}
+
+message GetDnsProviderInfoRequest {
+  string name = 1 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 100
+    pattern: "^[a-zA-Z0-9\\-_]+$"
+  }];
+}
+
+message DnsProviderInfo {
+  string name = 1;           // Provider identifier (e.g., "cloudflare", "route53")
+  string description = 2;    // Human-readable description
+  repeated string required_fields = 3; // Required configuration fields
+  repeated string optional_fields = 4; // Optional configuration fields
+}

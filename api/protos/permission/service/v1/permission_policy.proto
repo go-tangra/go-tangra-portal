@@ -1,0 +1,97 @@
+syntax = "proto3";
+
+package permission.service.v1;
+
+import "gnostic/openapi/v3/annotations.proto";
+
+import "google/api/annotations.proto";
+
+import "google/protobuf/empty.proto";
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/field_mask.proto";
+import "google/protobuf/duration.proto";
+
+import "pagination/v1/pagination.proto";
+
+// Permission Policy
+message PermissionPolicy {
+  // Policy engine type
+  enum PolicyEngine {
+    POLICY_ENGINE_UNSPECIFIED = 0; // Unspecified
+
+    CASBIN = 1; // Casbin policy engine
+    CEL = 2; // Google CEL policy engine
+    SQL = 3; // SQL policy engine
+    OPA = 4; // Open Policy Agent policy engine
+  }
+
+  // Status
+  enum Status {
+    OFF = 0;         // Disabled
+    ON = 1;          // Enabled
+  }
+
+  optional uint32 id = 1 [
+    json_name = "id",
+    (gnostic.openapi.v3.property) = {
+      description: "Permission policy ID"
+    }
+  ]; // Permission policy ID
+
+  optional uint32 permission_id = 2 [
+    json_name = "permissionId",
+    (gnostic.openapi.v3.property) = {
+      description: "Associated permission ID"
+    }
+  ]; // Associated permission ID
+
+  optional PolicyEngine policy_engine = 3 [
+    json_name = "policyEngine",
+    (gnostic.openapi.v3.property) = {
+      description: "Policy engine"
+    }
+  ]; // Policy engine
+
+  optional string definition = 4 [
+    json_name = "definition",
+    (gnostic.openapi.v3.property) = {
+      description: "Policy definition (dynamic structure)"
+    }
+  ]; // Policy definition (dynamic structure)
+
+  optional uint32 version = 5 [
+    json_name = "version",
+    (gnostic.openapi.v3.property) = {
+      description: "Policy version (for canary/rollback)"
+    }
+  ]; // Policy version (for canary/rollback)
+
+  optional uint32 eval_order = 6 [
+    json_name = "evalOrder",
+    (gnostic.openapi.v3.property) = {
+      description: "Evaluation priority (smaller value executes first)"
+    }
+  ]; // Evaluation priority (smaller value executes first)
+
+  optional uint32 cache_ttl = 7 [
+    json_name = "cacheTtl",
+    (gnostic.openapi.v3.property) = {
+      description: "Result cache seconds (0=no cache)"
+    }
+  ]; // Result cache seconds (0=no cache)
+
+  optional uint32 tenant_id = 8 [
+    json_name = "tenantId",
+    (gnostic.openapi.v3.property) = {description: "Tenant ID"}
+  ];  // Tenant ID
+
+  optional Status status = 9 [(gnostic.openapi.v3.property) = {description: "Status"}]; // Status
+
+  optional uint32 created_by = 100 [json_name = "createdBy", (gnostic.openapi.v3.property) = {description: "Creator ID"}]; // Creator ID
+  optional uint32 updated_by = 101 [json_name = "updatedBy", (gnostic.openapi.v3.property) = {description: "Updater ID"}]; // Updater ID
+  optional uint32 deleted_by = 102 [json_name = "deletedBy", (gnostic.openapi.v3.property) = {description: "Deleter user ID"}]; // Deleter user ID
+
+  optional google.protobuf.Timestamp created_at = 200 [json_name = "createdAt", (gnostic.openapi.v3.property) = {description: "Created time"}];// Created time
+  optional google.protobuf.Timestamp updated_at = 201 [json_name = "updatedAt", (gnostic.openapi.v3.property) = {description: "Updated time"}];// Updated time
+  optional google.protobuf.Timestamp deleted_at = 202 [json_name = "deletedAt", (gnostic.openapi.v3.property) = {description: "Deleted time"}];// Deleted time
+}

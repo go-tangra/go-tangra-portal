@@ -1,0 +1,158 @@
+syntax = "proto3";
+
+package permission.service.v1;
+
+import "gnostic/openapi/v3/annotations.proto";
+
+import "google/api/annotations.proto";
+
+import "google/protobuf/empty.proto";
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/field_mask.proto";
+
+import "pagination/v1/pagination.proto";
+
+
+// API Resource Service
+service ApiService {
+  // List API resources
+  rpc List (pagination.PagingRequest) returns (ListApiResponse) {}
+
+  // Get API resource details
+  rpc Get (GetApiRequest) returns (Api) {}
+
+  // Create API resource
+  rpc Create (CreateApiRequest) returns (google.protobuf.Empty) {}
+
+  // Update API resource
+  rpc Update (UpdateApiRequest) returns (google.protobuf.Empty) {}
+
+  // Delete API resource
+  rpc Delete (DeleteApiRequest) returns (google.protobuf.Empty) {}
+
+  // Sync API resources
+  rpc SyncApis (google.protobuf.Empty) returns (google.protobuf.Empty) {}
+
+  // Get walk route data
+  rpc GetWalkRouteData (google.protobuf.Empty) returns (ListApiResponse) {}
+}
+
+// API Resource
+message Api {
+  // API Scope
+  enum Scope {
+    API_SCOPE_INVALID = 0; // Invalid
+
+    ADMIN = 1; // Admin backend API
+    APP = 2; // Frontend application API
+  }
+
+  // Permission Status
+  enum Status {
+    OFF = 0;         // Disabled
+    ON = 1;          // Enabled
+  }
+
+  optional uint32 id = 1 [
+    json_name = "id",
+    (gnostic.openapi.v3.property) = { description: "Resource ID" }
+  ]; // Resource ID
+
+  optional string operation = 2 [
+    json_name = "operation",
+    (gnostic.openapi.v3.property) = { description: "API operation name" }
+  ]; // API operation name
+
+  optional string path = 3 [
+    json_name = "path",
+    (gnostic.openapi.v3.property) = { description: "API path" }
+  ]; // API path
+
+  optional string method = 4 [
+    json_name = "method",
+    (gnostic.openapi.v3.property) = { description: "Request method (GET/POST/PUT/DELETE)" }
+  ]; // Request method
+
+  optional string module = 5 [
+    json_name = "module",
+    (gnostic.openapi.v3.property) = { description: "Business module (e.g., \"User Management\", \"Payment System\")" }
+  ]; // Business module
+
+  optional string module_description = 6 [
+    json_name = "moduleDescription",
+    (gnostic.openapi.v3.property) = { description: "Module description" }
+  ]; // Module description
+
+  optional string description = 7 [
+    json_name = "description",
+    (gnostic.openapi.v3.property) = { description: "Description" }
+  ]; // Description
+
+  optional Scope scope = 8 [
+    json_name = "scope",
+    (gnostic.openapi.v3.property) = { description: "Scope" }
+  ]; // Scope
+
+  optional Status status = 10 [(gnostic.openapi.v3.property) = {description: "Status"}]; // Status
+
+  optional uint32 created_by = 100 [json_name = "createdBy", (gnostic.openapi.v3.property) = {description: "Creator ID"}]; // Creator ID
+  optional uint32 updated_by = 101 [json_name = "updatedBy", (gnostic.openapi.v3.property) = {description: "Updater ID"}]; // Updater ID
+  optional uint32 deleted_by = 102 [json_name = "deletedBy", (gnostic.openapi.v3.property) = {description: "Deleter user ID"}]; // Deleter user ID
+
+  optional google.protobuf.Timestamp created_at = 200 [json_name = "createdAt", (gnostic.openapi.v3.property) = {description: "Created time"}];// Created time
+  optional google.protobuf.Timestamp updated_at = 201 [json_name = "updatedAt", (gnostic.openapi.v3.property) = {description: "Updated time"}];// Updated time
+  optional google.protobuf.Timestamp deleted_at = 202 [json_name = "deletedAt", (gnostic.openapi.v3.property) = {description: "Deleted time"}];// Deleted time
+}
+
+// List response
+message ListApiResponse {
+  repeated Api items = 1;
+  uint64 total = 2;
+}
+
+// Get request
+message GetApiRequest {
+  oneof query_by {
+    uint32 id = 1 [
+      (gnostic.openapi.v3.property) = {description: "ID", read_only: true},
+      json_name = "id"
+    ]; // ID
+  }
+
+  optional google.protobuf.FieldMask view_mask = 100 [
+    json_name = "viewMask",
+    (gnostic.openapi.v3.property) = {
+      description: "View field mask for controlling returned fields"
+    }
+  ]; // View field mask for controlling returned fields
+}
+
+// Create request
+message CreateApiRequest {
+  Api data = 1;
+}
+
+// Update request
+message UpdateApiRequest {
+  uint32 id = 1;
+
+  Api data = 2;
+
+  google.protobuf.FieldMask update_mask = 3 [
+    (gnostic.openapi.v3.property) = {
+      description: "List of fields to update",
+      example: {yaml : "id,realname,username"}
+    },
+    json_name = "updateMask"
+  ]; // List of fields to update
+
+  optional bool allow_missing = 4 [
+    (gnostic.openapi.v3.property) = {description: "If set to true and the resource does not exist, it will be created (inserted), and the `updateMask` field will be ignored in this case."},
+    json_name = "allowMissing"
+  ]; // If set to true and the resource does not exist, it will be created (inserted), and the `updateMask` field will be ignored in this case.
+}
+
+// Delete request
+message DeleteApiRequest {
+  uint32 id = 1;
+}

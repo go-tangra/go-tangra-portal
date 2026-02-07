@@ -1,0 +1,17 @@
+# LCM service configuration for E2E testing
+data_dir: /app/data
+default_validity_days: 365
+auto_approve_certificates: true
+auto_generate_ca: true
+shared_secret: "e2e-test-secret"
+ca_cert_path: "/app/data/ca/ca.crt"
+ca_key_path: "/app/data/ca/ca.key"
+
+# Event notification configuration (Redis pub/sub)
+events:
+  enabled: true
+  topic_prefix: "lcm"
+
+# Webhook notification configuration
+webhooks:
+  enabled: false

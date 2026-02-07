@@ -1,0 +1,9 @@
+oss:
+  minio:
+    endpoint: "minio:9000"
+    upload_host: "minio:9000"
+    download_host: "http://localhost:9000"
+    access_key: "root"
+    secret_key: "e2e-test-password"
+    token: ""
+    use_ssl: false

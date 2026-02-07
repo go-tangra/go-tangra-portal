@@ -1,0 +1,44 @@
+server:
+  rest:
+    addr: "0.0.0.0:8000"
+    timeout: 30s
+    enable_swagger: true
+    enable_pprof: false
+    cors:
+      headers:
+        - "X-Requested-With"
+        - "Content-Type"
+        - "Authorization"
+      methods:
+        - "GET"
+        - "POST"
+        - "PUT"
+        - "DELETE"
+        - "HEAD"
+        - "OPTIONS"
+      origins:
+        - "*"
+    middleware:
+      enable_logging: true
+      enable_recovery: true
+      enable_tracing: false
+      enable_validate: true
+      enable_circuit_breaker: true
+      enable_metadata: true
+      auth:
+        method: "HS256"
+        key: "e2e-test-jwt-key"
+        access_token_expires: 0s
+        refresh_token_expires: 0s
+        access_token_key_prefix: "uat_"
+        refresh_token_key_prefix: "urt_"
+
+  grpc:
+    addr: "0.0.0.0:9100"
+    timeout: 30s
+    middleware:
+      enable_logging: true
+      enable_recovery: true
+      enable_tracing: false
+      enable_validate: true
+      enable_metadata: true

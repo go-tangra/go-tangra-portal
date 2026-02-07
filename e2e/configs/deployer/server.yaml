@@ -1,0 +1,16 @@
+server:
+  rest:
+    addr: "0.0.0.0:8200"
+    timeout: 30s
+    enable_swagger: false
+    enable_pprof: false
+
+  grpc:
+    addr: "0.0.0.0:9200"
+    timeout: 30s
+    middleware:
+      enable_logging: true
+      enable_recovery: true
+      enable_tracing: false
+      enable_validate: true
+      enable_metadata: true

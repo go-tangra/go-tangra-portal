@@ -1,0 +1,134 @@
+syntax = "proto3";
+
+package lcm.service.v1;
+
+import "google/api/field_behavior.proto";
+import "google/protobuf/timestamp.proto";
+
+// AuditLog represents an audit log entry for LCM operations
+message AuditLog {
+  // Database ID
+  optional uint32 id = 1 [json_name = "id"];
+  // Unique audit log identifier (UUID)
+  optional string audit_id = 2 [json_name = "auditId"];
+  // Request ID from metadata
+  optional string request_id = 3 [json_name = "requestId"];
+  // Tenant ID
+  optional uint32 tenant_id = 4 [json_name = "tenantId"];
+
+  // Operation info
+  optional string operation = 10 [json_name = "operation"];
+  optional string service_name = 11 [json_name = "serviceName"];
+
+  // Client info (from mTLS)
+  optional string client_id = 20 [json_name = "clientId"];
+  optional string client_common_name = 21 [json_name = "clientCommonName"];
+  optional string client_organization = 22 [json_name = "clientOrganization"];
+  optional string client_serial_number = 23 [json_name = "clientSerialNumber"];
+  optional bool is_authenticated = 24 [json_name = "isAuthenticated"];
+
+  // Request/Response
+  optional bool success = 30 [json_name = "success"];
+  optional int32 error_code = 31 [json_name = "errorCode"];
+  optional string error_message = 32 [json_name = "errorMessage"];
+
+  // Timing
+  optional int64 latency_ms = 40 [json_name = "latencyMs"];
+
+  // Network info
+  optional string peer_address = 50 [json_name = "peerAddress"];
+
+  // Cryptographic integrity
+  optional string log_hash = 60 [json_name = "logHash"];
+
+  // Timestamps
+  optional google.protobuf.Timestamp created_at = 200 [json_name = "createdAt"];
+}
+
+// List audit logs request
+message ListAuditLogsRequest {
+  // Filter by tenant ID
+  optional uint32 tenant_id = 1 [json_name = "tenantId"];
+  // Filter by client ID
+  optional string client_id = 2 [json_name = "clientId"];
+  // Filter by operation (partial match)
+  optional string operation = 3 [json_name = "operation"];
+  // Filter by success status
+  optional bool success = 4 [json_name = "success"];
+  // Filter by peer address
+  optional string peer_address = 5 [json_name = "peerAddress"];
+  // Filter by start time
+  optional google.protobuf.Timestamp start_time = 6 [json_name = "startTime"];
+  // Filter by end time
+  optional google.protobuf.Timestamp end_time = 7 [json_name = "endTime"];
+
+  // Pagination
+  optional uint32 page = 10 [json_name = "page"];
+  optional uint32 page_size = 11 [json_name = "pageSize"];
+}
+
+message ListAuditLogsResponse {
+  repeated AuditLog items = 1 [json_name = "items"];
+  uint64 total = 2 [json_name = "total"];
+}
+
+// Get a single audit log by ID
+message GetAuditLogRequest {
+  uint32 id = 1 [
+    json_name = "id",
+    (google.api.field_behavior) = REQUIRED
+  ];
+}
+
+message GetAuditLogResponse {
+  AuditLog audit_log = 1 [json_name = "auditLog"];
+}
+
+// Get audit log by audit ID (UUID)
+message GetAuditLogByAuditIdRequest {
+  string audit_id = 1 [
+    json_name = "auditId",
+    (google.api.field_behavior) = REQUIRED
+  ];
+}
+
+message GetAuditLogByAuditIdResponse {
+  AuditLog audit_log = 1 [json_name = "auditLog"];
+}
+
+// Get audit statistics
+message GetAuditStatsRequest {
+  // Filter by tenant ID
+  optional uint32 tenant_id = 1 [json_name = "tenantId"];
+  // Filter by start time
+  optional google.protobuf.Timestamp start_time = 2 [json_name = "startTime"];
+  // Filter by end time
+  optional google.protobuf.Timestamp end_time = 3 [json_name = "endTime"];
+}
+
+message GetAuditStatsResponse {
+  // Total number of operations
+  uint64 total_operations = 1 [json_name = "totalOperations"];
+  // Number of successful operations
+  uint64 successful_operations = 2 [json_name = "successfulOperations"];
+  // Number of failed operations
+  uint64 failed_operations = 3 [json_name = "failedOperations"];
+  // Average latency in milliseconds
+  double avg_latency_ms = 4 [json_name = "avgLatencyMs"];
+  // Unique clients count
+  uint64 unique_clients = 5 [json_name = "uniqueClients"];
+  // Operations breakdown by operation type
+  map<string, uint64> operations_by_type = 10 [json_name = "operationsByType"];
+}
+
+// Audit Log Service - provides access to audit logs
+service AuditLogService {
+  // List audit logs with filtering and pagination
+  rpc ListAuditLogs(ListAuditLogsRequest) returns (ListAuditLogsResponse) {}
+  // Get a single audit log by database ID
+  rpc GetAuditLog(GetAuditLogRequest) returns (GetAuditLogResponse) {}
+  // Get a single audit log by audit ID (UUID)
+  rpc GetAuditLogByAuditId(GetAuditLogByAuditIdRequest) returns (GetAuditLogByAuditIdResponse) {}
+  // Get audit statistics
+  rpc GetAuditStats(GetAuditStatsRequest) returns (GetAuditStatsResponse) {}
+}

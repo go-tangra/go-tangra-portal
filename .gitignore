@@ -1,0 +1,50 @@
+# Binaries
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+server
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Go
+vendor/
+go.work
+go.work.sum
+
+# Testing
+*.test
+*.out
+coverage.txt
+coverage.html
+
+# Build
+dist/
+bin/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Data
+*.db
+*.sqlite
+*.db-journal
+*.pem
+*.key
+*.crt
+
+# Docker
+docker.tar.gz
+
+# Temporary
+tmp/
+temp/

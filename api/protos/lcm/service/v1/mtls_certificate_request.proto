@@ -1,0 +1,263 @@
+syntax = "proto3";
+
+package lcm.service.v1;
+
+import "buf/validate/validate.proto";
+import "google/api/field_behavior.proto";
+import "google/protobuf/field_mask.proto";
+import "google/protobuf/timestamp.proto";
+import "lcm/service/v1/client.proto";
+
+// mTLS Certificate Request Status
+enum MtlsCertificateRequestStatus {
+  MTLS_CERTIFICATE_REQUEST_STATUS_UNSPECIFIED = 0;
+  MTLS_CERTIFICATE_REQUEST_STATUS_PENDING = 1;
+  MTLS_CERTIFICATE_REQUEST_STATUS_APPROVED = 2;
+  MTLS_CERTIFICATE_REQUEST_STATUS_REJECTED = 3;
+  MTLS_CERTIFICATE_REQUEST_STATUS_ISSUED = 4;
+  MTLS_CERTIFICATE_REQUEST_STATUS_CANCELLED = 5;
+}
+
+// mTLS Certificate Request entity
+message MtlsCertificateRequest {
+  optional uint32 id = 1 [json_name = "id"];
+  optional string request_id = 2 [json_name = "requestId"]; // UUID for tracking
+  optional string client_id = 3 [json_name = "clientId"]; // Requesting client ID
+  optional string common_name = 4 [json_name = "commonName"]; // CN for the certificate
+  optional string csr_pem = 5 [json_name = "csrPem"]; // PEM-encoded CSR
+  optional string public_key = 6 [json_name = "publicKey"]; // Public key from CSR
+  repeated string dns_names = 7 [json_name = "dnsNames"]; // Subject Alternative Names - DNS
+  repeated string ip_addresses = 8 [json_name = "ipAddresses"]; // Subject Alternative Names - IPs
+  optional string issuer_name = 9 [json_name = "issuerName"]; // Issuer to use for signing
+  optional MtlsCertificateType cert_type = 10 [json_name = "certType"];
+  optional MtlsCertificateRequestStatus status = 11 [json_name = "status"];
+  optional int32 validity_days = 12 [json_name = "validityDays"]; // Requested validity period
+  optional string reject_reason = 13 [json_name = "rejectReason"]; // Reason for rejection
+  map<string, string> metadata = 14 [json_name = "metadata"]; // Custom metadata
+  optional string notes = 15 [json_name = "notes"]; // Admin notes
+  optional uint32 approved_by = 100 [json_name = "approvedBy"];
+  optional uint32 rejected_by = 101 [json_name = "rejectedBy"];
+  optional uint32 created_by = 102 [json_name = "createdBy"];
+  optional uint32 updated_by = 103 [json_name = "updatedBy"];
+  optional google.protobuf.Timestamp approved_at = 200 [json_name = "approvedAt"];
+  optional google.protobuf.Timestamp rejected_at = 201 [json_name = "rejectedAt"];
+  optional google.protobuf.Timestamp expires_at = 202 [json_name = "expiresAt"]; // Request expiration
+  optional google.protobuf.Timestamp create_time = 203 [json_name = "createTime"];
+  optional google.protobuf.Timestamp update_time = 204 [json_name = "updateTime"];
+  optional google.protobuf.Timestamp delete_time = 205 [json_name = "deleteTime"];
+  optional int64 certificate_serial = 300 [json_name = "certificateSerial"]; // Issued certificate serial number (if approved)
+}
+
+// List mTLS Certificate Requests
+message ListMtlsCertificateRequestsRequest {
+  optional MtlsCertificateRequestStatus status = 1 [json_name = "status"]; // Filter by status
+  optional string client_id = 2 [json_name = "clientId"]; // Filter by client
+  optional string issuer_name = 3 [json_name = "issuerName"]; // Filter by issuer
+  optional uint32 page = 10 [json_name = "page"];
+  optional uint32 page_size = 11 [json_name = "pageSize"];
+  optional google.protobuf.FieldMask view_mask = 100 [json_name = "viewMask"];
+}
+
+message ListMtlsCertificateRequestsResponse {
+  repeated MtlsCertificateRequest items = 1 [json_name = "items"];
+  uint64 total = 2 [json_name = "total"];
+}
+
+// Get mTLS Certificate Request
+message GetMtlsCertificateRequestRequest {
+  oneof query_by {
+    uint32 id = 1 [json_name = "id"];
+    string request_id = 2 [json_name = "requestId"];
+  }
+  optional google.protobuf.FieldMask view_mask = 100 [json_name = "viewMask"];
+}
+
+message GetMtlsCertificateRequestResponse {
+  MtlsCertificateRequest mtls_certificate_request = 1 [json_name = "mtlsCertificateRequest"];
+}
+
+// Create mTLS Certificate Request
+message CreateMtlsCertificateRequestRequest {
+  string client_id = 1 [
+    json_name = "clientId",
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).string = {
+      min_len: 1
+      max_len: 64
+      pattern: "^[a-zA-Z0-9][a-zA-Z0-9_-]*$"
+    }
+  ];
+  string common_name = 2 [
+    json_name = "commonName",
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).string = {
+      min_len: 1
+      max_len: 253
+      pattern: "^[a-zA-Z0-9][a-zA-Z0-9\\-\\.]*$"
+    }
+  ];
+  optional string csr_pem = 3 [
+    json_name = "csrPem",
+    (buf.validate.field).string = {
+      max_len: 16384
+      pattern: "^-----BEGIN CERTIFICATE REQUEST-----[\\s\\S]*-----END CERTIFICATE REQUEST-----[\\s]*$"
+    }
+  ];
+  optional string public_key = 4 [
+    json_name = "publicKey",
+    (buf.validate.field).string = {
+      max_len: 8192
+      pattern: "^-----BEGIN PUBLIC KEY-----[\\s\\S]*-----END PUBLIC KEY-----[\\s]*$"
+    }
+  ];
+  repeated string dns_names = 5 [
+    json_name = "dnsNames",
+    (buf.validate.field).repeated = {
+      max_items: 100
+      items: {
+        string: {
+          min_len: 1
+          max_len: 253
+          pattern: "^[a-zA-Z0-9*]([a-zA-Z0-9\\-*]{0,61}[a-zA-Z0-9*])?(\\.[a-zA-Z0-9*]([a-zA-Z0-9\\-*]{0,61}[a-zA-Z0-9*])?)*$"
+        }
+      }
+    }
+  ];
+  repeated string ip_addresses = 6 [
+    json_name = "ipAddresses",
+    (buf.validate.field).repeated = {
+      max_items: 50
+      items: {
+        string: {ip: true}
+      }
+    }
+  ];
+  optional string issuer_name = 7 [
+    json_name = "issuerName",
+    (buf.validate.field).string = {
+      max_len: 100
+      pattern: "^[a-zA-Z0-9\\-_]*$"
+    }
+  ];
+  optional MtlsCertificateType cert_type = 8 [json_name = "certType"];
+  optional int32 validity_days = 9 [
+    json_name = "validityDays",
+    (buf.validate.field).int32 = {
+      gte: 1
+      lte: 825
+    }
+  ];
+  map<string, string> metadata = 10 [
+    json_name = "metadata",
+    (buf.validate.field).map = {
+      max_pairs: 50
+      keys: {
+        string: {
+          min_len: 1
+          max_len: 64
+          pattern: "^[a-zA-Z][a-zA-Z0-9_]*$"
+        }
+      }
+      values: {
+        string: {max_len: 512}
+      }
+    }
+  ];
+  optional string notes = 11 [
+    json_name = "notes",
+    (buf.validate.field).string = {max_len: 2048}
+  ];
+}
+
+message CreateMtlsCertificateRequestResponse {
+  MtlsCertificateRequest mtls_certificate_request = 1 [json_name = "mtlsCertificateRequest"];
+}
+
+// Update mTLS Certificate Request
+message UpdateMtlsCertificateRequestRequest {
+  MtlsCertificateRequest data = 1 [
+    json_name = "data",
+    (google.api.field_behavior) = REQUIRED
+  ];
+  google.protobuf.FieldMask update_mask = 2 [json_name = "updateMask"];
+  optional bool allow_missing = 3 [json_name = "allowMissing"];
+}
+
+message UpdateMtlsCertificateRequestResponse {
+  MtlsCertificateRequest mtls_certificate_request = 1 [json_name = "mtlsCertificateRequest"];
+}
+
+// Delete mTLS Certificate Request
+message DeleteMtlsCertificateRequestRequest {
+  uint32 id = 1 [
+    json_name = "id",
+    (google.api.field_behavior) = REQUIRED
+  ];
+}
+
+message DeleteMtlsCertificateRequestResponse {
+  MtlsCertificateRequest mtls_certificate_request = 1 [json_name = "mtlsCertificateRequest"];
+}
+
+// Approve mTLS Certificate Request
+message ApproveMtlsCertificateRequestRequest {
+  uint32 id = 1 [
+    json_name = "id",
+    (google.api.field_behavior) = REQUIRED
+  ];
+  optional string issuer_name = 2 [
+    json_name = "issuerName",
+    (buf.validate.field).string = {
+      max_len: 100
+      pattern: "^[a-zA-Z0-9\\-_]*$"
+    }
+  ]; // Override issuer if needed
+  optional int32 validity_days = 3 [
+    json_name = "validityDays",
+    (buf.validate.field).int32 = {
+      gte: 1
+      lte: 825
+    }
+  ]; // Override validity period if needed
+  optional string notes = 4 [
+    json_name = "notes",
+    (buf.validate.field).string = {max_len: 2048}
+  ];
+}
+
+message ApproveMtlsCertificateRequestResponse {
+  MtlsCertificateRequest request = 1 [json_name = "request"];
+  ClientCertificate certificate = 2 [json_name = "certificate"]; // The issued certificate
+}
+
+// Reject mTLS Certificate Request
+message RejectMtlsCertificateRequestRequest {
+  uint32 id = 1 [
+    json_name = "id",
+    (google.api.field_behavior) = REQUIRED
+  ];
+  string reason = 2 [
+    json_name = "reason",
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).string = {
+      min_len: 1
+      max_len: 1024
+    }
+  ];
+}
+
+message RejectMtlsCertificateRequestResponse {
+  MtlsCertificateRequest mtls_certificate_request = 1 [json_name = "mtlsCertificateRequest"];
+}
+
+// mTLS Certificate Request Admin Service
+service LcmMtlsCertificateRequestService {
+  // mTLS Certificate Request Management (admin only)
+  rpc ListMtlsCertificateRequests(ListMtlsCertificateRequestsRequest) returns (ListMtlsCertificateRequestsResponse) {}
+  rpc GetMtlsCertificateRequest(GetMtlsCertificateRequestRequest) returns (GetMtlsCertificateRequestResponse) {}
+  rpc CreateMtlsCertificateRequest(CreateMtlsCertificateRequestRequest) returns (CreateMtlsCertificateRequestResponse) {}
+  rpc UpdateMtlsCertificateRequest(UpdateMtlsCertificateRequestRequest) returns (UpdateMtlsCertificateRequestResponse) {}
+  rpc DeleteMtlsCertificateRequest(DeleteMtlsCertificateRequestRequest) returns (DeleteMtlsCertificateRequestResponse) {}
+  rpc ApproveMtlsCertificateRequest(ApproveMtlsCertificateRequestRequest) returns (ApproveMtlsCertificateRequestResponse) {}
+  rpc RejectMtlsCertificateRequest(RejectMtlsCertificateRequestRequest) returns (RejectMtlsCertificateRequestResponse) {}
+}

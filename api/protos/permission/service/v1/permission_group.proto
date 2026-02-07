@@ -1,0 +1,136 @@
+syntax = "proto3";
+
+package permission.service.v1;
+
+import "gnostic/openapi/v3/annotations.proto";
+
+import "google/api/annotations.proto";
+
+import "google/protobuf/empty.proto";
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/field_mask.proto";
+
+import "pagination/v1/pagination.proto";
+
+// Permission Group Management Service
+service PermissionGroupService {
+  // List permission groups
+  rpc List (pagination.PagingRequest) returns (ListPermissionGroupResponse) {}
+
+  // Get permission group details
+  rpc Get (GetPermissionGroupRequest) returns (PermissionGroup) {}
+
+  // Create permission group
+  rpc Create (CreatePermissionGroupRequest) returns (google.protobuf.Empty) {}
+
+  // Update permission group
+  rpc Update (UpdatePermissionGroupRequest) returns (google.protobuf.Empty) {}
+
+  // Delete permission group
+  rpc Delete (DeletePermissionGroupRequest) returns (google.protobuf.Empty) {}
+}
+
+// Permission Group
+message PermissionGroup {
+  // Status
+  enum Status {
+    OFF = 0;         // Disabled
+    ON = 1;          // Enabled
+  }
+
+  optional uint32 id = 1 [
+    json_name = "id",
+    (gnostic.openapi.v3.property) = { description: "Permission group ID" }
+  ]; // Permission group ID
+
+  optional string name = 2 [
+    json_name = "name",
+    (gnostic.openapi.v3.property) = { description: "Group name (e.g., User Management, Order Operations)" }
+  ]; // Group name (e.g., User Management, Order Operations)
+
+  optional string path = 3 [
+    json_name = "path",
+    (gnostic.openapi.v3.property) = {description: "Tree path, format: /1/10/101/ (includes self with leading and trailing /)"}
+  ];  // Tree path, format: /1/10/101/ (includes self with leading and trailing /)
+
+  optional string module = 4 [
+    json_name = "module",
+    (gnostic.openapi.v3.property) = { description: "Business module identifier (e.g., opm, order, pay)" }
+  ]; // Business module identifier (e.g., opm, order, pay)
+
+  optional uint32 sort_order = 5 [
+    json_name = "sortOrder",
+    (gnostic.openapi.v3.property) = { description: "Sort order (smaller value comes first)" }
+  ]; // Sort order (smaller value comes first)
+
+  optional Status status = 6 [(gnostic.openapi.v3.property) = {description: "Status"}]; // Status
+
+  optional string description = 7 [
+    json_name = "description",
+    (gnostic.openapi.v3.property) = { description: "Description" }
+  ]; // Description
+
+  optional uint32 parent_id = 50 [json_name = "parentId", (gnostic.openapi.v3.property) = {description: "Parent node ID"}];  // Parent node ID
+  repeated PermissionGroup children = 51 [json_name = "children", (gnostic.openapi.v3.property) = {description: "Children node tree"}];  // Children node tree
+
+  optional uint32 created_by = 100 [json_name = "createdBy", (gnostic.openapi.v3.property) = {description: "Creator ID"}]; // Creator ID
+  optional uint32 updated_by = 101 [json_name = "updatedBy", (gnostic.openapi.v3.property) = {description: "Updater ID"}]; // Updater ID
+  optional uint32 deleted_by = 102 [json_name = "deletedBy", (gnostic.openapi.v3.property) = {description: "Deleter user ID"}]; // Deleter user ID
+
+  optional google.protobuf.Timestamp created_at = 200 [json_name = "createdAt", (gnostic.openapi.v3.property) = {description: "Created time"}];// Created time
+  optional google.protobuf.Timestamp updated_at = 201 [json_name = "updatedAt", (gnostic.openapi.v3.property) = {description: "Updated time"}];// Updated time
+  optional google.protobuf.Timestamp deleted_at = 202 [json_name = "deletedAt", (gnostic.openapi.v3.property) = {description: "Deleted time"}];// Deleted time
+}
+
+// List response
+message ListPermissionGroupResponse {
+  repeated PermissionGroup items = 1;
+  uint64 total = 2;
+}
+
+// Get request
+message GetPermissionGroupRequest {
+  oneof query_by {
+    uint32 id = 1 [
+      (gnostic.openapi.v3.property) = {description: "ID", read_only: true},
+      json_name = "id"
+    ]; // ID
+  }
+
+  optional google.protobuf.FieldMask view_mask = 100 [
+    json_name = "viewMask",
+    (gnostic.openapi.v3.property) = {
+      description: "View field mask for controlling returned fields"
+    }
+  ]; // View field mask for controlling returned fields
+}
+
+// Create request
+message CreatePermissionGroupRequest {
+  PermissionGroup data = 1;
+}
+
+// Update request
+message UpdatePermissionGroupRequest {
+  uint32 id = 1;
+
+  PermissionGroup data = 2;
+
+  google.protobuf.FieldMask update_mask = 3 [
+    (gnostic.openapi.v3.property) = {
+      description: "List of fields to update",
+      example: {yaml : "id,realname,username"}
+    },
+    json_name = "updateMask"
+  ]; // List of fields to update
+
+  optional bool allow_missing = 4 [
+    (gnostic.openapi.v3.property) = {description: "If set to true and the resource does not exist, it will be created (inserted), and the `updateMask` field will be ignored in this case."},
+    json_name = "allowMissing"
+  ]; // If set to true and the resource does not exist, it will be created (inserted), and the `updateMask` field will be ignored in this case.
+}
+
+// Delete request
+message DeletePermissionGroupRequest {
+  uint32 id = 1;
+}

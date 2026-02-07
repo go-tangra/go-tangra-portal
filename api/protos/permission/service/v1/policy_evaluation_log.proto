@@ -1,0 +1,153 @@
+syntax = "proto3";
+
+package permission.service.v1;
+
+import "gnostic/openapi/v3/annotations.proto";
+
+import "google/api/annotations.proto";
+
+import "google/protobuf/empty.proto";
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/field_mask.proto";
+import "google/protobuf/duration.proto";
+
+import "pagination/v1/pagination.proto";
+
+
+// Policy Evaluation Log Service
+service PolicyEvaluationLogService {
+  // List policy evaluation logs
+  rpc List (pagination.PagingRequest) returns (ListPolicyEvaluationLogResponse) {}
+
+  // Get policy evaluation log details
+  rpc Get (GetPolicyEvaluationLogRequest) returns (PolicyEvaluationLog) {}
+
+  // Create policy evaluation log
+  rpc Create (CreatePolicyEvaluationLogRequest) returns (google.protobuf.Empty) {}
+}
+
+// Policy Evaluation Log
+message PolicyEvaluationLog {
+  optional uint32 id = 1 [
+    json_name = "id",
+    (gnostic.openapi.v3.property) = {description: "Policy evaluation log ID"}
+  ]; // Policy evaluation log ID
+
+  optional uint32 tenant_id = 2 [
+    json_name = "tenantId",
+    (gnostic.openapi.v3.property) = {description: "Tenant ID"}
+  ];  // Tenant ID
+
+  optional uint32 user_id = 3 [
+    json_name = "userId",
+    (gnostic.openapi.v3.property) = {description: "Operator user ID"}
+  ]; // Operator user ID
+
+  optional uint32 membership_id = 4 [
+    json_name = "membershipId",
+    (gnostic.openapi.v3.property) = {description: "Membership ID"}
+  ]; // Membership ID
+
+
+  optional uint32 permission_id = 10 [
+    json_name = "permissionId",
+    (gnostic.openapi.v3.property) = {description: "Permission ID"}
+  ]; // Permission ID
+
+  optional uint32 policy_id = 11 [
+    json_name = "policyId",
+    (gnostic.openapi.v3.property) = {description: "Policy ID (may be empty if no policy)"}
+  ]; // Policy ID (may be empty if no policy)
+
+  optional string request_path = 12 [
+    json_name = "requestPath",
+    (gnostic.openapi.v3.property) = {description: "Request API path"}
+  ]; // Request API path
+
+  optional string request_method = 13 [
+    json_name = "requestMethod",
+    (gnostic.openapi.v3.property) = {description: "Request HTTP method"}
+  ]; // Request HTTP method
+
+
+  optional bool result = 20 [
+    json_name = "result",
+    (gnostic.openapi.v3.property) = {description: "Whether passed"}
+  ]; // Whether passed
+
+  optional string effect_details = 21 [
+    json_name = "effectDetails",
+    (gnostic.openapi.v3.property) = {description: "Evaluation details/rejection reason"}
+  ]; // Evaluation details/rejection reason
+
+
+  optional string scope_sql = 30 [
+    json_name = "scopeSql",
+    (gnostic.openapi.v3.property) = {description: "Generated SQL condition"}
+  ]; // Generated SQL condition
+
+
+  optional string ip_address = 40 [
+    json_name = "ipAddress",
+    (gnostic.openapi.v3.property) = {description: "Operator IP address"}
+  ]; // Operator IP address
+
+  optional string trace_id = 41 [
+    json_name = "traceId",
+    (gnostic.openapi.v3.property) = {description: "Global trace ID (W3C TraceContext compliant)"}
+  ]; // Global trace ID
+
+
+  optional string evaluation_context = 50 [
+    json_name = "evaluationContext",
+    (gnostic.openapi.v3.property) = {description: "Decision context snapshot (e.g., user attributes, environment attributes)"}
+  ]; // Decision context snapshot
+
+
+  // ========== Compliance Validation ==========
+
+  optional string log_hash = 60 [
+    json_name = "logHash",
+    (gnostic.openapi.v3.property).description = "Log content hash (SHA256, hex string)"
+  ]; // Log hash
+
+  optional bytes signature = 61 [
+    json_name = "signature",
+    (gnostic.openapi.v3.property).description = "Log digital signature (ECDSA, signed content: tenant_id+user_id+created_at+log_hash)"
+  ]; // Log digital signature
+
+  // ========== Time Fields ==========
+
+  optional google.protobuf.Timestamp created_at = 70 [
+    json_name = "createdAt",
+    (gnostic.openapi.v3.property) = {description: "Log created time"}
+  ];// Log created time
+}
+
+// List policy evaluation logs response
+message ListPolicyEvaluationLogResponse {
+  repeated PolicyEvaluationLog items = 1;
+  uint64 total = 2;
+}
+
+// Get policy evaluation log details request
+message GetPolicyEvaluationLogRequest {
+  oneof query_by {
+    uint32 id = 1 [
+      (gnostic.openapi.v3.property) = {description: "ID", read_only: true},
+      json_name = "id"
+    ]; // ID
+  }
+
+  optional google.protobuf.FieldMask view_mask = 100 [
+    json_name = "viewMask",
+    (gnostic.openapi.v3.property) = {
+      description: "View field mask for controlling returned fields"
+    }
+  ]; // View field mask for controlling returned fields
+}
+
+// Create policy evaluation log request
+message CreatePolicyEvaluationLogRequest {
+  PolicyEvaluationLog data = 1;
+}

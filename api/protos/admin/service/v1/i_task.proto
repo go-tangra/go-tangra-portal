@@ -1,0 +1,98 @@
+syntax = "proto3";
+
+package admin.service.v1;
+
+import "gnostic/openapi/v3/annotations.proto";
+
+import "google/api/annotations.proto";
+import "google/api/field_behavior.proto";
+
+import "google/protobuf/empty.proto";
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/duration.proto";
+import "google/protobuf/field_mask.proto";
+
+import "pagination/v1/pagination.proto";
+import "task/service/v1/task.proto";
+
+// Scheduled task management service
+service TaskService {
+  // Query scheduled task list
+  rpc List (pagination.PagingRequest) returns (task.service.v1.ListTaskResponse) {
+    option (google.api.http) = {
+      get: "/admin/v1/tasks"
+    };
+  }
+
+  // Query scheduled task details
+  rpc Get (task.service.v1.GetTaskRequest) returns (task.service.v1.Task) {
+    option (google.api.http) = {
+      get: "/admin/v1/tasks/{id}"
+      additional_bindings {
+        get: "/admin/v1/tasks/type-name/{type_name}"
+      }
+    };
+  }
+
+  // Create scheduled task
+  rpc Create (task.service.v1.CreateTaskRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      post: "/admin/v1/tasks"
+      body: "*"
+    };
+  }
+
+  // Update scheduled task
+  rpc Update (task.service.v1.UpdateTaskRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      put: "/admin/v1/tasks/{id}"
+      body: "*"
+    };
+  }
+
+  // Delete scheduled task
+  rpc Delete (task.service.v1.DeleteTaskRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      delete: "/admin/v1/tasks/{id}"
+    };
+  }
+
+  // List task type names
+  rpc ListTaskTypeName (google.protobuf.Empty) returns (task.service.v1.ListTaskTypeNameResponse) {
+    option (google.api.http) = {
+      get: "/admin/v1/tasks:type-names"
+    };
+  }
+
+  // Restart all scheduled tasks
+  rpc RestartAllTask (google.protobuf.Empty) returns (task.service.v1.RestartAllTaskResponse) {
+    option (google.api.http) = {
+      post: "/admin/v1/tasks:restart"
+      body: "*"
+    };
+  }
+
+  // Start all scheduled tasks
+  rpc StartAllTask (google.protobuf.Empty) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      post: "/admin/v1/tasks:start"
+      body: "*"
+    };
+  }
+
+  // Stop all scheduled tasks
+  rpc StopAllTask (google.protobuf.Empty) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      post: "/admin/v1/tasks:stop"
+      body: "*"
+    };
+  }
+
+  // Control scheduled task
+  rpc ControlTask (task.service.v1.ControlTaskRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      post: "/admin/v1/tasks:control"
+      body: "*"
+    };
+  }
+}

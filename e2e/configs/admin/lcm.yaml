@@ -1,0 +1,24 @@
+lcm:
+  endpoint: "lcm-service:9100"
+  timeout: 30s
+  tls:
+    enabled: true
+    cert_file: "/app/lcm-certs/admin/admin.crt"
+    key_file: "/app/lcm-certs/admin/admin.key"
+    ca_file: "/app/lcm-certs/ca/ca.crt"
+
+lcm_events:
+  enabled: true
+  topic_prefix: "lcm"
+  notification_category: "lcm_notifications"
+  subscribed_events:
+    - "lcm.client.registered"
+    - "lcm.certificate.requested"
+    - "lcm.certificate.issued"
+    - "lcm.certificate.failed"
+    - "lcm.renewal.scheduled"
+    - "lcm.renewal.completed"
+    - "lcm.renewal.failed"
+    - "lcm.issuer.created"
+    - "lcm.issuer.updated"
+    - "lcm.issuer.deleted"
