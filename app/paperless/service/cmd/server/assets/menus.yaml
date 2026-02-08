@@ -1,0 +1,94 @@
+# Paperless Module Menu Definitions
+# This file defines the menu structure for the Paperless (Document Management) module
+# Used by admin service for dynamic menu registration
+
+module:
+  id: paperless
+  name: Paperless
+  description: Document Management with RustFS Storage
+
+menus:
+  - id: paperless
+    parent_id: null
+    type: CATALOG
+    name: Document Management
+    path: /paperless
+    icon: lucide:file-text
+    order: 500
+    authority:
+      - platform:admin
+      - tenant:manager
+
+  - id: paperless-documents
+    parent_id: paperless
+    type: MENU
+    name: Documents
+    path: documents
+    component: app/paperless/document/index.vue
+    icon: lucide:files
+    order: 1
+    authority:
+      - platform:admin
+      - tenant:manager
+
+  - id: paperless-categories
+    parent_id: paperless
+    type: MENU
+    name: Categories
+    path: categories
+    component: app/paperless/category/index.vue
+    icon: lucide:folder-tree
+    order: 2
+    authority:
+      - platform:admin
+      - tenant:manager
+
+permission_groups:
+  - name: Paperless
+    module: paperless
+    description: Paperless Document Management Permissions
+    permissions:
+      - name: View Documents
+        code: paperless.document.view
+        description: View document details and list
+      - name: Upload Documents
+        code: paperless.document.upload
+        description: Upload new documents
+      - name: Update Documents
+        code: paperless.document.update
+        description: Update document metadata
+      - name: Delete Documents
+        code: paperless.document.delete
+        description: Delete documents
+      - name: Manage Categories
+        code: paperless.category.manage
+        description: Create, update, and delete categories
+
+roles:
+  - name: Paperless Administrator
+    code: paperless.admin
+    description: Full access to Paperless module
+    is_system: true
+    permissions:
+      - paperless.document.view
+      - paperless.document.upload
+      - paperless.document.update
+      - paperless.document.delete
+      - paperless.category.manage
+
+  - name: Paperless Operator
+    code: paperless.operator
+    description: Can upload and manage documents
+    is_system: true
+    permissions:
+      - paperless.document.view
+      - paperless.document.upload
+      - paperless.document.update
+      - paperless.category.manage
+
+  - name: Paperless Viewer
+    code: paperless.viewer
+    description: Read-only access to Paperless module
+    is_system: true
+    permissions:
+      - paperless.document.view

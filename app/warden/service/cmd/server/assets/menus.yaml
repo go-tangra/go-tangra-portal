@@ -1,0 +1,98 @@
+# Warden Module Menu Definitions
+# This file defines the menu structure for the Warden (Secret Management) module
+# Used by admin service for dynamic menu registration
+
+module:
+  id: warden
+  name: Warden
+  description: Secret and Credential Management
+
+menus:
+  - id: warden
+    parent_id: null
+    type: CATALOG
+    name: Warden
+    path: /warden
+    icon: lucide:vault
+    order: 420
+    authority:
+      - platform:admin
+      - tenant:manager
+
+  - id: warden-folders
+    parent_id: warden
+    type: MENU
+    name: Secrets
+    path: folder
+    component: app/warden/folder/index.vue
+    icon: lucide:folder-tree
+    order: 2
+    authority:
+      - platform:admin
+      - tenant:manager
+
+  - id: warden-permissions
+    parent_id: warden
+    type: MENU
+    name: Permissions
+    path: permission
+    component: app/warden/permission/index.vue
+    icon: lucide:shield
+    order: 3
+    authority:
+      - platform:admin
+      - tenant:manager
+
+permission_groups:
+  - name: Warden
+    module: warden
+    description: Warden Secret Management Permissions
+    permissions:
+      - name: View Secrets
+        code: warden.secret.view
+        description: View secret details and list
+      - name: Create Secrets
+        code: warden.secret.create
+        description: Create new secrets
+      - name: Update Secrets
+        code: warden.secret.update
+        description: Update secret values
+      - name: Delete Secrets
+        code: warden.secret.delete
+        description: Delete secrets
+      - name: Manage Folders
+        code: warden.folder.manage
+        description: Create, update, and delete folders
+      - name: Manage Permissions
+        code: warden.permission.manage
+        description: Manage secret sharing permissions
+
+roles:
+  - name: Warden Administrator
+    code: warden.admin
+    description: Full access to Warden module - can manage all secrets and permissions
+    is_system: true
+    permissions:
+      - warden.secret.view
+      - warden.secret.create
+      - warden.secret.update
+      - warden.secret.delete
+      - warden.folder.manage
+      - warden.permission.manage
+
+  - name: Warden Operator
+    code: warden.operator
+    description: Can create and manage secrets
+    is_system: true
+    permissions:
+      - warden.secret.view
+      - warden.secret.create
+      - warden.secret.update
+      - warden.folder.manage
+
+  - name: Warden Viewer
+    code: warden.viewer
+    description: Read-only access to Warden module
+    is_system: true
+    permissions:
+      - warden.secret.view

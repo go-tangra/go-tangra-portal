@@ -1,0 +1,138 @@
+# LCM Module Menu Definitions
+# This file defines the menu structure for the LCM (Certificate Lifecycle Management) module
+# Used by admin service for dynamic menu registration
+
+module:
+  id: lcm
+  name: LCM
+  description: Certificate Lifecycle Management
+
+menus:
+  - id: lcm
+    parent_id: null
+    type: CATALOG
+    name: Certificate Manager
+    path: /lcm
+    icon: lucide:shield-check
+    order: 400
+    authority:
+      - platform:admin
+      - tenant:manager
+
+  - id: lcm-certificates
+    parent_id: lcm
+    type: MENU
+    name: Mtls Certificates
+    path: certificate
+    component: app/lcm/certificate/index.vue
+    icon: lucide:file-check
+    order: 1
+    authority:
+      - platform:admin
+      - tenant:manager
+
+  - id: lcm-jobs
+    parent_id: lcm
+    type: MENU
+    name: Certificate Jobs
+    path: certificate-job
+    component: app/lcm/certificate-job/index.vue
+    icon: lucide:list-todo
+    order: 2
+    authority:
+      - platform:admin
+      - tenant:manager
+
+  - id: lcm-issuers
+    parent_id: lcm
+    type: MENU
+    name: Issuers
+    path: issuer
+    component: app/lcm/issuer/index.vue
+    icon: lucide:stamp
+    order: 3
+    authority:
+      - platform:admin
+      - tenant:manager
+
+  - id: lcm-permissions
+    parent_id: lcm
+    type: MENU
+    name: Permissions
+    path: certificate-permission
+    component: app/lcm/certificate-permission/index.vue
+    icon: lucide:key
+    order: 4
+    authority:
+      - platform:admin
+      - tenant:manager
+
+  - id: lcm-tenant-secrets
+    parent_id: lcm
+    type: MENU
+    name: Tenant Secrets
+    path: tenant-secret
+    component: app/lcm/tenant-secret/index.vue
+    icon: lucide:lock
+    order: 5
+    authority:
+      - platform:admin
+      - tenant:manager
+
+permission_groups:
+  - name: LCM
+    module: lcm
+    description: LCM Certificate Management Permissions
+    permissions:
+      - name: View Certificates
+        code: lcm.certificate.view
+        description: View certificate details and list
+      - name: Create Certificates
+        code: lcm.certificate.create
+        description: Create new certificate requests
+      - name: Update Certificates
+        code: lcm.certificate.update
+        description: Update certificate configurations
+      - name: Delete Certificates
+        code: lcm.certificate.delete
+        description: Delete certificates
+      - name: Revoke Certificates
+        code: lcm.certificate.revoke
+        description: Revoke issued certificates
+      - name: Manage Issuers
+        code: lcm.issuer.manage
+        description: Manage certificate issuers
+      - name: Manage Jobs
+        code: lcm.job.manage
+        description: Manage certificate jobs
+
+roles:
+  - name: LCM Administrator
+    code: lcm.admin
+    description: Full access to LCM module - can manage certificates, issuers, and jobs
+    is_system: true
+    permissions:
+      - lcm.certificate.view
+      - lcm.certificate.create
+      - lcm.certificate.update
+      - lcm.certificate.delete
+      - lcm.certificate.revoke
+      - lcm.issuer.manage
+      - lcm.job.manage
+
+  - name: LCM Operator
+    code: lcm.operator
+    description: Operational access to LCM module - can create and manage certificates
+    is_system: true
+    permissions:
+      - lcm.certificate.view
+      - lcm.certificate.create
+      - lcm.certificate.update
+      - lcm.job.manage
+
+  - name: LCM Viewer
+    code: lcm.viewer
+    description: Read-only access to LCM module
+    is_system: true
+    permissions:
+      - lcm.certificate.view
