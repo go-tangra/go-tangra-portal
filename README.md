@@ -1,267 +1,105 @@
-# GO后端
+# go-tangra-portal
 
-## API文档
+API gateway and administration backend for the Go-Tangra platform. Serves as a Backend-for-Frontend (BFF) with dynamic HTTP-to-gRPC transcoding, authentication, authorization, and module discovery.
 
-### Swagger UI
+## Features
 
-- [Admin Swagger UI](http://localhost:7788/docs/)
+- **Dynamic Module Router** — Hot-reloading of microservice routes without restart
+- **HTTP/gRPC Transcoding** — REST clients transparently access gRPC services via protobuf descriptors
+- **Authentication** — JWT tokens with access/refresh lifecycle, MFA support
+- **Authorization** — Casbin/OPA policy engines with role-based access control
+- **Multi-Tenant** — Tenant isolation at service and database levels
+- **Audit Logging** — API, login, operation, and data access audit trails
+- **Module Registration** — Services self-register with OpenAPI specs and menu definitions
+- **File Management** — S3-compatible object storage via MinIO
 
-### openapi.yaml
+## Ports
 
-- [Admin openapi.yaml](http://localhost:7788/docs/openapi.yaml)
+| Port | Protocol | Purpose |
+|------|----------|---------|
+| 7787 | gRPC | Service-to-service communication |
+| 7788 | HTTP | REST API for frontend |
+| 7789 | HTTP | Server-Sent Events (SSE) |
 
-## Buf.Build使用
+## Core Services
 
-使用[buf.build](https://buf.build/)进行Protobuf API的工程化构建。
+| Domain | Purpose |
+|--------|---------|
+| **Authentication** | Login, token management, OAuth grant types, MFA |
+| **User Management** | User CRUD, roles, permissions, positions |
+| **Admin Portal** | Dashboard, menus, module registration, statistics |
+| **Permissions** | RBAC, permission groups, data scope enforcement |
+| **File Transfer** | Upload/download with MinIO backend |
+| **Audit** | API, login, operation, and data access logs |
+| **Tasks** | Background job scheduling |
+| **Internal Messages** | System notifications and categories |
+| **Dictionaries** | System dictionaries and localization |
 
-相关命令行工具和插件的具体安装方法请参见：[Kratos微服务框架API工程化指南](https://juejin.cn/post/7191095845096259641)
+## Module Registration
 
-在`backend/api`目录下执行命令：
+Services register dynamically at startup, providing:
+- gRPC endpoint address
+- OpenAPI specification
+- Protobuf descriptors
+- UI menu definitions
+- Periodic heartbeat for health tracking
 
-### 更新buf.lock
+Registered modules: LCM, Deployer, IPAM, Warden, Paperless
+
+## Architecture
+
+```
+Frontend (Vue.js)
+    │
+    ▼
+Admin Gateway (this service)
+    │ REST → gRPC transcoding
+    ├── LCM Service (:9100)
+    ├── Deployer Service (:9200)
+    ├── Warden Service (:9300)
+    ├── IPAM Service (:9400)
+    └── Paperless Service (:9500)
+```
+
+## Configuration
+
+Service configs in `app/admin/service/configs/`:
+- `server.yaml` — HTTP/gRPC server ports, TLS, timeouts
+- `auth.yaml` — JWT settings, authentication engines
+- `data.yaml` — Database connection (PostgreSQL, MySQL, SQLite)
+- `oss.yaml` — MinIO/S3 object storage
+
+Supports config sources: local YAML, Consul, etcd, Nacos, Kubernetes ConfigMaps.
+
+## Build
 
 ```bash
-buf dep update
+make api            # Generate gRPC/HTTP code from protos
+make openapi        # Generate OpenAPI documentation
+make ent            # Generate Ent ORM code
+make wire           # Generate dependency injection
+make build          # Build binary
+make docker         # Build Docker image
+make test           # Run tests
 ```
 
-### 生成GO代码
+## Docker
 
-```bash
-buf generate
-```
+Multi-stage build with Alpine runtime. Runs as non-root user.
 
-### 生成OpenAPI v3文档
+## Deployment
 
-```bash
-buf generate --template buf.admin.openapi.gen.yaml
-```
+Deployment scripts in `script/`:
+- `prepare_*.sh` — OS environment setup (CentOS, Rocky, Ubuntu)
+- `docker_compose_install.sh` — Full Docker deployment
+- `build_install.sh` — Build binaries + PM2 process management
 
-### 生成Dart代码
+## Dependencies
 
-首先安装插件：
-
-```bash
-flutter pub global activate protoc_plugin
-```
-
-或者
-
-```bash
-dart pub global activate protoc_plugin
-```
-
-使用方法：
-
-```bash
-buf generate --template buf.front.dart.gen.yaml
-```
-
-### 生成Typescript代码
-
-首先安装插件：
-
-```bash
-npm install -g ts-proto
-```
-
-使用方法：
-
-```bash
-buf generate --template buf.admin.typescript.gen.yaml
-```
-
-## Make构建
-
-### 在后端项目根目录下执行：
-
-#### 初始化开发环境
-
-安装命令行工具和插件：
-
-```bash
-make init
-```
-
-#### 安装更新命令行工具
-
-```bash
-make cli
-```
-
-#### 安装更新插件
-
-```bash
-make plugin
-```
-
-#### 使用docker-compose部署整套服务（包含三方中间件）
-
-```bash
-make compose-up
-```
-
-#### 停止docker-compose部署的整套服务（包含三方中间件）
-
-```bash
-make compose-down
-```
-
-### 在`app/{服务名}/service`下执行：
-
-#### 生成API的go代码
-
-```bash
-make api
-```
-
-#### 生成API的OpenAPI v3 文档
-
-```bash
-make openapi
-```
-
-#### 生成API的dart代码
-
-```bash
-make dart
-```
-
-#### 生成API的typescript代码
-
-```bash
-make ts
-```
-
-#### 生成ent代码
-
-```bash
-make ent
-```
-
-#### 生成wire代码
-
-```bash
-make wire
-```
-
-#### 构建二进制文件
-
-```bash
-make build
-```
-
-#### 调试运行
-
-```bash
-make run
-```
-
-#### 构建Docker镜像
-
-```bash
-make docker
-```
-
-## 部署
-
-- 所有的Docker配置文件都在`backend`目录下。
-- 所有的部署脚本都在`backend/script`目录下。
-
-Shell脚本需要赋予执行权限：
-
-```bash
-chmod +x ./script/*.sh
-```
-
-### 初始化操作系统环境
-
-在我们拿到服务器后，首先要做的就是初始化操作系统环境。我们需要安装一些必要的工具和软件包。
-
-#### Centos
-
-```bash
-./script/prepare_centos.sh
-```
-
-#### Rocky
-
-```bash
-./script/prepare_rocky.sh
-```
-
-#### Ubuntu
-
-```bash
-./script/prepare_ubuntu.sh
-```
-
-#### Windows
-
-```bash
-./script/prepare_windows.ps1
-```
-
-### Docker安装三方依赖中间件
-
-后端需要依赖一些三方中间件，比如：postgresql、redis、consul……，我们通过Docker来安装，这样会比较简单一些。
-
-```bash
-./script/docker_compose_install_depends.sh
-```
-
-### 一键部署整个项目
-
-部署项目有两种方法：
-
-1. 三方中间件和微服务都运行在Docker之下；
-2. 三方中间件运行在Docker下，微服务通过PM2管理运行在OS下。
-
-#### 1. 三方中间件和微服务都运行在Docker之下
-
-```bash
-./script/docker_compose_install.sh
-```
-
-#### 2. 三方中间件运行在Docker下，微服务运行在OS下
-
-```bash
-./script/build_install.sh
-```
-
-我们需要修改`hosts`文件，修改需要管理员权限，其配置文件路径在：
-
-- Linux：`/etc/hosts`
-- MacOS: `/private/etc/hosts`
-- Windows: `C:\Windows\System32\drivers\etc\hosts`
-
-增加以下内容：
-
-```ini
-127.0.0.1 postgres
-127.0.0.1 redis
-127.0.0.1 minio
-127.0.0.1 consul
-127.0.0.1 jaeger
-```
-
-> 注意：如果注册中心使用Consul，consul的地址填写为`consul`会返回`502`，使用`localhost`或者`127.0.0.1`都可以。
-> ```yaml
-> registry:
-> type: "consul"
->
-> consul:
-> address: "localhost:8500"
-> ```
-
-## FAQ
-
-### go.sum验证不通过的问题
-
-有时候，有的依赖包在`go mod tidy`之后会出现`go.sum`验证不通过的问题，解决方法：
-
-```bash
-go clean -modcache
-go mod tidy
-```
-
-如果还不行的话，可以删除`go.sum`文件，然后重新执行`go mod tidy`。
+- **Framework**: Kratos v2
+- **ORM**: Ent + GORM
+- **Auth**: JWT, Casbin/OPA
+- **Storage**: MinIO
+- **Database**: PostgreSQL, MySQL, SQLite
+- **Cache**: Redis
+- **Protobuf**: Buf (128 proto files)
