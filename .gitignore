@@ -4,6 +4,7 @@
 *.dll
 *.so
 *.dylib
+server
 **/service/server
 **/cmd/server/server
 
@@ -49,3 +50,6 @@ docker.tar.gz
 # Temporary
 tmp/
 temp/
+
+# Claude Code
+CLAUDE.md
