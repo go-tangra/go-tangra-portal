@@ -1,0 +1,66 @@
+syntax = "proto3";
+
+package admin.service.v1;
+
+import "gnostic/openapi/v3/annotations.proto";
+import "google/api/annotations.proto";
+import "google/protobuf/empty.proto";
+import "pagination/v1/pagination.proto";
+
+import "user/service/v1/tenant.proto";
+import "user/service/v1/user.proto";
+
+// Tenant management service
+service TenantService {
+  // Get tenant list
+  rpc List (pagination.PagingRequest) returns (user.service.v1.ListTenantResponse) {
+    option (google.api.http) = {
+      get: "/admin/v1/tenants"
+    };
+  }
+
+  // Get tenant data
+  rpc Get (user.service.v1.GetTenantRequest) returns (user.service.v1.Tenant) {
+    option (google.api.http) = {
+      get: "/admin/v1/tenants/{id}"
+    };
+  }
+
+  // Create tenant
+  rpc Create (user.service.v1.CreateTenantRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      post: "/admin/v1/tenants"
+      body: "*"
+    };
+  }
+
+  // Update tenant
+  rpc Update (user.service.v1.UpdateTenantRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      put: "/admin/v1/tenants/{id}"
+      body: "*"
+    };
+  }
+
+  // Delete tenant
+  rpc Delete (user.service.v1.DeleteTenantRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      delete: "/admin/v1/tenants/{id}"
+    };
+  }
+
+  // Create tenant with admin user
+  rpc CreateTenantWithAdminUser (user.service.v1.CreateTenantWithAdminUserRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      post: "/admin/v1/tenants:with-admin"
+      body: "*"
+    };
+  }
+
+  // Check if tenant exists
+  rpc TenantExists (user.service.v1.TenantExistsRequest) returns (user.service.v1.TenantExistsResponse) {
+    option (google.api.http) = {
+      get: "/admin/v1/tenants:exists"
+    };
+  }
+}

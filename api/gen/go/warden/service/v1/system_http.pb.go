@@ -4,7 +4,7 @@
 // - protoc             (unknown)
 // source: warden/service/v1/system.proto
 
-package servicev1
+package wardenV1
 
 import (
 	context "context"

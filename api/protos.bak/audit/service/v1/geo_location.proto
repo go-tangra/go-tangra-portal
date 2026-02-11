@@ -1,0 +1,52 @@
+syntax = "proto3";
+
+package audit.service.v1;
+
+import "gnostic/openapi/v3/annotations.proto";
+import "validate/validate.proto";
+
+// Geolocation
+message GeoLocation {
+  optional string country_code = 1 [
+    json_name = "countryCode",
+    (gnostic.openapi.v3.property) = {
+      description: "Country code (CN/US), following ISO 3166-1 alpha-2 standard"
+    }
+  ]; // Country code (CN/US), following ISO 3166-1 alpha-2 standard
+
+  optional string province = 2 [
+    json_name = "province",
+    (gnostic.openapi.v3.property) = {
+      description: "Province/State (e.g., Beijing, California)"
+    }
+  ]; // Province/State (e.g., Beijing, California)
+
+  optional string city = 3 [
+    json_name = "city",
+    (gnostic.openapi.v3.property) = {
+      description: "City (e.g., Shanghai, New York)"
+    }
+  ]; // City (e.g., Shanghai, New York)
+
+  optional string isp = 4 [
+    json_name = "isp",
+    (gnostic.openapi.v3.property) = {
+      description: "Internet service provider (e.g., China Mobile/China Telecom/AT&T)"
+    }
+  ]; // Internet service provider (e.g., China Mobile/China Telecom/AT&T)
+
+  optional string address_remark = 5 [
+    json_name = "addressRemark",
+    (gnostic.openapi.v3.property) = {
+      description: "Address remark (e.g., private IP/cannot resolve/overseas IP)"
+    }
+  ]; // Address remark (e.g., private IP/cannot resolve/overseas IP)
+
+  optional sint64 latitude = 10 [ // Signed integer
+    (gnostic.openapi.v3.property).description = "Latitude (microdegrees)"
+  ];
+
+  optional sint64 longitude = 11 [
+    (gnostic.openapi.v3.property).description = "Longitude (microdegrees)"
+  ];
+}

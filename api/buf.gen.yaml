@@ -18,12 +18,10 @@ managed:
 
   override:
     # global go_package_prefix option
-    # 如果没有在各目录下单独配置go_package，则会使用该前缀。
     - file_option: go_package_prefix
       value: github.com/go-tangra/go-tangra-portal/api/gen/go
 
     # per-directory go_package options
-    # value第一部分是生成代码的包路径，第二部分是go包名。
     - file_option: go_package
       path: admin/service/v1
       value: github.com/go-tangra/go-tangra-portal/api/gen/go/admin/service/v1;adminpb
@@ -51,12 +49,32 @@ managed:
     - file_option: go_package
       path: user_profile/service/v1
       value: github.com/go-tangra/go-tangra-portal/api/gen/go/user_profile/service/v1;userprofilepb
+    # module go_package overrides (generated from buf.build deps)
+    - file_option: go_package
+      path: lcm/service/v1
+      value: github.com/go-tangra/go-tangra-portal/api/gen/go/lcm/service/v1;lcmV1
+    - file_option: go_package
+      path: deployer/service/v1
+      value: github.com/go-tangra/go-tangra-portal/api/gen/go/deployer/service/v1;deployerV1
     - file_option: go_package
       path: ipam/service/v1
       value: github.com/go-tangra/go-tangra-portal/api/gen/go/ipam/service/v1;ipampb
     - file_option: go_package
       path: paperless/service/v1
       value: github.com/go-tangra/go-tangra-portal/api/gen/go/paperless/service/v1;paperlesspb
+    - file_option: go_package
+      path: warden/service/v1
+      value: github.com/go-tangra/go-tangra-portal/api/gen/go/warden/service/v1;wardenV1
+
+inputs:
+  # Local portal protos
+  - directory: protos
+  # Module protos from buf.build (generate Go code for admin gateway gRPC clients)
+  - module: buf.build/go-tangra/lcm
+  - module: buf.build/go-tangra/deployer
+  - module: buf.build/go-tangra/ipam
+  - module: buf.build/go-tangra/paperless
+  - module: buf.build/go-tangra/warden
 
 plugins:
   # generate go code

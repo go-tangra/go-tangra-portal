@@ -4,7 +4,7 @@
 // 	protoc        (unknown)
 // source: deployer/service/v1/deployment_target.proto
 
-package servicev1
+package deployerV1
 
 import (
 	_ "buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go/buf/validate"
@@ -1234,8 +1234,8 @@ const file_deployer_service_v1_deployment_target_proto_rawDesc = "" +
 	"\fDeleteTarget\x12(.deployer.service.v1.DeleteTargetRequest\x1a\x16.google.protobuf.Empty\"#\x82\xd3\xe4\x93\x02\x1d*\x1b/v1/deployment-targets/{id}\x12\xa9\x01\n" +
 	"\x11AddConfigurations\x12-.deployer.service.v1.AddConfigurationsRequest\x1a..deployer.service.v1.AddConfigurationsResponse\"5\x82\xd3\xe4\x93\x02/:\x01*\"*/v1/deployment-targets/{id}/configurations\x12\xaf\x01\n" +
 	"\x14RemoveConfigurations\x120.deployer.service.v1.RemoveConfigurationsRequest\x1a1.deployer.service.v1.RemoveConfigurationsResponse\"2\x82\xd3\xe4\x93\x02,**/v1/deployment-targets/{id}/configurations\x12\xbb\x01\n" +
-	"\x18ListTargetConfigurations\x124.deployer.service.v1.ListTargetConfigurationsRequest\x1a5.deployer.service.v1.ListTargetConfigurationsResponse\"2\x82\xd3\xe4\x93\x02,\x12*/v1/deployment-targets/{id}/configurationsB\xee\x01\n" +
-	"\x17com.deployer.service.v1B\x15DeploymentTargetProtoP\x01ZNgithub.com/go-tangra/go-tangra-portal/api/gen/go/deployer/service/v1;servicev1\xa2\x02\x03DSX\xaa\x02\x13Deployer.Service.V1\xca\x02\x13Deployer\\Service\\V1\xe2\x02\x1fDeployer\\Service\\V1\\GPBMetadata\xea\x02\x15Deployer::Service::V1b\x06proto3"
+	"\x18ListTargetConfigurations\x124.deployer.service.v1.ListTargetConfigurationsRequest\x1a5.deployer.service.v1.ListTargetConfigurationsResponse\"2\x82\xd3\xe4\x93\x02,\x12*/v1/deployment-targets/{id}/configurationsB\xef\x01\n" +
+	"\x17com.deployer.service.v1B\x15DeploymentTargetProtoP\x01ZOgithub.com/go-tangra/go-tangra-portal/api/gen/go/deployer/service/v1;deployerV1\xa2\x02\x03DSX\xaa\x02\x13Deployer.Service.V1\xca\x02\x13Deployer\\Service\\V1\xe2\x02\x1fDeployer\\Service\\V1\\GPBMetadata\xea\x02\x15Deployer::Service::V1b\x06proto3"
 
 var (
 	file_deployer_service_v1_deployment_target_proto_rawDescOnce sync.Once

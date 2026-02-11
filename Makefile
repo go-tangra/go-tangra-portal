@@ -106,16 +106,6 @@ openapi:
 	@cd api && \
 	buf generate --template buf.admin.openapi.gen.yaml
 
-# generate Echo service protobuf api code
-api-echo:
-	@cd api && \
-	buf generate --template buf.echo.gen.yaml
-
-# generate Echo service OpenAPI v3 docs
-openapi-echo:
-	@cd api && \
-	buf generate --template buf.echo.openapi.gen.yaml
-
 # generate IPAM service OpenAPI v3 docs
 # Note: Menus are now in separate menus.yaml files in each module's cmd/server/assets/
 openapi-ipam:

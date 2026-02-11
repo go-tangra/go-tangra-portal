@@ -4,7 +4,7 @@
 // 	protoc        (unknown)
 // source: deployer/service/v1/deployment.proto
 
-package servicev1
+package deployerV1
 
 import (
 	_ "buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go/buf/validate"
@@ -1054,8 +1054,8 @@ const file_deployer_service_v1_deployment_proto_rawDesc = "" +
 	"\x16DeployToConfigurations\x122.deployer.service.v1.DeployToConfigurationsRequest\x1a3.deployer.service.v1.DeployToConfigurationsResponse\"\x00\x12S\n" +
 	"\x06Verify\x12\".deployer.service.v1.VerifyRequest\x1a#.deployer.service.v1.VerifyResponse\"\x00\x12Y\n" +
 	"\bRollback\x12$.deployer.service.v1.RollbackRequest\x1a%.deployer.service.v1.RollbackResponse\"\x00\x12q\n" +
-	"\x0fDeployToTargets\x12+.deployer.service.v1.DeployToTargetsRequest\x1a,.deployer.service.v1.DeployToTargetsResponse\"\x03\x88\x02\x01B\xe8\x01\n" +
-	"\x17com.deployer.service.v1B\x0fDeploymentProtoP\x01ZNgithub.com/go-tangra/go-tangra-portal/api/gen/go/deployer/service/v1;servicev1\xa2\x02\x03DSX\xaa\x02\x13Deployer.Service.V1\xca\x02\x13Deployer\\Service\\V1\xe2\x02\x1fDeployer\\Service\\V1\\GPBMetadata\xea\x02\x15Deployer::Service::V1b\x06proto3"
+	"\x0fDeployToTargets\x12+.deployer.service.v1.DeployToTargetsRequest\x1a,.deployer.service.v1.DeployToTargetsResponse\"\x03\x88\x02\x01B\xe9\x01\n" +
+	"\x17com.deployer.service.v1B\x0fDeploymentProtoP\x01ZOgithub.com/go-tangra/go-tangra-portal/api/gen/go/deployer/service/v1;deployerV1\xa2\x02\x03DSX\xaa\x02\x13Deployer.Service.V1\xca\x02\x13Deployer\\Service\\V1\xe2\x02\x1fDeployer\\Service\\V1\\GPBMetadata\xea\x02\x15Deployer::Service::V1b\x06proto3"
 
 var (
 	file_deployer_service_v1_deployment_proto_rawDescOnce sync.Once

@@ -4,7 +4,7 @@
 // - protoc             (unknown)
 // source: lcm/service/v1/certificate_permission.proto
 
-package servicev1
+package lcmV1
 
 import (
 	context "context"
@@ -25,6 +25,7 @@ const (
 	CertificatePermissionService_ListPermissions_FullMethodName            = "/lcm.service.v1.CertificatePermissionService/ListPermissions"
 	CertificatePermissionService_ListAccessibleCertificates_FullMethodName = "/lcm.service.v1.CertificatePermissionService/ListAccessibleCertificates"
 	CertificatePermissionService_CheckPermission_FullMethodName            = "/lcm.service.v1.CertificatePermissionService/CheckPermission"
+	CertificatePermissionService_ListAllPermissions_FullMethodName         = "/lcm.service.v1.CertificatePermissionService/ListAllPermissions"
 )
 
 // CertificatePermissionServiceClient is the client API for CertificatePermissionService service.
@@ -43,6 +44,8 @@ type CertificatePermissionServiceClient interface {
 	ListAccessibleCertificates(ctx context.Context, in *ListAccessibleCertificatesRequest, opts ...grpc.CallOption) (*ListAccessibleCertificatesResponse, error)
 	// Check if the authenticated client has permission to access a certificate
 	CheckPermission(ctx context.Context, in *CheckPermissionRequest, opts ...grpc.CallOption) (*CheckPermissionResponse, error)
+	// List all permissions across all certificates (admin view)
+	ListAllPermissions(ctx context.Context, in *ListAllPermissionsRequest, opts ...grpc.CallOption) (*ListAllPermissionsResponse, error)
 }
 
 type certificatePermissionServiceClient struct {
@@ -103,6 +106,16 @@ func (c *certificatePermissionServiceClient) CheckPermission(ctx context.Context
 	return out, nil
 }
 
+func (c *certificatePermissionServiceClient) ListAllPermissions(ctx context.Context, in *ListAllPermissionsRequest, opts ...grpc.CallOption) (*ListAllPermissionsResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ListAllPermissionsResponse)
+	err := c.cc.Invoke(ctx, CertificatePermissionService_ListAllPermissions_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // CertificatePermissionServiceServer is the server API for CertificatePermissionService service.
 // All implementations must embed UnimplementedCertificatePermissionServiceServer
 // for forward compatibility.
@@ -119,6 +132,8 @@ type CertificatePermissionServiceServer interface {
 	ListAccessibleCertificates(context.Context, *ListAccessibleCertificatesRequest) (*ListAccessibleCertificatesResponse, error)
 	// Check if the authenticated client has permission to access a certificate
 	CheckPermission(context.Context, *CheckPermissionRequest) (*CheckPermissionResponse, error)
+	// List all permissions across all certificates (admin view)
+	ListAllPermissions(context.Context, *ListAllPermissionsRequest) (*ListAllPermissionsResponse, error)
 	mustEmbedUnimplementedCertificatePermissionServiceServer()
 }
 
@@ -143,6 +158,9 @@ func (UnimplementedCertificatePermissionServiceServer) ListAccessibleCertificate
 }
 func (UnimplementedCertificatePermissionServiceServer) CheckPermission(context.Context, *CheckPermissionRequest) (*CheckPermissionResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method CheckPermission not implemented")
+}
+func (UnimplementedCertificatePermissionServiceServer) ListAllPermissions(context.Context, *ListAllPermissionsRequest) (*ListAllPermissionsResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method ListAllPermissions not implemented")
 }
 func (UnimplementedCertificatePermissionServiceServer) mustEmbedUnimplementedCertificatePermissionServiceServer() {
 }
@@ -256,6 +274,24 @@ func _CertificatePermissionService_CheckPermission_Handler(srv interface{}, ctx 
 	return interceptor(ctx, in, info, handler)
 }
 
+func _CertificatePermissionService_ListAllPermissions_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListAllPermissionsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CertificatePermissionServiceServer).ListAllPermissions(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: CertificatePermissionService_ListAllPermissions_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CertificatePermissionServiceServer).ListAllPermissions(ctx, req.(*ListAllPermissionsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // CertificatePermissionService_ServiceDesc is the grpc.ServiceDesc for CertificatePermissionService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -282,6 +318,10 @@ var CertificatePermissionService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "CheckPermission",
 			Handler:    _CertificatePermissionService_CheckPermission_Handler,
+		},
+		{
+			MethodName: "ListAllPermissions",
+			Handler:    _CertificatePermissionService_ListAllPermissions_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

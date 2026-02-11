@@ -1,0 +1,33 @@
+syntax = "proto3";
+
+package admin.service.v1;
+
+import "gnostic/openapi/v3/annotations.proto";
+
+import "google/api/annotations.proto";
+
+import "google/protobuf/empty.proto";
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/field_mask.proto";
+import "google/protobuf/duration.proto";
+
+import "pagination/v1/pagination.proto";
+import "permission/service/v1/policy_evaluation_log.proto";
+
+
+// Policy evaluation log service
+service PolicyEvaluationLogService {
+  // Query policy evaluation log list
+  rpc List (pagination.PagingRequest) returns (permission.service.v1.ListPolicyEvaluationLogResponse) {
+    option (google.api.http) = {
+      get: "/admin/v1/policy-evaluation-logs"
+    };
+  }
+
+  // Query policy evaluation log details
+  rpc Get (permission.service.v1.GetPolicyEvaluationLogRequest) returns (permission.service.v1.PolicyEvaluationLog) {
+    option (google.api.http) = {
+      get: "/admin/v1/policy-evaluation-logs/{id}"
+    };
+  }
+}

@@ -141,6 +141,12 @@ func (m *Document) validate(all bool) error {
 		}
 	}
 
+	// no validation rules for ContentText
+
+	// no validation rules for ExtractedMetadata
+
+	// no validation rules for ProcessingStatus
+
 	if m.CategoryId != nil {
 		// no validation rules for CategoryId
 	}

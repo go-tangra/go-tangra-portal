@@ -4,7 +4,7 @@
 // - protoc             (unknown)
 // source: lcm/service/v1/certificate_permission.proto
 
-package servicev1
+package lcmV1
 
 import (
 	context "context"
@@ -23,6 +23,7 @@ const _ = http.SupportPackageIsVersion1
 const OperationCertificatePermissionServiceCheckPermission = "/lcm.service.v1.CertificatePermissionService/CheckPermission"
 const OperationCertificatePermissionServiceGrantPermission = "/lcm.service.v1.CertificatePermissionService/GrantPermission"
 const OperationCertificatePermissionServiceListAccessibleCertificates = "/lcm.service.v1.CertificatePermissionService/ListAccessibleCertificates"
+const OperationCertificatePermissionServiceListAllPermissions = "/lcm.service.v1.CertificatePermissionService/ListAllPermissions"
 const OperationCertificatePermissionServiceListPermissions = "/lcm.service.v1.CertificatePermissionService/ListPermissions"
 const OperationCertificatePermissionServiceRevokePermission = "/lcm.service.v1.CertificatePermissionService/RevokePermission"
 
@@ -33,6 +34,8 @@ type CertificatePermissionServiceHTTPServer interface {
 	GrantPermission(context.Context, *GrantPermissionRequest) (*GrantPermissionResponse, error)
 	// ListAccessibleCertificates List all certificates accessible to the authenticated client (grants received)
 	ListAccessibleCertificates(context.Context, *ListAccessibleCertificatesRequest) (*ListAccessibleCertificatesResponse, error)
+	// ListAllPermissions List all permissions across all certificates (admin view)
+	ListAllPermissions(context.Context, *ListAllPermissionsRequest) (*ListAllPermissionsResponse, error)
 	// ListPermissions List all permissions for a certificate (as owner)
 	ListPermissions(context.Context, *ListPermissionsRequest) (*ListPermissionsResponse, error)
 	// RevokePermission Revoke a previously granted permission
@@ -46,6 +49,7 @@ func RegisterCertificatePermissionServiceHTTPServer(s *http.Server, srv Certific
 	r.GET("/v1/certificate-permissions/{certificate_id}", _CertificatePermissionService_ListPermissions0_HTTP_Handler(srv))
 	r.GET("/v1/certificate-permissions/accessible", _CertificatePermissionService_ListAccessibleCertificates0_HTTP_Handler(srv))
 	r.GET("/v1/certificate-permissions/{certificate_id}/check", _CertificatePermissionService_CheckPermission0_HTTP_Handler(srv))
+	r.GET("/v1/certificate-permissions/all", _CertificatePermissionService_ListAllPermissions0_HTTP_Handler(srv))
 }
 
 func _CertificatePermissionService_GrantPermission0_HTTP_Handler(srv CertificatePermissionServiceHTTPServer) func(ctx http.Context) error {
@@ -155,6 +159,25 @@ func _CertificatePermissionService_CheckPermission0_HTTP_Handler(srv Certificate
 	}
 }
 
+func _CertificatePermissionService_ListAllPermissions0_HTTP_Handler(srv CertificatePermissionServiceHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in ListAllPermissionsRequest
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationCertificatePermissionServiceListAllPermissions)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.ListAllPermissions(ctx, req.(*ListAllPermissionsRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*ListAllPermissionsResponse)
+		return ctx.Result(200, reply)
+	}
+}
+
 type CertificatePermissionServiceHTTPClient interface {
 	// CheckPermission Check if the authenticated client has permission to access a certificate
 	CheckPermission(ctx context.Context, req *CheckPermissionRequest, opts ...http.CallOption) (rsp *CheckPermissionResponse, err error)
@@ -162,6 +185,8 @@ type CertificatePermissionServiceHTTPClient interface {
 	GrantPermission(ctx context.Context, req *GrantPermissionRequest, opts ...http.CallOption) (rsp *GrantPermissionResponse, err error)
 	// ListAccessibleCertificates List all certificates accessible to the authenticated client (grants received)
 	ListAccessibleCertificates(ctx context.Context, req *ListAccessibleCertificatesRequest, opts ...http.CallOption) (rsp *ListAccessibleCertificatesResponse, err error)
+	// ListAllPermissions List all permissions across all certificates (admin view)
+	ListAllPermissions(ctx context.Context, req *ListAllPermissionsRequest, opts ...http.CallOption) (rsp *ListAllPermissionsResponse, err error)
 	// ListPermissions List all permissions for a certificate (as owner)
 	ListPermissions(ctx context.Context, req *ListPermissionsRequest, opts ...http.CallOption) (rsp *ListPermissionsResponse, err error)
 	// RevokePermission Revoke a previously granted permission
@@ -210,6 +235,20 @@ func (c *CertificatePermissionServiceHTTPClientImpl) ListAccessibleCertificates(
 	pattern := "/v1/certificate-permissions/accessible"
 	path := binding.EncodeURL(pattern, in, true)
 	opts = append(opts, http.Operation(OperationCertificatePermissionServiceListAccessibleCertificates))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, nil
+}
+
+// ListAllPermissions List all permissions across all certificates (admin view)
+func (c *CertificatePermissionServiceHTTPClientImpl) ListAllPermissions(ctx context.Context, in *ListAllPermissionsRequest, opts ...http.CallOption) (*ListAllPermissionsResponse, error) {
+	var out ListAllPermissionsResponse
+	pattern := "/v1/certificate-permissions/all"
+	path := binding.EncodeURL(pattern, in, true)
+	opts = append(opts, http.Operation(OperationCertificatePermissionServiceListAllPermissions))
 	opts = append(opts, http.PathTemplate(pattern))
 	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
 	if err != nil {

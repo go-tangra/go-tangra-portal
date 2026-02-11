@@ -131,27 +131,30 @@ func (DocumentSource) EnumDescriptor() ([]byte, []int) {
 
 // Document entity
 type Document struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	TenantId      uint32                 `protobuf:"varint,2,opt,name=tenant_id,json=tenantId,proto3" json:"tenant_id,omitempty"`
-	CategoryId    *string                `protobuf:"bytes,3,opt,name=category_id,json=categoryId,proto3,oneof" json:"category_id,omitempty"`
-	CategoryPath  string                 `protobuf:"bytes,4,opt,name=category_path,json=categoryPath,proto3" json:"category_path,omitempty"`
-	Name          string                 `protobuf:"bytes,5,opt,name=name,proto3" json:"name,omitempty"`
-	Description   string                 `protobuf:"bytes,6,opt,name=description,proto3" json:"description,omitempty"`
-	FileKey       string                 `protobuf:"bytes,7,opt,name=file_key,json=fileKey,proto3" json:"file_key,omitempty"`
-	FileName      string                 `protobuf:"bytes,8,opt,name=file_name,json=fileName,proto3" json:"file_name,omitempty"`
-	FileSize      int64                  `protobuf:"varint,9,opt,name=file_size,json=fileSize,proto3" json:"file_size,omitempty"`
-	MimeType      string                 `protobuf:"bytes,10,opt,name=mime_type,json=mimeType,proto3" json:"mime_type,omitempty"`
-	Checksum      string                 `protobuf:"bytes,11,opt,name=checksum,proto3" json:"checksum,omitempty"`
-	Status        DocumentStatus         `protobuf:"varint,12,opt,name=status,proto3,enum=paperless.service.v1.DocumentStatus" json:"status,omitempty"`
-	Source        DocumentSource         `protobuf:"varint,13,opt,name=source,proto3,enum=paperless.service.v1.DocumentSource" json:"source,omitempty"`
-	Tags          map[string]string      `protobuf:"bytes,14,rep,name=tags,proto3" json:"tags,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
-	CreateTime    *timestamppb.Timestamp `protobuf:"bytes,15,opt,name=create_time,json=createTime,proto3" json:"create_time,omitempty"`
-	UpdateTime    *timestamppb.Timestamp `protobuf:"bytes,16,opt,name=update_time,json=updateTime,proto3" json:"update_time,omitempty"`
-	CreatedBy     *uint32                `protobuf:"varint,17,opt,name=created_by,json=createdBy,proto3,oneof" json:"created_by,omitempty"`
-	UpdatedBy     *uint32                `protobuf:"varint,18,opt,name=updated_by,json=updatedBy,proto3,oneof" json:"updated_by,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	state             protoimpl.MessageState `protogen:"open.v1"`
+	Id                string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	TenantId          uint32                 `protobuf:"varint,2,opt,name=tenant_id,json=tenantId,proto3" json:"tenant_id,omitempty"`
+	CategoryId        *string                `protobuf:"bytes,3,opt,name=category_id,json=categoryId,proto3,oneof" json:"category_id,omitempty"`
+	CategoryPath      string                 `protobuf:"bytes,4,opt,name=category_path,json=categoryPath,proto3" json:"category_path,omitempty"`
+	Name              string                 `protobuf:"bytes,5,opt,name=name,proto3" json:"name,omitempty"`
+	Description       string                 `protobuf:"bytes,6,opt,name=description,proto3" json:"description,omitempty"`
+	FileKey           string                 `protobuf:"bytes,7,opt,name=file_key,json=fileKey,proto3" json:"file_key,omitempty"`
+	FileName          string                 `protobuf:"bytes,8,opt,name=file_name,json=fileName,proto3" json:"file_name,omitempty"`
+	FileSize          int64                  `protobuf:"varint,9,opt,name=file_size,json=fileSize,proto3" json:"file_size,omitempty"`
+	MimeType          string                 `protobuf:"bytes,10,opt,name=mime_type,json=mimeType,proto3" json:"mime_type,omitempty"`
+	Checksum          string                 `protobuf:"bytes,11,opt,name=checksum,proto3" json:"checksum,omitempty"`
+	Status            DocumentStatus         `protobuf:"varint,12,opt,name=status,proto3,enum=paperless.service.v1.DocumentStatus" json:"status,omitempty"`
+	Source            DocumentSource         `protobuf:"varint,13,opt,name=source,proto3,enum=paperless.service.v1.DocumentSource" json:"source,omitempty"`
+	Tags              map[string]string      `protobuf:"bytes,14,rep,name=tags,proto3" json:"tags,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	CreateTime        *timestamppb.Timestamp `protobuf:"bytes,15,opt,name=create_time,json=createTime,proto3" json:"create_time,omitempty"`
+	UpdateTime        *timestamppb.Timestamp `protobuf:"bytes,16,opt,name=update_time,json=updateTime,proto3" json:"update_time,omitempty"`
+	CreatedBy         *uint32                `protobuf:"varint,17,opt,name=created_by,json=createdBy,proto3,oneof" json:"created_by,omitempty"`
+	UpdatedBy         *uint32                `protobuf:"varint,18,opt,name=updated_by,json=updatedBy,proto3,oneof" json:"updated_by,omitempty"`
+	ContentText       string                 `protobuf:"bytes,19,opt,name=content_text,json=contentText,proto3" json:"content_text,omitempty"`
+	ExtractedMetadata map[string]string      `protobuf:"bytes,20,rep,name=extracted_metadata,json=extractedMetadata,proto3" json:"extracted_metadata,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	ProcessingStatus  string                 `protobuf:"bytes,21,opt,name=processing_status,json=processingStatus,proto3" json:"processing_status,omitempty"`
+	unknownFields     protoimpl.UnknownFields
+	sizeCache         protoimpl.SizeCache
 }
 
 func (x *Document) Reset() {
@@ -308,6 +311,27 @@ func (x *Document) GetUpdatedBy() uint32 {
 		return *x.UpdatedBy
 	}
 	return 0
+}
+
+func (x *Document) GetContentText() string {
+	if x != nil {
+		return x.ContentText
+	}
+	return ""
+}
+
+func (x *Document) GetExtractedMetadata() map[string]string {
+	if x != nil {
+		return x.ExtractedMetadata
+	}
+	return nil
+}
+
+func (x *Document) GetProcessingStatus() string {
+	if x != nil {
+		return x.ProcessingStatus
+	}
+	return ""
 }
 
 // Request to create a document
@@ -1484,7 +1508,7 @@ var File_paperless_service_v1_document_proto protoreflect.FileDescriptor
 
 const file_paperless_service_v1_document_proto_rawDesc = "" +
 	"\n" +
-	"#paperless/service/v1/document.proto\x12\x14paperless.service.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x16redact/v3/redact.proto\"\xa9\x06\n" +
+	"#paperless/service/v1/document.proto\x12\x14paperless.service.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x16redact/v3/redact.proto\"\xa5\b\n" +
 	"\bDocument\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x1b\n" +
 	"\ttenant_id\x18\x02 \x01(\rR\btenantId\x12$\n" +
@@ -1509,8 +1533,14 @@ const file_paperless_service_v1_document_proto_rawDesc = "" +
 	"\n" +
 	"created_by\x18\x11 \x01(\rH\x01R\tcreatedBy\x88\x01\x01\x12\"\n" +
 	"\n" +
-	"updated_by\x18\x12 \x01(\rH\x02R\tupdatedBy\x88\x01\x01\x1a7\n" +
+	"updated_by\x18\x12 \x01(\rH\x02R\tupdatedBy\x88\x01\x01\x12!\n" +
+	"\fcontent_text\x18\x13 \x01(\tR\vcontentText\x12d\n" +
+	"\x12extracted_metadata\x18\x14 \x03(\v25.paperless.service.v1.Document.ExtractedMetadataEntryR\x11extractedMetadata\x12+\n" +
+	"\x11processing_status\x18\x15 \x01(\tR\x10processingStatus\x1a7\n" +
 	"\tTagsEntry\x12\x10\n" +
+	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\x1aD\n" +
+	"\x16ExtractedMetadataEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01B\x0e\n" +
 	"\f_category_idB\r\n" +
@@ -1662,7 +1692,7 @@ func file_paperless_service_v1_document_proto_rawDescGZIP() []byte {
 }
 
 var file_paperless_service_v1_document_proto_enumTypes = make([]protoimpl.EnumInfo, 2)
-var file_paperless_service_v1_document_proto_msgTypes = make([]protoimpl.MessageInfo, 24)
+var file_paperless_service_v1_document_proto_msgTypes = make([]protoimpl.MessageInfo, 25)
 var file_paperless_service_v1_document_proto_goTypes = []any{
 	(DocumentStatus)(0),                    // 0: paperless.service.v1.DocumentStatus
 	(DocumentSource)(0),                    // 1: paperless.service.v1.DocumentSource
@@ -1687,57 +1717,59 @@ var file_paperless_service_v1_document_proto_goTypes = []any{
 	(*BatchDeleteDocumentsRequest)(nil),    // 20: paperless.service.v1.BatchDeleteDocumentsRequest
 	(*BatchDeleteDocumentsResponse)(nil),   // 21: paperless.service.v1.BatchDeleteDocumentsResponse
 	nil,                                    // 22: paperless.service.v1.Document.TagsEntry
-	nil,                                    // 23: paperless.service.v1.CreateDocumentRequest.TagsEntry
-	nil,                                    // 24: paperless.service.v1.UpdateDocumentRequest.TagsEntry
-	nil,                                    // 25: paperless.service.v1.SearchDocumentsRequest.TagsEntry
-	(*timestamppb.Timestamp)(nil),          // 26: google.protobuf.Timestamp
-	(*emptypb.Empty)(nil),                  // 27: google.protobuf.Empty
+	nil,                                    // 23: paperless.service.v1.Document.ExtractedMetadataEntry
+	nil,                                    // 24: paperless.service.v1.CreateDocumentRequest.TagsEntry
+	nil,                                    // 25: paperless.service.v1.UpdateDocumentRequest.TagsEntry
+	nil,                                    // 26: paperless.service.v1.SearchDocumentsRequest.TagsEntry
+	(*timestamppb.Timestamp)(nil),          // 27: google.protobuf.Timestamp
+	(*emptypb.Empty)(nil),                  // 28: google.protobuf.Empty
 }
 var file_paperless_service_v1_document_proto_depIdxs = []int32{
 	0,  // 0: paperless.service.v1.Document.status:type_name -> paperless.service.v1.DocumentStatus
 	1,  // 1: paperless.service.v1.Document.source:type_name -> paperless.service.v1.DocumentSource
 	22, // 2: paperless.service.v1.Document.tags:type_name -> paperless.service.v1.Document.TagsEntry
-	26, // 3: paperless.service.v1.Document.create_time:type_name -> google.protobuf.Timestamp
-	26, // 4: paperless.service.v1.Document.update_time:type_name -> google.protobuf.Timestamp
-	23, // 5: paperless.service.v1.CreateDocumentRequest.tags:type_name -> paperless.service.v1.CreateDocumentRequest.TagsEntry
-	1,  // 6: paperless.service.v1.CreateDocumentRequest.source:type_name -> paperless.service.v1.DocumentSource
-	2,  // 7: paperless.service.v1.CreateDocumentResponse.document:type_name -> paperless.service.v1.Document
-	2,  // 8: paperless.service.v1.GetDocumentResponse.document:type_name -> paperless.service.v1.Document
-	0,  // 9: paperless.service.v1.ListDocumentsRequest.status:type_name -> paperless.service.v1.DocumentStatus
-	2,  // 10: paperless.service.v1.ListDocumentsResponse.documents:type_name -> paperless.service.v1.Document
-	0,  // 11: paperless.service.v1.UpdateDocumentRequest.status:type_name -> paperless.service.v1.DocumentStatus
-	24, // 12: paperless.service.v1.UpdateDocumentRequest.tags:type_name -> paperless.service.v1.UpdateDocumentRequest.TagsEntry
-	2,  // 13: paperless.service.v1.UpdateDocumentResponse.document:type_name -> paperless.service.v1.Document
-	2,  // 14: paperless.service.v1.MoveDocumentResponse.document:type_name -> paperless.service.v1.Document
-	26, // 15: paperless.service.v1.GetDocumentDownloadUrlResponse.expires_at:type_name -> google.protobuf.Timestamp
-	0,  // 16: paperless.service.v1.SearchDocumentsRequest.status:type_name -> paperless.service.v1.DocumentStatus
-	25, // 17: paperless.service.v1.SearchDocumentsRequest.tags:type_name -> paperless.service.v1.SearchDocumentsRequest.TagsEntry
-	2,  // 18: paperless.service.v1.SearchDocumentsResponse.documents:type_name -> paperless.service.v1.Document
-	3,  // 19: paperless.service.v1.PaperlessDocumentService.CreateDocument:input_type -> paperless.service.v1.CreateDocumentRequest
-	5,  // 20: paperless.service.v1.PaperlessDocumentService.GetDocument:input_type -> paperless.service.v1.GetDocumentRequest
-	7,  // 21: paperless.service.v1.PaperlessDocumentService.ListDocuments:input_type -> paperless.service.v1.ListDocumentsRequest
-	9,  // 22: paperless.service.v1.PaperlessDocumentService.UpdateDocument:input_type -> paperless.service.v1.UpdateDocumentRequest
-	11, // 23: paperless.service.v1.PaperlessDocumentService.DeleteDocument:input_type -> paperless.service.v1.DeleteDocumentRequest
-	12, // 24: paperless.service.v1.PaperlessDocumentService.MoveDocument:input_type -> paperless.service.v1.MoveDocumentRequest
-	14, // 25: paperless.service.v1.PaperlessDocumentService.DownloadDocument:input_type -> paperless.service.v1.DownloadDocumentRequest
-	16, // 26: paperless.service.v1.PaperlessDocumentService.GetDocumentDownloadUrl:input_type -> paperless.service.v1.GetDocumentDownloadUrlRequest
-	18, // 27: paperless.service.v1.PaperlessDocumentService.SearchDocuments:input_type -> paperless.service.v1.SearchDocumentsRequest
-	20, // 28: paperless.service.v1.PaperlessDocumentService.BatchDeleteDocuments:input_type -> paperless.service.v1.BatchDeleteDocumentsRequest
-	4,  // 29: paperless.service.v1.PaperlessDocumentService.CreateDocument:output_type -> paperless.service.v1.CreateDocumentResponse
-	6,  // 30: paperless.service.v1.PaperlessDocumentService.GetDocument:output_type -> paperless.service.v1.GetDocumentResponse
-	8,  // 31: paperless.service.v1.PaperlessDocumentService.ListDocuments:output_type -> paperless.service.v1.ListDocumentsResponse
-	10, // 32: paperless.service.v1.PaperlessDocumentService.UpdateDocument:output_type -> paperless.service.v1.UpdateDocumentResponse
-	27, // 33: paperless.service.v1.PaperlessDocumentService.DeleteDocument:output_type -> google.protobuf.Empty
-	13, // 34: paperless.service.v1.PaperlessDocumentService.MoveDocument:output_type -> paperless.service.v1.MoveDocumentResponse
-	15, // 35: paperless.service.v1.PaperlessDocumentService.DownloadDocument:output_type -> paperless.service.v1.DownloadDocumentResponse
-	17, // 36: paperless.service.v1.PaperlessDocumentService.GetDocumentDownloadUrl:output_type -> paperless.service.v1.GetDocumentDownloadUrlResponse
-	19, // 37: paperless.service.v1.PaperlessDocumentService.SearchDocuments:output_type -> paperless.service.v1.SearchDocumentsResponse
-	21, // 38: paperless.service.v1.PaperlessDocumentService.BatchDeleteDocuments:output_type -> paperless.service.v1.BatchDeleteDocumentsResponse
-	29, // [29:39] is the sub-list for method output_type
-	19, // [19:29] is the sub-list for method input_type
-	19, // [19:19] is the sub-list for extension type_name
-	19, // [19:19] is the sub-list for extension extendee
-	0,  // [0:19] is the sub-list for field type_name
+	27, // 3: paperless.service.v1.Document.create_time:type_name -> google.protobuf.Timestamp
+	27, // 4: paperless.service.v1.Document.update_time:type_name -> google.protobuf.Timestamp
+	23, // 5: paperless.service.v1.Document.extracted_metadata:type_name -> paperless.service.v1.Document.ExtractedMetadataEntry
+	24, // 6: paperless.service.v1.CreateDocumentRequest.tags:type_name -> paperless.service.v1.CreateDocumentRequest.TagsEntry
+	1,  // 7: paperless.service.v1.CreateDocumentRequest.source:type_name -> paperless.service.v1.DocumentSource
+	2,  // 8: paperless.service.v1.CreateDocumentResponse.document:type_name -> paperless.service.v1.Document
+	2,  // 9: paperless.service.v1.GetDocumentResponse.document:type_name -> paperless.service.v1.Document
+	0,  // 10: paperless.service.v1.ListDocumentsRequest.status:type_name -> paperless.service.v1.DocumentStatus
+	2,  // 11: paperless.service.v1.ListDocumentsResponse.documents:type_name -> paperless.service.v1.Document
+	0,  // 12: paperless.service.v1.UpdateDocumentRequest.status:type_name -> paperless.service.v1.DocumentStatus
+	25, // 13: paperless.service.v1.UpdateDocumentRequest.tags:type_name -> paperless.service.v1.UpdateDocumentRequest.TagsEntry
+	2,  // 14: paperless.service.v1.UpdateDocumentResponse.document:type_name -> paperless.service.v1.Document
+	2,  // 15: paperless.service.v1.MoveDocumentResponse.document:type_name -> paperless.service.v1.Document
+	27, // 16: paperless.service.v1.GetDocumentDownloadUrlResponse.expires_at:type_name -> google.protobuf.Timestamp
+	0,  // 17: paperless.service.v1.SearchDocumentsRequest.status:type_name -> paperless.service.v1.DocumentStatus
+	26, // 18: paperless.service.v1.SearchDocumentsRequest.tags:type_name -> paperless.service.v1.SearchDocumentsRequest.TagsEntry
+	2,  // 19: paperless.service.v1.SearchDocumentsResponse.documents:type_name -> paperless.service.v1.Document
+	3,  // 20: paperless.service.v1.PaperlessDocumentService.CreateDocument:input_type -> paperless.service.v1.CreateDocumentRequest
+	5,  // 21: paperless.service.v1.PaperlessDocumentService.GetDocument:input_type -> paperless.service.v1.GetDocumentRequest
+	7,  // 22: paperless.service.v1.PaperlessDocumentService.ListDocuments:input_type -> paperless.service.v1.ListDocumentsRequest
+	9,  // 23: paperless.service.v1.PaperlessDocumentService.UpdateDocument:input_type -> paperless.service.v1.UpdateDocumentRequest
+	11, // 24: paperless.service.v1.PaperlessDocumentService.DeleteDocument:input_type -> paperless.service.v1.DeleteDocumentRequest
+	12, // 25: paperless.service.v1.PaperlessDocumentService.MoveDocument:input_type -> paperless.service.v1.MoveDocumentRequest
+	14, // 26: paperless.service.v1.PaperlessDocumentService.DownloadDocument:input_type -> paperless.service.v1.DownloadDocumentRequest
+	16, // 27: paperless.service.v1.PaperlessDocumentService.GetDocumentDownloadUrl:input_type -> paperless.service.v1.GetDocumentDownloadUrlRequest
+	18, // 28: paperless.service.v1.PaperlessDocumentService.SearchDocuments:input_type -> paperless.service.v1.SearchDocumentsRequest
+	20, // 29: paperless.service.v1.PaperlessDocumentService.BatchDeleteDocuments:input_type -> paperless.service.v1.BatchDeleteDocumentsRequest
+	4,  // 30: paperless.service.v1.PaperlessDocumentService.CreateDocument:output_type -> paperless.service.v1.CreateDocumentResponse
+	6,  // 31: paperless.service.v1.PaperlessDocumentService.GetDocument:output_type -> paperless.service.v1.GetDocumentResponse
+	8,  // 32: paperless.service.v1.PaperlessDocumentService.ListDocuments:output_type -> paperless.service.v1.ListDocumentsResponse
+	10, // 33: paperless.service.v1.PaperlessDocumentService.UpdateDocument:output_type -> paperless.service.v1.UpdateDocumentResponse
+	28, // 34: paperless.service.v1.PaperlessDocumentService.DeleteDocument:output_type -> google.protobuf.Empty
+	13, // 35: paperless.service.v1.PaperlessDocumentService.MoveDocument:output_type -> paperless.service.v1.MoveDocumentResponse
+	15, // 36: paperless.service.v1.PaperlessDocumentService.DownloadDocument:output_type -> paperless.service.v1.DownloadDocumentResponse
+	17, // 37: paperless.service.v1.PaperlessDocumentService.GetDocumentDownloadUrl:output_type -> paperless.service.v1.GetDocumentDownloadUrlResponse
+	19, // 38: paperless.service.v1.PaperlessDocumentService.SearchDocuments:output_type -> paperless.service.v1.SearchDocumentsResponse
+	21, // 39: paperless.service.v1.PaperlessDocumentService.BatchDeleteDocuments:output_type -> paperless.service.v1.BatchDeleteDocumentsResponse
+	30, // [30:40] is the sub-list for method output_type
+	20, // [20:30] is the sub-list for method input_type
+	20, // [20:20] is the sub-list for extension type_name
+	20, // [20:20] is the sub-list for extension extendee
+	0,  // [0:20] is the sub-list for field type_name
 }
 
 func init() { file_paperless_service_v1_document_proto_init() }
@@ -1758,7 +1790,7 @@ func file_paperless_service_v1_document_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_paperless_service_v1_document_proto_rawDesc), len(file_paperless_service_v1_document_proto_rawDesc)),
 			NumEnums:      2,
-			NumMessages:   24,
+			NumMessages:   25,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

@@ -4,7 +4,7 @@
 // - protoc             (unknown)
 // source: lcm/service/v1/certificate_job.proto
 
-package servicev1
+package lcmV1
 
 import (
 	context "context"
@@ -25,6 +25,7 @@ const OperationLcmCertificateJobServiceGetJobResult = "/lcm.service.v1.LcmCertif
 const OperationLcmCertificateJobServiceGetJobStatus = "/lcm.service.v1.LcmCertificateJobService/GetJobStatus"
 const OperationLcmCertificateJobServiceListJobs = "/lcm.service.v1.LcmCertificateJobService/ListJobs"
 const OperationLcmCertificateJobServiceRequestCertificate = "/lcm.service.v1.LcmCertificateJobService/RequestCertificate"
+const OperationLcmCertificateJobServiceRetryJob = "/lcm.service.v1.LcmCertificateJobService/RetryJob"
 
 type LcmCertificateJobServiceHTTPServer interface {
 	// CancelJob Cancel a pending certificate job
@@ -37,6 +38,8 @@ type LcmCertificateJobServiceHTTPServer interface {
 	ListJobs(context.Context, *ListJobsRequest) (*ListJobsResponse, error)
 	// RequestCertificate Request a new certificate (async - returns job ID immediately)
 	RequestCertificate(context.Context, *RequestCertificateRequest) (*RequestCertificateResponse, error)
+	// RetryJob Retry a failed certificate job
+	RetryJob(context.Context, *RetryJobRequest) (*RetryJobResponse, error)
 }
 
 func RegisterLcmCertificateJobServiceHTTPServer(s *http.Server, srv LcmCertificateJobServiceHTTPServer) {
@@ -46,6 +49,7 @@ func RegisterLcmCertificateJobServiceHTTPServer(s *http.Server, srv LcmCertifica
 	r.GET("/v1/certificate-jobs/{job_id}/result", _LcmCertificateJobService_GetJobResult0_HTTP_Handler(srv))
 	r.GET("/v1/certificate-jobs", _LcmCertificateJobService_ListJobs0_HTTP_Handler(srv))
 	r.POST("/v1/certificate-jobs/{job_id}/cancel", _LcmCertificateJobService_CancelJob0_HTTP_Handler(srv))
+	r.POST("/v1/certificate-jobs/{job_id}/retry", _LcmCertificateJobService_RetryJob0_HTTP_Handler(srv))
 }
 
 func _LcmCertificateJobService_RequestCertificate0_HTTP_Handler(srv LcmCertificateJobServiceHTTPServer) func(ctx http.Context) error {
@@ -155,6 +159,28 @@ func _LcmCertificateJobService_CancelJob0_HTTP_Handler(srv LcmCertificateJobServ
 	}
 }
 
+func _LcmCertificateJobService_RetryJob0_HTTP_Handler(srv LcmCertificateJobServiceHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in RetryJobRequest
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		if err := ctx.BindVars(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationLcmCertificateJobServiceRetryJob)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.RetryJob(ctx, req.(*RetryJobRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*RetryJobResponse)
+		return ctx.Result(200, reply)
+	}
+}
+
 type LcmCertificateJobServiceHTTPClient interface {
 	// CancelJob Cancel a pending certificate job
 	CancelJob(ctx context.Context, req *CancelJobRequest, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
@@ -166,6 +192,8 @@ type LcmCertificateJobServiceHTTPClient interface {
 	ListJobs(ctx context.Context, req *ListJobsRequest, opts ...http.CallOption) (rsp *ListJobsResponse, err error)
 	// RequestCertificate Request a new certificate (async - returns job ID immediately)
 	RequestCertificate(ctx context.Context, req *RequestCertificateRequest, opts ...http.CallOption) (rsp *RequestCertificateResponse, err error)
+	// RetryJob Retry a failed certificate job
+	RetryJob(ctx context.Context, req *RetryJobRequest, opts ...http.CallOption) (rsp *RetryJobResponse, err error)
 }
 
 type LcmCertificateJobServiceHTTPClientImpl struct {
@@ -240,6 +268,20 @@ func (c *LcmCertificateJobServiceHTTPClientImpl) RequestCertificate(ctx context.
 	opts = append(opts, http.Operation(OperationLcmCertificateJobServiceRequestCertificate))
 	opts = append(opts, http.PathTemplate(pattern))
 	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, nil
+}
+
+// RetryJob Retry a failed certificate job
+func (c *LcmCertificateJobServiceHTTPClientImpl) RetryJob(ctx context.Context, in *RetryJobRequest, opts ...http.CallOption) (*RetryJobResponse, error) {
+	var out RetryJobResponse
+	pattern := "/v1/certificate-jobs/{job_id}/retry"
+	path := binding.EncodeURL(pattern, in, true)
+	opts = append(opts, http.Operation(OperationLcmCertificateJobServiceRetryJob))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "POST", path, nil, &out, opts...)
 	if err != nil {
 		return nil, err
 	}

@@ -4,7 +4,7 @@
 // 	protoc        (unknown)
 // source: lcm/service/v1/issuer.proto
 
-package servicev1
+package lcmV1
 
 import (
 	_ "buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go/buf/validate"
@@ -1143,8 +1143,8 @@ const file_lcm_service_v1_issuer_proto_rawDesc = "" +
 	"\fUpdateIssuer\x12#.lcm.service.v1.UpdateIssuerRequest\x1a\x16.google.protobuf.Empty\"\x1d\x82\xd3\xe4\x93\x02\x17:\x01*\x1a\x12/v1/issuers/{name}\x12g\n" +
 	"\fDeleteIssuer\x12#.lcm.service.v1.DeleteIssuerRequest\x1a\x16.google.protobuf.Empty\"\x1a\x82\xd3\xe4\x93\x02\x14*\x12/v1/issuers/{name}\x12o\n" +
 	"\x10ListDnsProviders\x12\x16.google.protobuf.Empty\x1a(.lcm.service.v1.ListDnsProvidersResponse\"\x19\x82\xd3\xe4\x93\x02\x13\x12\x11/v1/dns-providers\x12\x82\x01\n" +
-	"\x12GetDnsProviderInfo\x12).lcm.service.v1.GetDnsProviderInfoRequest\x1a\x1f.lcm.service.v1.DnsProviderInfo\" \x82\xd3\xe4\x93\x02\x1a\x12\x18/v1/dns-providers/{name}B\xc6\x01\n" +
-	"\x12com.lcm.service.v1B\vIssuerProtoP\x01ZIgithub.com/go-tangra/go-tangra-portal/api/gen/go/lcm/service/v1;servicev1\xa2\x02\x03LSX\xaa\x02\x0eLcm.Service.V1\xca\x02\x0eLcm\\Service\\V1\xe2\x02\x1aLcm\\Service\\V1\\GPBMetadata\xea\x02\x10Lcm::Service::V1b\x06proto3"
+	"\x12GetDnsProviderInfo\x12).lcm.service.v1.GetDnsProviderInfoRequest\x1a\x1f.lcm.service.v1.DnsProviderInfo\" \x82\xd3\xe4\x93\x02\x1a\x12\x18/v1/dns-providers/{name}B\xc2\x01\n" +
+	"\x12com.lcm.service.v1B\vIssuerProtoP\x01ZEgithub.com/go-tangra/go-tangra-portal/api/gen/go/lcm/service/v1;lcmV1\xa2\x02\x03LSX\xaa\x02\x0eLcm.Service.V1\xca\x02\x0eLcm\\Service\\V1\xe2\x02\x1aLcm\\Service\\V1\\GPBMetadata\xea\x02\x10Lcm::Service::V1b\x06proto3"
 
 var (
 	file_lcm_service_v1_issuer_proto_rawDescOnce sync.Once

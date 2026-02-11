@@ -1,0 +1,78 @@
+syntax = "proto3";
+
+package user.service.v1;
+
+import "gnostic/openapi/v3/annotations.proto";
+import "google/protobuf/empty.proto";
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/field_mask.proto";
+
+import "pagination/v1/pagination.proto";
+
+// User and organization unit association
+message UserOrgUnit {
+  // Status
+  enum Status {
+    ACTIVE = 0;       // Active status
+    PENDING = 1;      // Pending activation status
+    INACTIVE = 2;     // Inactive status
+    SUSPENDED = 3;    // Suspended status
+    EXPIRED = 4;      // Expired
+  }
+
+  optional uint32 id = 1 [
+    json_name = "id",
+    (gnostic.openapi.v3.property) = { description: "ID" }
+  ]; // ID
+
+  optional uint32 user_id = 2 [
+    json_name = "userId",
+    (gnostic.openapi.v3.property) = { description: "User ID" }
+  ]; // User ID
+
+  optional uint32 tenant_id = 3 [
+    json_name = "tenantId",
+    (gnostic.openapi.v3.property) = { description: "Tenant ID" }
+  ]; // Tenant ID
+
+  optional uint32 org_unit_id = 4 [
+    json_name = "orgUnitId",
+    (gnostic.openapi.v3.property) = { description: "Organization unit ID" }
+  ]; // Organization unit ID
+
+  optional bool is_primary = 6 [
+    json_name = "isPrimary",
+    (gnostic.openapi.v3.property) = {description: "Whether this is the primary organization"}
+  ]; // Whether this is the primary organization
+
+  optional Status status = 7 [
+    (gnostic.openapi.v3.property) = { description: "Status" }
+  ]; // Status
+
+  optional google.protobuf.Timestamp assigned_at = 10 [
+    json_name = "assignedAt",
+    (gnostic.openapi.v3.property) = { description: "Assignment time (UTC)" }
+  ];
+  optional uint32 assigned_by = 11 [
+    json_name = "assignedBy",
+    (gnostic.openapi.v3.property) = { description: "Assigner user ID" }
+  ];
+
+  optional google.protobuf.Timestamp start_at = 50 [
+    json_name = "startAt",
+    (gnostic.openapi.v3.property) = {description: "Effective time (UTC)"}
+  ];// Effective time
+
+  optional google.protobuf.Timestamp end_at = 51 [
+    json_name = "endAt",
+    (gnostic.openapi.v3.property) = {description: "Expiration time (UTC)"}
+  ];// Expiration time
+
+  optional uint32 created_by = 100 [json_name = "createdBy", (gnostic.openapi.v3.property) = {description: "Creator ID"}]; // Creator ID
+  optional uint32 updated_by = 101 [json_name = "updatedBy", (gnostic.openapi.v3.property) = {description: "Updater ID"}]; // Updater ID
+  optional uint32 deleted_by = 102 [json_name = "deletedBy", (gnostic.openapi.v3.property) = {description: "Deleter user ID"}]; // Deleter user ID
+
+  optional google.protobuf.Timestamp created_at = 200 [json_name = "createdAt", (gnostic.openapi.v3.property) = {description: "Created time"}];// Created time
+  optional google.protobuf.Timestamp updated_at = 201 [json_name = "updatedAt", (gnostic.openapi.v3.property) = {description: "Updated time"}];// Updated time
+  optional google.protobuf.Timestamp deleted_at = 202 [json_name = "deletedAt", (gnostic.openapi.v3.property) = {description: "Deleted time"}];// Deleted time
+}

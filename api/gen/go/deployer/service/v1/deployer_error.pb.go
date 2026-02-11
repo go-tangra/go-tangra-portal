@@ -4,7 +4,7 @@
 // 	protoc        (unknown)
 // source: deployer/service/v1/deployer_error.proto
 
-package servicev1
+package deployerV1
 
 import (
 	_ "github.com/go-kratos/kratos/v2/errors"
@@ -179,8 +179,8 @@ const file_deployer_service_v1_deployer_error_proto_rawDesc = "" +
 	"\x15INTERNAL_SERVER_ERROR\x10\xd0\x0f\x1a\x04\xa8E\xf4\x03\x12\x19\n" +
 	"\x0ePROVIDER_ERROR\x10\xd1\x0f\x1a\x04\xa8E\xf4\x03\x12\x1e\n" +
 	"\x13SERVICE_UNAVAILABLE\x10\xfc\x11\x1a\x04\xa8E\xf7\x03\x12\x1f\n" +
-	"\x14PROVIDER_UNAVAILABLE\x10\xfd\x11\x1a\x04\xa8E\xf7\x03\x1a\x04\xa0E\xf4\x03B\xeb\x01\n" +
-	"\x17com.deployer.service.v1B\x12DeployerErrorProtoP\x01ZNgithub.com/go-tangra/go-tangra-portal/api/gen/go/deployer/service/v1;servicev1\xa2\x02\x03DSX\xaa\x02\x13Deployer.Service.V1\xca\x02\x13Deployer\\Service\\V1\xe2\x02\x1fDeployer\\Service\\V1\\GPBMetadata\xea\x02\x15Deployer::Service::V1b\x06proto3"
+	"\x14PROVIDER_UNAVAILABLE\x10\xfd\x11\x1a\x04\xa8E\xf7\x03\x1a\x04\xa0E\xf4\x03B\xec\x01\n" +
+	"\x17com.deployer.service.v1B\x12DeployerErrorProtoP\x01ZOgithub.com/go-tangra/go-tangra-portal/api/gen/go/deployer/service/v1;deployerV1\xa2\x02\x03DSX\xaa\x02\x13Deployer.Service.V1\xca\x02\x13Deployer\\Service\\V1\xe2\x02\x1fDeployer\\Service\\V1\\GPBMetadata\xea\x02\x15Deployer::Service::V1b\x06proto3"
 
 var (
 	file_deployer_service_v1_deployer_error_proto_rawDescOnce sync.Once

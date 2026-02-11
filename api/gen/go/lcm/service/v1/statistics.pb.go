@@ -4,7 +4,7 @@
 // 	protoc        (unknown)
 // source: lcm/service/v1/statistics.proto
 
-package servicev1
+package lcmV1
 
 import (
 	_ "github.com/google/gnostic/openapiv3"
@@ -1484,8 +1484,8 @@ const file_lcm_service_v1_statistics_proto_rawDesc = "" +
 	"\x11mtls_certificates\x18\a \x01(\v2).lcm.service.v1.MtlsCertificateStatisticsR\x10mtlsCertificates2\xad\x02\n" +
 	"\x14LcmStatisticsService\x12|\n" +
 	"\rGetStatistics\x12$.lcm.service.v1.GetStatisticsRequest\x1a%.lcm.service.v1.GetStatisticsResponse\"\x1e\x82\xd3\xe4\x93\x02\x18\x12\x16/api/v1/lcm/statistics\x12\x96\x01\n" +
-	"\x13GetTenantStatistics\x12*.lcm.service.v1.GetTenantStatisticsRequest\x1a .lcm.service.v1.TenantStatistics\"1\x82\xd3\xe4\x93\x02+\x12)/api/v1/lcm/statistics/tenant/{tenant_id}B\xca\x01\n" +
-	"\x12com.lcm.service.v1B\x0fStatisticsProtoP\x01ZIgithub.com/go-tangra/go-tangra-portal/api/gen/go/lcm/service/v1;servicev1\xa2\x02\x03LSX\xaa\x02\x0eLcm.Service.V1\xca\x02\x0eLcm\\Service\\V1\xe2\x02\x1aLcm\\Service\\V1\\GPBMetadata\xea\x02\x10Lcm::Service::V1b\x06proto3"
+	"\x13GetTenantStatistics\x12*.lcm.service.v1.GetTenantStatisticsRequest\x1a .lcm.service.v1.TenantStatistics\"1\x82\xd3\xe4\x93\x02+\x12)/api/v1/lcm/statistics/tenant/{tenant_id}B\xc6\x01\n" +
+	"\x12com.lcm.service.v1B\x0fStatisticsProtoP\x01ZEgithub.com/go-tangra/go-tangra-portal/api/gen/go/lcm/service/v1;lcmV1\xa2\x02\x03LSX\xaa\x02\x0eLcm.Service.V1\xca\x02\x0eLcm\\Service\\V1\xe2\x02\x1aLcm\\Service\\V1\\GPBMetadata\xea\x02\x10Lcm::Service::V1b\x06proto3"
 
 var (
 	file_lcm_service_v1_statistics_proto_rawDescOnce sync.Once

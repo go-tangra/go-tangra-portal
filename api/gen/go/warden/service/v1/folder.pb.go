@@ -4,7 +4,7 @@
 // 	protoc        (unknown)
 // source: warden/service/v1/folder.proto
 
-package servicev1
+package wardenV1
 
 import (
 	_ "buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go/buf/validate"
@@ -999,8 +999,8 @@ const file_warden_service_v1_folder_proto_rawDesc = "" +
 	"\fDeleteFolder\x12&.warden.service.v1.DeleteFolderRequest\x1a\x16.google.protobuf.Empty\"\x18\x82\xd3\xe4\x93\x02\x12*\x10/v1/folders/{id}\x12{\n" +
 	"\n" +
 	"MoveFolder\x12$.warden.service.v1.MoveFolderRequest\x1a%.warden.service.v1.MoveFolderResponse\" \x82\xd3\xe4\x93\x02\x1a:\x01*\"\x15/v1/folders/{id}/move\x12|\n" +
-	"\rGetFolderTree\x12'.warden.service.v1.GetFolderTreeRequest\x1a(.warden.service.v1.GetFolderTreeResponse\"\x18\x82\xd3\xe4\x93\x02\x12\x12\x10/v1/folders/treeB\xd8\x01\n" +
-	"\x15com.warden.service.v1B\vFolderProtoP\x01ZLgithub.com/go-tangra/go-tangra-portal/api/gen/go/warden/service/v1;servicev1\xa2\x02\x03WSX\xaa\x02\x11Warden.Service.V1\xca\x02\x11Warden\\Service\\V1\xe2\x02\x1dWarden\\Service\\V1\\GPBMetadata\xea\x02\x13Warden::Service::V1b\x06proto3"
+	"\rGetFolderTree\x12'.warden.service.v1.GetFolderTreeRequest\x1a(.warden.service.v1.GetFolderTreeResponse\"\x18\x82\xd3\xe4\x93\x02\x12\x12\x10/v1/folders/treeB\xd7\x01\n" +
+	"\x15com.warden.service.v1B\vFolderProtoP\x01ZKgithub.com/go-tangra/go-tangra-portal/api/gen/go/warden/service/v1;wardenV1\xa2\x02\x03WSX\xaa\x02\x11Warden.Service.V1\xca\x02\x11Warden\\Service\\V1\xe2\x02\x1dWarden\\Service\\V1\\GPBMetadata\xea\x02\x13Warden::Service::V1b\x06proto3"
 
 var (
 	file_warden_service_v1_folder_proto_rawDescOnce sync.Once

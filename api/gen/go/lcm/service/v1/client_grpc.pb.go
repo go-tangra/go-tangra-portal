@@ -4,7 +4,7 @@
 // - protoc             (unknown)
 // source: lcm/service/v1/client.proto
 
-package servicev1
+package lcmV1
 
 import (
 	context "context"

@@ -4,7 +4,7 @@
 // 	protoc        (unknown)
 // source: lcm/service/v1/tenant_secret.proto
 
-package servicev1
+package lcmV1
 
 import (
 	_ "buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go/buf/validate"
@@ -873,8 +873,8 @@ const file_lcm_service_v1_tenant_secret_proto_rawDesc = "" +
 	"\x0fGetTenantSecret\x12&.lcm.service.v1.GetTenantSecretRequest\x1a'.lcm.service.v1.GetTenantSecretResponse\"\x1f\x82\xd3\xe4\x93\x02\x19\x12\x17/v1/tenant-secrets/{id}\x12\x8f\x01\n" +
 	"\x12UpdateTenantSecret\x12).lcm.service.v1.UpdateTenantSecretRequest\x1a*.lcm.service.v1.UpdateTenantSecretResponse\"\"\x82\xd3\xe4\x93\x02\x1c:\x01*\x1a\x17/v1/tenant-secrets/{id}\x12x\n" +
 	"\x12DeleteTenantSecret\x12).lcm.service.v1.DeleteTenantSecretRequest\x1a\x16.google.protobuf.Empty\"\x1f\x82\xd3\xe4\x93\x02\x19*\x17/v1/tenant-secrets/{id}\x12\x96\x01\n" +
-	"\x12RotateTenantSecret\x12).lcm.service.v1.RotateTenantSecretRequest\x1a*.lcm.service.v1.RotateTenantSecretResponse\")\x82\xd3\xe4\x93\x02#:\x01*\"\x1e/v1/tenant-secrets/{id}/rotateB\xcc\x01\n" +
-	"\x12com.lcm.service.v1B\x11TenantSecretProtoP\x01ZIgithub.com/go-tangra/go-tangra-portal/api/gen/go/lcm/service/v1;servicev1\xa2\x02\x03LSX\xaa\x02\x0eLcm.Service.V1\xca\x02\x0eLcm\\Service\\V1\xe2\x02\x1aLcm\\Service\\V1\\GPBMetadata\xea\x02\x10Lcm::Service::V1b\x06proto3"
+	"\x12RotateTenantSecret\x12).lcm.service.v1.RotateTenantSecretRequest\x1a*.lcm.service.v1.RotateTenantSecretResponse\")\x82\xd3\xe4\x93\x02#:\x01*\"\x1e/v1/tenant-secrets/{id}/rotateB\xc8\x01\n" +
+	"\x12com.lcm.service.v1B\x11TenantSecretProtoP\x01ZEgithub.com/go-tangra/go-tangra-portal/api/gen/go/lcm/service/v1;lcmV1\xa2\x02\x03LSX\xaa\x02\x0eLcm.Service.V1\xca\x02\x0eLcm\\Service\\V1\xe2\x02\x1aLcm\\Service\\V1\\GPBMetadata\xea\x02\x10Lcm::Service::V1b\x06proto3"
 
 var (
 	file_lcm_service_v1_tenant_secret_proto_rawDescOnce sync.Once

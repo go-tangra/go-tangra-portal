@@ -16,6 +16,11 @@ deps:
   - 'buf.build/menta2k-org/redact'
   - 'buf.build/envoyproxy/protoc-gen-validate'
   - 'buf.build/bufbuild/protovalidate'
+  - 'buf.build/go-tangra/lcm'
+  - 'buf.build/go-tangra/deployer'
+  - 'buf.build/go-tangra/ipam'
+  - 'buf.build/go-tangra/paperless'
+  - 'buf.build/go-tangra/warden'
 
 breaking:
   use:

@@ -4,7 +4,7 @@
 // - protoc             (unknown)
 // source: lcm/service/v1/certificate_job.proto
 
-package servicev1
+package lcmV1
 
 import (
 	context "context"
@@ -25,6 +25,7 @@ const (
 	LcmCertificateJobService_GetJobResult_FullMethodName       = "/lcm.service.v1.LcmCertificateJobService/GetJobResult"
 	LcmCertificateJobService_ListJobs_FullMethodName           = "/lcm.service.v1.LcmCertificateJobService/ListJobs"
 	LcmCertificateJobService_CancelJob_FullMethodName          = "/lcm.service.v1.LcmCertificateJobService/CancelJob"
+	LcmCertificateJobService_RetryJob_FullMethodName           = "/lcm.service.v1.LcmCertificateJobService/RetryJob"
 )
 
 // LcmCertificateJobServiceClient is the client API for LcmCertificateJobService service.
@@ -43,6 +44,8 @@ type LcmCertificateJobServiceClient interface {
 	ListJobs(ctx context.Context, in *ListJobsRequest, opts ...grpc.CallOption) (*ListJobsResponse, error)
 	// Cancel a pending certificate job
 	CancelJob(ctx context.Context, in *CancelJobRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	// Retry a failed certificate job
+	RetryJob(ctx context.Context, in *RetryJobRequest, opts ...grpc.CallOption) (*RetryJobResponse, error)
 }
 
 type lcmCertificateJobServiceClient struct {
@@ -103,6 +106,16 @@ func (c *lcmCertificateJobServiceClient) CancelJob(ctx context.Context, in *Canc
 	return out, nil
 }
 
+func (c *lcmCertificateJobServiceClient) RetryJob(ctx context.Context, in *RetryJobRequest, opts ...grpc.CallOption) (*RetryJobResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(RetryJobResponse)
+	err := c.cc.Invoke(ctx, LcmCertificateJobService_RetryJob_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // LcmCertificateJobServiceServer is the server API for LcmCertificateJobService service.
 // All implementations must embed UnimplementedLcmCertificateJobServiceServer
 // for forward compatibility.
@@ -119,6 +132,8 @@ type LcmCertificateJobServiceServer interface {
 	ListJobs(context.Context, *ListJobsRequest) (*ListJobsResponse, error)
 	// Cancel a pending certificate job
 	CancelJob(context.Context, *CancelJobRequest) (*emptypb.Empty, error)
+	// Retry a failed certificate job
+	RetryJob(context.Context, *RetryJobRequest) (*RetryJobResponse, error)
 	mustEmbedUnimplementedLcmCertificateJobServiceServer()
 }
 
@@ -143,6 +158,9 @@ func (UnimplementedLcmCertificateJobServiceServer) ListJobs(context.Context, *Li
 }
 func (UnimplementedLcmCertificateJobServiceServer) CancelJob(context.Context, *CancelJobRequest) (*emptypb.Empty, error) {
 	return nil, status.Error(codes.Unimplemented, "method CancelJob not implemented")
+}
+func (UnimplementedLcmCertificateJobServiceServer) RetryJob(context.Context, *RetryJobRequest) (*RetryJobResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method RetryJob not implemented")
 }
 func (UnimplementedLcmCertificateJobServiceServer) mustEmbedUnimplementedLcmCertificateJobServiceServer() {
 }
@@ -256,6 +274,24 @@ func _LcmCertificateJobService_CancelJob_Handler(srv interface{}, ctx context.Co
 	return interceptor(ctx, in, info, handler)
 }
 
+func _LcmCertificateJobService_RetryJob_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(RetryJobRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(LcmCertificateJobServiceServer).RetryJob(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: LcmCertificateJobService_RetryJob_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(LcmCertificateJobServiceServer).RetryJob(ctx, req.(*RetryJobRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // LcmCertificateJobService_ServiceDesc is the grpc.ServiceDesc for LcmCertificateJobService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -282,6 +318,10 @@ var LcmCertificateJobService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "CancelJob",
 			Handler:    _LcmCertificateJobService_CancelJob_Handler,
+		},
+		{
+			MethodName: "RetryJob",
+			Handler:    _LcmCertificateJobService_RetryJob_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

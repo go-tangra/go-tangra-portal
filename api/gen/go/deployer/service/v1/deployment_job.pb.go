@@ -4,7 +4,7 @@
 // 	protoc        (unknown)
 // source: deployer/service/v1/deployment_job.proto
 
-package servicev1
+package deployerV1
 
 import (
 	_ "buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go/buf/validate"
@@ -1472,8 +1472,8 @@ const file_deployer_service_v1_deployment_job_proto_rawDesc = "" +
 	"\fGetJobResult\x12(.deployer.service.v1.GetJobResultRequest\x1a).deployer.service.v1.GetJobResultResponse\"'\x82\xd3\xe4\x93\x02!\x12\x1f/v1/deployment-jobs/{id}/result\x12t\n" +
 	"\bListJobs\x12$.deployer.service.v1.ListJobsRequest\x1a%.deployer.service.v1.ListJobsResponse\"\x1b\x82\xd3\xe4\x93\x02\x15\x12\x13/v1/deployment-jobs\x12\x83\x01\n" +
 	"\tCancelJob\x12%.deployer.service.v1.CancelJobRequest\x1a&.deployer.service.v1.CancelJobResponse\"'\x82\xd3\xe4\x93\x02!\"\x1f/v1/deployment-jobs/{id}/cancel\x12\x7f\n" +
-	"\bRetryJob\x12$.deployer.service.v1.RetryJobRequest\x1a%.deployer.service.v1.RetryJobResponse\"&\x82\xd3\xe4\x93\x02 \"\x1e/v1/deployment-jobs/{id}/retryB\xeb\x01\n" +
-	"\x17com.deployer.service.v1B\x12DeploymentJobProtoP\x01ZNgithub.com/go-tangra/go-tangra-portal/api/gen/go/deployer/service/v1;servicev1\xa2\x02\x03DSX\xaa\x02\x13Deployer.Service.V1\xca\x02\x13Deployer\\Service\\V1\xe2\x02\x1fDeployer\\Service\\V1\\GPBMetadata\xea\x02\x15Deployer::Service::V1b\x06proto3"
+	"\bRetryJob\x12$.deployer.service.v1.RetryJobRequest\x1a%.deployer.service.v1.RetryJobResponse\"&\x82\xd3\xe4\x93\x02 \"\x1e/v1/deployment-jobs/{id}/retryB\xec\x01\n" +
+	"\x17com.deployer.service.v1B\x12DeploymentJobProtoP\x01ZOgithub.com/go-tangra/go-tangra-portal/api/gen/go/deployer/service/v1;deployerV1\xa2\x02\x03DSX\xaa\x02\x13Deployer.Service.V1\xca\x02\x13Deployer\\Service\\V1\xe2\x02\x1fDeployer\\Service\\V1\\GPBMetadata\xea\x02\x15Deployer::Service::V1b\x06proto3"
 
 var (
 	file_deployer_service_v1_deployment_job_proto_rawDescOnce sync.Once

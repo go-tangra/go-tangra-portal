@@ -198,6 +198,12 @@ func (x *Document) Redact() string {
 	// Safe field: CreatedBy
 
 	// Safe field: UpdatedBy
+
+	// Safe field: ContentText
+
+	// Safe field: ExtractedMetadata
+
+	// Safe field: ProcessingStatus
 	return x.String()
 }
 

@@ -4,7 +4,7 @@
 // - protoc             (unknown)
 // source: deployer/service/v1/statistics.proto
 
-package servicev1
+package deployerV1
 
 import (
 	context "context"

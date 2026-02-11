@@ -5,9 +5,9 @@ package adminpb
 
 import (
 	context "context"
-	servicev11 "github.com/go-tangra/go-tangra-portal/api/gen/go/deployer/service/v1"
+	deployerV1 "github.com/go-tangra/go-tangra-portal/api/gen/go/deployer/service/v1"
 	ipampb "github.com/go-tangra/go-tangra-portal/api/gen/go/ipam/service/v1"
-	servicev1 "github.com/go-tangra/go-tangra-portal/api/gen/go/lcm/service/v1"
+	lcmV1 "github.com/go-tangra/go-tangra-portal/api/gen/go/lcm/service/v1"
 	paperlesspb "github.com/go-tangra/go-tangra-portal/api/gen/go/paperless/service/v1"
 	redact "github.com/menta2k/protoc-gen-redact/v3/redact/v3"
 	grpc "google.golang.org/grpc"
@@ -24,8 +24,8 @@ var (
 	_ codes.Code
 	_ status.Status
 	_ timestamppb.Timestamp
-	_ servicev1.GetStatisticsRequest
-	_ servicev11.GetStatisticsRequest
+	_ lcmV1.GetStatisticsRequest
+	_ deployerV1.GetStatisticsRequest
 	_ paperlesspb.GetStatisticsRequest
 	_ ipampb.HealthCheckRequest
 )

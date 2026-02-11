@@ -4,7 +4,7 @@
 // 	protoc        (unknown)
 // source: deployer/service/v1/statistics.proto
 
-package servicev1
+package deployerV1
 
 import (
 	_ "github.com/google/gnostic/openapiv3"
@@ -854,8 +854,8 @@ const file_deployer_service_v1_statistics_proto_rawDesc = "" +
 	"\x0econfigurations\x18\x04 \x01(\v2,.deployer.service.v1.ConfigurationStatisticsR\x0econfigurations2\xd1\x02\n" +
 	"\x19DeployerStatisticsService\x12\x8b\x01\n" +
 	"\rGetStatistics\x12).deployer.service.v1.GetStatisticsRequest\x1a*.deployer.service.v1.GetStatisticsResponse\"#\x82\xd3\xe4\x93\x02\x1d\x12\x1b/api/v1/deployer/statistics\x12\xa5\x01\n" +
-	"\x13GetTenantStatistics\x12/.deployer.service.v1.GetTenantStatisticsRequest\x1a%.deployer.service.v1.TenantStatistics\"6\x82\xd3\xe4\x93\x020\x12./api/v1/deployer/statistics/tenant/{tenant_id}B\xe8\x01\n" +
-	"\x17com.deployer.service.v1B\x0fStatisticsProtoP\x01ZNgithub.com/go-tangra/go-tangra-portal/api/gen/go/deployer/service/v1;servicev1\xa2\x02\x03DSX\xaa\x02\x13Deployer.Service.V1\xca\x02\x13Deployer\\Service\\V1\xe2\x02\x1fDeployer\\Service\\V1\\GPBMetadata\xea\x02\x15Deployer::Service::V1b\x06proto3"
+	"\x13GetTenantStatistics\x12/.deployer.service.v1.GetTenantStatisticsRequest\x1a%.deployer.service.v1.TenantStatistics\"6\x82\xd3\xe4\x93\x020\x12./api/v1/deployer/statistics/tenant/{tenant_id}B\xe9\x01\n" +
+	"\x17com.deployer.service.v1B\x0fStatisticsProtoP\x01ZOgithub.com/go-tangra/go-tangra-portal/api/gen/go/deployer/service/v1;deployerV1\xa2\x02\x03DSX\xaa\x02\x13Deployer.Service.V1\xca\x02\x13Deployer\\Service\\V1\xe2\x02\x1fDeployer\\Service\\V1\\GPBMetadata\xea\x02\x15Deployer::Service::V1b\x06proto3"
 
 var (
 	file_deployer_service_v1_statistics_proto_rawDescOnce sync.Once

@@ -1,0 +1,214 @@
+syntax = "proto3";
+
+package audit.service.v1;
+
+import "gnostic/openapi/v3/annotations.proto";
+
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/field_mask.proto";
+import "google/protobuf/duration.proto";
+import "google/protobuf/empty.proto";
+
+import "validate/validate.proto";
+
+import "pagination/v1/pagination.proto";
+
+import "audit/service/v1/geo_location.proto";
+import "audit/service/v1/device_info.proto";
+
+// API Audit Log Management Service
+service ApiAuditLogService {
+  // Query API audit log list
+  rpc List (pagination.PagingRequest) returns (ListApiAuditLogResponse) {}
+
+  // Query API audit log details
+  rpc Get (GetApiAuditLogRequest) returns (ApiAuditLog) {}
+
+  // Create API audit log
+  rpc Create (CreateApiAuditLogRequest) returns (google.protobuf.Empty) {}
+}
+
+// API Audit Log
+message ApiAuditLog {
+  optional uint32 id = 1 [
+    json_name = "id",
+    (gnostic.openapi.v3.property) = {description: "API audit log ID"}
+  ]; // API audit log ID
+
+  optional uint32 tenant_id = 2 [
+    json_name = "tenantId",
+    (gnostic.openapi.v3.property) = {description: "Tenant ID"}
+  ];  // Tenant ID
+
+  optional string tenant_name = 3 [
+    json_name = "tenantName",
+    (gnostic.openapi.v3.property) = {description: "Tenant name"}
+  ]; // Tenant name
+
+  optional uint32 user_id = 4 [
+    json_name = "userId",
+    (gnostic.openapi.v3.property) = {description: "User ID"}
+  ]; // User ID
+
+  optional string username = 5 [
+    json_name = "username",
+    (gnostic.openapi.v3.property) = {description: "Username"}
+  ]; // Username
+
+  // ========== Terminal Information ==========
+
+  optional string ip_address = 10 [
+    json_name = "ipAddress",
+    (gnostic.openapi.v3.property) = {description: "IP address"}
+  ]; // IP address
+
+  optional GeoLocation geo_location = 11 [
+    json_name = "geoLocation",
+    (gnostic.openapi.v3.property) = {description: "Geolocation (from IP database)"}
+  ]; // Geolocation (from IP database)
+
+  optional DeviceInfo device_info = 12 [
+    json_name = "deviceInfo",
+    (gnostic.openapi.v3.property) = {description: "Device information"}
+  ]; // Device information
+
+  optional string referer = 13 [
+    json_name = "referer",
+    (gnostic.openapi.v3.property) = {description: "Request source URL"}
+  ]; // Request source URL
+
+  optional string app_version = 14 [
+    json_name = "appVersion",
+    (gnostic.openapi.v3.property) = {description: "Client version number"}
+  ]; // Client version number
+
+  // ========== API Request/Response Information ==========
+
+  optional string http_method = 20 [
+    json_name = "httpMethod",
+    (gnostic.openapi.v3.property) = {description: "HTTP request method (GET/POST/PUT/DELETE)"}
+  ]; // HTTP request method
+
+  optional string path = 21 [
+    json_name = "path",
+    (gnostic.openapi.v3.property) = {description: "Request path (without parameters, e.g., /api/v1/users)"}
+  ]; // Request path
+
+  optional string request_uri = 22 [
+    json_name = "requestUri",
+    (gnostic.openapi.v3.property) = {description: "Full request URI (with parameters, e.g., /api/v1/users?id=1)"}
+  ]; // Full request URI
+
+  optional string api_module = 23 [
+    json_name = "apiModule",
+    (gnostic.openapi.v3.property) = {description: "API business module (e.g., user/permission/order)"}
+  ]; // API business module
+
+  optional string api_operation = 24 [
+    json_name = "apiOperation",
+    (gnostic.openapi.v3.property) = {description: "API business operation (e.g., query user/create order, not HTTP method)"}
+  ]; // API business operation
+
+  optional string api_description = 25 [
+    json_name = "apiDescription",
+    (gnostic.openapi.v3.property) = {description: "API function description (e.g., 'Query single user info by ID')"}
+  ]; // API function description
+
+  optional string request_id = 26 [
+    json_name = "requestId",
+    (gnostic.openapi.v3.property) = {description: "Global request ID (linked to gateway logs)"}
+  ]; // Request ID
+
+  optional string trace_id = 27 [
+    json_name = "traceId",
+    (gnostic.openapi.v3.property) = {description: "Global trace ID (W3C TraceContext compliant)"}
+  ]; // Global trace ID
+
+  optional string span_id = 28 [
+    json_name = "spanId",
+    (gnostic.openapi.v3.property) = {description: "Current span ID"}
+  ]; // Current span ID
+
+  optional uint32 latency_ms = 29 [
+    json_name = "latencyMs",
+    (gnostic.openapi.v3.property) = {description: "API latency (milliseconds)"},
+    (validate.rules).uint32.lte = 3600000 // 1 hour
+  ]; // API latency
+
+  optional bool success = 30 [
+    json_name = "success",
+    (gnostic.openapi.v3.property) = {description: "Whether the operation succeeded"}
+  ]; // Operation result
+
+  optional uint32 status_code = 31 [
+    json_name = "statusCode",
+    (gnostic.openapi.v3.property) = {description: "HTTP status code (200/403/500)"}
+  ]; // HTTP status code
+
+  optional string reason = 32 [
+    json_name = "reason",
+    (gnostic.openapi.v3.property) = {description: "Operation failure reason (only populated when success=false)"}
+  ]; // Operation failure reason
+
+  optional string request_header = 33 [
+    json_name = "requestHeader",
+    (gnostic.openapi.v3.property) = {description: "Request headers (JSON format, sensitive fields masked)"}
+  ]; // Request headers
+
+  optional string request_body = 34 [
+    json_name = "requestBody",
+    (gnostic.openapi.v3.property) = {description: "Request body (JSON format, sensitive fields masked)"}
+  ]; // Request body
+
+  optional string response = 35 [
+    json_name = "response",
+    (gnostic.openapi.v3.property) = {description: "Response data (JSON format, sensitive fields masked)"}
+  ]; // Response data
+
+  // ========== Compliance Verification ==========
+
+  optional string log_hash = 40 [
+    json_name = "logHash",
+    (gnostic.openapi.v3.property).description = "Log content hash (SHA256, hexadecimal string)"
+  ]; // Log hash
+
+  optional bytes signature = 41 [
+    json_name = "signature",
+    (gnostic.openapi.v3.property).description = "Log digital signature (ECDSA, signed content: tenant_id+user_id+created_at+log_hash)"
+  ]; // Log digital signature
+
+  // ========== Time Fields ==========
+
+  optional google.protobuf.Timestamp created_at = 50 [
+    json_name = "createdAt",
+    (gnostic.openapi.v3.property) = {description: "Log creation time"}
+  ];// Log creation time
+}
+
+// Query API audit log list - Response
+message ListApiAuditLogResponse {
+  repeated ApiAuditLog items = 1;
+  uint64 total = 2;
+}
+
+// Query API audit log details - Request
+message GetApiAuditLogRequest {
+  oneof query_by {
+    uint32 id = 1 [
+      (gnostic.openapi.v3.property) = {description: "ID", read_only: true},
+      json_name = "id"
+    ]; // ID
+  }
+
+  optional google.protobuf.FieldMask view_mask = 100 [
+    json_name = "viewMask",
+    (gnostic.openapi.v3.property) = {
+      description: "View field filter for controlling returned fields"
+    }
+  ]; // View field filter for controlling returned fields
+}
+
+// Create API audit log - Request
+message CreateApiAuditLogRequest {
+  ApiAuditLog data = 1;
+}

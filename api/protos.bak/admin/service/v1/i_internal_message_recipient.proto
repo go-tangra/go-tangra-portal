@@ -1,0 +1,37 @@
+syntax = "proto3";
+
+package admin.service.v1;
+
+import "gnostic/openapi/v3/annotations.proto";
+import "google/api/annotations.proto";
+import "google/protobuf/empty.proto";
+
+import "pagination/v1/pagination.proto";
+
+import "internal_message/service/v1/internal_message_recipient.proto";
+
+// Internal message recipient management service
+service InternalMessageRecipientService {
+  // Get user inbox list (notifications)
+  rpc ListUserInbox(pagination.PagingRequest) returns (internal_message.service.v1.ListUserInboxResponse) {
+    option (google.api.http) = {
+      get: "/admin/v1/internal-message/inbox"
+    };
+  }
+
+  // Delete notification record from user inbox
+  rpc DeleteNotificationFromInbox(internal_message.service.v1.DeleteNotificationFromInboxRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      post: "/admin/v1/internal-message/inbox/delete"
+      body: "*"
+    };
+  }
+
+  // Mark notification as read
+  rpc MarkNotificationAsRead(internal_message.service.v1.MarkNotificationAsReadRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      post: "/admin/v1/internal-message/read"
+      body: "*"
+    };
+  }
+}

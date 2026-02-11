@@ -1,0 +1,187 @@
+syntax = "proto3";
+
+package audit.service.v1;
+
+import "gnostic/openapi/v3/annotations.proto";
+
+// Device information
+message DeviceInfo {
+  // Device type enum
+  enum DeviceType {
+    DEVICE_TYPE_UNSPECIFIED = 0; // Unspecified
+
+    DESKTOP = 1; // Desktop/Laptop
+    MOBILE = 2; // Mobile phone
+    TABLET = 3; // Tablet
+    BOT = 4; // Bot/Crawler
+    OTHER = 5; // Other
+  }
+
+  optional string client_id = 1 [
+    json_name = "clientId",
+    (gnostic.openapi.v3.property) = {
+      description: "Client ID"
+    }
+  ]; // Client ID
+
+  optional string client_name = 2 [
+    json_name = "clientName",
+    (gnostic.openapi.v3.property) = {
+      description: "Client name"
+    }
+  ]; // Client name
+
+  optional string os_name = 3 [
+    json_name = "osName",
+    (gnostic.openapi.v3.property) = {
+      description: "Operating system name"
+    }
+  ]; // Operating system name
+
+  optional string os_version = 4 [
+    json_name = "osVersion",
+    (gnostic.openapi.v3.property) = {
+      description: "Operating system version"
+    }
+  ]; // Operating system version
+
+  optional string device_id = 5 [
+    json_name = "deviceId",
+    (gnostic.openapi.v3.property) = {
+      description: "Device unique identifier (avoid storing plaintext sensitive IDs, recommend hashing before saving)"
+    }
+  ]; // Device unique ID
+
+  optional DeviceType device_type = 6 [
+    json_name = "deviceType",
+    (gnostic.openapi.v3.property) = {
+      description: "Device type"
+    }
+  ]; // Device type
+
+  optional string manufacturer = 7 [
+    json_name = "manufacturer",
+    (gnostic.openapi.v3.property) = {
+      description: "Device manufacturer"
+    }
+  ]; // Manufacturer
+
+  optional string model = 8 [
+    json_name = "model",
+    (gnostic.openapi.v3.property) = {
+      description: "Device model"
+    }
+  ]; // Model
+
+  optional string platform = 9 [
+    json_name = "platform",
+    (gnostic.openapi.v3.property) = {
+      description: "Running platform/channel (e.g., Android/iOS/Windows)"
+    }
+  ]; // Platform
+
+  optional string os_build = 10 [
+    json_name = "osBuild",
+    (gnostic.openapi.v3.property) = {
+      description: "System build version"
+    }
+  ]; // System build version
+
+  optional string app_name = 11 [
+    json_name = "appName",
+    (gnostic.openapi.v3.property) = {
+      description: "Application name (can be empty for Web)"
+    }
+  ]; // Application name
+
+  optional string app_version = 12 [
+    json_name = "appVersion",
+    (gnostic.openapi.v3.property) = {
+      description: "Application version"
+    }
+  ]; // Application version
+
+  optional uint32 screen_width = 13 [
+    json_name = "screenWidth",
+    (gnostic.openapi.v3.property) = {
+      description: "Screen width (pixels)"
+    }
+  ]; // Screen width
+
+  optional uint32 screen_height = 14 [
+    json_name = "screenHeight",
+    (gnostic.openapi.v3.property) = {
+      description: "Screen height (pixels)"
+    }
+  ]; // Screen height
+
+  optional string locale = 15 [
+    json_name = "locale",
+    (gnostic.openapi.v3.property) = {
+      description: "Language/Region settings"
+    }
+  ]; // Locale settings
+
+  optional string timezone = 16 [
+    json_name = "timeZone",
+    (gnostic.openapi.v3.property) = {
+      description: "Timezone"
+    }
+  ]; // Timezone
+
+  optional string network_type = 17 [
+    json_name = "networkType",
+    (gnostic.openapi.v3.property) = {
+      description: "Network type (e.g., WIFI/4G/5G)"
+    }
+  ]; // Network type
+
+  optional string carrier = 18 [
+    json_name = "carrier",
+    (gnostic.openapi.v3.property) = {
+      description: "Carrier (if applicable)"
+    }
+  ]; // Carrier
+
+  optional string device_fingerprint = 19 [
+    json_name = "deviceFingerprint",
+    (gnostic.openapi.v3.property) = {
+      description: "Device fingerprint (recommend storing hash)"
+    }
+  ]; // Device fingerprint hash
+
+  optional string user_agent = 100 [
+    json_name = "userAgent",
+    (gnostic.openapi.v3.property) = {
+      description: "Browser user agent information"
+    }
+  ]; // Browser user agent information
+
+  optional string browser_name = 101 [
+    json_name = "browserName",
+    (gnostic.openapi.v3.property) = {
+      description: "Browser name"
+    }
+  ]; // Browser name
+
+  optional string browser_version = 102 [
+    json_name = "browserVersion",
+    (gnostic.openapi.v3.property) = {
+      description: "Browser version"
+    }
+  ]; // Browser version
+
+  optional string browser_engine = 103 [
+    json_name = "browserEngine",
+    (gnostic.openapi.v3.property) = {
+      description: "Browser engine/kernel (e.g., Blink/WebKit)"
+    }
+  ]; // Browser engine
+
+  optional string engine_version = 104 [
+    json_name = "engineVersion",
+    (gnostic.openapi.v3.property) = {
+      description: "Engine version"
+    }
+  ]; // Engine version
+}

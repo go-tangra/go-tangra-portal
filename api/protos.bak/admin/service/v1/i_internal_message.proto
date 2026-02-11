@@ -1,0 +1,60 @@
+syntax = "proto3";
+
+package admin.service.v1;
+
+import "gnostic/openapi/v3/annotations.proto";
+import "google/api/annotations.proto";
+import "google/protobuf/empty.proto";
+
+import "pagination/v1/pagination.proto";
+
+import "internal_message/service/v1/internal_message.proto";
+
+// Internal message management service
+service InternalMessageService {
+  // Query internal message list
+  rpc ListMessage(pagination.PagingRequest) returns (internal_message.service.v1.ListInternalMessageResponse) {
+    option (google.api.http) = {
+      get: "/admin/v1/internal-message/messages"
+    };
+  }
+
+  // Query internal message details
+  rpc GetMessage(internal_message.service.v1.GetInternalMessageRequest) returns (internal_message.service.v1.InternalMessage) {
+    option (google.api.http) = {
+      get: "/admin/v1/internal-message/messages/{id}"
+    };
+  }
+
+  // Update internal message
+  rpc UpdateMessage(internal_message.service.v1.UpdateInternalMessageRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      put: "/admin/v1/internal-message/messages/{id}"
+      body: "*"
+    };
+  }
+
+  // Delete internal message
+  rpc DeleteMessage(internal_message.service.v1.DeleteInternalMessageRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      delete: "/admin/v1/internal-message/messages/{id}"
+    };
+  }
+
+
+  // Send message
+  rpc SendMessage(internal_message.service.v1.SendMessageRequest) returns (internal_message.service.v1.SendMessageResponse) {
+    option (google.api.http) = {
+      post: "/admin/v1/internal-message/send"
+      body: "*"
+    };
+  }
+
+  // Revoke a message
+  rpc RevokeMessage(internal_message.service.v1.RevokeMessageRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      post: "/admin/v1/internal-message/revoke"
+      body: "*"
+    };
+  }
+}

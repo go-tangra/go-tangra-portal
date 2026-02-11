@@ -1,0 +1,64 @@
+syntax = "proto3";
+
+package admin.service.v1;
+
+import "gnostic/openapi/v3/annotations.proto";
+import "google/api/annotations.proto";
+import "google/protobuf/empty.proto";
+
+import "user/service/v1/user.proto";
+
+// User profile service
+service UserProfileService {
+  // Get user profile
+  rpc GetUser (google.protobuf.Empty) returns (user.service.v1.User) {
+    option (google.api.http) = {
+      get: "/admin/v1/me"
+    };
+  }
+
+  // Update user profile
+  rpc UpdateUser (user.service.v1.UpdateUserRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      put: "/admin/v1/me"
+      body: "*"
+    };
+  }
+
+  // Change user password
+  rpc ChangePassword(user.service.v1.ChangePasswordRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      post: "/admin/v1/me/password"
+      body: "*"
+    };
+  }
+
+  // Upload avatar
+  rpc UploadAvatar(user.service.v1.UploadAvatarRequest) returns (user.service.v1.UploadAvatarResponse) {
+    option (google.api.http) = {
+      post: "/admin/v1/me/avatar"
+      body: "*"
+    };
+  }
+  // Delete avatar
+  rpc DeleteAvatar(google.protobuf.Empty) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      delete: "/admin/v1/me/avatar"
+    };
+  }
+
+  // Bind phone number/email
+  rpc BindContact(user.service.v1.BindContactRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      post: "/admin/v1/me/contact"
+      body: "*"
+    };
+  }
+  // Verify phone number/email
+  rpc VerifyContact(user.service.v1.VerifyContactRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      post: "/admin/v1/me/contact/verify"
+      body: "*"
+    };
+  }
+}

@@ -4,7 +4,7 @@
 // 	protoc        (unknown)
 // source: lcm/service/v1/audit_log.proto
 
-package servicev1
+package lcmV1
 
 import (
 	_ "google.golang.org/genproto/googleapis/api/annotations"
@@ -720,7 +720,7 @@ var File_lcm_service_v1_audit_log_proto protoreflect.FileDescriptor
 
 const file_lcm_service_v1_audit_log_proto_rawDesc = "" +
 	"\n" +
-	"\x1elcm/service/v1/audit_log.proto\x12\x0elcm.service.v1\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\x80\b\n" +
+	"\x1elcm/service/v1/audit_log.proto\x12\x0elcm.service.v1\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\x80\b\n" +
 	"\bAuditLog\x12\x13\n" +
 	"\x02id\x18\x01 \x01(\rH\x00R\x02id\x88\x01\x01\x12\x1e\n" +
 	"\baudit_id\x18\x02 \x01(\tH\x01R\aauditId\x88\x01\x01\x12\"\n" +
@@ -824,13 +824,13 @@ const file_lcm_service_v1_audit_log_proto_rawDesc = "" +
 	" \x03(\v2;.lcm.service.v1.GetAuditStatsResponse.OperationsByTypeEntryR\x10operationsByType\x1aC\n" +
 	"\x15OperationsByTypeEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\x04R\x05value:\x028\x012\xa0\x03\n" +
-	"\x0fAuditLogService\x12^\n" +
-	"\rListAuditLogs\x12$.lcm.service.v1.ListAuditLogsRequest\x1a%.lcm.service.v1.ListAuditLogsResponse\"\x00\x12X\n" +
-	"\vGetAuditLog\x12\".lcm.service.v1.GetAuditLogRequest\x1a#.lcm.service.v1.GetAuditLogResponse\"\x00\x12s\n" +
-	"\x14GetAuditLogByAuditId\x12+.lcm.service.v1.GetAuditLogByAuditIdRequest\x1a,.lcm.service.v1.GetAuditLogByAuditIdResponse\"\x00\x12^\n" +
-	"\rGetAuditStats\x12$.lcm.service.v1.GetAuditStatsRequest\x1a%.lcm.service.v1.GetAuditStatsResponse\"\x00B\xc8\x01\n" +
-	"\x12com.lcm.service.v1B\rAuditLogProtoP\x01ZIgithub.com/go-tangra/go-tangra-portal/api/gen/go/lcm/service/v1;servicev1\xa2\x02\x03LSX\xaa\x02\x0eLcm.Service.V1\xca\x02\x0eLcm\\Service\\V1\xe2\x02\x1aLcm\\Service\\V1\\GPBMetadata\xea\x02\x10Lcm::Service::V1b\x06proto3"
+	"\x05value\x18\x02 \x01(\x04R\x05value:\x028\x012\x9b\x04\n" +
+	"\x0fAuditLogService\x12t\n" +
+	"\rListAuditLogs\x12$.lcm.service.v1.ListAuditLogsRequest\x1a%.lcm.service.v1.ListAuditLogsResponse\"\x16\x82\xd3\xe4\x93\x02\x10\x12\x0e/v1/audit-logs\x12s\n" +
+	"\vGetAuditLog\x12\".lcm.service.v1.GetAuditLogRequest\x1a#.lcm.service.v1.GetAuditLogResponse\"\x1b\x82\xd3\xe4\x93\x02\x15\x12\x13/v1/audit-logs/{id}\x12\xa0\x01\n" +
+	"\x14GetAuditLogByAuditId\x12+.lcm.service.v1.GetAuditLogByAuditIdRequest\x1a,.lcm.service.v1.GetAuditLogByAuditIdResponse\"-\x82\xd3\xe4\x93\x02'\x12%/v1/audit-logs/by-audit-id/{audit_id}\x12z\n" +
+	"\rGetAuditStats\x12$.lcm.service.v1.GetAuditStatsRequest\x1a%.lcm.service.v1.GetAuditStatsResponse\"\x1c\x82\xd3\xe4\x93\x02\x16\x12\x14/v1/audit-logs/statsB\xc4\x01\n" +
+	"\x12com.lcm.service.v1B\rAuditLogProtoP\x01ZEgithub.com/go-tangra/go-tangra-portal/api/gen/go/lcm/service/v1;lcmV1\xa2\x02\x03LSX\xaa\x02\x0eLcm.Service.V1\xca\x02\x0eLcm\\Service\\V1\xe2\x02\x1aLcm\\Service\\V1\\GPBMetadata\xea\x02\x10Lcm::Service::V1b\x06proto3"
 
 var (
 	file_lcm_service_v1_audit_log_proto_rawDescOnce sync.Once

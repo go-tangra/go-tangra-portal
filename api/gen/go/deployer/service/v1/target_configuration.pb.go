@@ -4,7 +4,7 @@
 // 	protoc        (unknown)
 // source: deployer/service/v1/target_configuration.proto
 
-package servicev1
+package deployerV1
 
 import (
 	_ "buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go/buf/validate"
@@ -1149,8 +1149,8 @@ const file_deployer_service_v1_target_configuration_proto_rawDesc = "" +
 	"\x13UpdateConfiguration\x12/.deployer.service.v1.UpdateConfigurationRequest\x1a0.deployer.service.v1.UpdateConfigurationResponse\")\x82\xd3\xe4\x93\x02#:\x01*\x1a\x1e/v1/target-configurations/{id}\x12\x86\x01\n" +
 	"\x13DeleteConfiguration\x12/.deployer.service.v1.DeleteConfigurationRequest\x1a\x16.google.protobuf.Empty\"&\x82\xd3\xe4\x93\x02 *\x1e/v1/target-configurations/{id}\x12\xcd\x01\n" +
 	"\x13ValidateCredentials\x12<.deployer.service.v1.ValidateConfigurationCredentialsRequest\x1a=.deployer.service.v1.ValidateConfigurationCredentialsResponse\"9\x82\xd3\xe4\x93\x023:\x01*\"./v1/target-configurations/validate-credentials\x12\xad\x01\n" +
-	"\rListProviders\x126.deployer.service.v1.ListConfigurationProvidersRequest\x1a7.deployer.service.v1.ListConfigurationProvidersResponse\"+\x82\xd3\xe4\x93\x02%\x12#/v1/target-configurations/providersB\xf1\x01\n" +
-	"\x17com.deployer.service.v1B\x18TargetConfigurationProtoP\x01ZNgithub.com/go-tangra/go-tangra-portal/api/gen/go/deployer/service/v1;servicev1\xa2\x02\x03DSX\xaa\x02\x13Deployer.Service.V1\xca\x02\x13Deployer\\Service\\V1\xe2\x02\x1fDeployer\\Service\\V1\\GPBMetadata\xea\x02\x15Deployer::Service::V1b\x06proto3"
+	"\rListProviders\x126.deployer.service.v1.ListConfigurationProvidersRequest\x1a7.deployer.service.v1.ListConfigurationProvidersResponse\"+\x82\xd3\xe4\x93\x02%\x12#/v1/target-configurations/providersB\xf2\x01\n" +
+	"\x17com.deployer.service.v1B\x18TargetConfigurationProtoP\x01ZOgithub.com/go-tangra/go-tangra-portal/api/gen/go/deployer/service/v1;deployerV1\xa2\x02\x03DSX\xaa\x02\x13Deployer.Service.V1\xca\x02\x13Deployer\\Service\\V1\xe2\x02\x1fDeployer\\Service\\V1\\GPBMetadata\xea\x02\x15Deployer::Service::V1b\x06proto3"
 
 var (
 	file_deployer_service_v1_target_configuration_proto_rawDescOnce sync.Once

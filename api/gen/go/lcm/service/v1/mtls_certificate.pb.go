@@ -4,7 +4,7 @@
 // 	protoc        (unknown)
 // source: lcm/service/v1/mtls_certificate.proto
 
-package servicev1
+package lcmV1
 
 import (
 	_ "buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go/buf/validate"
@@ -1559,7 +1559,7 @@ var File_lcm_service_v1_mtls_certificate_proto protoreflect.FileDescriptor
 
 const file_lcm_service_v1_mtls_certificate_proto_rawDesc = "" +
 	"\n" +
-	"%lcm/service/v1/mtls_certificate.proto\x12\x0elcm.service.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a google/protobuf/field_mask.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1blcm/service/v1/client.proto\"\xad\x14\n" +
+	"%lcm/service/v1/mtls_certificate.proto\x12\x0elcm.service.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a google/protobuf/field_mask.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1blcm/service/v1/client.proto\"\xad\x14\n" +
 	"\x0fMtlsCertificate\x12(\n" +
 	"\rserial_number\x18\x01 \x01(\x03H\x00R\fserialNumber\x88\x01\x01\x12 \n" +
 	"\tclient_id\x18\x02 \x01(\tH\x01R\bclientId\x88\x01\x01\x12$\n" +
@@ -1797,17 +1797,18 @@ const file_lcm_service_v1_mtls_certificate_proto_rawDesc = "" +
 	"2MTLS_CERT_REVOCATION_REASON_CESSATION_OF_OPERATION\x10\x05\x120\n" +
 	",MTLS_CERT_REVOCATION_REASON_CERTIFICATE_HOLD\x10\x06\x123\n" +
 	"/MTLS_CERT_REVOCATION_REASON_PRIVILEGE_WITHDRAWN\x10\a\x12-\n" +
-	")MTLS_CERT_REVOCATION_REASON_AA_COMPROMISE\x10\b2\xcf\a\n" +
-	"\x19LcmMtlsCertificateService\x12s\n" +
-	"\x14ListMtlsCertificates\x12+.lcm.service.v1.ListMtlsCertificatesRequest\x1a,.lcm.service.v1.ListMtlsCertificatesResponse\"\x00\x12m\n" +
-	"\x12GetMtlsCertificate\x12).lcm.service.v1.GetMtlsCertificateRequest\x1a*.lcm.service.v1.GetMtlsCertificateResponse\"\x00\x12s\n" +
-	"\x14IssueMtlsCertificate\x12+.lcm.service.v1.IssueMtlsCertificateRequest\x1a,.lcm.service.v1.IssueMtlsCertificateResponse\"\x00\x12v\n" +
-	"\x15UpdateMtlsCertificate\x12,.lcm.service.v1.UpdateMtlsCertificateRequest\x1a-.lcm.service.v1.UpdateMtlsCertificateResponse\"\x00\x12v\n" +
-	"\x15RevokeMtlsCertificate\x12,.lcm.service.v1.RevokeMtlsCertificateRequest\x1a-.lcm.service.v1.RevokeMtlsCertificateResponse\"\x00\x12s\n" +
-	"\x14RenewMtlsCertificate\x12+.lcm.service.v1.RenewMtlsCertificateRequest\x1a,.lcm.service.v1.RenewMtlsCertificateResponse\"\x00\x12v\n" +
-	"\x15DeleteMtlsCertificate\x12,.lcm.service.v1.DeleteMtlsCertificateRequest\x1a-.lcm.service.v1.DeleteMtlsCertificateResponse\"\x00\x12|\n" +
-	"\x17DownloadMtlsCertificate\x12..lcm.service.v1.DownloadMtlsCertificateRequest\x1a/.lcm.service.v1.DownloadMtlsCertificateResponse\"\x00B\xcf\x01\n" +
-	"\x12com.lcm.service.v1B\x14MtlsCertificateProtoP\x01ZIgithub.com/go-tangra/go-tangra-portal/api/gen/go/lcm/service/v1;servicev1\xa2\x02\x03LSX\xaa\x02\x0eLcm.Service.V1\xca\x02\x0eLcm\\Service\\V1\xe2\x02\x1aLcm\\Service\\V1\\GPBMetadata\xea\x02\x10Lcm::Service::V1b\x06proto3"
+	")MTLS_CERT_REVOCATION_REASON_AA_COMPROMISE\x10\b2\x99\n" +
+	"\n" +
+	"\x19LcmMtlsCertificateService\x12\x8b\x01\n" +
+	"\x14ListMtlsCertificates\x12+.lcm.service.v1.ListMtlsCertificatesRequest\x1a,.lcm.service.v1.ListMtlsCertificatesResponse\"\x18\x82\xd3\xe4\x93\x02\x12\x12\x10/v1/certificates\x12\x95\x01\n" +
+	"\x12GetMtlsCertificate\x12).lcm.service.v1.GetMtlsCertificateRequest\x1a*.lcm.service.v1.GetMtlsCertificateResponse\"(\x82\xd3\xe4\x93\x02\"\x12 /v1/certificates/{serial_number}\x12\x8e\x01\n" +
+	"\x14IssueMtlsCertificate\x12+.lcm.service.v1.IssueMtlsCertificateRequest\x1a,.lcm.service.v1.IssueMtlsCertificateResponse\"\x1b\x82\xd3\xe4\x93\x02\x15:\x01*\"\x10/v1/certificates\x12\xa1\x01\n" +
+	"\x15UpdateMtlsCertificate\x12,.lcm.service.v1.UpdateMtlsCertificateRequest\x1a-.lcm.service.v1.UpdateMtlsCertificateResponse\"+\x82\xd3\xe4\x93\x02%:\x01*\x1a /v1/certificates/{serial_number}\x12\xa8\x01\n" +
+	"\x15RevokeMtlsCertificate\x12,.lcm.service.v1.RevokeMtlsCertificateRequest\x1a-.lcm.service.v1.RevokeMtlsCertificateResponse\"2\x82\xd3\xe4\x93\x02,:\x01*\"'/v1/certificates/{serial_number}/revoke\x12\xa4\x01\n" +
+	"\x14RenewMtlsCertificate\x12+.lcm.service.v1.RenewMtlsCertificateRequest\x1a,.lcm.service.v1.RenewMtlsCertificateResponse\"1\x82\xd3\xe4\x93\x02+:\x01*\"&/v1/certificates/{serial_number}/renew\x12\x9e\x01\n" +
+	"\x15DeleteMtlsCertificate\x12,.lcm.service.v1.DeleteMtlsCertificateRequest\x1a-.lcm.service.v1.DeleteMtlsCertificateResponse\"(\x82\xd3\xe4\x93\x02\"* /v1/certificates/{serial_number}\x12\xad\x01\n" +
+	"\x17DownloadMtlsCertificate\x12..lcm.service.v1.DownloadMtlsCertificateRequest\x1a/.lcm.service.v1.DownloadMtlsCertificateResponse\"1\x82\xd3\xe4\x93\x02+\x12)/v1/certificates/{serial_number}/downloadB\xcb\x01\n" +
+	"\x12com.lcm.service.v1B\x14MtlsCertificateProtoP\x01ZEgithub.com/go-tangra/go-tangra-portal/api/gen/go/lcm/service/v1;lcmV1\xa2\x02\x03LSX\xaa\x02\x0eLcm.Service.V1\xca\x02\x0eLcm\\Service\\V1\xe2\x02\x1aLcm\\Service\\V1\\GPBMetadata\xea\x02\x10Lcm::Service::V1b\x06proto3"
 
 var (
 	file_lcm_service_v1_mtls_certificate_proto_rawDescOnce sync.Once

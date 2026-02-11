@@ -4,7 +4,7 @@
 // 	protoc        (unknown)
 // source: warden/service/v1/warden_error.proto
 
-package servicev1
+package wardenV1
 
 import (
 	_ "github.com/go-kratos/kratos/v2/errors"
@@ -186,8 +186,8 @@ const file_warden_service_v1_warden_error_proto_rawDesc = "" +
 	"\x15VAULT_OPERATION_ERROR\x10\xd2\x0f\x1a\x04\xa8E\xf4\x03\x12\x19\n" +
 	"\x0eDATABASE_ERROR\x10\xd3\x0f\x1a\x04\xa8E\xf4\x03\x12\x1e\n" +
 	"\x13SERVICE_UNAVAILABLE\x10\xfc\x11\x1a\x04\xa8E\xf7\x03\x12\x1c\n" +
-	"\x11VAULT_UNAVAILABLE\x10\xfd\x11\x1a\x04\xa8E\xf7\x03\x1a\x04\xa0E\xf4\x03B\xdd\x01\n" +
-	"\x15com.warden.service.v1B\x10WardenErrorProtoP\x01ZLgithub.com/go-tangra/go-tangra-portal/api/gen/go/warden/service/v1;servicev1\xa2\x02\x03WSX\xaa\x02\x11Warden.Service.V1\xca\x02\x11Warden\\Service\\V1\xe2\x02\x1dWarden\\Service\\V1\\GPBMetadata\xea\x02\x13Warden::Service::V1b\x06proto3"
+	"\x11VAULT_UNAVAILABLE\x10\xfd\x11\x1a\x04\xa8E\xf7\x03\x1a\x04\xa0E\xf4\x03B\xdc\x01\n" +
+	"\x15com.warden.service.v1B\x10WardenErrorProtoP\x01ZKgithub.com/go-tangra/go-tangra-portal/api/gen/go/warden/service/v1;wardenV1\xa2\x02\x03WSX\xaa\x02\x11Warden.Service.V1\xca\x02\x11Warden\\Service\\V1\xe2\x02\x1dWarden\\Service\\V1\\GPBMetadata\xea\x02\x13Warden::Service::V1b\x06proto3"
 
 var (
 	file_warden_service_v1_warden_error_proto_rawDescOnce sync.Once

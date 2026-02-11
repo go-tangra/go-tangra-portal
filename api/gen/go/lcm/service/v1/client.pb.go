@@ -4,7 +4,7 @@
 // 	protoc        (unknown)
 // source: lcm/service/v1/client.proto
 
-package servicev1
+package lcmV1
 
 import (
 	_ "buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go/buf/validate"
@@ -1713,8 +1713,8 @@ const file_lcm_service_v1_client_proto_rawDesc = "" +
 	"\x10GetRequestStatus\x12'.lcm.service.v1.GetRequestStatusRequest\x1a(.lcm.service.v1.GetRequestStatusResponse\"\x00\x12\x82\x01\n" +
 	"\x19DownloadClientCertificate\x120.lcm.service.v1.DownloadClientCertificateRequest\x1a1.lcm.service.v1.DownloadClientCertificateResponse\"\x00\x12y\n" +
 	"\x16ListClientCertificates\x12-.lcm.service.v1.ListClientCertificatesRequest\x1a..lcm.service.v1.ListClientCertificatesResponse\"\x00\x12w\n" +
-	"\x18StreamCertificateUpdates\x12/.lcm.service.v1.StreamCertificateUpdatesRequest\x1a&.lcm.service.v1.CertificateUpdateEvent\"\x000\x01B\xc6\x01\n" +
-	"\x12com.lcm.service.v1B\vClientProtoP\x01ZIgithub.com/go-tangra/go-tangra-portal/api/gen/go/lcm/service/v1;servicev1\xa2\x02\x03LSX\xaa\x02\x0eLcm.Service.V1\xca\x02\x0eLcm\\Service\\V1\xe2\x02\x1aLcm\\Service\\V1\\GPBMetadata\xea\x02\x10Lcm::Service::V1b\x06proto3"
+	"\x18StreamCertificateUpdates\x12/.lcm.service.v1.StreamCertificateUpdatesRequest\x1a&.lcm.service.v1.CertificateUpdateEvent\"\x000\x01B\xc2\x01\n" +
+	"\x12com.lcm.service.v1B\vClientProtoP\x01ZEgithub.com/go-tangra/go-tangra-portal/api/gen/go/lcm/service/v1;lcmV1\xa2\x02\x03LSX\xaa\x02\x0eLcm.Service.V1\xca\x02\x0eLcm\\Service\\V1\xe2\x02\x1aLcm\\Service\\V1\\GPBMetadata\xea\x02\x10Lcm::Service::V1b\x06proto3"
 
 var (
 	file_lcm_service_v1_client_proto_rawDescOnce sync.Once

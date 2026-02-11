@@ -4,7 +4,7 @@
 // 	protoc        (unknown)
 // source: warden/service/v1/system.proto
 
-package servicev1
+package wardenV1
 
 import (
 	_ "google.golang.org/genproto/googleapis/api/annotations"
@@ -365,8 +365,8 @@ const file_warden_service_v1_system_proto_rawDesc = "" +
 	"\aGetInfo\x12\x16.google.protobuf.Empty\x1a\".warden.service.v1.GetInfoResponse\"\x10\x82\xd3\xe4\x93\x02\n" +
 	"\x12\b/v1/info\x12d\n" +
 	"\n" +
-	"CheckVault\x12\x16.google.protobuf.Empty\x1a%.warden.service.v1.CheckVaultResponse\"\x17\x82\xd3\xe4\x93\x02\x11\x12\x0f/v1/vault/checkB\xd8\x01\n" +
-	"\x15com.warden.service.v1B\vSystemProtoP\x01ZLgithub.com/go-tangra/go-tangra-portal/api/gen/go/warden/service/v1;servicev1\xa2\x02\x03WSX\xaa\x02\x11Warden.Service.V1\xca\x02\x11Warden\\Service\\V1\xe2\x02\x1dWarden\\Service\\V1\\GPBMetadata\xea\x02\x13Warden::Service::V1b\x06proto3"
+	"CheckVault\x12\x16.google.protobuf.Empty\x1a%.warden.service.v1.CheckVaultResponse\"\x17\x82\xd3\xe4\x93\x02\x11\x12\x0f/v1/vault/checkB\xd7\x01\n" +
+	"\x15com.warden.service.v1B\vSystemProtoP\x01ZKgithub.com/go-tangra/go-tangra-portal/api/gen/go/warden/service/v1;wardenV1\xa2\x02\x03WSX\xaa\x02\x11Warden.Service.V1\xca\x02\x11Warden\\Service\\V1\xe2\x02\x1dWarden\\Service\\V1\\GPBMetadata\xea\x02\x13Warden::Service::V1b\x06proto3"
 
 var (
 	file_warden_service_v1_system_proto_rawDescOnce sync.Once

@@ -4,7 +4,7 @@
 // 	protoc        (unknown)
 // source: lcm/service/v1/system.proto
 
-package servicev1
+package lcmV1
 
 import (
 	_ "google.golang.org/genproto/googleapis/api/annotations"
@@ -121,8 +121,8 @@ const file_lcm_service_v1_system_proto_rawDesc = "" +
 	"\amessage\x18\x02 \x01(\tR\amessage2{\n" +
 	"\rSystemService\x12j\n" +
 	"\vHealthCheck\x12\".lcm.service.v1.HealthCheckRequest\x1a#.lcm.service.v1.HealthCheckResponse\"\x12\x82\xd3\xe4\x93\x02\f\x12\n" +
-	"/v1/healthB\xc6\x01\n" +
-	"\x12com.lcm.service.v1B\vSystemProtoP\x01ZIgithub.com/go-tangra/go-tangra-portal/api/gen/go/lcm/service/v1;servicev1\xa2\x02\x03LSX\xaa\x02\x0eLcm.Service.V1\xca\x02\x0eLcm\\Service\\V1\xe2\x02\x1aLcm\\Service\\V1\\GPBMetadata\xea\x02\x10Lcm::Service::V1b\x06proto3"
+	"/v1/healthB\xc2\x01\n" +
+	"\x12com.lcm.service.v1B\vSystemProtoP\x01ZEgithub.com/go-tangra/go-tangra-portal/api/gen/go/lcm/service/v1;lcmV1\xa2\x02\x03LSX\xaa\x02\x0eLcm.Service.V1\xca\x02\x0eLcm\\Service\\V1\xe2\x02\x1aLcm\\Service\\V1\\GPBMetadata\xea\x02\x10Lcm::Service::V1b\x06proto3"
 
 var (
 	file_lcm_service_v1_system_proto_rawDescOnce sync.Once

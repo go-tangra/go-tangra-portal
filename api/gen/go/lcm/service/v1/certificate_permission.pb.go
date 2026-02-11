@@ -4,7 +4,7 @@
 // 	protoc        (unknown)
 // source: lcm/service/v1/certificate_permission.proto
 
-package servicev1
+package lcmV1
 
 import (
 	_ "buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go/buf/validate"
@@ -739,6 +739,131 @@ func (x *CheckPermissionRequest) GetRequiredPermission() PermissionType {
 	return PermissionType_PERMISSION_TYPE_UNSPECIFIED
 }
 
+// Request to list all permissions (admin view)
+type ListAllPermissionsRequest struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Filter by certificate ID
+	CertificateId *string `protobuf:"bytes,1,opt,name=certificate_id,json=certificateId,proto3,oneof" json:"certificate_id,omitempty"`
+	// Filter by grantee client ID
+	GranteeClientId *string `protobuf:"bytes,2,opt,name=grantee_client_id,json=granteeClientId,proto3,oneof" json:"grantee_client_id,omitempty"`
+	// Pagination
+	Page          *uint32 `protobuf:"varint,10,opt,name=page,proto3,oneof" json:"page,omitempty"`
+	PageSize      *uint32 `protobuf:"varint,11,opt,name=page_size,json=pageSize,proto3,oneof" json:"page_size,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListAllPermissionsRequest) Reset() {
+	*x = ListAllPermissionsRequest{}
+	mi := &file_lcm_service_v1_certificate_permission_proto_msgTypes[10]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListAllPermissionsRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListAllPermissionsRequest) ProtoMessage() {}
+
+func (x *ListAllPermissionsRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_lcm_service_v1_certificate_permission_proto_msgTypes[10]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListAllPermissionsRequest.ProtoReflect.Descriptor instead.
+func (*ListAllPermissionsRequest) Descriptor() ([]byte, []int) {
+	return file_lcm_service_v1_certificate_permission_proto_rawDescGZIP(), []int{10}
+}
+
+func (x *ListAllPermissionsRequest) GetCertificateId() string {
+	if x != nil && x.CertificateId != nil {
+		return *x.CertificateId
+	}
+	return ""
+}
+
+func (x *ListAllPermissionsRequest) GetGranteeClientId() string {
+	if x != nil && x.GranteeClientId != nil {
+		return *x.GranteeClientId
+	}
+	return ""
+}
+
+func (x *ListAllPermissionsRequest) GetPage() uint32 {
+	if x != nil && x.Page != nil {
+		return *x.Page
+	}
+	return 0
+}
+
+func (x *ListAllPermissionsRequest) GetPageSize() uint32 {
+	if x != nil && x.PageSize != nil {
+		return *x.PageSize
+	}
+	return 0
+}
+
+// Response listing all permissions (admin view)
+type ListAllPermissionsResponse struct {
+	state         protoimpl.MessageState   `protogen:"open.v1"`
+	Permissions   []*CertificatePermission `protobuf:"bytes,1,rep,name=permissions,proto3" json:"permissions,omitempty"`
+	Total         uint32                   `protobuf:"varint,2,opt,name=total,proto3" json:"total,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListAllPermissionsResponse) Reset() {
+	*x = ListAllPermissionsResponse{}
+	mi := &file_lcm_service_v1_certificate_permission_proto_msgTypes[11]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListAllPermissionsResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListAllPermissionsResponse) ProtoMessage() {}
+
+func (x *ListAllPermissionsResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_lcm_service_v1_certificate_permission_proto_msgTypes[11]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListAllPermissionsResponse.ProtoReflect.Descriptor instead.
+func (*ListAllPermissionsResponse) Descriptor() ([]byte, []int) {
+	return file_lcm_service_v1_certificate_permission_proto_rawDescGZIP(), []int{11}
+}
+
+func (x *ListAllPermissionsResponse) GetPermissions() []*CertificatePermission {
+	if x != nil {
+		return x.Permissions
+	}
+	return nil
+}
+
+func (x *ListAllPermissionsResponse) GetTotal() uint32 {
+	if x != nil {
+		return x.Total
+	}
+	return 0
+}
+
 // Response for permission check
 type CheckPermissionResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
@@ -753,7 +878,7 @@ type CheckPermissionResponse struct {
 
 func (x *CheckPermissionResponse) Reset() {
 	*x = CheckPermissionResponse{}
-	mi := &file_lcm_service_v1_certificate_permission_proto_msgTypes[10]
+	mi := &file_lcm_service_v1_certificate_permission_proto_msgTypes[12]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -765,7 +890,7 @@ func (x *CheckPermissionResponse) String() string {
 func (*CheckPermissionResponse) ProtoMessage() {}
 
 func (x *CheckPermissionResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_lcm_service_v1_certificate_permission_proto_msgTypes[10]
+	mi := &file_lcm_service_v1_certificate_permission_proto_msgTypes[12]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -778,7 +903,7 @@ func (x *CheckPermissionResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CheckPermissionResponse.ProtoReflect.Descriptor instead.
 func (*CheckPermissionResponse) Descriptor() ([]byte, []int) {
-	return file_lcm_service_v1_certificate_permission_proto_rawDescGZIP(), []int{10}
+	return file_lcm_service_v1_certificate_permission_proto_rawDescGZIP(), []int{12}
 }
 
 func (x *CheckPermissionResponse) GetHasPermission() bool {
@@ -870,7 +995,21 @@ const file_lcm_service_v1_certificate_permission_proto_rawDesc = "" +
 	"\v_expires_at\"\xbe\x01\n" +
 	"\x16CheckPermissionRequest\x12F\n" +
 	"\x0ecertificate_id\x18\x01 \x01(\tB\x1f\xe0A\x02\xbaH\x19r\x17\x10\x01\x18\x80\x012\x10^[a-fA-F0-9\\-]+$R\rcertificateId\x12\\\n" +
-	"\x13required_permission\x18\x02 \x01(\x0e2\x1e.lcm.service.v1.PermissionTypeB\v\xe0A\x02\xbaH\x05\x82\x01\x02 \x00R\x12requiredPermission\"\xc6\x01\n" +
+	"\x13required_permission\x18\x02 \x01(\x0e2\x1e.lcm.service.v1.PermissionTypeB\v\xe0A\x02\xbaH\x05\x82\x01\x02 \x00R\x12requiredPermission\"\xf3\x01\n" +
+	"\x19ListAllPermissionsRequest\x12*\n" +
+	"\x0ecertificate_id\x18\x01 \x01(\tH\x00R\rcertificateId\x88\x01\x01\x12/\n" +
+	"\x11grantee_client_id\x18\x02 \x01(\tH\x01R\x0fgranteeClientId\x88\x01\x01\x12\x17\n" +
+	"\x04page\x18\n" +
+	" \x01(\rH\x02R\x04page\x88\x01\x01\x12 \n" +
+	"\tpage_size\x18\v \x01(\rH\x03R\bpageSize\x88\x01\x01B\x11\n" +
+	"\x0f_certificate_idB\x14\n" +
+	"\x12_grantee_client_idB\a\n" +
+	"\x05_pageB\f\n" +
+	"\n" +
+	"_page_size\"{\n" +
+	"\x1aListAllPermissionsResponse\x12G\n" +
+	"\vpermissions\x18\x01 \x03(\v2%.lcm.service.v1.CertificatePermissionR\vpermissions\x12\x14\n" +
+	"\x05total\x18\x02 \x01(\rR\x05total\"\xc6\x01\n" +
 	"\x17CheckPermissionResponse\x12%\n" +
 	"\x0ehas_permission\x18\x01 \x01(\bR\rhasPermission\x12\x19\n" +
 	"\bis_owner\x18\x02 \x01(\bR\aisOwner\x12R\n" +
@@ -880,14 +1019,15 @@ const file_lcm_service_v1_certificate_permission_proto_rawDesc = "" +
 	"\x1bPERMISSION_TYPE_UNSPECIFIED\x10\x00\x12\x18\n" +
 	"\x14PERMISSION_TYPE_READ\x10\x01\x12\x1c\n" +
 	"\x18PERMISSION_TYPE_DOWNLOAD\x10\x02\x12\x18\n" +
-	"\x14PERMISSION_TYPE_FULL\x10\x032\xc6\x06\n" +
+	"\x14PERMISSION_TYPE_FULL\x10\x032\xdd\a\n" +
 	"\x1cCertificatePermissionService\x12\x8a\x01\n" +
 	"\x0fGrantPermission\x12&.lcm.service.v1.GrantPermissionRequest\x1a'.lcm.service.v1.GrantPermissionResponse\"&\x82\xd3\xe4\x93\x02 :\x01*\"\x1b/v1/certificate-permissions\x12\xa6\x01\n" +
 	"\x10RevokePermission\x12'.lcm.service.v1.RevokePermissionRequest\x1a\x16.google.protobuf.Empty\"Q\x82\xd3\xe4\x93\x02K*I/v1/certificate-permissions/{certificate_id}/grantees/{grantee_client_id}\x12\x98\x01\n" +
 	"\x0fListPermissions\x12&.lcm.service.v1.ListPermissionsRequest\x1a'.lcm.service.v1.ListPermissionsResponse\"4\x82\xd3\xe4\x93\x02.\x12,/v1/certificate-permissions/{certificate_id}\x12\xb3\x01\n" +
 	"\x1aListAccessibleCertificates\x121.lcm.service.v1.ListAccessibleCertificatesRequest\x1a2.lcm.service.v1.ListAccessibleCertificatesResponse\".\x82\xd3\xe4\x93\x02(\x12&/v1/certificate-permissions/accessible\x12\x9e\x01\n" +
-	"\x0fCheckPermission\x12&.lcm.service.v1.CheckPermissionRequest\x1a'.lcm.service.v1.CheckPermissionResponse\":\x82\xd3\xe4\x93\x024\x122/v1/certificate-permissions/{certificate_id}/checkB\xd5\x01\n" +
-	"\x12com.lcm.service.v1B\x1aCertificatePermissionProtoP\x01ZIgithub.com/go-tangra/go-tangra-portal/api/gen/go/lcm/service/v1;servicev1\xa2\x02\x03LSX\xaa\x02\x0eLcm.Service.V1\xca\x02\x0eLcm\\Service\\V1\xe2\x02\x1aLcm\\Service\\V1\\GPBMetadata\xea\x02\x10Lcm::Service::V1b\x06proto3"
+	"\x0fCheckPermission\x12&.lcm.service.v1.CheckPermissionRequest\x1a'.lcm.service.v1.CheckPermissionResponse\":\x82\xd3\xe4\x93\x024\x122/v1/certificate-permissions/{certificate_id}/check\x12\x94\x01\n" +
+	"\x12ListAllPermissions\x12).lcm.service.v1.ListAllPermissionsRequest\x1a*.lcm.service.v1.ListAllPermissionsResponse\"'\x82\xd3\xe4\x93\x02!\x12\x1f/v1/certificate-permissions/allB\xd1\x01\n" +
+	"\x12com.lcm.service.v1B\x1aCertificatePermissionProtoP\x01ZEgithub.com/go-tangra/go-tangra-portal/api/gen/go/lcm/service/v1;lcmV1\xa2\x02\x03LSX\xaa\x02\x0eLcm.Service.V1\xca\x02\x0eLcm\\Service\\V1\xe2\x02\x1aLcm\\Service\\V1\\GPBMetadata\xea\x02\x10Lcm::Service::V1b\x06proto3"
 
 var (
 	file_lcm_service_v1_certificate_permission_proto_rawDescOnce sync.Once
@@ -902,7 +1042,7 @@ func file_lcm_service_v1_certificate_permission_proto_rawDescGZIP() []byte {
 }
 
 var file_lcm_service_v1_certificate_permission_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_lcm_service_v1_certificate_permission_proto_msgTypes = make([]protoimpl.MessageInfo, 11)
+var file_lcm_service_v1_certificate_permission_proto_msgTypes = make([]protoimpl.MessageInfo, 13)
 var file_lcm_service_v1_certificate_permission_proto_goTypes = []any{
 	(PermissionType)(0),                        // 0: lcm.service.v1.PermissionType
 	(*CertificatePermission)(nil),              // 1: lcm.service.v1.CertificatePermission
@@ -915,42 +1055,47 @@ var file_lcm_service_v1_certificate_permission_proto_goTypes = []any{
 	(*ListAccessibleCertificatesResponse)(nil), // 8: lcm.service.v1.ListAccessibleCertificatesResponse
 	(*AccessibleCertificate)(nil),              // 9: lcm.service.v1.AccessibleCertificate
 	(*CheckPermissionRequest)(nil),             // 10: lcm.service.v1.CheckPermissionRequest
-	(*CheckPermissionResponse)(nil),            // 11: lcm.service.v1.CheckPermissionResponse
-	(*timestamppb.Timestamp)(nil),              // 12: google.protobuf.Timestamp
-	(*emptypb.Empty)(nil),                      // 13: google.protobuf.Empty
+	(*ListAllPermissionsRequest)(nil),          // 11: lcm.service.v1.ListAllPermissionsRequest
+	(*ListAllPermissionsResponse)(nil),         // 12: lcm.service.v1.ListAllPermissionsResponse
+	(*CheckPermissionResponse)(nil),            // 13: lcm.service.v1.CheckPermissionResponse
+	(*timestamppb.Timestamp)(nil),              // 14: google.protobuf.Timestamp
+	(*emptypb.Empty)(nil),                      // 15: google.protobuf.Empty
 }
 var file_lcm_service_v1_certificate_permission_proto_depIdxs = []int32{
 	0,  // 0: lcm.service.v1.CertificatePermission.permission_type:type_name -> lcm.service.v1.PermissionType
-	12, // 1: lcm.service.v1.CertificatePermission.expires_at:type_name -> google.protobuf.Timestamp
-	12, // 2: lcm.service.v1.CertificatePermission.created_at:type_name -> google.protobuf.Timestamp
-	12, // 3: lcm.service.v1.CertificatePermission.updated_at:type_name -> google.protobuf.Timestamp
+	14, // 1: lcm.service.v1.CertificatePermission.expires_at:type_name -> google.protobuf.Timestamp
+	14, // 2: lcm.service.v1.CertificatePermission.created_at:type_name -> google.protobuf.Timestamp
+	14, // 3: lcm.service.v1.CertificatePermission.updated_at:type_name -> google.protobuf.Timestamp
 	0,  // 4: lcm.service.v1.GrantPermissionRequest.permission_type:type_name -> lcm.service.v1.PermissionType
-	12, // 5: lcm.service.v1.GrantPermissionRequest.expires_at:type_name -> google.protobuf.Timestamp
+	14, // 5: lcm.service.v1.GrantPermissionRequest.expires_at:type_name -> google.protobuf.Timestamp
 	1,  // 6: lcm.service.v1.GrantPermissionResponse.permission:type_name -> lcm.service.v1.CertificatePermission
 	1,  // 7: lcm.service.v1.ListPermissionsResponse.permissions:type_name -> lcm.service.v1.CertificatePermission
 	0,  // 8: lcm.service.v1.ListAccessibleCertificatesRequest.permission_type:type_name -> lcm.service.v1.PermissionType
 	9,  // 9: lcm.service.v1.ListAccessibleCertificatesResponse.certificates:type_name -> lcm.service.v1.AccessibleCertificate
 	0,  // 10: lcm.service.v1.AccessibleCertificate.permission_type:type_name -> lcm.service.v1.PermissionType
-	12, // 11: lcm.service.v1.AccessibleCertificate.expires_at:type_name -> google.protobuf.Timestamp
-	12, // 12: lcm.service.v1.AccessibleCertificate.certificate_expires_at:type_name -> google.protobuf.Timestamp
-	12, // 13: lcm.service.v1.AccessibleCertificate.granted_at:type_name -> google.protobuf.Timestamp
+	14, // 11: lcm.service.v1.AccessibleCertificate.expires_at:type_name -> google.protobuf.Timestamp
+	14, // 12: lcm.service.v1.AccessibleCertificate.certificate_expires_at:type_name -> google.protobuf.Timestamp
+	14, // 13: lcm.service.v1.AccessibleCertificate.granted_at:type_name -> google.protobuf.Timestamp
 	0,  // 14: lcm.service.v1.CheckPermissionRequest.required_permission:type_name -> lcm.service.v1.PermissionType
-	0,  // 15: lcm.service.v1.CheckPermissionResponse.granted_permission:type_name -> lcm.service.v1.PermissionType
-	2,  // 16: lcm.service.v1.CertificatePermissionService.GrantPermission:input_type -> lcm.service.v1.GrantPermissionRequest
-	4,  // 17: lcm.service.v1.CertificatePermissionService.RevokePermission:input_type -> lcm.service.v1.RevokePermissionRequest
-	5,  // 18: lcm.service.v1.CertificatePermissionService.ListPermissions:input_type -> lcm.service.v1.ListPermissionsRequest
-	7,  // 19: lcm.service.v1.CertificatePermissionService.ListAccessibleCertificates:input_type -> lcm.service.v1.ListAccessibleCertificatesRequest
-	10, // 20: lcm.service.v1.CertificatePermissionService.CheckPermission:input_type -> lcm.service.v1.CheckPermissionRequest
-	3,  // 21: lcm.service.v1.CertificatePermissionService.GrantPermission:output_type -> lcm.service.v1.GrantPermissionResponse
-	13, // 22: lcm.service.v1.CertificatePermissionService.RevokePermission:output_type -> google.protobuf.Empty
-	6,  // 23: lcm.service.v1.CertificatePermissionService.ListPermissions:output_type -> lcm.service.v1.ListPermissionsResponse
-	8,  // 24: lcm.service.v1.CertificatePermissionService.ListAccessibleCertificates:output_type -> lcm.service.v1.ListAccessibleCertificatesResponse
-	11, // 25: lcm.service.v1.CertificatePermissionService.CheckPermission:output_type -> lcm.service.v1.CheckPermissionResponse
-	21, // [21:26] is the sub-list for method output_type
-	16, // [16:21] is the sub-list for method input_type
-	16, // [16:16] is the sub-list for extension type_name
-	16, // [16:16] is the sub-list for extension extendee
-	0,  // [0:16] is the sub-list for field type_name
+	1,  // 15: lcm.service.v1.ListAllPermissionsResponse.permissions:type_name -> lcm.service.v1.CertificatePermission
+	0,  // 16: lcm.service.v1.CheckPermissionResponse.granted_permission:type_name -> lcm.service.v1.PermissionType
+	2,  // 17: lcm.service.v1.CertificatePermissionService.GrantPermission:input_type -> lcm.service.v1.GrantPermissionRequest
+	4,  // 18: lcm.service.v1.CertificatePermissionService.RevokePermission:input_type -> lcm.service.v1.RevokePermissionRequest
+	5,  // 19: lcm.service.v1.CertificatePermissionService.ListPermissions:input_type -> lcm.service.v1.ListPermissionsRequest
+	7,  // 20: lcm.service.v1.CertificatePermissionService.ListAccessibleCertificates:input_type -> lcm.service.v1.ListAccessibleCertificatesRequest
+	10, // 21: lcm.service.v1.CertificatePermissionService.CheckPermission:input_type -> lcm.service.v1.CheckPermissionRequest
+	11, // 22: lcm.service.v1.CertificatePermissionService.ListAllPermissions:input_type -> lcm.service.v1.ListAllPermissionsRequest
+	3,  // 23: lcm.service.v1.CertificatePermissionService.GrantPermission:output_type -> lcm.service.v1.GrantPermissionResponse
+	15, // 24: lcm.service.v1.CertificatePermissionService.RevokePermission:output_type -> google.protobuf.Empty
+	6,  // 25: lcm.service.v1.CertificatePermissionService.ListPermissions:output_type -> lcm.service.v1.ListPermissionsResponse
+	8,  // 26: lcm.service.v1.CertificatePermissionService.ListAccessibleCertificates:output_type -> lcm.service.v1.ListAccessibleCertificatesResponse
+	13, // 27: lcm.service.v1.CertificatePermissionService.CheckPermission:output_type -> lcm.service.v1.CheckPermissionResponse
+	12, // 28: lcm.service.v1.CertificatePermissionService.ListAllPermissions:output_type -> lcm.service.v1.ListAllPermissionsResponse
+	23, // [23:29] is the sub-list for method output_type
+	17, // [17:23] is the sub-list for method input_type
+	17, // [17:17] is the sub-list for extension type_name
+	17, // [17:17] is the sub-list for extension extendee
+	0,  // [0:17] is the sub-list for field type_name
 }
 
 func init() { file_lcm_service_v1_certificate_permission_proto_init() }
@@ -963,13 +1108,14 @@ func file_lcm_service_v1_certificate_permission_proto_init() {
 	file_lcm_service_v1_certificate_permission_proto_msgTypes[6].OneofWrappers = []any{}
 	file_lcm_service_v1_certificate_permission_proto_msgTypes[8].OneofWrappers = []any{}
 	file_lcm_service_v1_certificate_permission_proto_msgTypes[10].OneofWrappers = []any{}
+	file_lcm_service_v1_certificate_permission_proto_msgTypes[12].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_lcm_service_v1_certificate_permission_proto_rawDesc), len(file_lcm_service_v1_certificate_permission_proto_rawDesc)),
 			NumEnums:      1,
-			NumMessages:   11,
+			NumMessages:   13,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

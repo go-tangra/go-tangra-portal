@@ -4,7 +4,7 @@
 // 	protoc        (unknown)
 // source: lcm/service/v1/certificate_job.proto
 
-package servicev1
+package lcmV1
 
 import (
 	_ "buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go/buf/validate"
@@ -631,6 +631,7 @@ type ListJobsRequest struct {
 	PageSize      *uint32                `protobuf:"varint,3,opt,name=page_size,json=pageSize,proto3,oneof" json:"page_size,omitempty"`
 	IssuerName    *string                `protobuf:"bytes,4,opt,name=issuer_name,json=issuerName,proto3,oneof" json:"issuer_name,omitempty"` // Filter by issuer name
 	TenantId      *uint32                `protobuf:"varint,5,opt,name=tenant_id,json=tenantId,proto3,oneof" json:"tenant_id,omitempty"`      // Tenant ID override (admin only)
+	ClientId      *string                `protobuf:"bytes,6,opt,name=client_id,json=clientId,proto3,oneof" json:"client_id,omitempty"`       // Filter by client ID (admin only, auto-set for direct mTLS)
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -700,6 +701,13 @@ func (x *ListJobsRequest) GetTenantId() uint32 {
 	return 0
 }
 
+func (x *ListJobsRequest) GetClientId() string {
+	if x != nil && x.ClientId != nil {
+		return *x.ClientId
+	}
+	return ""
+}
+
 // List jobs response
 type ListJobsResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
@@ -764,6 +772,7 @@ type CertificateJobInfo struct {
 	CreatedAt     *timestamppb.Timestamp `protobuf:"bytes,6,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
 	CompletedAt   *timestamppb.Timestamp `protobuf:"bytes,7,opt,name=completed_at,json=completedAt,proto3,oneof" json:"completed_at,omitempty"`
 	ErrorMessage  *string                `protobuf:"bytes,8,opt,name=error_message,json=errorMessage,proto3,oneof" json:"error_message,omitempty"`
+	ClientId      string                 `protobuf:"bytes,9,opt,name=client_id,json=clientId,proto3" json:"client_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -854,6 +863,13 @@ func (x *CertificateJobInfo) GetErrorMessage() string {
 	return ""
 }
 
+func (x *CertificateJobInfo) GetClientId() string {
+	if x != nil {
+		return x.ClientId
+	}
+	return ""
+}
+
 // Request to cancel a job
 type CancelJobRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
@@ -895,6 +911,112 @@ func (*CancelJobRequest) Descriptor() ([]byte, []int) {
 func (x *CancelJobRequest) GetJobId() string {
 	if x != nil {
 		return x.JobId
+	}
+	return ""
+}
+
+// Request to retry a failed job
+type RetryJobRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	JobId         string                 `protobuf:"bytes,1,opt,name=job_id,json=jobId,proto3" json:"job_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *RetryJobRequest) Reset() {
+	*x = RetryJobRequest{}
+	mi := &file_lcm_service_v1_certificate_job_proto_msgTypes[10]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *RetryJobRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*RetryJobRequest) ProtoMessage() {}
+
+func (x *RetryJobRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_lcm_service_v1_certificate_job_proto_msgTypes[10]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use RetryJobRequest.ProtoReflect.Descriptor instead.
+func (*RetryJobRequest) Descriptor() ([]byte, []int) {
+	return file_lcm_service_v1_certificate_job_proto_rawDescGZIP(), []int{10}
+}
+
+func (x *RetryJobRequest) GetJobId() string {
+	if x != nil {
+		return x.JobId
+	}
+	return ""
+}
+
+// Response from retrying a job
+type RetryJobResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	JobId         string                 `protobuf:"bytes,1,opt,name=job_id,json=jobId,proto3" json:"job_id,omitempty"`
+	Status        CertificateJobStatus   `protobuf:"varint,2,opt,name=status,proto3,enum=lcm.service.v1.CertificateJobStatus" json:"status,omitempty"`
+	Message       string                 `protobuf:"bytes,3,opt,name=message,proto3" json:"message,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *RetryJobResponse) Reset() {
+	*x = RetryJobResponse{}
+	mi := &file_lcm_service_v1_certificate_job_proto_msgTypes[11]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *RetryJobResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*RetryJobResponse) ProtoMessage() {}
+
+func (x *RetryJobResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_lcm_service_v1_certificate_job_proto_msgTypes[11]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use RetryJobResponse.ProtoReflect.Descriptor instead.
+func (*RetryJobResponse) Descriptor() ([]byte, []int) {
+	return file_lcm_service_v1_certificate_job_proto_rawDescGZIP(), []int{11}
+}
+
+func (x *RetryJobResponse) GetJobId() string {
+	if x != nil {
+		return x.JobId
+	}
+	return ""
+}
+
+func (x *RetryJobResponse) GetStatus() CertificateJobStatus {
+	if x != nil {
+		return x.Status
+	}
+	return CertificateJobStatus_CERTIFICATE_JOB_STATUS_UNSPECIFIED
+}
+
+func (x *RetryJobResponse) GetMessage() string {
+	if x != nil {
+		return x.Message
 	}
 	return ""
 }
@@ -982,24 +1104,27 @@ const file_lcm_service_v1_certificate_job_proto_rawDesc = "" +
 	"\b_csr_pemB\v\n" +
 	"\t_key_typeB\v\n" +
 	"\t_key_sizeB\x17\n" +
-	"\x15_server_generated_key\"\x97\x02\n" +
+	"\x15_server_generated_key\"\xc7\x02\n" +
 	"\x0fListJobsRequest\x12A\n" +
 	"\x06status\x18\x01 \x01(\x0e2$.lcm.service.v1.CertificateJobStatusH\x00R\x06status\x88\x01\x01\x12\x17\n" +
 	"\x04page\x18\x02 \x01(\rH\x01R\x04page\x88\x01\x01\x12 \n" +
 	"\tpage_size\x18\x03 \x01(\rH\x02R\bpageSize\x88\x01\x01\x12$\n" +
 	"\vissuer_name\x18\x04 \x01(\tH\x03R\n" +
 	"issuerName\x88\x01\x01\x12 \n" +
-	"\ttenant_id\x18\x05 \x01(\rH\x04R\btenantId\x88\x01\x01B\t\n" +
+	"\ttenant_id\x18\x05 \x01(\rH\x04R\btenantId\x88\x01\x01\x12 \n" +
+	"\tclient_id\x18\x06 \x01(\tH\x05R\bclientId\x88\x01\x01B\t\n" +
 	"\a_statusB\a\n" +
 	"\x05_pageB\f\n" +
 	"\n" +
 	"_page_sizeB\x0e\n" +
 	"\f_issuer_nameB\f\n" +
 	"\n" +
-	"_tenant_id\"`\n" +
+	"_tenant_idB\f\n" +
+	"\n" +
+	"_client_id\"`\n" +
 	"\x10ListJobsResponse\x126\n" +
 	"\x04jobs\x18\x01 \x03(\v2\".lcm.service.v1.CertificateJobInfoR\x04jobs\x12\x14\n" +
-	"\x05total\x18\x02 \x01(\rR\x05total\"\x98\x03\n" +
+	"\x05total\x18\x02 \x01(\rR\x05total\"\xb5\x03\n" +
 	"\x12CertificateJobInfo\x12\x15\n" +
 	"\x06job_id\x18\x01 \x01(\tR\x05jobId\x12<\n" +
 	"\x06status\x18\x02 \x01(\x0e2$.lcm.service.v1.CertificateJobStatusR\x06status\x12\x1f\n" +
@@ -1012,25 +1137,33 @@ const file_lcm_service_v1_certificate_job_proto_rawDesc = "" +
 	"\n" +
 	"created_at\x18\x06 \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\x12B\n" +
 	"\fcompleted_at\x18\a \x01(\v2\x1a.google.protobuf.TimestampH\x00R\vcompletedAt\x88\x01\x01\x12(\n" +
-	"\rerror_message\x18\b \x01(\tH\x01R\ferrorMessage\x88\x01\x01B\x0f\n" +
+	"\rerror_message\x18\b \x01(\tH\x01R\ferrorMessage\x88\x01\x01\x12\x1b\n" +
+	"\tclient_id\x18\t \x01(\tR\bclientIdB\x0f\n" +
 	"\r_completed_atB\x10\n" +
 	"\x0e_error_message\"I\n" +
 	"\x10CancelJobRequest\x125\n" +
-	"\x06job_id\x18\x01 \x01(\tB\x1e\xe0A\x02\xbaH\x18r\x16\x10\x01\x18$2\x10^[a-fA-F0-9\\-]+$R\x05jobId*\xf8\x01\n" +
+	"\x06job_id\x18\x01 \x01(\tB\x1e\xe0A\x02\xbaH\x18r\x16\x10\x01\x18$2\x10^[a-fA-F0-9\\-]+$R\x05jobId\"H\n" +
+	"\x0fRetryJobRequest\x125\n" +
+	"\x06job_id\x18\x01 \x01(\tB\x1e\xe0A\x02\xbaH\x18r\x16\x10\x01\x18$2\x10^[a-fA-F0-9\\-]+$R\x05jobId\"\x81\x01\n" +
+	"\x10RetryJobResponse\x12\x15\n" +
+	"\x06job_id\x18\x01 \x01(\tR\x05jobId\x12<\n" +
+	"\x06status\x18\x02 \x01(\x0e2$.lcm.service.v1.CertificateJobStatusR\x06status\x12\x18\n" +
+	"\amessage\x18\x03 \x01(\tR\amessage*\xf8\x01\n" +
 	"\x14CertificateJobStatus\x12&\n" +
 	"\"CERTIFICATE_JOB_STATUS_UNSPECIFIED\x10\x00\x12\"\n" +
 	"\x1eCERTIFICATE_JOB_STATUS_PENDING\x10\x01\x12%\n" +
 	"!CERTIFICATE_JOB_STATUS_PROCESSING\x10\x02\x12$\n" +
 	" CERTIFICATE_JOB_STATUS_COMPLETED\x10\x03\x12!\n" +
 	"\x1dCERTIFICATE_JOB_STATUS_FAILED\x10\x04\x12$\n" +
-	" CERTIFICATE_JOB_STATUS_CANCELLED\x10\x052\x9f\x05\n" +
+	" CERTIFICATE_JOB_STATUS_CANCELLED\x10\x052\x9b\x06\n" +
 	"\x18LcmCertificateJobService\x12\x8c\x01\n" +
 	"\x12RequestCertificate\x12).lcm.service.v1.RequestCertificateRequest\x1a*.lcm.service.v1.RequestCertificateResponse\"\x1f\x82\xd3\xe4\x93\x02\x19:\x01*\"\x14/v1/certificate-jobs\x12\x87\x01\n" +
 	"\fGetJobStatus\x12#.lcm.service.v1.GetJobStatusRequest\x1a$.lcm.service.v1.GetJobStatusResponse\",\x82\xd3\xe4\x93\x02&\x12$/v1/certificate-jobs/{job_id}/status\x12\x87\x01\n" +
 	"\fGetJobResult\x12#.lcm.service.v1.GetJobResultRequest\x1a$.lcm.service.v1.GetJobResultResponse\",\x82\xd3\xe4\x93\x02&\x12$/v1/certificate-jobs/{job_id}/result\x12k\n" +
 	"\bListJobs\x12\x1f.lcm.service.v1.ListJobsRequest\x1a .lcm.service.v1.ListJobsResponse\"\x1c\x82\xd3\xe4\x93\x02\x16\x12\x14/v1/certificate-jobs\x12s\n" +
-	"\tCancelJob\x12 .lcm.service.v1.CancelJobRequest\x1a\x16.google.protobuf.Empty\",\x82\xd3\xe4\x93\x02&\"$/v1/certificate-jobs/{job_id}/cancelB\xce\x01\n" +
-	"\x12com.lcm.service.v1B\x13CertificateJobProtoP\x01ZIgithub.com/go-tangra/go-tangra-portal/api/gen/go/lcm/service/v1;servicev1\xa2\x02\x03LSX\xaa\x02\x0eLcm.Service.V1\xca\x02\x0eLcm\\Service\\V1\xe2\x02\x1aLcm\\Service\\V1\\GPBMetadata\xea\x02\x10Lcm::Service::V1b\x06proto3"
+	"\tCancelJob\x12 .lcm.service.v1.CancelJobRequest\x1a\x16.google.protobuf.Empty\",\x82\xd3\xe4\x93\x02&\"$/v1/certificate-jobs/{job_id}/cancel\x12z\n" +
+	"\bRetryJob\x12\x1f.lcm.service.v1.RetryJobRequest\x1a .lcm.service.v1.RetryJobResponse\"+\x82\xd3\xe4\x93\x02%\"#/v1/certificate-jobs/{job_id}/retryB\xca\x01\n" +
+	"\x12com.lcm.service.v1B\x13CertificateJobProtoP\x01ZEgithub.com/go-tangra/go-tangra-portal/api/gen/go/lcm/service/v1;lcmV1\xa2\x02\x03LSX\xaa\x02\x0eLcm.Service.V1\xca\x02\x0eLcm\\Service\\V1\xe2\x02\x1aLcm\\Service\\V1\\GPBMetadata\xea\x02\x10Lcm::Service::V1b\x06proto3"
 
 var (
 	file_lcm_service_v1_certificate_job_proto_rawDescOnce sync.Once
@@ -1045,7 +1178,7 @@ func file_lcm_service_v1_certificate_job_proto_rawDescGZIP() []byte {
 }
 
 var file_lcm_service_v1_certificate_job_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_lcm_service_v1_certificate_job_proto_msgTypes = make([]protoimpl.MessageInfo, 11)
+var file_lcm_service_v1_certificate_job_proto_msgTypes = make([]protoimpl.MessageInfo, 13)
 var file_lcm_service_v1_certificate_job_proto_goTypes = []any{
 	(CertificateJobStatus)(0),          // 0: lcm.service.v1.CertificateJobStatus
 	(*RequestCertificateRequest)(nil),  // 1: lcm.service.v1.RequestCertificateRequest
@@ -1058,39 +1191,44 @@ var file_lcm_service_v1_certificate_job_proto_goTypes = []any{
 	(*ListJobsResponse)(nil),           // 8: lcm.service.v1.ListJobsResponse
 	(*CertificateJobInfo)(nil),         // 9: lcm.service.v1.CertificateJobInfo
 	(*CancelJobRequest)(nil),           // 10: lcm.service.v1.CancelJobRequest
-	nil,                                // 11: lcm.service.v1.RequestCertificateRequest.MetadataEntry
-	(*timestamppb.Timestamp)(nil),      // 12: google.protobuf.Timestamp
-	(*emptypb.Empty)(nil),              // 13: google.protobuf.Empty
+	(*RetryJobRequest)(nil),            // 11: lcm.service.v1.RetryJobRequest
+	(*RetryJobResponse)(nil),           // 12: lcm.service.v1.RetryJobResponse
+	nil,                                // 13: lcm.service.v1.RequestCertificateRequest.MetadataEntry
+	(*timestamppb.Timestamp)(nil),      // 14: google.protobuf.Timestamp
+	(*emptypb.Empty)(nil),              // 15: google.protobuf.Empty
 }
 var file_lcm_service_v1_certificate_job_proto_depIdxs = []int32{
-	11, // 0: lcm.service.v1.RequestCertificateRequest.metadata:type_name -> lcm.service.v1.RequestCertificateRequest.MetadataEntry
+	13, // 0: lcm.service.v1.RequestCertificateRequest.metadata:type_name -> lcm.service.v1.RequestCertificateRequest.MetadataEntry
 	0,  // 1: lcm.service.v1.RequestCertificateResponse.status:type_name -> lcm.service.v1.CertificateJobStatus
 	0,  // 2: lcm.service.v1.GetJobStatusResponse.status:type_name -> lcm.service.v1.CertificateJobStatus
-	12, // 3: lcm.service.v1.GetJobStatusResponse.created_at:type_name -> google.protobuf.Timestamp
-	12, // 4: lcm.service.v1.GetJobStatusResponse.completed_at:type_name -> google.protobuf.Timestamp
+	14, // 3: lcm.service.v1.GetJobStatusResponse.created_at:type_name -> google.protobuf.Timestamp
+	14, // 4: lcm.service.v1.GetJobStatusResponse.completed_at:type_name -> google.protobuf.Timestamp
 	0,  // 5: lcm.service.v1.GetJobResultResponse.status:type_name -> lcm.service.v1.CertificateJobStatus
-	12, // 6: lcm.service.v1.GetJobResultResponse.expires_at:type_name -> google.protobuf.Timestamp
-	12, // 7: lcm.service.v1.GetJobResultResponse.issued_at:type_name -> google.protobuf.Timestamp
+	14, // 6: lcm.service.v1.GetJobResultResponse.expires_at:type_name -> google.protobuf.Timestamp
+	14, // 7: lcm.service.v1.GetJobResultResponse.issued_at:type_name -> google.protobuf.Timestamp
 	0,  // 8: lcm.service.v1.ListJobsRequest.status:type_name -> lcm.service.v1.CertificateJobStatus
 	9,  // 9: lcm.service.v1.ListJobsResponse.jobs:type_name -> lcm.service.v1.CertificateJobInfo
 	0,  // 10: lcm.service.v1.CertificateJobInfo.status:type_name -> lcm.service.v1.CertificateJobStatus
-	12, // 11: lcm.service.v1.CertificateJobInfo.created_at:type_name -> google.protobuf.Timestamp
-	12, // 12: lcm.service.v1.CertificateJobInfo.completed_at:type_name -> google.protobuf.Timestamp
-	1,  // 13: lcm.service.v1.LcmCertificateJobService.RequestCertificate:input_type -> lcm.service.v1.RequestCertificateRequest
-	3,  // 14: lcm.service.v1.LcmCertificateJobService.GetJobStatus:input_type -> lcm.service.v1.GetJobStatusRequest
-	5,  // 15: lcm.service.v1.LcmCertificateJobService.GetJobResult:input_type -> lcm.service.v1.GetJobResultRequest
-	7,  // 16: lcm.service.v1.LcmCertificateJobService.ListJobs:input_type -> lcm.service.v1.ListJobsRequest
-	10, // 17: lcm.service.v1.LcmCertificateJobService.CancelJob:input_type -> lcm.service.v1.CancelJobRequest
-	2,  // 18: lcm.service.v1.LcmCertificateJobService.RequestCertificate:output_type -> lcm.service.v1.RequestCertificateResponse
-	4,  // 19: lcm.service.v1.LcmCertificateJobService.GetJobStatus:output_type -> lcm.service.v1.GetJobStatusResponse
-	6,  // 20: lcm.service.v1.LcmCertificateJobService.GetJobResult:output_type -> lcm.service.v1.GetJobResultResponse
-	8,  // 21: lcm.service.v1.LcmCertificateJobService.ListJobs:output_type -> lcm.service.v1.ListJobsResponse
-	13, // 22: lcm.service.v1.LcmCertificateJobService.CancelJob:output_type -> google.protobuf.Empty
-	18, // [18:23] is the sub-list for method output_type
-	13, // [13:18] is the sub-list for method input_type
-	13, // [13:13] is the sub-list for extension type_name
-	13, // [13:13] is the sub-list for extension extendee
-	0,  // [0:13] is the sub-list for field type_name
+	14, // 11: lcm.service.v1.CertificateJobInfo.created_at:type_name -> google.protobuf.Timestamp
+	14, // 12: lcm.service.v1.CertificateJobInfo.completed_at:type_name -> google.protobuf.Timestamp
+	0,  // 13: lcm.service.v1.RetryJobResponse.status:type_name -> lcm.service.v1.CertificateJobStatus
+	1,  // 14: lcm.service.v1.LcmCertificateJobService.RequestCertificate:input_type -> lcm.service.v1.RequestCertificateRequest
+	3,  // 15: lcm.service.v1.LcmCertificateJobService.GetJobStatus:input_type -> lcm.service.v1.GetJobStatusRequest
+	5,  // 16: lcm.service.v1.LcmCertificateJobService.GetJobResult:input_type -> lcm.service.v1.GetJobResultRequest
+	7,  // 17: lcm.service.v1.LcmCertificateJobService.ListJobs:input_type -> lcm.service.v1.ListJobsRequest
+	10, // 18: lcm.service.v1.LcmCertificateJobService.CancelJob:input_type -> lcm.service.v1.CancelJobRequest
+	11, // 19: lcm.service.v1.LcmCertificateJobService.RetryJob:input_type -> lcm.service.v1.RetryJobRequest
+	2,  // 20: lcm.service.v1.LcmCertificateJobService.RequestCertificate:output_type -> lcm.service.v1.RequestCertificateResponse
+	4,  // 21: lcm.service.v1.LcmCertificateJobService.GetJobStatus:output_type -> lcm.service.v1.GetJobStatusResponse
+	6,  // 22: lcm.service.v1.LcmCertificateJobService.GetJobResult:output_type -> lcm.service.v1.GetJobResultResponse
+	8,  // 23: lcm.service.v1.LcmCertificateJobService.ListJobs:output_type -> lcm.service.v1.ListJobsResponse
+	15, // 24: lcm.service.v1.LcmCertificateJobService.CancelJob:output_type -> google.protobuf.Empty
+	12, // 25: lcm.service.v1.LcmCertificateJobService.RetryJob:output_type -> lcm.service.v1.RetryJobResponse
+	20, // [20:26] is the sub-list for method output_type
+	14, // [14:20] is the sub-list for method input_type
+	14, // [14:14] is the sub-list for extension type_name
+	14, // [14:14] is the sub-list for extension extendee
+	0,  // [0:14] is the sub-list for field type_name
 }
 
 func init() { file_lcm_service_v1_certificate_job_proto_init() }
@@ -1110,7 +1248,7 @@ func file_lcm_service_v1_certificate_job_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_lcm_service_v1_certificate_job_proto_rawDesc), len(file_lcm_service_v1_certificate_job_proto_rawDesc)),
 			NumEnums:      1,
-			NumMessages:   11,
+			NumMessages:   13,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

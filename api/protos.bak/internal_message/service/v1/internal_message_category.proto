@@ -1,0 +1,135 @@
+syntax = "proto3";
+
+package internal_message.service.v1;
+
+import "gnostic/openapi/v3/annotations.proto";
+
+import "google/api/annotations.proto";
+import "google/api/field_behavior.proto";
+
+import "google/protobuf/empty.proto";
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/field_mask.proto";
+
+import "pagination/v1/pagination.proto";
+
+// Internal Message Category Service
+service InternalMessageCategoryService {
+  // Query internal message category list
+  rpc List (pagination.PagingRequest) returns (ListInternalMessageCategoryResponse) {}
+
+  // Query internal message category details
+  rpc Get (GetInternalMessageCategoryRequest) returns (InternalMessageCategory) {}
+
+  // Create internal message category
+  rpc Create (CreateInternalMessageCategoryRequest) returns (google.protobuf.Empty) {}
+
+  // Update internal message category
+  rpc Update (UpdateInternalMessageCategoryRequest) returns (google.protobuf.Empty) {}
+
+  // Delete internal message category
+  rpc Delete (DeleteInternalMessageCategoryRequest) returns (google.protobuf.Empty) {}
+}
+
+// Internal Message Category
+message InternalMessageCategory {
+  optional uint32 id = 1 [
+    json_name = "id",
+    (gnostic.openapi.v3.property) = { description: "Category ID" }
+  ]; // Category ID
+
+  optional string name = 2 [
+    json_name = "name",
+    (gnostic.openapi.v3.property) = { description: "Name" }
+  ]; // Name
+
+  optional string code = 3 [
+    json_name = "code",
+    (gnostic.openapi.v3.property) = { description: "Code" }
+  ]; // Code
+
+  optional string icon_url = 4 [
+    json_name = "iconUrl",
+    (gnostic.openapi.v3.property) = { description: "Icon URL" }
+  ]; // Icon URL
+
+  optional uint32 sort_order = 5 [
+    json_name = "sortOrder",
+    (gnostic.openapi.v3.property) = {description: "Sort order, smaller values appear first"}
+  ];  // Sort order, smaller values appear first
+
+  optional bool is_enabled = 6 [
+    json_name = "isEnabled",
+    (gnostic.openapi.v3.property) = {description: "Whether enabled"}
+  ];  // Whether enabled
+
+  optional uint32 tenant_id = 40 [
+    json_name = "tenantId",
+    (gnostic.openapi.v3.property) = {description: "Tenant ID, 0 represents system global role"}
+  ];  // Tenant ID, 0 represents system global role
+  optional string tenant_name = 41 [
+    json_name = "tenantName",
+    (gnostic.openapi.v3.property) = {description: "Tenant name"}
+  ];  // Tenant name
+
+  optional uint32 created_by = 100 [json_name = "createdBy", (gnostic.openapi.v3.property) = {description: "Creator ID"}]; // Creator ID
+  optional uint32 updated_by = 101 [json_name = "updatedBy", (gnostic.openapi.v3.property) = {description: "Updater ID"}]; // Updater ID
+  optional uint32 deleted_by = 102 [json_name = "deletedBy", (gnostic.openapi.v3.property) = {description: "Deleter user ID"}]; // Deleter user ID
+
+  optional google.protobuf.Timestamp created_at = 200 [json_name = "createdAt", (gnostic.openapi.v3.property) = {description: "Created time"}];// Created time
+  optional google.protobuf.Timestamp updated_at = 201 [json_name = "updatedAt", (gnostic.openapi.v3.property) = {description: "Updated time"}];// Updated time
+  optional google.protobuf.Timestamp deleted_at = 202 [json_name = "deletedAt", (gnostic.openapi.v3.property) = {description: "Deleted time"}];// Deleted time
+}
+
+// List Internal Message Categories - Response
+message ListInternalMessageCategoryResponse {
+  repeated InternalMessageCategory items = 1;
+  uint64 total = 2;
+}
+
+// Get Internal Message Category Details - Request
+message GetInternalMessageCategoryRequest {
+  oneof query_by {
+    uint32 id = 1 [
+      (gnostic.openapi.v3.property) = {description: "ID", read_only: true},
+      json_name = "id"
+    ]; // ID
+  }
+
+  optional google.protobuf.FieldMask view_mask = 100 [
+    json_name = "viewMask",
+    (gnostic.openapi.v3.property) = {
+      description: "View field filter, used to control which fields to return"
+    }
+  ]; // View field filter, used to control which fields to return
+}
+
+// Create Internal Message Category - Request
+message CreateInternalMessageCategoryRequest {
+  InternalMessageCategory data = 1;
+}
+
+// Update Internal Message Category - Request
+message UpdateInternalMessageCategoryRequest {
+  uint32 id = 1;
+
+  InternalMessageCategory data = 2;
+
+  google.protobuf.FieldMask update_mask = 3 [
+    (gnostic.openapi.v3.property) = {
+      description: "List of fields to update",
+      example: {yaml : "id,realname,username"}
+    },
+    json_name = "updateMask"
+  ]; // List of fields to update
+
+  optional bool allow_missing = 4 [
+    (gnostic.openapi.v3.property) = {description: "If set to true, the resource will be created (inserted) if it does not exist, and the `updateMask` field will be ignored in this case."},
+    json_name = "allowMissing"
+  ]; // If set to true, the resource will be created (inserted) if it does not exist, and the `updateMask` field will be ignored in this case.
+}
+
+// Delete Internal Message Category - Request
+message DeleteInternalMessageCategoryRequest {
+  uint32 id = 1;
+}

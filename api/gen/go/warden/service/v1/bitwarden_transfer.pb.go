@@ -4,7 +4,7 @@
 // 	protoc        (unknown)
 // source: warden/service/v1/bitwarden_transfer.proto
 
-package servicev1
+package wardenV1
 
 import (
 	_ "buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go/buf/validate"
@@ -742,6 +742,67 @@ func (x *ExportToBitwardenResponse) GetSuggestedFilename() string {
 	return ""
 }
 
+// Permission rule to apply to all imported items
+type ImportPermissionRule struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	SubjectType   SubjectType            `protobuf:"varint,1,opt,name=subject_type,json=subjectType,proto3,enum=warden.service.v1.SubjectType" json:"subject_type,omitempty"`
+	SubjectId     string                 `protobuf:"bytes,2,opt,name=subject_id,json=subjectId,proto3" json:"subject_id,omitempty"`
+	Relation      Relation               `protobuf:"varint,3,opt,name=relation,proto3,enum=warden.service.v1.Relation" json:"relation,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ImportPermissionRule) Reset() {
+	*x = ImportPermissionRule{}
+	mi := &file_warden_service_v1_bitwarden_transfer_proto_msgTypes[9]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ImportPermissionRule) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ImportPermissionRule) ProtoMessage() {}
+
+func (x *ImportPermissionRule) ProtoReflect() protoreflect.Message {
+	mi := &file_warden_service_v1_bitwarden_transfer_proto_msgTypes[9]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ImportPermissionRule.ProtoReflect.Descriptor instead.
+func (*ImportPermissionRule) Descriptor() ([]byte, []int) {
+	return file_warden_service_v1_bitwarden_transfer_proto_rawDescGZIP(), []int{9}
+}
+
+func (x *ImportPermissionRule) GetSubjectType() SubjectType {
+	if x != nil {
+		return x.SubjectType
+	}
+	return SubjectType_SUBJECT_TYPE_UNSPECIFIED
+}
+
+func (x *ImportPermissionRule) GetSubjectId() string {
+	if x != nil {
+		return x.SubjectId
+	}
+	return ""
+}
+
+func (x *ImportPermissionRule) GetRelation() Relation {
+	if x != nil {
+		return x.Relation
+	}
+	return Relation_RELATION_UNSPECIFIED
+}
+
 // Import request
 type ImportFromBitwardenRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
@@ -753,13 +814,15 @@ type ImportFromBitwardenRequest struct {
 	DuplicateHandling DuplicateHandling `protobuf:"varint,3,opt,name=duplicate_handling,json=duplicateHandling,proto3,enum=warden.service.v1.DuplicateHandling" json:"duplicate_handling,omitempty"`
 	// Whether to import folder structure or flatten to target folder
 	PreserveFolders bool `protobuf:"varint,4,opt,name=preserve_folders,json=preserveFolders,proto3" json:"preserve_folders,omitempty"`
+	// Permission rules to apply to all imported folders and secrets
+	PermissionRules []*ImportPermissionRule `protobuf:"bytes,5,rep,name=permission_rules,json=permissionRules,proto3" json:"permission_rules,omitempty"`
 	unknownFields   protoimpl.UnknownFields
 	sizeCache       protoimpl.SizeCache
 }
 
 func (x *ImportFromBitwardenRequest) Reset() {
 	*x = ImportFromBitwardenRequest{}
-	mi := &file_warden_service_v1_bitwarden_transfer_proto_msgTypes[9]
+	mi := &file_warden_service_v1_bitwarden_transfer_proto_msgTypes[10]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -771,7 +834,7 @@ func (x *ImportFromBitwardenRequest) String() string {
 func (*ImportFromBitwardenRequest) ProtoMessage() {}
 
 func (x *ImportFromBitwardenRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_warden_service_v1_bitwarden_transfer_proto_msgTypes[9]
+	mi := &file_warden_service_v1_bitwarden_transfer_proto_msgTypes[10]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -784,7 +847,7 @@ func (x *ImportFromBitwardenRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ImportFromBitwardenRequest.ProtoReflect.Descriptor instead.
 func (*ImportFromBitwardenRequest) Descriptor() ([]byte, []int) {
-	return file_warden_service_v1_bitwarden_transfer_proto_rawDescGZIP(), []int{9}
+	return file_warden_service_v1_bitwarden_transfer_proto_rawDescGZIP(), []int{10}
 }
 
 func (x *ImportFromBitwardenRequest) GetJsonData() string {
@@ -815,6 +878,13 @@ func (x *ImportFromBitwardenRequest) GetPreserveFolders() bool {
 	return false
 }
 
+func (x *ImportFromBitwardenRequest) GetPermissionRules() []*ImportPermissionRule {
+	if x != nil {
+		return x.PermissionRules
+	}
+	return nil
+}
+
 type ImportFromBitwardenResponse struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Import statistics
@@ -833,7 +903,7 @@ type ImportFromBitwardenResponse struct {
 
 func (x *ImportFromBitwardenResponse) Reset() {
 	*x = ImportFromBitwardenResponse{}
-	mi := &file_warden_service_v1_bitwarden_transfer_proto_msgTypes[10]
+	mi := &file_warden_service_v1_bitwarden_transfer_proto_msgTypes[11]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -845,7 +915,7 @@ func (x *ImportFromBitwardenResponse) String() string {
 func (*ImportFromBitwardenResponse) ProtoMessage() {}
 
 func (x *ImportFromBitwardenResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_warden_service_v1_bitwarden_transfer_proto_msgTypes[10]
+	mi := &file_warden_service_v1_bitwarden_transfer_proto_msgTypes[11]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -858,7 +928,7 @@ func (x *ImportFromBitwardenResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ImportFromBitwardenResponse.ProtoReflect.Descriptor instead.
 func (*ImportFromBitwardenResponse) Descriptor() ([]byte, []int) {
-	return file_warden_service_v1_bitwarden_transfer_proto_rawDescGZIP(), []int{10}
+	return file_warden_service_v1_bitwarden_transfer_proto_rawDescGZIP(), []int{11}
 }
 
 func (x *ImportFromBitwardenResponse) GetFoldersCreated() int32 {
@@ -922,7 +992,7 @@ type ImportError struct {
 
 func (x *ImportError) Reset() {
 	*x = ImportError{}
-	mi := &file_warden_service_v1_bitwarden_transfer_proto_msgTypes[11]
+	mi := &file_warden_service_v1_bitwarden_transfer_proto_msgTypes[12]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -934,7 +1004,7 @@ func (x *ImportError) String() string {
 func (*ImportError) ProtoMessage() {}
 
 func (x *ImportError) ProtoReflect() protoreflect.Message {
-	mi := &file_warden_service_v1_bitwarden_transfer_proto_msgTypes[11]
+	mi := &file_warden_service_v1_bitwarden_transfer_proto_msgTypes[12]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -947,7 +1017,7 @@ func (x *ImportError) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ImportError.ProtoReflect.Descriptor instead.
 func (*ImportError) Descriptor() ([]byte, []int) {
-	return file_warden_service_v1_bitwarden_transfer_proto_rawDescGZIP(), []int{11}
+	return file_warden_service_v1_bitwarden_transfer_proto_rawDescGZIP(), []int{12}
 }
 
 func (x *ImportError) GetBitwardenId() string {
@@ -990,7 +1060,7 @@ type ValidateBitwardenImportRequest struct {
 
 func (x *ValidateBitwardenImportRequest) Reset() {
 	*x = ValidateBitwardenImportRequest{}
-	mi := &file_warden_service_v1_bitwarden_transfer_proto_msgTypes[12]
+	mi := &file_warden_service_v1_bitwarden_transfer_proto_msgTypes[13]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1002,7 +1072,7 @@ func (x *ValidateBitwardenImportRequest) String() string {
 func (*ValidateBitwardenImportRequest) ProtoMessage() {}
 
 func (x *ValidateBitwardenImportRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_warden_service_v1_bitwarden_transfer_proto_msgTypes[12]
+	mi := &file_warden_service_v1_bitwarden_transfer_proto_msgTypes[13]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1015,7 +1085,7 @@ func (x *ValidateBitwardenImportRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ValidateBitwardenImportRequest.ProtoReflect.Descriptor instead.
 func (*ValidateBitwardenImportRequest) Descriptor() ([]byte, []int) {
-	return file_warden_service_v1_bitwarden_transfer_proto_rawDescGZIP(), []int{12}
+	return file_warden_service_v1_bitwarden_transfer_proto_rawDescGZIP(), []int{13}
 }
 
 func (x *ValidateBitwardenImportRequest) GetJsonData() string {
@@ -1057,7 +1127,7 @@ type ValidateBitwardenImportResponse struct {
 
 func (x *ValidateBitwardenImportResponse) Reset() {
 	*x = ValidateBitwardenImportResponse{}
-	mi := &file_warden_service_v1_bitwarden_transfer_proto_msgTypes[13]
+	mi := &file_warden_service_v1_bitwarden_transfer_proto_msgTypes[14]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1069,7 +1139,7 @@ func (x *ValidateBitwardenImportResponse) String() string {
 func (*ValidateBitwardenImportResponse) ProtoMessage() {}
 
 func (x *ValidateBitwardenImportResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_warden_service_v1_bitwarden_transfer_proto_msgTypes[13]
+	mi := &file_warden_service_v1_bitwarden_transfer_proto_msgTypes[14]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1082,7 +1152,7 @@ func (x *ValidateBitwardenImportResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ValidateBitwardenImportResponse.ProtoReflect.Descriptor instead.
 func (*ValidateBitwardenImportResponse) Descriptor() ([]byte, []int) {
-	return file_warden_service_v1_bitwarden_transfer_proto_rawDescGZIP(), []int{13}
+	return file_warden_service_v1_bitwarden_transfer_proto_rawDescGZIP(), []int{14}
 }
 
 func (x *ValidateBitwardenImportResponse) GetIsValid() bool {
@@ -1138,7 +1208,7 @@ var File_warden_service_v1_bitwarden_transfer_proto protoreflect.FileDescriptor
 
 const file_warden_service_v1_bitwarden_transfer_proto_rawDesc = "" +
 	"\n" +
-	"*warden/service/v1/bitwarden_transfer.proto\x12\x11warden.service.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1bgoogle/protobuf/empty.proto\"5\n" +
+	"*warden/service/v1/bitwarden_transfer.proto\x12\x11warden.service.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a\"warden/service/v1/permission.proto\"5\n" +
 	"\x0fBitwardenFolder\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\"E\n" +
@@ -1192,12 +1262,18 @@ const file_warden_service_v1_bitwarden_transfer_proto_rawDesc = "" +
 	"\x10folders_exported\x18\x02 \x01(\x05R\x0ffoldersExported\x12%\n" +
 	"\x0eitems_exported\x18\x03 \x01(\x05R\ritemsExported\x12#\n" +
 	"\ritems_skipped\x18\x04 \x01(\x05R\fitemsSkipped\x12-\n" +
-	"\x12suggested_filename\x18\x05 \x01(\tR\x11suggestedFilename\"\xa9\x02\n" +
+	"\x12suggested_filename\x18\x05 \x01(\tR\x11suggestedFilename\"\xb1\x01\n" +
+	"\x14ImportPermissionRule\x12A\n" +
+	"\fsubject_type\x18\x01 \x01(\x0e2\x1e.warden.service.v1.SubjectTypeR\vsubjectType\x12\x1d\n" +
+	"\n" +
+	"subject_id\x18\x02 \x01(\tR\tsubjectId\x127\n" +
+	"\brelation\x18\x03 \x01(\x0e2\x1b.warden.service.v1.RelationR\brelation\"\xfd\x02\n" +
 	"\x1aImportFromBitwardenRequest\x12,\n" +
 	"\tjson_data\x18\x01 \x01(\tB\x0f\xe0A\x02\xbaH\tr\a\x10\x02\x18\x80\x80\x80\x05R\bjsonData\x12H\n" +
 	"\x10target_folder_id\x18\x02 \x01(\tB\x19\xbaH\x16r\x14\x18$2\x10^[a-fA-F0-9\\-]*$H\x00R\x0etargetFolderId\x88\x01\x01\x12S\n" +
 	"\x12duplicate_handling\x18\x03 \x01(\x0e2$.warden.service.v1.DuplicateHandlingR\x11duplicateHandling\x12)\n" +
-	"\x10preserve_folders\x18\x04 \x01(\bR\x0fpreserveFoldersB\x13\n" +
+	"\x10preserve_folders\x18\x04 \x01(\bR\x0fpreserveFolders\x12R\n" +
+	"\x10permission_rules\x18\x05 \x03(\v2'.warden.service.v1.ImportPermissionRuleR\x0fpermissionRulesB\x13\n" +
 	"\x11_target_folder_id\"\xcf\x04\n" +
 	"\x1bImportFromBitwardenResponse\x12'\n" +
 	"\x0ffolders_created\x18\x01 \x01(\x05R\x0efoldersCreated\x12%\n" +
@@ -1246,8 +1322,8 @@ const file_warden_service_v1_bitwarden_transfer_proto_rawDesc = "" +
 	"\x1eWardenBitwardenTransferService\x12\x8f\x01\n" +
 	"\x11ExportToBitwarden\x12+.warden.service.v1.ExportToBitwardenRequest\x1a,.warden.service.v1.ExportToBitwardenResponse\"\x1f\x82\xd3\xe4\x93\x02\x19:\x01*\"\x14/v1/bitwarden/export\x12\x95\x01\n" +
 	"\x13ImportFromBitwarden\x12-.warden.service.v1.ImportFromBitwardenRequest\x1a..warden.service.v1.ImportFromBitwardenResponse\"\x1f\x82\xd3\xe4\x93\x02\x19:\x01*\"\x14/v1/bitwarden/import\x12\xa3\x01\n" +
-	"\x17ValidateBitwardenImport\x121.warden.service.v1.ValidateBitwardenImportRequest\x1a2.warden.service.v1.ValidateBitwardenImportResponse\"!\x82\xd3\xe4\x93\x02\x1b:\x01*\"\x16/v1/bitwarden/validateB\xe3\x01\n" +
-	"\x15com.warden.service.v1B\x16BitwardenTransferProtoP\x01ZLgithub.com/go-tangra/go-tangra-portal/api/gen/go/warden/service/v1;servicev1\xa2\x02\x03WSX\xaa\x02\x11Warden.Service.V1\xca\x02\x11Warden\\Service\\V1\xe2\x02\x1dWarden\\Service\\V1\\GPBMetadata\xea\x02\x13Warden::Service::V1b\x06proto3"
+	"\x17ValidateBitwardenImport\x121.warden.service.v1.ValidateBitwardenImportRequest\x1a2.warden.service.v1.ValidateBitwardenImportResponse\"!\x82\xd3\xe4\x93\x02\x1b:\x01*\"\x16/v1/bitwarden/validateB\xe2\x01\n" +
+	"\x15com.warden.service.v1B\x16BitwardenTransferProtoP\x01ZKgithub.com/go-tangra/go-tangra-portal/api/gen/go/warden/service/v1;wardenV1\xa2\x02\x03WSX\xaa\x02\x11Warden.Service.V1\xca\x02\x11Warden\\Service\\V1\xe2\x02\x1dWarden\\Service\\V1\\GPBMetadata\xea\x02\x13Warden::Service::V1b\x06proto3"
 
 var (
 	file_warden_service_v1_bitwarden_transfer_proto_rawDescOnce sync.Once
@@ -1262,7 +1338,7 @@ func file_warden_service_v1_bitwarden_transfer_proto_rawDescGZIP() []byte {
 }
 
 var file_warden_service_v1_bitwarden_transfer_proto_enumTypes = make([]protoimpl.EnumInfo, 2)
-var file_warden_service_v1_bitwarden_transfer_proto_msgTypes = make([]protoimpl.MessageInfo, 16)
+var file_warden_service_v1_bitwarden_transfer_proto_msgTypes = make([]protoimpl.MessageInfo, 17)
 var file_warden_service_v1_bitwarden_transfer_proto_goTypes = []any{
 	(BitwardenItemType)(0),                  // 0: warden.service.v1.BitwardenItemType
 	(DuplicateHandling)(0),                  // 1: warden.service.v1.DuplicateHandling
@@ -1275,13 +1351,16 @@ var file_warden_service_v1_bitwarden_transfer_proto_goTypes = []any{
 	(*BitwardenExport)(nil),                 // 8: warden.service.v1.BitwardenExport
 	(*ExportToBitwardenRequest)(nil),        // 9: warden.service.v1.ExportToBitwardenRequest
 	(*ExportToBitwardenResponse)(nil),       // 10: warden.service.v1.ExportToBitwardenResponse
-	(*ImportFromBitwardenRequest)(nil),      // 11: warden.service.v1.ImportFromBitwardenRequest
-	(*ImportFromBitwardenResponse)(nil),     // 12: warden.service.v1.ImportFromBitwardenResponse
-	(*ImportError)(nil),                     // 13: warden.service.v1.ImportError
-	(*ValidateBitwardenImportRequest)(nil),  // 14: warden.service.v1.ValidateBitwardenImportRequest
-	(*ValidateBitwardenImportResponse)(nil), // 15: warden.service.v1.ValidateBitwardenImportResponse
-	nil,                                     // 16: warden.service.v1.ImportFromBitwardenResponse.FolderIdMappingEntry
-	nil,                                     // 17: warden.service.v1.ImportFromBitwardenResponse.ItemIdMappingEntry
+	(*ImportPermissionRule)(nil),            // 11: warden.service.v1.ImportPermissionRule
+	(*ImportFromBitwardenRequest)(nil),      // 12: warden.service.v1.ImportFromBitwardenRequest
+	(*ImportFromBitwardenResponse)(nil),     // 13: warden.service.v1.ImportFromBitwardenResponse
+	(*ImportError)(nil),                     // 14: warden.service.v1.ImportError
+	(*ValidateBitwardenImportRequest)(nil),  // 15: warden.service.v1.ValidateBitwardenImportRequest
+	(*ValidateBitwardenImportResponse)(nil), // 16: warden.service.v1.ValidateBitwardenImportResponse
+	nil,                                     // 17: warden.service.v1.ImportFromBitwardenResponse.FolderIdMappingEntry
+	nil,                                     // 18: warden.service.v1.ImportFromBitwardenResponse.ItemIdMappingEntry
+	(SubjectType)(0),                        // 19: warden.service.v1.SubjectType
+	(Relation)(0),                           // 20: warden.service.v1.Relation
 }
 var file_warden_service_v1_bitwarden_transfer_proto_depIdxs = []int32{
 	3,  // 0: warden.service.v1.BitwardenLogin.uris:type_name -> warden.service.v1.BitwardenUri
@@ -1290,21 +1369,24 @@ var file_warden_service_v1_bitwarden_transfer_proto_depIdxs = []int32{
 	6,  // 3: warden.service.v1.BitwardenItem.password_history:type_name -> warden.service.v1.BitwardenPasswordHistory
 	2,  // 4: warden.service.v1.BitwardenExport.folders:type_name -> warden.service.v1.BitwardenFolder
 	7,  // 5: warden.service.v1.BitwardenExport.items:type_name -> warden.service.v1.BitwardenItem
-	1,  // 6: warden.service.v1.ImportFromBitwardenRequest.duplicate_handling:type_name -> warden.service.v1.DuplicateHandling
-	13, // 7: warden.service.v1.ImportFromBitwardenResponse.errors:type_name -> warden.service.v1.ImportError
-	16, // 8: warden.service.v1.ImportFromBitwardenResponse.folder_id_mapping:type_name -> warden.service.v1.ImportFromBitwardenResponse.FolderIdMappingEntry
-	17, // 9: warden.service.v1.ImportFromBitwardenResponse.item_id_mapping:type_name -> warden.service.v1.ImportFromBitwardenResponse.ItemIdMappingEntry
-	9,  // 10: warden.service.v1.WardenBitwardenTransferService.ExportToBitwarden:input_type -> warden.service.v1.ExportToBitwardenRequest
-	11, // 11: warden.service.v1.WardenBitwardenTransferService.ImportFromBitwarden:input_type -> warden.service.v1.ImportFromBitwardenRequest
-	14, // 12: warden.service.v1.WardenBitwardenTransferService.ValidateBitwardenImport:input_type -> warden.service.v1.ValidateBitwardenImportRequest
-	10, // 13: warden.service.v1.WardenBitwardenTransferService.ExportToBitwarden:output_type -> warden.service.v1.ExportToBitwardenResponse
-	12, // 14: warden.service.v1.WardenBitwardenTransferService.ImportFromBitwarden:output_type -> warden.service.v1.ImportFromBitwardenResponse
-	15, // 15: warden.service.v1.WardenBitwardenTransferService.ValidateBitwardenImport:output_type -> warden.service.v1.ValidateBitwardenImportResponse
-	13, // [13:16] is the sub-list for method output_type
-	10, // [10:13] is the sub-list for method input_type
-	10, // [10:10] is the sub-list for extension type_name
-	10, // [10:10] is the sub-list for extension extendee
-	0,  // [0:10] is the sub-list for field type_name
+	19, // 6: warden.service.v1.ImportPermissionRule.subject_type:type_name -> warden.service.v1.SubjectType
+	20, // 7: warden.service.v1.ImportPermissionRule.relation:type_name -> warden.service.v1.Relation
+	1,  // 8: warden.service.v1.ImportFromBitwardenRequest.duplicate_handling:type_name -> warden.service.v1.DuplicateHandling
+	11, // 9: warden.service.v1.ImportFromBitwardenRequest.permission_rules:type_name -> warden.service.v1.ImportPermissionRule
+	14, // 10: warden.service.v1.ImportFromBitwardenResponse.errors:type_name -> warden.service.v1.ImportError
+	17, // 11: warden.service.v1.ImportFromBitwardenResponse.folder_id_mapping:type_name -> warden.service.v1.ImportFromBitwardenResponse.FolderIdMappingEntry
+	18, // 12: warden.service.v1.ImportFromBitwardenResponse.item_id_mapping:type_name -> warden.service.v1.ImportFromBitwardenResponse.ItemIdMappingEntry
+	9,  // 13: warden.service.v1.WardenBitwardenTransferService.ExportToBitwarden:input_type -> warden.service.v1.ExportToBitwardenRequest
+	12, // 14: warden.service.v1.WardenBitwardenTransferService.ImportFromBitwarden:input_type -> warden.service.v1.ImportFromBitwardenRequest
+	15, // 15: warden.service.v1.WardenBitwardenTransferService.ValidateBitwardenImport:input_type -> warden.service.v1.ValidateBitwardenImportRequest
+	10, // 16: warden.service.v1.WardenBitwardenTransferService.ExportToBitwarden:output_type -> warden.service.v1.ExportToBitwardenResponse
+	13, // 17: warden.service.v1.WardenBitwardenTransferService.ImportFromBitwarden:output_type -> warden.service.v1.ImportFromBitwardenResponse
+	16, // 18: warden.service.v1.WardenBitwardenTransferService.ValidateBitwardenImport:output_type -> warden.service.v1.ValidateBitwardenImportResponse
+	16, // [16:19] is the sub-list for method output_type
+	13, // [13:16] is the sub-list for method input_type
+	13, // [13:13] is the sub-list for extension type_name
+	13, // [13:13] is the sub-list for extension extendee
+	0,  // [0:13] is the sub-list for field type_name
 }
 
 func init() { file_warden_service_v1_bitwarden_transfer_proto_init() }
@@ -1312,19 +1394,20 @@ func file_warden_service_v1_bitwarden_transfer_proto_init() {
 	if File_warden_service_v1_bitwarden_transfer_proto != nil {
 		return
 	}
+	file_warden_service_v1_permission_proto_init()
 	file_warden_service_v1_bitwarden_transfer_proto_msgTypes[1].OneofWrappers = []any{}
 	file_warden_service_v1_bitwarden_transfer_proto_msgTypes[2].OneofWrappers = []any{}
 	file_warden_service_v1_bitwarden_transfer_proto_msgTypes[5].OneofWrappers = []any{}
 	file_warden_service_v1_bitwarden_transfer_proto_msgTypes[7].OneofWrappers = []any{}
-	file_warden_service_v1_bitwarden_transfer_proto_msgTypes[9].OneofWrappers = []any{}
-	file_warden_service_v1_bitwarden_transfer_proto_msgTypes[12].OneofWrappers = []any{}
+	file_warden_service_v1_bitwarden_transfer_proto_msgTypes[10].OneofWrappers = []any{}
+	file_warden_service_v1_bitwarden_transfer_proto_msgTypes[13].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_warden_service_v1_bitwarden_transfer_proto_rawDesc), len(file_warden_service_v1_bitwarden_transfer_proto_rawDesc)),
 			NumEnums:      2,
-			NumMessages:   16,
+			NumMessages:   17,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

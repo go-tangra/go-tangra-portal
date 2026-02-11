@@ -4,7 +4,7 @@
 // 	protoc        (unknown)
 // source: warden/service/v1/permission.proto
 
-package servicev1
+package wardenV1
 
 import (
 	_ "buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go/buf/validate"
@@ -1219,8 +1219,8 @@ const file_warden_service_v1_permission_proto_rawDesc = "" +
 	"\x0fListPermissions\x12).warden.service.v1.ListPermissionsRequest\x1a*.warden.service.v1.ListPermissionsResponse\"\x17\x82\xd3\xe4\x93\x02\x11\x12\x0f/v1/permissions\x12~\n" +
 	"\vCheckAccess\x12%.warden.service.v1.CheckAccessRequest\x1a&.warden.service.v1.CheckAccessResponse\" \x82\xd3\xe4\x93\x02\x1a:\x01*\"\x15/v1/permissions/check\x12\xa4\x01\n" +
 	"\x17ListAccessibleResources\x121.warden.service.v1.ListAccessibleResourcesRequest\x1a2.warden.service.v1.ListAccessibleResourcesResponse\"\"\x82\xd3\xe4\x93\x02\x1c\x12\x1a/v1/permissions/accessible\x12\xa3\x01\n" +
-	"\x17GetEffectivePermissions\x121.warden.service.v1.GetEffectivePermissionsRequest\x1a2.warden.service.v1.GetEffectivePermissionsResponse\"!\x82\xd3\xe4\x93\x02\x1b\x12\x19/v1/permissions/effectiveB\xdc\x01\n" +
-	"\x15com.warden.service.v1B\x0fPermissionProtoP\x01ZLgithub.com/go-tangra/go-tangra-portal/api/gen/go/warden/service/v1;servicev1\xa2\x02\x03WSX\xaa\x02\x11Warden.Service.V1\xca\x02\x11Warden\\Service\\V1\xe2\x02\x1dWarden\\Service\\V1\\GPBMetadata\xea\x02\x13Warden::Service::V1b\x06proto3"
+	"\x17GetEffectivePermissions\x121.warden.service.v1.GetEffectivePermissionsRequest\x1a2.warden.service.v1.GetEffectivePermissionsResponse\"!\x82\xd3\xe4\x93\x02\x1b\x12\x19/v1/permissions/effectiveB\xdb\x01\n" +
+	"\x15com.warden.service.v1B\x0fPermissionProtoP\x01ZKgithub.com/go-tangra/go-tangra-portal/api/gen/go/warden/service/v1;wardenV1\xa2\x02\x03WSX\xaa\x02\x11Warden.Service.V1\xca\x02\x11Warden\\Service\\V1\xe2\x02\x1dWarden\\Service\\V1\\GPBMetadata\xea\x02\x13Warden::Service::V1b\x06proto3"
 
 var (
 	file_warden_service_v1_permission_proto_rawDescOnce sync.Once

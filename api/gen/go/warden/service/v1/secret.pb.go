@@ -4,7 +4,7 @@
 // 	protoc        (unknown)
 // source: warden/service/v1/secret.proto
 
-package servicev1
+package wardenV1
 
 import (
 	_ "buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go/buf/validate"
@@ -1883,8 +1883,8 @@ const file_warden_service_v1_secret_proto_rawDesc = "" +
 	"\n" +
 	"GetVersion\x12$.warden.service.v1.GetVersionRequest\x1a%.warden.service.v1.GetVersionResponse\"9\x82\xd3\xe4\x93\x023\x121/v1/secrets/{secret_id}/versions/{version_number}\x12\xa8\x01\n" +
 	"\x0eRestoreVersion\x12(.warden.service.v1.RestoreVersionRequest\x1a).warden.service.v1.RestoreVersionResponse\"A\x82\xd3\xe4\x93\x02;\"9/v1/secrets/{secret_id}/versions/{version_number}/restore\x12~\n" +
-	"\rSearchSecrets\x12'.warden.service.v1.SearchSecretsRequest\x1a(.warden.service.v1.SearchSecretsResponse\"\x1a\x82\xd3\xe4\x93\x02\x14\x12\x12/v1/secrets/searchB\xd8\x01\n" +
-	"\x15com.warden.service.v1B\vSecretProtoP\x01ZLgithub.com/go-tangra/go-tangra-portal/api/gen/go/warden/service/v1;servicev1\xa2\x02\x03WSX\xaa\x02\x11Warden.Service.V1\xca\x02\x11Warden\\Service\\V1\xe2\x02\x1dWarden\\Service\\V1\\GPBMetadata\xea\x02\x13Warden::Service::V1b\x06proto3"
+	"\rSearchSecrets\x12'.warden.service.v1.SearchSecretsRequest\x1a(.warden.service.v1.SearchSecretsResponse\"\x1a\x82\xd3\xe4\x93\x02\x14\x12\x12/v1/secrets/searchB\xd7\x01\n" +
+	"\x15com.warden.service.v1B\vSecretProtoP\x01ZKgithub.com/go-tangra/go-tangra-portal/api/gen/go/warden/service/v1;wardenV1\xa2\x02\x03WSX\xaa\x02\x11Warden.Service.V1\xca\x02\x11Warden\\Service\\V1\xe2\x02\x1dWarden\\Service\\V1\\GPBMetadata\xea\x02\x13Warden::Service::V1b\x06proto3"
 
 var (
 	file_warden_service_v1_secret_proto_rawDescOnce sync.Once

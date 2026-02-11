@@ -4,7 +4,7 @@
 // - protoc             (unknown)
 // source: deployer/service/v1/target_configuration.proto
 
-package servicev1
+package deployerV1
 
 import (
 	context "context"
