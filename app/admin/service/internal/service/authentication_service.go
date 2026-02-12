@@ -38,6 +38,9 @@ type AuthenticationService struct {
 
 	userToken *data.UserTokenCacheRepo
 
+	mfaRepo         *data.MFARepo
+	mfaSessionCache *data.MFASessionCacheRepo
+
 	authenticator authnEngine.Authenticator
 
 	log *log.Helper
@@ -54,6 +57,8 @@ func NewAuthenticationService(
 	permissionRepo *data.PermissionRepo,
 	userToken *data.UserTokenCacheRepo,
 	authenticator authnEngine.Authenticator,
+	mfaRepo *data.MFARepo,
+	mfaSessionCache *data.MFASessionCacheRepo,
 ) *AuthenticationService {
 	return &AuthenticationService{
 		log:                ctx.NewLoggerHelper("authn/service/admin-service"),
@@ -66,6 +71,8 @@ func NewAuthenticationService(
 		permissionRepo:     permissionRepo,
 		userToken:          userToken,
 		authenticator:      authenticator,
+		mfaRepo:            mfaRepo,
+		mfaSessionCache:    mfaSessionCache,
 	}
 }
 
@@ -364,7 +371,52 @@ func (s *AuthenticationService) doGrantTypePassword(ctx context.Context, req *au
 		return nil, err
 	}
 
-	// 生成令牌
+	// Check if user has MFA enrolled
+	mfaCreds, mfaErr := s.mfaRepo.ListEnabledMFACredentials(ctx, user.GetId())
+	if mfaErr != nil {
+		s.log.Errorf("check MFA credentials for user [%d]: %v", user.GetId(), mfaErr)
+		// Non-fatal: if MFA check fails, proceed without MFA
+	}
+
+	if len(mfaCreds) > 0 {
+		// MFA required: create session in Redis and return partial response
+		var methods []string
+		for _, c := range mfaCreds {
+			if c.CredentialType != nil {
+				switch *c.CredentialType {
+				case "TOTP":
+					methods = append(methods, "TOTP")
+				case "HARDWARE_TOKEN":
+					methods = append(methods, "WEBAUTHN")
+				}
+			}
+		}
+		// Always include BACKUP_CODE as a fallback method
+		methods = append(methods, "BACKUP_CODE")
+
+		mfaToken, mfaErr := s.mfaSessionCache.CreateLoginSession(ctx, &data.MFALoginSession{
+			UserID:   user.GetId(),
+			TenantID: user.GetTenantId(),
+			Username: user.GetUsername(),
+			ClientID: req.GetClientId(),
+			DeviceID: req.GetDeviceId(),
+			Roles:    tokenPayload.GetRoles(),
+			Methods:  methods,
+		})
+		if mfaErr != nil {
+			s.log.Errorf("create MFA login session: %v", mfaErr)
+			return nil, authenticationV1.ErrorInternalServerError("create mfa session failed")
+		}
+
+		return &authenticationV1.LoginResponse{
+			TokenType:  authenticationV1.TokenType_bearer,
+			MfaRequired: trans.Ptr(true),
+			MfaToken:    trans.Ptr(mfaToken),
+			MfaMethods:  methods,
+		}, nil
+	}
+
+	// No MFA enrolled: generate tokens directly
 	accessToken, refreshToken, err := s.userToken.GenerateToken(ctx, tokenPayload)
 	if err != nil {
 		return nil, err

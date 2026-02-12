@@ -207,6 +207,28 @@ message LoginResponse {
       description: "ID token, JWT format token defined in OpenID Connect extension"
     }
   ]; // ID token, JWT format token defined in OpenID Connect extension
+
+  // MFA fields: present only when multi-factor authentication is required
+  optional bool mfa_required = 30 [
+    json_name = "mfa_required",
+    (gnostic.openapi.v3.property) = {
+      description: "If true, access_token is empty and the client must complete MFA verification using mfa_token"
+    }
+  ];
+
+  optional string mfa_token = 31 [
+    json_name = "mfa_token",
+    (gnostic.openapi.v3.property) = {
+      description: "Short-lived token (5 min) for MFA verification flow. Present only when mfa_required=true"
+    }
+  ];
+
+  repeated string mfa_methods = 32 [
+    json_name = "mfa_methods",
+    (gnostic.openapi.v3.property) = {
+      description: "List of enrolled MFA methods available for verification (e.g. TOTP, BACKUP_CODE)"
+    }
+  ];
 }
 
 // User logout - Request

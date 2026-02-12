@@ -122,6 +122,13 @@ const (
 	AuthenticationErrorReason_NETWORK_READ_TIMEOUT_ERROR AuthenticationErrorReason = 3100 // Network read timeout
 	// 599
 	AuthenticationErrorReason_NETWORK_CONNECT_TIMEOUT_ERROR AuthenticationErrorReason = 3200 // Network connect timeout
+	// MFA-specific errors
+	AuthenticationErrorReason_MFA_CHALLENGE_REQUIRED  AuthenticationErrorReason = 4000 // MFA verification required to complete login
+	AuthenticationErrorReason_MFA_TOKEN_EXPIRED       AuthenticationErrorReason = 4001 // MFA session token has expired
+	AuthenticationErrorReason_MFA_TOKEN_INVALID       AuthenticationErrorReason = 4002 // MFA session token is invalid
+	AuthenticationErrorReason_MFA_VERIFICATION_FAILED AuthenticationErrorReason = 4003 // MFA code verification failed
+	AuthenticationErrorReason_MFA_ALREADY_ENROLLED    AuthenticationErrorReason = 4004 // MFA method already enrolled
+	AuthenticationErrorReason_MFA_NOT_ENROLLED        AuthenticationErrorReason = 4005 // No MFA method enrolled
 )
 
 // Enum value maps for AuthenticationErrorReason.
@@ -181,6 +188,12 @@ var (
 		3000: "NETWORK_AUTHENTICATION_REQUIRED",
 		3100: "NETWORK_READ_TIMEOUT_ERROR",
 		3200: "NETWORK_CONNECT_TIMEOUT_ERROR",
+		4000: "MFA_CHALLENGE_REQUIRED",
+		4001: "MFA_TOKEN_EXPIRED",
+		4002: "MFA_TOKEN_INVALID",
+		4003: "MFA_VERIFICATION_FAILED",
+		4004: "MFA_ALREADY_ENROLLED",
+		4005: "MFA_NOT_ENROLLED",
 	}
 	AuthenticationErrorReason_value = map[string]int32{
 		"BAD_REQUEST":                     0,
@@ -237,6 +250,12 @@ var (
 		"NETWORK_AUTHENTICATION_REQUIRED": 3000,
 		"NETWORK_READ_TIMEOUT_ERROR":      3100,
 		"NETWORK_CONNECT_TIMEOUT_ERROR":   3200,
+		"MFA_CHALLENGE_REQUIRED":          4000,
+		"MFA_TOKEN_EXPIRED":               4001,
+		"MFA_TOKEN_INVALID":               4002,
+		"MFA_VERIFICATION_FAILED":         4003,
+		"MFA_ALREADY_ENROLLED":            4004,
+		"MFA_NOT_ENROLLED":                4005,
 	}
 )
 
@@ -271,7 +290,7 @@ var File_authentication_service_v1_authentication_error_proto protoreflect.FileD
 
 const file_authentication_service_v1_authentication_error_proto_rawDesc = "" +
 	"\n" +
-	"4authentication/service/v1/authentication_error.proto\x12\x19authentication.service.v1\x1a\x13errors/errors.proto*\xed\f\n" +
+	"4authentication/service/v1/authentication_error.proto\x12\x19authentication.service.v1\x1a\x13errors/errors.proto*\xae\x0e\n" +
 	"\x19AuthenticationErrorReason\x12\x15\n" +
 	"\vBAD_REQUEST\x10\x00\x1a\x04\xa8E\x90\x03\x12\x1c\n" +
 	"\x12INVALID_GRANT_TYPE\x10\x01\x1a\x04\xa8E\x90\x03\x12\x18\n" +
@@ -326,7 +345,13 @@ const file_authentication_service_v1_authentication_error_proto_rawDesc = "" +
 	"\fNOT_EXTENDED\x10\xd4\x16\x1a\x04\xa8E\xfe\x03\x12*\n" +
 	"\x1fNETWORK_AUTHENTICATION_REQUIRED\x10\xb8\x17\x1a\x04\xa8E\xff\x03\x12%\n" +
 	"\x1aNETWORK_READ_TIMEOUT_ERROR\x10\x9c\x18\x1a\x04\xa8E\xd6\x04\x12(\n" +
-	"\x1dNETWORK_CONNECT_TIMEOUT_ERROR\x10\x80\x19\x1a\x04\xa8E\xd7\x04\x1a\x04\xa0E\xf4\x03B\x9c\x02\n" +
+	"\x1dNETWORK_CONNECT_TIMEOUT_ERROR\x10\x80\x19\x1a\x04\xa8E\xd7\x04\x12!\n" +
+	"\x16MFA_CHALLENGE_REQUIRED\x10\xa0\x1f\x1a\x04\xa8E\x93\x03\x12\x1c\n" +
+	"\x11MFA_TOKEN_EXPIRED\x10\xa1\x1f\x1a\x04\xa8E\x91\x03\x12\x1c\n" +
+	"\x11MFA_TOKEN_INVALID\x10\xa2\x1f\x1a\x04\xa8E\x91\x03\x12\"\n" +
+	"\x17MFA_VERIFICATION_FAILED\x10\xa3\x1f\x1a\x04\xa8E\x91\x03\x12\x1f\n" +
+	"\x14MFA_ALREADY_ENROLLED\x10\xa4\x1f\x1a\x04\xa8E\x99\x03\x12\x1b\n" +
+	"\x10MFA_NOT_ENROLLED\x10\xa5\x1f\x1a\x04\xa8E\x94\x03\x1a\x04\xa0E\xf4\x03B\x9c\x02\n" +
 	"\x1dcom.authentication.service.v1B\x18AuthenticationErrorProtoP\x01Z[github.com/go-tangra/go-tangra-portal/api/gen/go/authentication/service/v1;authenticationpb\xa2\x02\x03ASX\xaa\x02\x19Authentication.Service.V1\xca\x02\x19Authentication\\Service\\V1\xe2\x02%Authentication\\Service\\V1\\GPBMetadata\xea\x02\x1bAuthentication::Service::V1b\x06proto3"
 
 var (

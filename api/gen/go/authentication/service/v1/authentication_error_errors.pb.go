@@ -766,3 +766,87 @@ func IsNetworkConnectTimeoutError(err error) bool {
 func ErrorNetworkConnectTimeoutError(format string, args ...interface{}) *errors.Error {
 	return errors.New(599, AuthenticationErrorReason_NETWORK_CONNECT_TIMEOUT_ERROR.String(), fmt.Sprintf(format, args...))
 }
+
+// MFA-specific errors
+func IsMfaChallengeRequired(err error) bool {
+	if err == nil {
+		return false
+	}
+	e := errors.FromError(err)
+	return e.Reason == AuthenticationErrorReason_MFA_CHALLENGE_REQUIRED.String() && e.Code == 403
+}
+
+// MFA-specific errors
+func ErrorMfaChallengeRequired(format string, args ...interface{}) *errors.Error {
+	return errors.New(403, AuthenticationErrorReason_MFA_CHALLENGE_REQUIRED.String(), fmt.Sprintf(format, args...))
+}
+
+// MFA session token has expired
+func IsMfaTokenExpired(err error) bool {
+	if err == nil {
+		return false
+	}
+	e := errors.FromError(err)
+	return e.Reason == AuthenticationErrorReason_MFA_TOKEN_EXPIRED.String() && e.Code == 401
+}
+
+// MFA session token has expired
+func ErrorMfaTokenExpired(format string, args ...interface{}) *errors.Error {
+	return errors.New(401, AuthenticationErrorReason_MFA_TOKEN_EXPIRED.String(), fmt.Sprintf(format, args...))
+}
+
+// MFA session token is invalid
+func IsMfaTokenInvalid(err error) bool {
+	if err == nil {
+		return false
+	}
+	e := errors.FromError(err)
+	return e.Reason == AuthenticationErrorReason_MFA_TOKEN_INVALID.String() && e.Code == 401
+}
+
+// MFA session token is invalid
+func ErrorMfaTokenInvalid(format string, args ...interface{}) *errors.Error {
+	return errors.New(401, AuthenticationErrorReason_MFA_TOKEN_INVALID.String(), fmt.Sprintf(format, args...))
+}
+
+// MFA code verification failed
+func IsMfaVerificationFailed(err error) bool {
+	if err == nil {
+		return false
+	}
+	e := errors.FromError(err)
+	return e.Reason == AuthenticationErrorReason_MFA_VERIFICATION_FAILED.String() && e.Code == 401
+}
+
+// MFA code verification failed
+func ErrorMfaVerificationFailed(format string, args ...interface{}) *errors.Error {
+	return errors.New(401, AuthenticationErrorReason_MFA_VERIFICATION_FAILED.String(), fmt.Sprintf(format, args...))
+}
+
+// MFA method already enrolled
+func IsMfaAlreadyEnrolled(err error) bool {
+	if err == nil {
+		return false
+	}
+	e := errors.FromError(err)
+	return e.Reason == AuthenticationErrorReason_MFA_ALREADY_ENROLLED.String() && e.Code == 409
+}
+
+// MFA method already enrolled
+func ErrorMfaAlreadyEnrolled(format string, args ...interface{}) *errors.Error {
+	return errors.New(409, AuthenticationErrorReason_MFA_ALREADY_ENROLLED.String(), fmt.Sprintf(format, args...))
+}
+
+// No MFA method enrolled
+func IsMfaNotEnrolled(err error) bool {
+	if err == nil {
+		return false
+	}
+	e := errors.FromError(err)
+	return e.Reason == AuthenticationErrorReason_MFA_NOT_ENROLLED.String() && e.Code == 404
+}
+
+// No MFA method enrolled
+func ErrorMfaNotEnrolled(format string, args ...interface{}) *errors.Error {
+	return errors.New(404, AuthenticationErrorReason_MFA_NOT_ENROLLED.String(), fmt.Sprintf(format, args...))
+}

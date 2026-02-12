@@ -371,8 +371,12 @@ type LoginResponse struct {
 	Scope            *string                `protobuf:"bytes,5,opt,name=scope,proto3,oneof" json:"scope,omitempty"`                                               // Space-separated list of user-granted scopes. If not provided, any scope is authorized, defaults to empty list.
 	RefreshExpiresIn *int64                 `protobuf:"varint,6,opt,name=refresh_expires_in,proto3,oneof" json:"refresh_expires_in,omitempty"`                    // Refresh token expiration time (seconds)
 	IdToken          *string                `protobuf:"bytes,7,opt,name=id_token,proto3,oneof" json:"id_token,omitempty"`                                         // ID token, JWT format token defined in OpenID Connect extension
-	unknownFields    protoimpl.UnknownFields
-	sizeCache        protoimpl.SizeCache
+	// MFA fields: present only when multi-factor authentication is required
+	MfaRequired   *bool    `protobuf:"varint,30,opt,name=mfa_required,proto3,oneof" json:"mfa_required,omitempty"`
+	MfaToken      *string  `protobuf:"bytes,31,opt,name=mfa_token,proto3,oneof" json:"mfa_token,omitempty"`
+	MfaMethods    []string `protobuf:"bytes,32,rep,name=mfa_methods,proto3" json:"mfa_methods,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *LoginResponse) Reset() {
@@ -452,6 +456,27 @@ func (x *LoginResponse) GetIdToken() string {
 		return *x.IdToken
 	}
 	return ""
+}
+
+func (x *LoginResponse) GetMfaRequired() bool {
+	if x != nil && x.MfaRequired != nil {
+		return *x.MfaRequired
+	}
+	return false
+}
+
+func (x *LoginResponse) GetMfaToken() string {
+	if x != nil && x.MfaToken != nil {
+		return *x.MfaToken
+	}
+	return ""
+}
+
+func (x *LoginResponse) GetMfaMethods() []string {
+	if x != nil {
+		return x.MfaMethods
+	}
+	return nil
 }
 
 // User logout - Request
@@ -927,7 +952,7 @@ const file_authentication_service_v1_authentication_proto_rawDesc = "" +
 	"\x05_codeB\x0e\n" +
 	"\f_client_typeB\f\n" +
 	"\n" +
-	"_device_id\"\x96\t\n" +
+	"_device_id\"\xc1\f\n" +
 	"\rLoginResponse\x12\xc0\x01\n" +
 	"\n" +
 	"token_type\x18\x01 \x01(\x0e2$.authentication.service.v1.TokenTypeBz\xbaGw\x8a\x02\b\x1a\x06Bearer\x92\x02iToken type, case-insensitive, required, can be bearer type or mac type, usually just the string \"Bearer\".R\n" +
@@ -939,11 +964,17 @@ const file_authentication_service_v1_authentication_proto_rawDesc = "" +
 	"\rrefresh_token\x18\x04 \x01(\tB\xab\x02\xbaG\xa7\x02\x92\x02\xa3\x02Refresh token, used to obtain the next access token, optional. If the access token is about to expire, returning a refresh token is useful, as the application can use the refresh token to obtain another access token. However, tokens issued through implicit grant cannot issue refresh tokens.H\x00R\rrefresh_token\x88\x01\x01\x12\x8f\x01\n" +
 	"\x05scope\x18\x05 \x01(\tBt\xbaGq\x92\x02nSpace-separated list of user-granted scopes. If not provided, any scope is authorized, defaults to empty list.H\x01R\x05scope\x88\x01\x01\x12b\n" +
 	"\x12refresh_expires_in\x18\x06 \x01(\x03B-\xbaG*\x92\x02'Refresh token expiration time (seconds)H\x02R\x12refresh_expires_in\x88\x01\x01\x12e\n" +
-	"\bid_token\x18\a \x01(\tBD\xbaGA\x92\x02>ID token, JWT format token defined in OpenID Connect extensionH\x03R\bid_token\x88\x01\x01B\x10\n" +
+	"\bid_token\x18\a \x01(\tBD\xbaGA\x92\x02>ID token, JWT format token defined in OpenID Connect extensionH\x03R\bid_token\x88\x01\x01\x12\x8b\x01\n" +
+	"\fmfa_required\x18\x1e \x01(\bBb\xbaG_\x92\x02\\If true, access_token is empty and the client must complete MFA verification using mfa_tokenH\x04R\fmfa_required\x88\x01\x01\x12\x81\x01\n" +
+	"\tmfa_token\x18\x1f \x01(\tB^\xbaG[\x92\x02XShort-lived token (5 min) for MFA verification flow. Present only when mfa_required=trueH\x05R\tmfa_token\x88\x01\x01\x12x\n" +
+	"\vmfa_methods\x18  \x03(\tBV\xbaGS\x92\x02PList of enrolled MFA methods available for verification (e.g. TOTP, BACKUP_CODE)R\vmfa_methodsB\x10\n" +
 	"\x0e_refresh_tokenB\b\n" +
 	"\x06_scopeB\x15\n" +
 	"\x13_refresh_expires_inB\v\n" +
-	"\t_id_token\"\x92\x01\n" +
+	"\t_id_tokenB\x0f\n" +
+	"\r_mfa_requiredB\f\n" +
+	"\n" +
+	"_mfa_token\"\x92\x01\n" +
 	"\rLogoutRequest\x12&\n" +
 	"\auser_id\x18\x01 \x01(\rB\r\xbaG\n" +
 	"\x92\x02\aUser IDR\x06userId\x12Y\n" +
