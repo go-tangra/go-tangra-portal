@@ -300,6 +300,8 @@ func (r *MFARepo) CreateWebAuthnCredential(ctx context.Context, userID, tenantID
 	identifier := fmt.Sprintf("mfa:webauthn:%d:%s", userID, hex.EncodeToString(credData.ID))
 	credStr := string(credJSON)
 
+	extraJSON, _ := json.Marshal(map[string]string{"display_name": displayName})
+
 	cred, err := r.entClient.Client().UserCredential.Create().
 		SetUserID(userID).
 		SetTenantID(tenantID).
@@ -309,7 +311,7 @@ func (r *MFARepo) CreateWebAuthnCredential(ctx context.Context, userID, tenantID
 		SetCredential(credStr).
 		SetIsPrimary(false).
 		SetStatus(usercredential.StatusEnabled).
-		SetExtraInfo(displayName).
+		SetExtraInfo(string(extraJSON)).
 		SetCreatedAt(time.Now()).
 		Save(ctx)
 	if err != nil {

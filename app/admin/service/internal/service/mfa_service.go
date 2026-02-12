@@ -343,6 +343,7 @@ func (s *MFAService) confirmEnrollWebAuthn(ctx context.Context, operator *authen
 
 	credID, err := s.mfaRepo.CreateWebAuthnCredential(ctx, operator.UserId, operator.GetTenantId(), credData, displayName)
 	if err != nil {
+		s.log.Errorf("store webauthn credential for user %d: %v", operator.UserId, err)
 		return nil, authenticationV1.ErrorInternalServerError("store webauthn credential failed")
 	}
 
