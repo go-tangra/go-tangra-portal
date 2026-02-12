@@ -224,6 +224,14 @@ func (m *LoginResponse) validate(all bool) error {
 		// no validation rules for IdToken
 	}
 
+	if m.MfaRequired != nil {
+		// no validation rules for MfaRequired
+	}
+
+	if m.MfaToken != nil {
+		// no validation rules for MfaToken
+	}
+
 	if len(errors) > 0 {
 		return LoginResponseMultiError(errors)
 	}

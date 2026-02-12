@@ -84,6 +84,11 @@ var ProviderSet = wire.NewSet(
 	data.NewPaperlessClients,
 	data.NewIpamClients,
 
+	// MFA
+	data.NewMFARepo,
+	data.NewMFASessionCacheRepo,
+	data.NewWebAuthn,
+
 	// Dynamic Module Registration
 	data.NewModuleRepo,
 )

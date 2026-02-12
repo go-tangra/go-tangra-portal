@@ -63,7 +63,11 @@ func initApp(context *bootstrap.Context) (*kratos.App, func(), error) {
 		return nil, nil, err
 	}
 	userTokenCacheRepo := data.NewUserTokenRepo(context, client, authenticator)
-	authenticationService := service.NewAuthenticationService(context, userRepo, userCredentialRepo, roleRepo, tenantRepo, membershipRepo, orgUnitRepo, permissionRepo, userTokenCacheRepo, authenticator)
+	mfaRepo := data.NewMFARepo(context, entClient, crypto)
+	mfaSessionCacheRepo := data.NewMFASessionCacheRepo(context, client)
+	authenticationService := service.NewAuthenticationService(context, userRepo, userCredentialRepo, roleRepo, tenantRepo, membershipRepo, orgUnitRepo, permissionRepo, userTokenCacheRepo, authenticator, mfaRepo, mfaSessionCacheRepo)
+	webAuthn := data.NewWebAuthn(context)
+	mfaService := service.NewMFAService(context, mfaRepo, mfaSessionCacheRepo, userTokenCacheRepo, webAuthn)
 	loginPolicyRepo := data.NewLoginPolicyRepo(context, entClient)
 	loginPolicyService := service.NewLoginPolicyService(context, loginPolicyRepo)
 	menuRepo := data.NewMenuRepo(context, entClient)
@@ -152,7 +156,7 @@ func initApp(context *bootstrap.Context) (*kratos.App, func(), error) {
 	responseTransformer := transcoder.NewResponseTransformer(context)
 	transcoderTranscoder := transcoder.NewTranscoder(context, descriptorParser, requestBuilder, responseTransformer)
 	dynamicRouter := server.NewDynamicRouter(context, transcoderTranscoder, moduleRegistry, authenticator, apiAuditLogRepo)
-	httpServer, err := server.NewRestServer(context, v, authorizer, authenticationService, loginPolicyService, adminPortalService, taskService, uEditorService, fileService, fileTransferService, dictTypeService, dictEntryService, languageService, tenantService, userService, userProfileService, roleService, positionService, orgUnitService, menuService, apiService, permissionService, permissionGroupService, permissionAuditLogService, policyEvaluationLogService, loginAuditLogService, apiAuditLogService, operationAuditLogService, dataAccessAuditLogService, internalMessageService, internalMessageCategoryService, internalMessageRecipientService, platformStatisticsService, dynamicRouter)
+	httpServer, err := server.NewRestServer(context, v, authorizer, authenticationService, mfaService, loginPolicyService, adminPortalService, taskService, uEditorService, fileService, fileTransferService, dictTypeService, dictEntryService, languageService, tenantService, userService, userProfileService, roleService, positionService, orgUnitService, menuService, apiService, permissionService, permissionGroupService, permissionAuditLogService, policyEvaluationLogService, loginAuditLogService, apiAuditLogService, operationAuditLogService, dataAccessAuditLogService, internalMessageService, internalMessageCategoryService, internalMessageRecipientService, platformStatisticsService, dynamicRouter)
 	if err != nil {
 		cleanup6()
 		cleanup5()

@@ -1,0 +1,98 @@
+syntax = "proto3";
+
+package admin.service.v1;
+
+import "gnostic/openapi/v3/annotations.proto";
+import "google/api/annotations.proto";
+import "google/protobuf/empty.proto";
+
+import "authentication/service/v1/mfa.proto";
+
+// MFA gateway service - provides HTTP endpoints for multi-factor authentication
+service MFAService {
+  // === Unauthenticated endpoints (used during login flow) ===
+
+  // Start MFA challenge during login (after password verified, before MFA verified)
+  rpc StartMFAChallenge(authentication.service.v1.StartMFAChallengeRequest) returns (authentication.service.v1.StartMFAChallengeResponse) {
+    option (google.api.http) = {
+      post: "/admin/v1/mfa/challenge"
+      body: "*"
+    };
+    option(gnostic.openapi.v3.operation) = {
+      security: {}
+    };
+  }
+
+  // Verify MFA challenge during login - returns JWT tokens on success
+  rpc VerifyMFAChallenge(authentication.service.v1.VerifyMFAChallengeRequest) returns (authentication.service.v1.VerifyMFAChallengeResponse) {
+    option (google.api.http) = {
+      post: "/admin/v1/mfa/verify"
+      body: "*"
+    };
+    option(gnostic.openapi.v3.operation) = {
+      security: {}
+    };
+  }
+
+  // === Authenticated endpoints (user MFA management) ===
+
+  // Get current user's MFA status
+  rpc GetMFAStatus(authentication.service.v1.GetMFAStatusRequest) returns (authentication.service.v1.GetMFAStatusResponse) {
+    option (google.api.http) = {
+      get: "/admin/v1/me/mfa/status"
+    };
+  }
+
+  // List enrolled MFA methods
+  rpc ListEnrolledMethods(authentication.service.v1.ListEnrolledMethodsRequest) returns (authentication.service.v1.ListEnrolledMethodsResponse) {
+    option (google.api.http) = {
+      get: "/admin/v1/me/mfa/methods"
+    };
+  }
+
+  // Start enrolling an MFA method
+  rpc StartEnrollMethod(authentication.service.v1.StartEnrollMethodRequest) returns (authentication.service.v1.StartEnrollMethodResponse) {
+    option (google.api.http) = {
+      post: "/admin/v1/me/mfa/enroll"
+      body: "*"
+    };
+  }
+
+  // Confirm MFA enrollment with verification code
+  rpc ConfirmEnrollMethod(authentication.service.v1.ConfirmEnrollMethodRequest) returns (authentication.service.v1.ConfirmEnrollMethodResponse) {
+    option (google.api.http) = {
+      post: "/admin/v1/me/mfa/enroll/confirm"
+      body: "*"
+    };
+  }
+
+  // Disable MFA for current user
+  rpc DisableMFA(authentication.service.v1.DisableMFARequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      post: "/admin/v1/me/mfa/disable"
+      body: "*"
+    };
+  }
+
+  // Generate new backup codes
+  rpc GenerateBackupCodes(authentication.service.v1.GenerateBackupCodesRequest) returns (authentication.service.v1.GenerateBackupCodesResponse) {
+    option (google.api.http) = {
+      post: "/admin/v1/me/mfa/backup-codes"
+      body: "*"
+    };
+  }
+
+  // List backup code metadata (remaining count)
+  rpc ListBackupCodes(authentication.service.v1.ListBackupCodesRequest) returns (authentication.service.v1.ListBackupCodesResponse) {
+    option (google.api.http) = {
+      get: "/admin/v1/me/mfa/backup-codes"
+    };
+  }
+
+  // Revoke a specific MFA device/credential
+  rpc RevokeMFADevice(authentication.service.v1.RevokeMFADeviceRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      delete: "/admin/v1/me/mfa/devices/{credential_id}"
+    };
+  }
+}

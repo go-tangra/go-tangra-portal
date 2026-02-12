@@ -52,6 +52,9 @@ var ProviderSet = wire.NewSet(
 	// Platform Statistics Service
 	service.NewPlatformStatisticsService,
 
+	// MFA
+	service.NewMFAService,
+
 	// Dynamic Module Registration
 	service.NewModuleRegistry,
 	service.NewOpenAPIParser,

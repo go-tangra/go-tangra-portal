@@ -142,7 +142,7 @@ func (MFAEnforcement) EnumDescriptor() ([]byte, []int) {
 type GetMFAStatusRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Optional: if server identifies user through context, user_id can be omitted
-	UserId        *string `protobuf:"bytes,1,opt,name=user_id,json=userId,proto3,oneof" json:"user_id,omitempty"`
+	UserId        *string `protobuf:"bytes,1,opt,name=user_id,proto3,oneof" json:"user_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -250,8 +250,8 @@ type EnrolledMethod struct {
 	Method        MFAMethod              `protobuf:"varint,2,opt,name=method,proto3,enum=authentication.service.v1.MFAMethod" json:"method,omitempty"`
 	Display       string                 `protobuf:"bytes,3,opt,name=display,proto3" json:"display,omitempty"` // For display (such as masked phone number, device name)
 	Enabled       bool                   `protobuf:"varint,4,opt,name=enabled,proto3" json:"enabled,omitempty"`
-	CreatedAt     *timestamppb.Timestamp `protobuf:"bytes,5,opt,name=created_at,json=createdAt,proto3,oneof" json:"created_at,omitempty"`
-	LastUsedAt    *timestamppb.Timestamp `protobuf:"bytes,6,opt,name=last_used_at,json=lastUsedAt,proto3,oneof" json:"last_used_at,omitempty"`
+	CreatedAt     *timestamppb.Timestamp `protobuf:"bytes,5,opt,name=created_at,proto3,oneof" json:"created_at,omitempty"`
+	LastUsedAt    *timestamppb.Timestamp `protobuf:"bytes,6,opt,name=last_used_at,proto3,oneof" json:"last_used_at,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -331,7 +331,7 @@ func (x *EnrolledMethod) GetLastUsedAt() *timestamppb.Timestamp {
 // List enrolled credentials
 type ListEnrolledMethodsRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	UserId        *string                `protobuf:"bytes,1,opt,name=user_id,json=userId,proto3,oneof" json:"user_id,omitempty"`
+	UserId        *string                `protobuf:"bytes,1,opt,name=user_id,proto3,oneof" json:"user_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -489,9 +489,9 @@ type StartEnrollMethodResponse struct {
 	//	*StartEnrollMethodResponse_Sms
 	//	*StartEnrollMethodResponse_Webauthn
 	Result    isStartEnrollMethodResponse_Result `protobuf_oneof:"result"`
-	ExpiresAt *timestamppb.Timestamp             `protobuf:"bytes,10,opt,name=expires_at,json=expiresAt,proto3,oneof" json:"expires_at,omitempty"`
+	ExpiresAt *timestamppb.Timestamp             `protobuf:"bytes,10,opt,name=expires_at,proto3,oneof" json:"expires_at,omitempty"`
 	// Temporary operation id, used for ConfirmEnrollMethod / subsequent verification
-	OperationId   string `protobuf:"bytes,11,opt,name=operation_id,json=operationId,proto3" json:"operation_id,omitempty"`
+	OperationId   string `protobuf:"bytes,11,opt,name=operation_id,proto3" json:"operation_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -600,8 +600,8 @@ type TOTPResult struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// base32 secret: only returned once during enrollment, server should only store hash/reference
 	Secret        string `protobuf:"bytes,1,opt,name=secret,proto3" json:"secret,omitempty"`
-	OtpAuthUrl    string `protobuf:"bytes,2,opt,name=otp_auth_url,json=otpAuthUrl,proto3" json:"otp_auth_url,omitempty"`
-	QrCodeDataUri string `protobuf:"bytes,3,opt,name=qr_code_data_uri,json=qrCodeDataUri,proto3" json:"qr_code_data_uri,omitempty"`
+	OtpAuthUrl    string `protobuf:"bytes,2,opt,name=otp_auth_url,proto3" json:"otp_auth_url,omitempty"`
+	QrCodeDataUri string `protobuf:"bytes,3,opt,name=qr_code_data_uri,proto3" json:"qr_code_data_uri,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -659,9 +659,9 @@ func (x *TOTPResult) GetQrCodeDataUri() string {
 
 type SMSResult struct {
 	state          protoimpl.MessageState `protogen:"open.v1"`
-	VerificationId string                 `protobuf:"bytes,1,opt,name=verification_id,json=verificationId,proto3" json:"verification_id,omitempty"`
-	SmsSent        bool                   `protobuf:"varint,2,opt,name=sms_sent,json=smsSent,proto3" json:"sms_sent,omitempty"`
-	MaskedPhone    string                 `protobuf:"bytes,3,opt,name=masked_phone,json=maskedPhone,proto3" json:"masked_phone,omitempty"`
+	VerificationId string                 `protobuf:"bytes,1,opt,name=verification_id,proto3" json:"verification_id,omitempty"`
+	SmsSent        bool                   `protobuf:"varint,2,opt,name=sms_sent,proto3" json:"sms_sent,omitempty"`
+	MaskedPhone    string                 `protobuf:"bytes,3,opt,name=masked_phone,proto3" json:"masked_phone,omitempty"`
 	unknownFields  protoimpl.UnknownFields
 	sizeCache      protoimpl.SizeCache
 }
@@ -720,8 +720,8 @@ func (x *SMSResult) GetMaskedPhone() string {
 type WebAuthnResult struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Challenge     string                 `protobuf:"bytes,1,opt,name=challenge,proto3" json:"challenge,omitempty"`
-	OptionsJson   string                 `protobuf:"bytes,2,opt,name=options_json,json=optionsJson,proto3" json:"options_json,omitempty"`
-	RpId          string                 `protobuf:"bytes,3,opt,name=rp_id,json=rpId,proto3" json:"rp_id,omitempty"`
+	OptionsJson   string                 `protobuf:"bytes,2,opt,name=options_json,proto3" json:"options_json,omitempty"`
+	RpId          string                 `protobuf:"bytes,3,opt,name=rp_id,proto3" json:"rp_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -781,7 +781,7 @@ func (x *WebAuthnResult) GetRpId() string {
 type ConfirmEnrollMethodRequest struct {
 	state       protoimpl.MessageState `protogen:"open.v1"`
 	Method      MFAMethod              `protobuf:"varint,1,opt,name=method,proto3,enum=authentication.service.v1.MFAMethod" json:"method,omitempty"`
-	OperationId string                 `protobuf:"bytes,2,opt,name=operation_id,json=operationId,proto3" json:"operation_id,omitempty"`
+	OperationId string                 `protobuf:"bytes,2,opt,name=operation_id,proto3" json:"operation_id,omitempty"`
 	// Types that are valid to be assigned to Credential:
 	//
 	//	*ConfirmEnrollMethodRequest_TotpCode
@@ -894,7 +894,7 @@ type isConfirmEnrollMethodRequest_Credential interface {
 }
 
 type ConfirmEnrollMethodRequest_TotpCode struct {
-	TotpCode string `protobuf:"bytes,10,opt,name=totp_code,json=totpCode,proto3,oneof"`
+	TotpCode string `protobuf:"bytes,10,opt,name=totp_code,proto3,oneof"`
 }
 
 type ConfirmEnrollMethodRequest_Sms struct {
@@ -906,7 +906,7 @@ type ConfirmEnrollMethodRequest_Webauthn struct {
 }
 
 type ConfirmEnrollMethodRequest_BackupCode struct {
-	BackupCode string `protobuf:"bytes,13,opt,name=backup_code,json=backupCode,proto3,oneof"`
+	BackupCode string `protobuf:"bytes,13,opt,name=backup_code,proto3,oneof"`
 }
 
 func (*ConfirmEnrollMethodRequest_TotpCode) isConfirmEnrollMethodRequest_Credential() {}
@@ -920,7 +920,7 @@ func (*ConfirmEnrollMethodRequest_BackupCode) isConfirmEnrollMethodRequest_Crede
 type ConfirmEnrollMethodResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Success       bool                   `protobuf:"varint,1,opt,name=success,proto3" json:"success,omitempty"`
-	CredentialId  string                 `protobuf:"bytes,2,opt,name=credential_id,json=credentialId,proto3" json:"credential_id,omitempty"` // Newly created credential id
+	CredentialId  string                 `protobuf:"bytes,2,opt,name=credential_id,proto3" json:"credential_id,omitempty"` // Newly created credential id
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -973,7 +973,7 @@ func (x *ConfirmEnrollMethodResponse) GetCredentialId() string {
 type DisableMFARequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Specify credential id or disable all by method only
-	CredentialId *string    `protobuf:"bytes,1,opt,name=credential_id,json=credentialId,proto3,oneof" json:"credential_id,omitempty"`
+	CredentialId *string    `protobuf:"bytes,1,opt,name=credential_id,proto3,oneof" json:"credential_id,omitempty"`
 	Method       *MFAMethod `protobuf:"varint,2,opt,name=method,proto3,enum=authentication.service.v1.MFAMethod,oneof" json:"method,omitempty"`
 	// Verification credential: password or verification code
 	//
@@ -1092,7 +1092,7 @@ type DisableMFARequest_Password struct {
 }
 
 type DisableMFARequest_TotpCode struct {
-	TotpCode string `protobuf:"bytes,11,opt,name=totp_code,json=totpCode,proto3,oneof"`
+	TotpCode string `protobuf:"bytes,11,opt,name=totp_code,proto3,oneof"`
 }
 
 type DisableMFARequest_Sms struct {
@@ -1114,9 +1114,9 @@ func (*DisableMFARequest_Webauthn) isDisableMFARequest_Verifier() {}
 // Start authentication challenge
 type StartMFAChallengeRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	UserId        *string                `protobuf:"bytes,1,opt,name=user_id,json=userId,proto3,oneof" json:"user_id,omitempty"`
+	UserId        *string                `protobuf:"bytes,1,opt,name=user_id,proto3,oneof" json:"user_id,omitempty"`
 	Method        MFAMethod              `protobuf:"varint,2,opt,name=method,proto3,enum=authentication.service.v1.MFAMethod" json:"method,omitempty"`
-	CredentialId  *string                `protobuf:"bytes,3,opt,name=credential_id,json=credentialId,proto3,oneof" json:"credential_id,omitempty"` // Specify credential (if multi-device)
+	CredentialId  *string                `protobuf:"bytes,3,opt,name=credential_id,proto3,oneof" json:"credential_id,omitempty"` // Specify credential (if multi-device)
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1179,8 +1179,8 @@ type StartMFAChallengeResponse struct {
 	//	*StartMFAChallengeResponse_Sms
 	//	*StartMFAChallengeResponse_Webauthn
 	Challenge     isStartMFAChallengeResponse_Challenge `protobuf_oneof:"challenge"`
-	OperationId   string                                `protobuf:"bytes,10,opt,name=operation_id,json=operationId,proto3" json:"operation_id,omitempty"`
-	ExpiresAt     *timestamppb.Timestamp                `protobuf:"bytes,11,opt,name=expires_at,json=expiresAt,proto3,oneof" json:"expires_at,omitempty"`
+	OperationId   string                                `protobuf:"bytes,10,opt,name=operation_id,proto3" json:"operation_id,omitempty"`
+	ExpiresAt     *timestamppb.Timestamp                `protobuf:"bytes,11,opt,name=expires_at,proto3,oneof" json:"expires_at,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1272,7 +1272,7 @@ func (*StartMFAChallengeResponse_Webauthn) isStartMFAChallengeResponse_Challenge
 
 type VerifyMFAChallengeRequest struct {
 	state       protoimpl.MessageState `protogen:"open.v1"`
-	OperationId string                 `protobuf:"bytes,1,opt,name=operation_id,json=operationId,proto3" json:"operation_id,omitempty"`
+	OperationId string                 `protobuf:"bytes,1,opt,name=operation_id,proto3" json:"operation_id,omitempty"`
 	// Types that are valid to be assigned to Response:
 	//
 	//	*VerifyMFAChallengeRequest_TotpCode
@@ -1369,7 +1369,7 @@ type isVerifyMFAChallengeRequest_Response interface {
 }
 
 type VerifyMFAChallengeRequest_TotpCode struct {
-	TotpCode string `protobuf:"bytes,10,opt,name=totp_code,json=totpCode,proto3,oneof"`
+	TotpCode string `protobuf:"bytes,10,opt,name=totp_code,proto3,oneof"`
 }
 
 type VerifyMFAChallengeRequest_Sms struct {
@@ -1381,7 +1381,7 @@ type VerifyMFAChallengeRequest_Webauthn struct {
 }
 
 type VerifyMFAChallengeRequest_BackupCode struct {
-	BackupCode string `protobuf:"bytes,13,opt,name=backup_code,json=backupCode,proto3,oneof"`
+	BackupCode string `protobuf:"bytes,13,opt,name=backup_code,proto3,oneof"`
 }
 
 func (*VerifyMFAChallengeRequest_TotpCode) isVerifyMFAChallengeRequest_Response() {}
@@ -1396,7 +1396,9 @@ type VerifyMFAChallengeResponse struct {
 	state   protoimpl.MessageState `protogen:"open.v1"`
 	Success bool                   `protobuf:"varint,1,opt,name=success,proto3" json:"success,omitempty"`
 	// Optional: one-time login token or session id (implementation optional)
-	SessionToken  *string `protobuf:"bytes,2,opt,name=session_token,json=sessionToken,proto3,oneof" json:"session_token,omitempty"`
+	SessionToken *string `protobuf:"bytes,2,opt,name=session_token,proto3,oneof" json:"session_token,omitempty"`
+	// When verified during login flow, contains the full login response with JWT tokens
+	LoginResponse *LoginResponse `protobuf:"bytes,3,opt,name=login_response,proto3,oneof" json:"login_response,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1443,6 +1445,13 @@ func (x *VerifyMFAChallengeResponse) GetSessionToken() string {
 		return *x.SessionToken
 	}
 	return ""
+}
+
+func (x *VerifyMFAChallengeResponse) GetLoginResponse() *LoginResponse {
+	if x != nil {
+		return x.LoginResponse
+	}
+	return nil
 }
 
 // Backup code management
@@ -1495,7 +1504,7 @@ type GenerateBackupCodesResponse struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Plaintext backup codes: only returned once, client should prompt user to save
 	Codes         []string               `protobuf:"bytes,1,rep,name=codes,proto3" json:"codes,omitempty"`
-	GeneratedAt   *timestamppb.Timestamp `protobuf:"bytes,2,opt,name=generated_at,json=generatedAt,proto3,oneof" json:"generated_at,omitempty"`
+	GeneratedAt   *timestamppb.Timestamp `protobuf:"bytes,2,opt,name=generated_at,proto3,oneof" json:"generated_at,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1584,7 +1593,7 @@ type ListBackupCodesResponse struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Only returns metadata (remaining available count), does not return plaintext
 	Remaining     int32                  `protobuf:"varint,1,opt,name=remaining,proto3" json:"remaining,omitempty"`
-	GeneratedAt   *timestamppb.Timestamp `protobuf:"bytes,2,opt,name=generated_at,json=generatedAt,proto3,oneof" json:"generated_at,omitempty"`
+	GeneratedAt   *timestamppb.Timestamp `protobuf:"bytes,2,opt,name=generated_at,proto3,oneof" json:"generated_at,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1636,7 +1645,7 @@ func (x *ListBackupCodesResponse) GetGeneratedAt() *timestamppb.Timestamp {
 // Revoke device/credential
 type RevokeMFADeviceRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	CredentialId  string                 `protobuf:"bytes,1,opt,name=credential_id,json=credentialId,proto3" json:"credential_id,omitempty"`
+	CredentialId  string                 `protobuf:"bytes,1,opt,name=credential_id,proto3" json:"credential_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1680,7 +1689,7 @@ func (x *RevokeMFADeviceRequest) GetCredentialId() string {
 
 type SMSVerification struct {
 	state          protoimpl.MessageState `protogen:"open.v1"`
-	VerificationId string                 `protobuf:"bytes,1,opt,name=verification_id,json=verificationId,proto3" json:"verification_id,omitempty"`
+	VerificationId string                 `protobuf:"bytes,1,opt,name=verification_id,proto3" json:"verification_id,omitempty"`
 	Code           string                 `protobuf:"bytes,2,opt,name=code,proto3" json:"code,omitempty"`
 	unknownFields  protoimpl.UnknownFields
 	sizeCache      protoimpl.SizeCache
@@ -1733,10 +1742,10 @@ func (x *SMSVerification) GetCode() string {
 type WebAuthnAssertion struct {
 	state             protoimpl.MessageState `protogen:"open.v1"`
 	Id                string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	ClientDataJson    string                 `protobuf:"bytes,2,opt,name=client_data_json,json=clientDataJson,proto3" json:"client_data_json,omitempty"`
-	AuthenticatorData string                 `protobuf:"bytes,3,opt,name=authenticator_data,json=authenticatorData,proto3" json:"authenticator_data,omitempty"`
+	ClientDataJson    string                 `protobuf:"bytes,2,opt,name=client_data_json,proto3" json:"client_data_json,omitempty"`
+	AuthenticatorData string                 `protobuf:"bytes,3,opt,name=authenticator_data,proto3" json:"authenticator_data,omitempty"`
 	Signature         string                 `protobuf:"bytes,4,opt,name=signature,proto3" json:"signature,omitempty"`
-	UserHandle        *string                `protobuf:"bytes,5,opt,name=user_handle,json=userHandle,proto3,oneof" json:"user_handle,omitempty"`
+	UserHandle        *string                `protobuf:"bytes,5,opt,name=user_handle,proto3,oneof" json:"user_handle,omitempty"`
 	unknownFields     protoimpl.UnknownFields
 	sizeCache         protoimpl.SizeCache
 }
@@ -1810,28 +1819,28 @@ var File_authentication_service_v1_mfa_proto protoreflect.FileDescriptor
 
 const file_authentication_service_v1_mfa_proto_rawDesc = "" +
 	"\n" +
-	"#authentication/service/v1/mfa.proto\x12\x19authentication.service.v1\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\"?\n" +
-	"\x13GetMFAStatusRequest\x12\x1c\n" +
-	"\auser_id\x18\x01 \x01(\tH\x00R\x06userId\x88\x01\x01B\n" +
+	"#authentication/service/v1/mfa.proto\x12\x19authentication.service.v1\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a.authentication/service/v1/authentication.proto\"@\n" +
+	"\x13GetMFAStatusRequest\x12\x1d\n" +
+	"\auser_id\x18\x01 \x01(\tH\x00R\auser_id\x88\x01\x01B\n" +
 	"\n" +
 	"\b_user_id\"\xc4\x01\n" +
 	"\x14GetMFAStatusResponse\x12\x18\n" +
 	"\aenabled\x18\x01 \x01(\bR\aenabled\x12E\n" +
 	"\benrolled\x18\x02 \x03(\v2).authentication.service.v1.EnrolledMethodR\benrolled\x12K\n" +
-	"\venforcement\x18\x03 \x01(\x0e2).authentication.service.v1.MFAEnforcementR\venforcement\"\xb5\x02\n" +
+	"\venforcement\x18\x03 \x01(\x0e2).authentication.service.v1.MFAEnforcementR\venforcement\"\xb8\x02\n" +
 	"\x0eEnrolledMethod\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12<\n" +
 	"\x06method\x18\x02 \x01(\x0e2$.authentication.service.v1.MFAMethodR\x06method\x12\x18\n" +
 	"\adisplay\x18\x03 \x01(\tR\adisplay\x12\x18\n" +
-	"\aenabled\x18\x04 \x01(\bR\aenabled\x12>\n" +
+	"\aenabled\x18\x04 \x01(\bR\aenabled\x12?\n" +
 	"\n" +
-	"created_at\x18\x05 \x01(\v2\x1a.google.protobuf.TimestampH\x00R\tcreatedAt\x88\x01\x01\x12A\n" +
-	"\flast_used_at\x18\x06 \x01(\v2\x1a.google.protobuf.TimestampH\x01R\n" +
-	"lastUsedAt\x88\x01\x01B\r\n" +
+	"created_at\x18\x05 \x01(\v2\x1a.google.protobuf.TimestampH\x00R\n" +
+	"created_at\x88\x01\x01\x12C\n" +
+	"\flast_used_at\x18\x06 \x01(\v2\x1a.google.protobuf.TimestampH\x01R\flast_used_at\x88\x01\x01B\r\n" +
 	"\v_created_atB\x0f\n" +
-	"\r_last_used_at\"F\n" +
-	"\x1aListEnrolledMethodsRequest\x12\x1c\n" +
-	"\auser_id\x18\x01 \x01(\tH\x00R\x06userId\x88\x01\x01B\n" +
+	"\r_last_used_at\"G\n" +
+	"\x1aListEnrolledMethodsRequest\x12\x1d\n" +
+	"\auser_id\x18\x01 \x01(\tH\x00R\auser_id\x88\x01\x01B\n" +
 	"\n" +
 	"\b_user_id\"^\n" +
 	"\x1bListEnrolledMethodsResponse\x12?\n" +
@@ -1841,54 +1850,53 @@ const file_authentication_service_v1_mfa_proto_rawDesc = "" +
 	"\x05phone\x18\x02 \x01(\tH\x00R\x05phone\x88\x01\x01\x12\x19\n" +
 	"\x05email\x18\x03 \x01(\tH\x01R\x05email\x88\x01\x01B\b\n" +
 	"\x06_phoneB\b\n" +
-	"\x06_email\"\xd7\x02\n" +
+	"\x06_email\"\xd9\x02\n" +
 	"\x19StartEnrollMethodResponse\x12;\n" +
 	"\x04totp\x18\x01 \x01(\v2%.authentication.service.v1.TOTPResultH\x00R\x04totp\x128\n" +
 	"\x03sms\x18\x02 \x01(\v2$.authentication.service.v1.SMSResultH\x00R\x03sms\x12G\n" +
-	"\bwebauthn\x18\x03 \x01(\v2).authentication.service.v1.WebAuthnResultH\x00R\bwebauthn\x12>\n" +
+	"\bwebauthn\x18\x03 \x01(\v2).authentication.service.v1.WebAuthnResultH\x00R\bwebauthn\x12?\n" +
 	"\n" +
 	"expires_at\x18\n" +
-	" \x01(\v2\x1a.google.protobuf.TimestampH\x01R\texpiresAt\x88\x01\x01\x12!\n" +
-	"\foperation_id\x18\v \x01(\tR\voperationIdB\b\n" +
+	" \x01(\v2\x1a.google.protobuf.TimestampH\x01R\n" +
+	"expires_at\x88\x01\x01\x12\"\n" +
+	"\foperation_id\x18\v \x01(\tR\foperation_idB\b\n" +
 	"\x06resultB\r\n" +
-	"\v_expires_at\"o\n" +
+	"\v_expires_at\"t\n" +
 	"\n" +
 	"TOTPResult\x12\x16\n" +
-	"\x06secret\x18\x01 \x01(\tR\x06secret\x12 \n" +
-	"\fotp_auth_url\x18\x02 \x01(\tR\n" +
-	"otpAuthUrl\x12'\n" +
-	"\x10qr_code_data_uri\x18\x03 \x01(\tR\rqrCodeDataUri\"r\n" +
-	"\tSMSResult\x12'\n" +
-	"\x0fverification_id\x18\x01 \x01(\tR\x0everificationId\x12\x19\n" +
-	"\bsms_sent\x18\x02 \x01(\bR\asmsSent\x12!\n" +
-	"\fmasked_phone\x18\x03 \x01(\tR\vmaskedPhone\"f\n" +
+	"\x06secret\x18\x01 \x01(\tR\x06secret\x12\"\n" +
+	"\fotp_auth_url\x18\x02 \x01(\tR\fotp_auth_url\x12*\n" +
+	"\x10qr_code_data_uri\x18\x03 \x01(\tR\x10qr_code_data_uri\"u\n" +
+	"\tSMSResult\x12(\n" +
+	"\x0fverification_id\x18\x01 \x01(\tR\x0fverification_id\x12\x1a\n" +
+	"\bsms_sent\x18\x02 \x01(\bR\bsms_sent\x12\"\n" +
+	"\fmasked_phone\x18\x03 \x01(\tR\fmasked_phone\"h\n" +
 	"\x0eWebAuthnResult\x12\x1c\n" +
-	"\tchallenge\x18\x01 \x01(\tR\tchallenge\x12!\n" +
-	"\foptions_json\x18\x02 \x01(\tR\voptionsJson\x12\x13\n" +
-	"\x05rp_id\x18\x03 \x01(\tR\x04rpId\"\x84\x03\n" +
+	"\tchallenge\x18\x01 \x01(\tR\tchallenge\x12\"\n" +
+	"\foptions_json\x18\x02 \x01(\tR\foptions_json\x12\x14\n" +
+	"\x05rp_id\x18\x03 \x01(\tR\x05rp_id\"\x87\x03\n" +
 	"\x1aConfirmEnrollMethodRequest\x12<\n" +
-	"\x06method\x18\x01 \x01(\x0e2$.authentication.service.v1.MFAMethodR\x06method\x12!\n" +
-	"\foperation_id\x18\x02 \x01(\tR\voperationId\x12\x1d\n" +
+	"\x06method\x18\x01 \x01(\x0e2$.authentication.service.v1.MFAMethodR\x06method\x12\"\n" +
+	"\foperation_id\x18\x02 \x01(\tR\foperation_id\x12\x1e\n" +
 	"\ttotp_code\x18\n" +
-	" \x01(\tH\x00R\btotpCode\x12>\n" +
+	" \x01(\tH\x00R\ttotp_code\x12>\n" +
 	"\x03sms\x18\v \x01(\v2*.authentication.service.v1.SMSVerificationH\x00R\x03sms\x12J\n" +
-	"\bwebauthn\x18\f \x01(\v2,.authentication.service.v1.WebAuthnAssertionH\x00R\bwebauthn\x12!\n" +
-	"\vbackup_code\x18\r \x01(\tH\x00R\n" +
-	"backupCode\x12\x1d\n" +
+	"\bwebauthn\x18\f \x01(\v2,.authentication.service.v1.WebAuthnAssertionH\x00R\bwebauthn\x12\"\n" +
+	"\vbackup_code\x18\r \x01(\tH\x00R\vbackup_code\x12\x1d\n" +
 	"\adisplay\x18\x14 \x01(\tH\x01R\adisplay\x88\x01\x01B\f\n" +
 	"\n" +
 	"credentialB\n" +
 	"\n" +
-	"\b_display\"\\\n" +
+	"\b_display\"]\n" +
 	"\x1bConfirmEnrollMethodResponse\x12\x18\n" +
-	"\asuccess\x18\x01 \x01(\bR\asuccess\x12#\n" +
-	"\rcredential_id\x18\x02 \x01(\tR\fcredentialId\"\x9a\x03\n" +
-	"\x11DisableMFARequest\x12(\n" +
-	"\rcredential_id\x18\x01 \x01(\tH\x01R\fcredentialId\x88\x01\x01\x12A\n" +
+	"\asuccess\x18\x01 \x01(\bR\asuccess\x12$\n" +
+	"\rcredential_id\x18\x02 \x01(\tR\rcredential_id\"\x9c\x03\n" +
+	"\x11DisableMFARequest\x12)\n" +
+	"\rcredential_id\x18\x01 \x01(\tH\x01R\rcredential_id\x88\x01\x01\x12A\n" +
 	"\x06method\x18\x02 \x01(\x0e2$.authentication.service.v1.MFAMethodH\x02R\x06method\x88\x01\x01\x12\x1c\n" +
 	"\bpassword\x18\n" +
-	" \x01(\tH\x00R\bpassword\x12\x1d\n" +
-	"\ttotp_code\x18\v \x01(\tH\x00R\btotpCode\x12>\n" +
+	" \x01(\tH\x00R\bpassword\x12\x1e\n" +
+	"\ttotp_code\x18\v \x01(\tH\x00R\ttotp_code\x12>\n" +
 	"\x03sms\x18\f \x01(\v2*.authentication.service.v1.SMSVerificationH\x00R\x03sms\x12J\n" +
 	"\bwebauthn\x18\r \x01(\v2,.authentication.service.v1.WebAuthnAssertionH\x00R\bwebauthn\x12\x1b\n" +
 	"\x06reason\x18\x14 \x01(\tH\x03R\x06reason\x88\x01\x01B\n" +
@@ -1896,61 +1904,62 @@ const file_authentication_service_v1_mfa_proto_rawDesc = "" +
 	"\bverifierB\x10\n" +
 	"\x0e_credential_idB\t\n" +
 	"\a_methodB\t\n" +
-	"\a_reason\"\xbe\x01\n" +
-	"\x18StartMFAChallengeRequest\x12\x1c\n" +
-	"\auser_id\x18\x01 \x01(\tH\x00R\x06userId\x88\x01\x01\x12<\n" +
-	"\x06method\x18\x02 \x01(\x0e2$.authentication.service.v1.MFAMethodR\x06method\x12(\n" +
-	"\rcredential_id\x18\x03 \x01(\tH\x01R\fcredentialId\x88\x01\x01B\n" +
+	"\a_reason\"\xc0\x01\n" +
+	"\x18StartMFAChallengeRequest\x12\x1d\n" +
+	"\auser_id\x18\x01 \x01(\tH\x00R\auser_id\x88\x01\x01\x12<\n" +
+	"\x06method\x18\x02 \x01(\x0e2$.authentication.service.v1.MFAMethodR\x06method\x12)\n" +
+	"\rcredential_id\x18\x03 \x01(\tH\x01R\rcredential_id\x88\x01\x01B\n" +
 	"\n" +
 	"\b_user_idB\x10\n" +
-	"\x0e_credential_id\"\x9d\x02\n" +
+	"\x0e_credential_id\"\x9f\x02\n" +
 	"\x19StartMFAChallengeResponse\x128\n" +
 	"\x03sms\x18\x01 \x01(\v2$.authentication.service.v1.SMSResultH\x00R\x03sms\x12G\n" +
-	"\bwebauthn\x18\x02 \x01(\v2).authentication.service.v1.WebAuthnResultH\x00R\bwebauthn\x12!\n" +
+	"\bwebauthn\x18\x02 \x01(\v2).authentication.service.v1.WebAuthnResultH\x00R\bwebauthn\x12\"\n" +
 	"\foperation_id\x18\n" +
-	" \x01(\tR\voperationId\x12>\n" +
+	" \x01(\tR\foperation_id\x12?\n" +
 	"\n" +
-	"expires_at\x18\v \x01(\v2\x1a.google.protobuf.TimestampH\x01R\texpiresAt\x88\x01\x01B\v\n" +
+	"expires_at\x18\v \x01(\v2\x1a.google.protobuf.TimestampH\x01R\n" +
+	"expires_at\x88\x01\x01B\v\n" +
 	"\tchallengeB\r\n" +
-	"\v_expires_at\"\x98\x02\n" +
-	"\x19VerifyMFAChallengeRequest\x12!\n" +
-	"\foperation_id\x18\x01 \x01(\tR\voperationId\x12\x1d\n" +
+	"\v_expires_at\"\x9b\x02\n" +
+	"\x19VerifyMFAChallengeRequest\x12\"\n" +
+	"\foperation_id\x18\x01 \x01(\tR\foperation_id\x12\x1e\n" +
 	"\ttotp_code\x18\n" +
-	" \x01(\tH\x00R\btotpCode\x12>\n" +
+	" \x01(\tH\x00R\ttotp_code\x12>\n" +
 	"\x03sms\x18\v \x01(\v2*.authentication.service.v1.SMSVerificationH\x00R\x03sms\x12J\n" +
-	"\bwebauthn\x18\f \x01(\v2,.authentication.service.v1.WebAuthnAssertionH\x00R\bwebauthn\x12!\n" +
-	"\vbackup_code\x18\r \x01(\tH\x00R\n" +
-	"backupCodeB\n" +
+	"\bwebauthn\x18\f \x01(\v2,.authentication.service.v1.WebAuthnAssertionH\x00R\bwebauthn\x12\"\n" +
+	"\vbackup_code\x18\r \x01(\tH\x00R\vbackup_codeB\n" +
 	"\n" +
-	"\bresponse\"r\n" +
+	"\bresponse\"\xdd\x01\n" +
 	"\x1aVerifyMFAChallengeResponse\x12\x18\n" +
-	"\asuccess\x18\x01 \x01(\bR\asuccess\x12(\n" +
-	"\rsession_token\x18\x02 \x01(\tH\x00R\fsessionToken\x88\x01\x01B\x10\n" +
-	"\x0e_session_token\"k\n" +
+	"\asuccess\x18\x01 \x01(\bR\asuccess\x12)\n" +
+	"\rsession_token\x18\x02 \x01(\tH\x00R\rsession_token\x88\x01\x01\x12U\n" +
+	"\x0elogin_response\x18\x03 \x01(\v2(.authentication.service.v1.LoginResponseH\x01R\x0elogin_response\x88\x01\x01B\x10\n" +
+	"\x0e_session_tokenB\x11\n" +
+	"\x0f_login_response\"k\n" +
 	"\x1aGenerateBackupCodesRequest\x12C\n" +
 	"\x05count\x18\x01 \x01(\x05B(\xbaG%\x92\x02\"Number of backup codes to generateH\x00R\x05count\x88\x01\x01B\b\n" +
-	"\x06_count\"\x88\x01\n" +
+	"\x06_count\"\x89\x01\n" +
 	"\x1bGenerateBackupCodesResponse\x12\x14\n" +
-	"\x05codes\x18\x01 \x03(\tR\x05codes\x12B\n" +
-	"\fgenerated_at\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampH\x00R\vgeneratedAt\x88\x01\x01B\x0f\n" +
+	"\x05codes\x18\x01 \x03(\tR\x05codes\x12C\n" +
+	"\fgenerated_at\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampH\x00R\fgenerated_at\x88\x01\x01B\x0f\n" +
 	"\r_generated_at\"\x18\n" +
-	"\x16ListBackupCodesRequest\"\x8c\x01\n" +
+	"\x16ListBackupCodesRequest\"\x8d\x01\n" +
 	"\x17ListBackupCodesResponse\x12\x1c\n" +
-	"\tremaining\x18\x01 \x01(\x05R\tremaining\x12B\n" +
-	"\fgenerated_at\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampH\x00R\vgeneratedAt\x88\x01\x01B\x0f\n" +
-	"\r_generated_at\"=\n" +
-	"\x16RevokeMFADeviceRequest\x12#\n" +
-	"\rcredential_id\x18\x01 \x01(\tR\fcredentialId\"N\n" +
-	"\x0fSMSVerification\x12'\n" +
-	"\x0fverification_id\x18\x01 \x01(\tR\x0everificationId\x12\x12\n" +
-	"\x04code\x18\x02 \x01(\tR\x04code\"\xd0\x01\n" +
+	"\tremaining\x18\x01 \x01(\x05R\tremaining\x12C\n" +
+	"\fgenerated_at\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampH\x00R\fgenerated_at\x88\x01\x01B\x0f\n" +
+	"\r_generated_at\">\n" +
+	"\x16RevokeMFADeviceRequest\x12$\n" +
+	"\rcredential_id\x18\x01 \x01(\tR\rcredential_id\"O\n" +
+	"\x0fSMSVerification\x12(\n" +
+	"\x0fverification_id\x18\x01 \x01(\tR\x0fverification_id\x12\x12\n" +
+	"\x04code\x18\x02 \x01(\tR\x04code\"\xd4\x01\n" +
 	"\x11WebAuthnAssertion\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\tR\x02id\x12(\n" +
-	"\x10client_data_json\x18\x02 \x01(\tR\x0eclientDataJson\x12-\n" +
-	"\x12authenticator_data\x18\x03 \x01(\tR\x11authenticatorData\x12\x1c\n" +
-	"\tsignature\x18\x04 \x01(\tR\tsignature\x12$\n" +
-	"\vuser_handle\x18\x05 \x01(\tH\x00R\n" +
-	"userHandle\x88\x01\x01B\x0e\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\x12*\n" +
+	"\x10client_data_json\x18\x02 \x01(\tR\x10client_data_json\x12.\n" +
+	"\x12authenticator_data\x18\x03 \x01(\tR\x12authenticator_data\x12\x1c\n" +
+	"\tsignature\x18\x04 \x01(\tR\tsignature\x12%\n" +
+	"\vuser_handle\x18\x05 \x01(\tH\x00R\vuser_handle\x88\x01\x01B\x0e\n" +
 	"\f_user_handle*x\n" +
 	"\tMFAMethod\x12\x1a\n" +
 	"\x16MFA_METHOD_UNSPECIFIED\x10\x00\x12\b\n" +
@@ -2022,7 +2031,8 @@ var file_authentication_service_v1_mfa_proto_goTypes = []any{
 	(*SMSVerification)(nil),             // 24: authentication.service.v1.SMSVerification
 	(*WebAuthnAssertion)(nil),           // 25: authentication.service.v1.WebAuthnAssertion
 	(*timestamppb.Timestamp)(nil),       // 26: google.protobuf.Timestamp
-	(*emptypb.Empty)(nil),               // 27: google.protobuf.Empty
+	(*LoginResponse)(nil),               // 27: authentication.service.v1.LoginResponse
+	(*emptypb.Empty)(nil),               // 28: google.protobuf.Empty
 }
 var file_authentication_service_v1_mfa_proto_depIdxs = []int32{
 	4,  // 0: authentication.service.v1.GetMFAStatusResponse.enrolled:type_name -> authentication.service.v1.EnrolledMethod
@@ -2048,33 +2058,34 @@ var file_authentication_service_v1_mfa_proto_depIdxs = []int32{
 	26, // 20: authentication.service.v1.StartMFAChallengeResponse.expires_at:type_name -> google.protobuf.Timestamp
 	24, // 21: authentication.service.v1.VerifyMFAChallengeRequest.sms:type_name -> authentication.service.v1.SMSVerification
 	25, // 22: authentication.service.v1.VerifyMFAChallengeRequest.webauthn:type_name -> authentication.service.v1.WebAuthnAssertion
-	26, // 23: authentication.service.v1.GenerateBackupCodesResponse.generated_at:type_name -> google.protobuf.Timestamp
-	26, // 24: authentication.service.v1.ListBackupCodesResponse.generated_at:type_name -> google.protobuf.Timestamp
-	2,  // 25: authentication.service.v1.MFAService.GetMFAStatus:input_type -> authentication.service.v1.GetMFAStatusRequest
-	5,  // 26: authentication.service.v1.MFAService.ListEnrolledMethods:input_type -> authentication.service.v1.ListEnrolledMethodsRequest
-	7,  // 27: authentication.service.v1.MFAService.StartEnrollMethod:input_type -> authentication.service.v1.StartEnrollMethodRequest
-	12, // 28: authentication.service.v1.MFAService.ConfirmEnrollMethod:input_type -> authentication.service.v1.ConfirmEnrollMethodRequest
-	14, // 29: authentication.service.v1.MFAService.DisableMFA:input_type -> authentication.service.v1.DisableMFARequest
-	15, // 30: authentication.service.v1.MFAService.StartMFAChallenge:input_type -> authentication.service.v1.StartMFAChallengeRequest
-	17, // 31: authentication.service.v1.MFAService.VerifyMFAChallenge:input_type -> authentication.service.v1.VerifyMFAChallengeRequest
-	19, // 32: authentication.service.v1.MFAService.GenerateBackupCodes:input_type -> authentication.service.v1.GenerateBackupCodesRequest
-	21, // 33: authentication.service.v1.MFAService.ListBackupCodes:input_type -> authentication.service.v1.ListBackupCodesRequest
-	23, // 34: authentication.service.v1.MFAService.RevokeMFADevice:input_type -> authentication.service.v1.RevokeMFADeviceRequest
-	3,  // 35: authentication.service.v1.MFAService.GetMFAStatus:output_type -> authentication.service.v1.GetMFAStatusResponse
-	6,  // 36: authentication.service.v1.MFAService.ListEnrolledMethods:output_type -> authentication.service.v1.ListEnrolledMethodsResponse
-	8,  // 37: authentication.service.v1.MFAService.StartEnrollMethod:output_type -> authentication.service.v1.StartEnrollMethodResponse
-	13, // 38: authentication.service.v1.MFAService.ConfirmEnrollMethod:output_type -> authentication.service.v1.ConfirmEnrollMethodResponse
-	27, // 39: authentication.service.v1.MFAService.DisableMFA:output_type -> google.protobuf.Empty
-	16, // 40: authentication.service.v1.MFAService.StartMFAChallenge:output_type -> authentication.service.v1.StartMFAChallengeResponse
-	18, // 41: authentication.service.v1.MFAService.VerifyMFAChallenge:output_type -> authentication.service.v1.VerifyMFAChallengeResponse
-	20, // 42: authentication.service.v1.MFAService.GenerateBackupCodes:output_type -> authentication.service.v1.GenerateBackupCodesResponse
-	22, // 43: authentication.service.v1.MFAService.ListBackupCodes:output_type -> authentication.service.v1.ListBackupCodesResponse
-	27, // 44: authentication.service.v1.MFAService.RevokeMFADevice:output_type -> google.protobuf.Empty
-	35, // [35:45] is the sub-list for method output_type
-	25, // [25:35] is the sub-list for method input_type
-	25, // [25:25] is the sub-list for extension type_name
-	25, // [25:25] is the sub-list for extension extendee
-	0,  // [0:25] is the sub-list for field type_name
+	27, // 23: authentication.service.v1.VerifyMFAChallengeResponse.login_response:type_name -> authentication.service.v1.LoginResponse
+	26, // 24: authentication.service.v1.GenerateBackupCodesResponse.generated_at:type_name -> google.protobuf.Timestamp
+	26, // 25: authentication.service.v1.ListBackupCodesResponse.generated_at:type_name -> google.protobuf.Timestamp
+	2,  // 26: authentication.service.v1.MFAService.GetMFAStatus:input_type -> authentication.service.v1.GetMFAStatusRequest
+	5,  // 27: authentication.service.v1.MFAService.ListEnrolledMethods:input_type -> authentication.service.v1.ListEnrolledMethodsRequest
+	7,  // 28: authentication.service.v1.MFAService.StartEnrollMethod:input_type -> authentication.service.v1.StartEnrollMethodRequest
+	12, // 29: authentication.service.v1.MFAService.ConfirmEnrollMethod:input_type -> authentication.service.v1.ConfirmEnrollMethodRequest
+	14, // 30: authentication.service.v1.MFAService.DisableMFA:input_type -> authentication.service.v1.DisableMFARequest
+	15, // 31: authentication.service.v1.MFAService.StartMFAChallenge:input_type -> authentication.service.v1.StartMFAChallengeRequest
+	17, // 32: authentication.service.v1.MFAService.VerifyMFAChallenge:input_type -> authentication.service.v1.VerifyMFAChallengeRequest
+	19, // 33: authentication.service.v1.MFAService.GenerateBackupCodes:input_type -> authentication.service.v1.GenerateBackupCodesRequest
+	21, // 34: authentication.service.v1.MFAService.ListBackupCodes:input_type -> authentication.service.v1.ListBackupCodesRequest
+	23, // 35: authentication.service.v1.MFAService.RevokeMFADevice:input_type -> authentication.service.v1.RevokeMFADeviceRequest
+	3,  // 36: authentication.service.v1.MFAService.GetMFAStatus:output_type -> authentication.service.v1.GetMFAStatusResponse
+	6,  // 37: authentication.service.v1.MFAService.ListEnrolledMethods:output_type -> authentication.service.v1.ListEnrolledMethodsResponse
+	8,  // 38: authentication.service.v1.MFAService.StartEnrollMethod:output_type -> authentication.service.v1.StartEnrollMethodResponse
+	13, // 39: authentication.service.v1.MFAService.ConfirmEnrollMethod:output_type -> authentication.service.v1.ConfirmEnrollMethodResponse
+	28, // 40: authentication.service.v1.MFAService.DisableMFA:output_type -> google.protobuf.Empty
+	16, // 41: authentication.service.v1.MFAService.StartMFAChallenge:output_type -> authentication.service.v1.StartMFAChallengeResponse
+	18, // 42: authentication.service.v1.MFAService.VerifyMFAChallenge:output_type -> authentication.service.v1.VerifyMFAChallengeResponse
+	20, // 43: authentication.service.v1.MFAService.GenerateBackupCodes:output_type -> authentication.service.v1.GenerateBackupCodesResponse
+	22, // 44: authentication.service.v1.MFAService.ListBackupCodes:output_type -> authentication.service.v1.ListBackupCodesResponse
+	28, // 45: authentication.service.v1.MFAService.RevokeMFADevice:output_type -> google.protobuf.Empty
+	36, // [36:46] is the sub-list for method output_type
+	26, // [26:36] is the sub-list for method input_type
+	26, // [26:26] is the sub-list for extension type_name
+	26, // [26:26] is the sub-list for extension extendee
+	0,  // [0:26] is the sub-list for field type_name
 }
 
 func init() { file_authentication_service_v1_mfa_proto_init() }
@@ -2082,6 +2093,7 @@ func file_authentication_service_v1_mfa_proto_init() {
 	if File_authentication_service_v1_mfa_proto != nil {
 		return
 	}
+	file_authentication_service_v1_authentication_proto_init()
 	file_authentication_service_v1_mfa_proto_msgTypes[0].OneofWrappers = []any{}
 	file_authentication_service_v1_mfa_proto_msgTypes[2].OneofWrappers = []any{}
 	file_authentication_service_v1_mfa_proto_msgTypes[3].OneofWrappers = []any{}

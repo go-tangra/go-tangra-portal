@@ -180,6 +180,12 @@ func (x *LoginResponse) Redact() string {
 	// Safe field: RefreshExpiresIn
 
 	// Safe field: IdToken
+
+	// Safe field: MfaRequired
+
+	// Safe field: MfaToken
+
+	// Safe field: MfaMethods
 	return x.String()
 }
 

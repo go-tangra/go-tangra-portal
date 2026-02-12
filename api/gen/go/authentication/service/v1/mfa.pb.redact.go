@@ -405,6 +405,8 @@ func (x *VerifyMFAChallengeResponse) Redact() string {
 	// Safe field: Success
 
 	// Safe field: SessionToken
+
+	// Safe field: LoginResponse
 	return x.String()
 }
 

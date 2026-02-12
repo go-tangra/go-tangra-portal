@@ -8,6 +8,8 @@ import "google/protobuf/timestamp.proto";
 import "google/api/annotations.proto";
 import "google/api/field_behavior.proto";
 
+import "authentication/service/v1/authentication.proto";
+
 // Multi-Factor Authentication (MFA) service: step-by-step enrollment, challenge/verification, management of enrolled credentials and backup codes
 service MFAService {
   // Query user MFA overview (whether enabled, list of enrolled methods)
@@ -58,13 +60,13 @@ enum MFAMethod {
 
 message GetMFAStatusRequest {
   // Optional: if server identifies user through context, user_id can be omitted
-  optional string user_id = 1;
+  optional string user_id = 1 [json_name = "user_id"];
 }
 
 message GetMFAStatusResponse {
-  bool enabled = 1;
-  repeated EnrolledMethod enrolled = 2;
-  MFAEnforcement enforcement = 3;
+  bool enabled = 1 [json_name = "enabled"];
+  repeated EnrolledMethod enrolled = 2 [json_name = "enrolled"];
+  MFAEnforcement enforcement = 3 [json_name = "enforcement"];
 }
 
 enum MFAEnforcement {
@@ -74,28 +76,28 @@ enum MFAEnforcement {
 }
 
 message EnrolledMethod {
-  string id = 1;                // Credential id (internal unique identifier)
-  MFAMethod method = 2;
-  string display = 3;           // For display (such as masked phone number, device name)
-  bool enabled = 4;
-  optional google.protobuf.Timestamp created_at = 5;
-  optional google.protobuf.Timestamp last_used_at = 6;
+  string id = 1 [json_name = "id"];                // Credential id (internal unique identifier)
+  MFAMethod method = 2 [json_name = "method"];
+  string display = 3 [json_name = "display"];           // For display (such as masked phone number, device name)
+  bool enabled = 4 [json_name = "enabled"];
+  optional google.protobuf.Timestamp created_at = 5 [json_name = "created_at"];
+  optional google.protobuf.Timestamp last_used_at = 6 [json_name = "last_used_at"];
 }
 
 // List enrolled credentials
 message ListEnrolledMethodsRequest {
-  optional string user_id = 1;
+  optional string user_id = 1 [json_name = "user_id"];
 }
 message ListEnrolledMethodsResponse {
-  repeated EnrolledMethod items = 1;
+  repeated EnrolledMethod items = 1 [json_name = "items"];
 }
 
 // Start enroll
 message StartEnrollMethodRequest {
-  MFAMethod method = 1;
+  MFAMethod method = 1 [json_name = "method"];
   // Additional parameters may be required depending on method (e.g., SMS requires phone)
-  optional string phone = 2;
-  optional string email = 3;
+  optional string phone = 2 [json_name = "phone"];
+  optional string email = 3 [json_name = "email"];
 }
 message StartEnrollMethodResponse {
   // Start result for different methods
@@ -104,68 +106,68 @@ message StartEnrollMethodResponse {
     SMSResult sms = 2;
     WebAuthnResult webauthn = 3;
   }
-  optional google.protobuf.Timestamp expires_at = 10;
+  optional google.protobuf.Timestamp expires_at = 10 [json_name = "expires_at"];
   // Temporary operation id, used for ConfirmEnrollMethod / subsequent verification
-  string operation_id = 11;
+  string operation_id = 11 [json_name = "operation_id"];
 }
 
 message TOTPResult {
   // base32 secret: only returned once during enrollment, server should only store hash/reference
-  string secret = 1;
-  string otp_auth_url = 2;
-  string qr_code_data_uri = 3;
+  string secret = 1 [json_name = "secret"];
+  string otp_auth_url = 2 [json_name = "otp_auth_url"];
+  string qr_code_data_uri = 3 [json_name = "qr_code_data_uri"];
 }
 
 message SMSResult {
-  string verification_id = 1;
-  bool sms_sent = 2;
-  string masked_phone = 3;
+  string verification_id = 1 [json_name = "verification_id"];
+  bool sms_sent = 2 [json_name = "sms_sent"];
+  string masked_phone = 3 [json_name = "masked_phone"];
 }
 
 message WebAuthnResult {
-  string challenge = 1;
-  string options_json = 2;
-  string rp_id = 3;
+  string challenge = 1 [json_name = "challenge"];
+  string options_json = 2 [json_name = "options_json"];
+  string rp_id = 3 [json_name = "rp_id"];
 }
 
 // Confirm enroll
 message ConfirmEnrollMethodRequest {
-  MFAMethod method = 1;
-  string operation_id = 2;
+  MFAMethod method = 1 [json_name = "method"];
+  string operation_id = 2 [json_name = "operation_id"];
   oneof credential {
-    string totp_code = 10;
+    string totp_code = 10 [json_name = "totp_code"];
     SMSVerification sms = 11;
     WebAuthnAssertion webauthn = 12;
-    string backup_code = 13;
+    string backup_code = 13 [json_name = "backup_code"];
   }
   // Optional: device/display name
-  optional string display = 20;
+  optional string display = 20 [json_name = "display"];
 }
 message ConfirmEnrollMethodResponse {
-  bool success = 1;
-  string credential_id = 2; // Newly created credential id
+  bool success = 1 [json_name = "success"];
+  string credential_id = 2 [json_name = "credential_id"]; // Newly created credential id
 }
 
 // Disable / remove
 message DisableMFARequest {
   // Specify credential id or disable all by method only
-  optional string credential_id = 1;
-  optional MFAMethod method = 2;
+  optional string credential_id = 1 [json_name = "credential_id"];
+  optional MFAMethod method = 2 [json_name = "method"];
   // Verification credential: password or verification code
   oneof verifier {
-    string password = 10;
-    string totp_code = 11;
+    string password = 10 [json_name = "password"];
+    string totp_code = 11 [json_name = "totp_code"];
     SMSVerification sms = 12;
     WebAuthnAssertion webauthn = 13;
   }
-  optional string reason = 20;
+  optional string reason = 20 [json_name = "reason"];
 }
 
 // Start authentication challenge
 message StartMFAChallengeRequest {
-  optional string user_id = 1;
-  MFAMethod method = 2;
-  optional string credential_id = 3; // Specify credential (if multi-device)
+  optional string user_id = 1 [json_name = "user_id"];
+  MFAMethod method = 2 [json_name = "method"];
+  optional string credential_id = 3 [json_name = "credential_id"]; // Specify credential (if multi-device)
 }
 message StartMFAChallengeResponse {
   oneof challenge {
@@ -173,54 +175,59 @@ message StartMFAChallengeResponse {
     WebAuthnResult webauthn = 2;
     // TOTP does not require server challenge, frontend prompts for input directly
   }
-  string operation_id = 10;
-  optional google.protobuf.Timestamp expires_at = 11;
+  string operation_id = 10 [json_name = "operation_id"];
+  optional google.protobuf.Timestamp expires_at = 11 [json_name = "expires_at"];
 }
 
 message VerifyMFAChallengeRequest {
-  string operation_id = 1;
+  string operation_id = 1 [json_name = "operation_id"];
   oneof response {
-    string totp_code = 10;
+    string totp_code = 10 [json_name = "totp_code"];
     SMSVerification sms = 11;
     WebAuthnAssertion webauthn = 12;
-    string backup_code = 13;
+    string backup_code = 13 [json_name = "backup_code"];
   }
 }
 message VerifyMFAChallengeResponse {
-  bool success = 1;
+  bool success = 1 [json_name = "success"];
   // Optional: one-time login token or session id (implementation optional)
-  optional string session_token = 2;
+  optional string session_token = 2 [json_name = "session_token"];
+  // When verified during login flow, contains the full login response with JWT tokens
+  optional authentication.service.v1.LoginResponse login_response = 3 [json_name = "login_response"];
 }
 
 // Backup code management
 message GenerateBackupCodesRequest {
   // Number to generate
-  optional int32 count = 1 [(gnostic.openapi.v3.property) = { description: "Number of backup codes to generate" }];
+  optional int32 count = 1 [
+    json_name = "count",
+    (gnostic.openapi.v3.property) = { description: "Number of backup codes to generate" }
+  ];
 }
 message GenerateBackupCodesResponse {
   // Plaintext backup codes: only returned once, client should prompt user to save
-  repeated string codes = 1;
-  optional google.protobuf.Timestamp generated_at = 2;
+  repeated string codes = 1 [json_name = "codes"];
+  optional google.protobuf.Timestamp generated_at = 2 [json_name = "generated_at"];
 }
 message ListBackupCodesRequest {}
 message ListBackupCodesResponse {
   // Only returns metadata (remaining available count), does not return plaintext
-  int32 remaining = 1;
-  optional google.protobuf.Timestamp generated_at = 2;
+  int32 remaining = 1 [json_name = "remaining"];
+  optional google.protobuf.Timestamp generated_at = 2 [json_name = "generated_at"];
 }
 
 // Revoke device/credential
 message RevokeMFADeviceRequest {
-  string credential_id = 1;
+  string credential_id = 1 [json_name = "credential_id"];
 }
 message SMSVerification {
-  string verification_id = 1;
-  string code = 2;
+  string verification_id = 1 [json_name = "verification_id"];
+  string code = 2 [json_name = "code"];
 }
 message WebAuthnAssertion {
-  string id = 1;
-  string client_data_json = 2;
-  string authenticator_data = 3;
-  string signature = 4;
-  optional string user_handle = 5;
+  string id = 1 [json_name = "id"];
+  string client_data_json = 2 [json_name = "client_data_json"];
+  string authenticator_data = 3 [json_name = "authenticator_data"];
+  string signature = 4 [json_name = "signature"];
+  optional string user_handle = 5 [json_name = "user_handle"];
 }

@@ -57,6 +57,8 @@ func NewRestMiddleware(
 	// add white list for authentication.
 	rpc.AddWhiteList(
 		adminV1.OperationAuthenticationServiceLogin,
+		adminV1.OperationMFAServiceStartMFAChallenge,
+		adminV1.OperationMFAServiceVerifyMFAChallenge,
 		//OperationFileTransferServiceDownloadFile,
 		//OperationFileTransferServicePostUploadFile,
 		//OperationFileTransferServicePutUploadFile,
@@ -84,6 +86,7 @@ func NewRestServer(
 	authorizer *data.Authorizer,
 
 	authenticationService *service.AuthenticationService,
+	mfaService *service.MFAService,
 	loginPolicyService *service.LoginPolicyService,
 
 	portalService *service.AdminPortalService,
@@ -143,6 +146,7 @@ func NewRestServer(
 	apiService.RegisterRouteWalker(srv)
 
 	adminV1.RegisterAuthenticationServiceHTTPServer(srv, authenticationService)
+	adminV1.RegisterMFAServiceHTTPServer(srv, mfaService)
 
 	adminV1.RegisterUserProfileServiceHTTPServer(srv, userProfileService)
 
