@@ -787,12 +787,12 @@ func IsMfaTokenExpired(err error) bool {
 		return false
 	}
 	e := errors.FromError(err)
-	return e.Reason == AuthenticationErrorReason_MFA_TOKEN_EXPIRED.String() && e.Code == 401
+	return e.Reason == AuthenticationErrorReason_MFA_TOKEN_EXPIRED.String() && e.Code == 422
 }
 
 // MFA session token has expired
 func ErrorMfaTokenExpired(format string, args ...interface{}) *errors.Error {
-	return errors.New(401, AuthenticationErrorReason_MFA_TOKEN_EXPIRED.String(), fmt.Sprintf(format, args...))
+	return errors.New(422, AuthenticationErrorReason_MFA_TOKEN_EXPIRED.String(), fmt.Sprintf(format, args...))
 }
 
 // MFA session token is invalid
@@ -801,12 +801,12 @@ func IsMfaTokenInvalid(err error) bool {
 		return false
 	}
 	e := errors.FromError(err)
-	return e.Reason == AuthenticationErrorReason_MFA_TOKEN_INVALID.String() && e.Code == 401
+	return e.Reason == AuthenticationErrorReason_MFA_TOKEN_INVALID.String() && e.Code == 422
 }
 
 // MFA session token is invalid
 func ErrorMfaTokenInvalid(format string, args ...interface{}) *errors.Error {
-	return errors.New(401, AuthenticationErrorReason_MFA_TOKEN_INVALID.String(), fmt.Sprintf(format, args...))
+	return errors.New(422, AuthenticationErrorReason_MFA_TOKEN_INVALID.String(), fmt.Sprintf(format, args...))
 }
 
 // MFA code verification failed
@@ -815,12 +815,12 @@ func IsMfaVerificationFailed(err error) bool {
 		return false
 	}
 	e := errors.FromError(err)
-	return e.Reason == AuthenticationErrorReason_MFA_VERIFICATION_FAILED.String() && e.Code == 401
+	return e.Reason == AuthenticationErrorReason_MFA_VERIFICATION_FAILED.String() && e.Code == 422
 }
 
 // MFA code verification failed
 func ErrorMfaVerificationFailed(format string, args ...interface{}) *errors.Error {
-	return errors.New(401, AuthenticationErrorReason_MFA_VERIFICATION_FAILED.String(), fmt.Sprintf(format, args...))
+	return errors.New(422, AuthenticationErrorReason_MFA_VERIFICATION_FAILED.String(), fmt.Sprintf(format, args...))
 }
 
 // MFA method already enrolled
