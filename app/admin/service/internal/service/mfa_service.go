@@ -680,16 +680,34 @@ func (s *MFAService) verifyTOTPCode(ctx context.Context, userID uint32, code str
 	cred, err := s.mfaRepo.GetTOTPCredential(ctx, userID)
 	if err != nil {
 		if ent.IsNotFound(err) {
+			s.log.Errorf("verifyTOTPCode: no TOTP credential found for user %d", userID)
 			return false, fmt.Errorf("no TOTP credential found")
 		}
+		s.log.Errorf("verifyTOTPCode: query error for user %d: %v", userID, err)
 		return false, err
 	}
 
 	if cred.Credential == nil {
+		s.log.Errorf("verifyTOTPCode: credential field is nil for user %d (cred ID=%d)", userID, cred.ID)
 		return false, fmt.Errorf("TOTP credential has no secret")
 	}
 
-	return totp.Validate(code, *cred.Credential), nil
+	secret := *cred.Credential
+	valid, err := totp.ValidateCustom(code, secret, time.Now().UTC(), totp.ValidateOpts{
+		Period:    30,
+		Skew:     2,
+		Digits:   otp.DigitsSix,
+		Algorithm: otp.AlgorithmSHA1,
+	})
+	if err != nil {
+		s.log.Errorf("verifyTOTPCode: ValidateCustom error for user %d: %v", userID, err)
+		return false, err
+	}
+	if !valid {
+		s.log.Warnf("verifyTOTPCode: code rejected for user %d (credID=%d, secretLen=%d, time=%s)", userID, cred.ID, len(secret), time.Now().UTC().Format(time.RFC3339))
+	}
+
+	return valid, nil
 }
 
 // credentialsToEnrolledMethods converts ent credentials to proto EnrolledMethod list.
