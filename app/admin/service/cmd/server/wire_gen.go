@@ -151,7 +151,7 @@ func initApp(context *bootstrap.Context) (*kratos.App, func(), error) {
 	requestBuilder := transcoder.NewRequestBuilder(context)
 	responseTransformer := transcoder.NewResponseTransformer(context)
 	transcoderTranscoder := transcoder.NewTranscoder(context, descriptorParser, requestBuilder, responseTransformer)
-	dynamicRouter := server.NewDynamicRouter(context, transcoderTranscoder, moduleRegistry, authenticator)
+	dynamicRouter := server.NewDynamicRouter(context, transcoderTranscoder, moduleRegistry, authenticator, apiAuditLogRepo)
 	httpServer, err := server.NewRestServer(context, v, authorizer, authenticationService, loginPolicyService, adminPortalService, taskService, uEditorService, fileService, fileTransferService, dictTypeService, dictEntryService, languageService, tenantService, userService, userProfileService, roleService, positionService, orgUnitService, menuService, apiService, permissionService, permissionGroupService, permissionAuditLogService, policyEvaluationLogService, loginAuditLogService, apiAuditLogService, operationAuditLogService, dataAccessAuditLogService, internalMessageService, internalMessageCategoryService, internalMessageRecipientService, platformStatisticsService, dynamicRouter)
 	if err != nil {
 		cleanup6()

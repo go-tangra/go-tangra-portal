@@ -1,6 +1,7 @@
 package server
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 	"strings"
@@ -11,6 +12,9 @@ import (
 
 	authnEngine "github.com/tx7do/kratos-authn/engine"
 
+	auditV1 "github.com/go-tangra/go-tangra-portal/api/gen/go/audit/service/v1"
+
+	"github.com/go-tangra/go-tangra-portal/app/admin/service/internal/data"
 	"github.com/go-tangra/go-tangra-portal/app/admin/service/internal/service"
 	"github.com/go-tangra/go-tangra-portal/app/admin/service/internal/transcoder"
 )
@@ -33,7 +37,14 @@ func NewDynamicRouter(
 	transcoder *transcoder.Transcoder,
 	registry *service.ModuleRegistry,
 	authenticator authnEngine.Authenticator,
+	apiAuditLogRepo *data.ApiAuditLogRepo,
 ) *DynamicRouter {
+	// Set up API audit logging for transcoded module requests
+	transcoder.SetWriteApiLogFunc(func(ctx context.Context, logData *auditV1.ApiAuditLog) error {
+		// TODO 如果系统的负载比较小，可以同步写入数据库，否则，建议使用异步方式，即投递进队列。
+		return apiAuditLogRepo.Create(ctx, &auditV1.CreateApiAuditLogRequest{Data: logData})
+	})
+
 	dr := &DynamicRouter{
 		log:           ctx.NewLoggerHelper("dynamic-router/admin-service"),
 		transcoder:    transcoder,

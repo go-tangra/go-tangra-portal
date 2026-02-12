@@ -2,6 +2,7 @@ package transcoder
 
 import (
 	"context"
+	"crypto/ecdsa"
 	"crypto/tls"
 	"crypto/x509"
 	"encoding/json"
@@ -52,6 +53,10 @@ type Transcoder struct {
 	// Default connection options
 	connectTimeout time.Duration
 	requestTimeout time.Duration
+
+	// API audit logging
+	writeApiLogFunc WriteApiLogFunc
+	ecPrivateKey    *ecdsa.PrivateKey
 }
 
 // NewTranscoder creates a new Transcoder
@@ -61,6 +66,7 @@ func NewTranscoder(
 	requestBuilder *RequestBuilder,
 	responseTransformer *ResponseTransformer,
 ) *Transcoder {
+	ecKey, _ := generateECDSAKeyPair()
 	return &Transcoder{
 		log:                 ctx.NewLoggerHelper("transcoder/admin-service"),
 		descParser:          descParser,
@@ -68,6 +74,7 @@ func NewTranscoder(
 		responseTransformer: responseTransformer,
 		connectTimeout:      10 * time.Second,
 		requestTimeout:      30 * time.Second,
+		ecPrivateKey:        ecKey,
 	}
 }
 
@@ -137,9 +144,31 @@ func (t *Transcoder) Handle(
 	moduleID string,
 	modulePath string, // Path relative to module prefix, e.g., /v1/messages
 ) {
+	startTime := time.Now()
+
+	// Buffer request body for audit logging
+	var bodyBytes []byte
+	if t.writeApiLogFunc != nil && r.Body != nil {
+		bodyBytes = bufferRequestBody(r)
+	}
+
+	var (
+		method     *MethodInfo
+		pathParams map[string]string
+		statusCode = http.StatusOK
+		reason     string
+	)
+
+	defer func() {
+		latencyMs := time.Since(startTime).Milliseconds()
+		t.writeAuditLog(ctx, r, moduleID, method, modulePath, statusCode, reason, latencyMs, bodyBytes)
+	}()
+
 	// Get module connection
 	moduleConn, ok := t.GetModuleConnection(moduleID)
 	if !ok {
+		statusCode = http.StatusNotFound
+		reason = "MODULE_NOT_FOUND"
 		t.writeError(w, http.StatusNotFound, "module not found: %s", moduleID)
 		return
 	}
@@ -150,14 +179,18 @@ func (t *Transcoder) Handle(
 	moduleConn.mu.Unlock()
 
 	// Find matching method
-	method, pathParams, ok := moduleConn.Descriptor.FindMethodByHTTP(r.Method, modulePath)
+	method, pathParams, ok = moduleConn.Descriptor.FindMethodByHTTP(r.Method, modulePath)
 	if !ok {
+		statusCode = http.StatusNotFound
+		reason = "METHOD_NOT_FOUND"
 		t.writeError(w, http.StatusNotFound, "no matching method for %s %s", r.Method, modulePath)
 		return
 	}
 
 	// Check for streaming (not supported via HTTP)
 	if method.IsClientStreaming || method.IsServerStreaming {
+		statusCode = http.StatusNotImplemented
+		reason = "STREAMING_NOT_SUPPORTED"
 		t.writeError(w, http.StatusNotImplemented, "streaming methods not supported via HTTP")
 		return
 	}
@@ -176,6 +209,8 @@ func (t *Transcoder) Handle(
 	// Build request message
 	requestMsg, err := t.requestBuilder.BuildRequest(r, method, matchingRule, pathParams)
 	if err != nil {
+		statusCode = http.StatusBadRequest
+		reason = "BAD_REQUEST"
 		t.writeError(w, http.StatusBadRequest, "failed to build request: %v", err)
 		return
 	}
@@ -194,6 +229,8 @@ func (t *Transcoder) Handle(
 	responseMsg, err := t.invokeMethod(grpcCtx, moduleConn, method, requestMsg)
 	if err != nil {
 		httpCode, errJSON := t.responseTransformer.TransformError(err)
+		statusCode = httpCode
+		reason = grpcErrorReason(err)
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(httpCode)
 		_, _ = w.Write(errJSON)
@@ -203,6 +240,8 @@ func (t *Transcoder) Handle(
 	// Transform response
 	jsonBytes, err := t.responseTransformer.TransformResponse(responseMsg, matchingRule.ResponseBody)
 	if err != nil {
+		statusCode = http.StatusInternalServerError
+		reason = "RESPONSE_TRANSFORM_ERROR"
 		t.writeError(w, http.StatusInternalServerError, "failed to transform response: %v", err)
 		return
 	}
