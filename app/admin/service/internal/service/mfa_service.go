@@ -25,6 +25,7 @@ import (
 	adminV1 "github.com/go-tangra/go-tangra-portal/api/gen/go/admin/service/v1"
 	authenticationV1 "github.com/go-tangra/go-tangra-portal/api/gen/go/authentication/service/v1"
 
+	appViewer "github.com/go-tangra/go-tangra-portal/pkg/entgo/viewer"
 	"github.com/go-tangra/go-tangra-portal/pkg/middleware/auth"
 )
 
@@ -376,7 +377,9 @@ func (s *MFAService) DisableMFA(ctx context.Context, _ *authenticationV1.Disable
 }
 
 // StartMFAChallenge initiates MFA verification during login.
+// This endpoint is unauthenticated (whitelisted), so inject system viewer for Ent queries.
 func (s *MFAService) StartMFAChallenge(ctx context.Context, req *authenticationV1.StartMFAChallengeRequest) (*authenticationV1.StartMFAChallengeResponse, error) {
+	ctx = appViewer.NewSystemViewerContext(ctx)
 	switch req.GetMethod() {
 	case authenticationV1.MFAMethod_TOTP, authenticationV1.MFAMethod_BACKUP_CODE:
 		// For TOTP/backup, no server-side challenge needed; frontend prompts for code directly.
@@ -463,7 +466,9 @@ func (s *MFAService) startMFAChallengeWebAuthn(ctx context.Context, req *authent
 }
 
 // VerifyMFAChallenge verifies MFA code or WebAuthn assertion, consumes Redis session, returns JWT tokens.
+// This endpoint is unauthenticated (whitelisted), so inject system viewer for Ent queries.
 func (s *MFAService) VerifyMFAChallenge(ctx context.Context, req *authenticationV1.VerifyMFAChallengeRequest) (*authenticationV1.VerifyMFAChallengeResponse, error) {
+	ctx = appViewer.NewSystemViewerContext(ctx)
 	// Check for WebAuthn assertion first
 	if wa := req.GetWebauthn(); wa != nil {
 		return s.verifyWebAuthnChallenge(ctx, req.GetOperationId(), wa)
