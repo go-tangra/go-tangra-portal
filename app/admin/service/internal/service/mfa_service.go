@@ -470,7 +470,8 @@ func (s *MFAService) VerifyMFAChallenge(ctx context.Context, req *authentication
 	}
 
 	// TOTP / backup code path: operation_id is the mfa_token (login session token)
-	session, err := s.mfaSessionCache.ConsumeLoginSession(ctx, req.GetOperationId())
+	// Peek first (non-destructive) so the user can retry on wrong code.
+	session, err := s.mfaSessionCache.GetLoginSession(ctx, req.GetOperationId())
 	if err != nil {
 		return nil, err
 	}
@@ -499,6 +500,13 @@ func (s *MFAService) VerifyMFAChallenge(ctx context.Context, req *authentication
 
 	if !verified {
 		return nil, authenticationV1.ErrorMfaVerificationFailed("invalid MFA code")
+	}
+
+	// Consume the session only after successful verification
+	_, err = s.mfaSessionCache.ConsumeLoginSession(ctx, req.GetOperationId())
+	if err != nil {
+		s.log.Errorf("consume login session after verify: %v", err)
+		// Session might have been consumed by a concurrent request — still proceed
 	}
 
 	return s.generateMFALoginResponse(ctx, session)
