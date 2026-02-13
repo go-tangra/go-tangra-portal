@@ -186,7 +186,7 @@ func (r *LoginPolicyRepo) Update(ctx context.Context, req *authenticationV1.Upda
 		}
 	}
 
-	builder := r.entClient.Client().Debug().LoginPolicy.Update()
+	builder := r.entClient.Client().LoginPolicy.Update()
 	err := r.repository.UpdateX(ctx, builder, req.Data, req.GetUpdateMask(),
 		func(dto *authenticationV1.LoginPolicy) {
 			builder.
@@ -211,7 +211,7 @@ func (r *LoginPolicyRepo) Delete(ctx context.Context, req *authenticationV1.Dele
 		return adminV1.ErrorBadRequest("invalid parameter")
 	}
 
-	builder := r.entClient.Client().Debug().LoginPolicy.Delete()
+	builder := r.entClient.Client().LoginPolicy.Delete()
 	_, err := r.repository.Delete(ctx, builder, func(s *sql.Selector) {
 		s.Where(sql.EQ(loginpolicy.FieldID, req.GetId()))
 	})

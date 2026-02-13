@@ -346,18 +346,13 @@ func (e *Engine) ExecuteHook(ctx context.Context, hookName string, execCtx *Cont
 			return fmt.Errorf("callback %d failed: %w", i+1, err)
 		}
 
-		e.logger.Debugf("Callback %d completed (hook: %s, duration: %s)",
-			i+1, hookName, duration)
-	}
+		}
 
 	// Execute registered scripts
 	hookScripts := e.registry.GetScripts(hookName)
 	if len(hookScripts) == 0 && len(callbacks) == 0 {
-		e.logger.Debugf("No scripts or callbacks registered for hook: %s", hookName)
 		return nil
 	}
-
-	e.logger.Debugf("Executing %d scripts for hook: %s", len(hookScripts), hookName)
 
 	for _, hookScript := range hookScripts {
 		if !hookScript.Enabled {
@@ -390,9 +385,7 @@ func (e *Engine) ExecuteHook(ctx context.Context, hookName string, execCtx *Cont
 			return fmt.Errorf("script '%s' failed: %w", script.Name, err)
 		}
 
-		e.logger.Debugf("Script '%s' completed (hook: %s, duration: %s)",
-			script.Name, hookName, duration)
-	}
+		}
 
 	return nil
 }
@@ -577,7 +570,6 @@ func (e *Engine) MarkVMDedicated(L *lua.LState) {
 	e.mu.Lock()
 	defer e.mu.Unlock()
 	e.dedicatedVMs[L] = true
-	e.logger.Debugf("VM marked as dedicated")
 }
 
 // SetRedis sets the Redis client for cache operations

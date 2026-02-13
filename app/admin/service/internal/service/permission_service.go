@@ -73,17 +73,33 @@ func NewPermissionService(
 
 func (s *PermissionService) init() {
 	ctx := appViewer.NewSystemViewerContext(context.Background())
-	if count, _ := s.permissionRepo.Count(ctx, []func(s *sql.Selector){}); count == 0 {
-		_ = s.createDefaultPermissions(ctx)
+	count, err := s.permissionRepo.Count(ctx, []func(s *sql.Selector){})
+	if err != nil {
+		s.log.Errorf("failed to count permissions during init: %v", err)
+		return
+	}
+	if count == 0 {
+		if err := s.createDefaultPermissions(ctx); err != nil {
+			s.log.Errorf("failed to create default permissions: %v", err)
+			return
+		}
 
-		var apiCount int
-		apiCount, _ = s.apiRepo.Count(ctx, []func(s *sql.Selector){})
+		apiCount, err := s.apiRepo.Count(ctx, []func(s *sql.Selector){})
+		if err != nil {
+			s.log.Errorf("failed to count APIs during init: %v", err)
+			return
+		}
 
-		var menusCount int
-		menusCount, _ = s.menuRepo.Count(ctx, []func(s *sql.Selector){})
+		menusCount, err := s.menuRepo.Count(ctx, []func(s *sql.Selector){})
+		if err != nil {
+			s.log.Errorf("failed to count menus during init: %v", err)
+			return
+		}
 
 		if apiCount > 0 && menusCount > 0 {
-			_, _ = s.SyncPermissions(ctx, &emptypb.Empty{})
+			if _, err := s.SyncPermissions(ctx, &emptypb.Empty{}); err != nil {
+				s.log.Errorf("failed to sync permissions during init: %v", err)
+			}
 		}
 	}
 }
@@ -311,8 +327,6 @@ func (s *PermissionService) appendAPis(
 			continue
 		}
 
-		s.log.Debugf("appendAPis: processing api [%s] [%s] with code [%s]", api.GetMethod(), api.GetPath(), code)
-
 		if curCode, exist := codes[code]; !exist {
 			var module string
 			for k, perms := range *mapPermissions {
@@ -351,8 +365,6 @@ func (s *PermissionService) appendAPis(
 		}
 	}
 
-	//s.log.Debugf("appendAPis: unmatched permission codes: %v", codes)
-
 	for code, apiIDs := range codes {
 		name := strings.ReplaceAll(code, ":", "_")
 		name = stringcase.ToPascalCase(name)
@@ -369,8 +381,6 @@ func (s *PermissionService) appendAPis(
 		*permissions = append(*permissions, perm)
 
 		(*mapPermissions)[apiIDs.module] = append((*mapPermissions)[apiIDs.module], perm)
-
-		//s.log.Debugf("appendAPis: create permission for api code: [%s][%s]", apiIDs.module, code)
 	}
 
 	return nil
@@ -398,8 +408,14 @@ func (s *PermissionService) SyncPermissions(ctx context.Context, _ *emptypb.Empt
 	}
 
 	// 清理菜单相关权限
-	_ = s.permissionRepo.TruncateBizPermissions(ctx)
-	_ = s.permissionGroupRepo.TruncateBizGroup(ctx)
+	if err := s.permissionRepo.TruncateBizPermissions(ctx); err != nil {
+		s.log.Errorf("failed to truncate biz permissions: %v", err)
+		return nil, err
+	}
+	if err := s.permissionGroupRepo.TruncateBizGroup(ctx); err != nil {
+		s.log.Errorf("failed to truncate biz group: %v", err)
+		return nil, err
+	}
 
 	// 查询所有启用的菜单
 	menus, err := s.menuRepo.List(ctx, &paginationV1.PagingRequest{
@@ -459,7 +475,6 @@ func (s *PermissionService) SyncPermissions(ctx context.Context, _ *emptypb.Empt
 				CreatedBy: trans.Ptr(operator.UserId),
 				UpdatedBy: trans.Ptr(operator.UserId),
 			})
-			//s.log.Debugf("SyncPermissions: created permission group for menu %s - %s", menu.GetName(), permissionCode)
 		}
 
 		perm := &permissionV1.Permission{
@@ -477,7 +492,9 @@ func (s *PermissionService) SyncPermissions(ctx context.Context, _ *emptypb.Empt
 	}
 
 	// 为权限追加对应的 API 资源 ID 列表
-	_ = s.appendAPis(ctx, &permissions, &mapPermissions, operator.UserId)
+	if err := s.appendAPis(ctx, &permissions, &mapPermissions, operator.UserId); err != nil {
+		return nil, err
+	}
 
 	var finalPermissionGroups []*permissionV1.PermissionGroup
 	if finalPermissionGroups, err = s.permissionGroupRepo.BatchCreate(ctx, permissionGroups); err != nil {

@@ -414,7 +414,7 @@ func (r *PermissionRepo) Update(ctx context.Context, req *permissionV1.UpdatePer
 		}
 	}
 
-	builder := r.entClient.Client().Debug().Permission.UpdateOneID(req.GetId())
+	builder := r.entClient.Client().Permission.UpdateOneID(req.GetId())
 	perm, err := r.repository.UpdateOne(ctx, builder, req.Data, req.GetUpdateMask(),
 		func(dto *permissionV1.Permission) {
 			builder.
@@ -568,8 +568,14 @@ func (r *PermissionRepo) TruncateBizPermissions(ctx context.Context) error {
 		return permissionV1.ErrorInternalServerError("truncate biz permissions failed")
 	}
 
-	_ = r.CleanApiPermissions(ctx)
-	_ = r.CleanMenuPermissions(ctx)
+	if err := r.CleanApiPermissions(ctx); err != nil {
+		r.log.Errorf("failed to clean API permissions: %v", err)
+		return err
+	}
+	if err := r.CleanMenuPermissions(ctx); err != nil {
+		r.log.Errorf("failed to clean menu permissions: %v", err)
+		return err
+	}
 
 	return nil
 }

@@ -514,16 +514,17 @@ func EnsureFileExtension(fileName, contentType string, fileContent []byte) strin
 }
 
 // SetDownloadRange 设置下载范围
-func SetDownloadRange(opts *minio.GetObjectOptions, start, end *int64) {
+func SetDownloadRange(opts *minio.GetObjectOptions, start, end *int64) error {
 	if opts == nil {
-		return
+		return nil
 	}
 
 	if start != nil && end != nil {
-		_ = opts.SetRange(*start, *end)
+		return opts.SetRange(*start, *end)
 	} else if start != nil {
-		_ = opts.SetRange(*start, 0)
+		return opts.SetRange(*start, 0)
 	} else if end != nil {
-		_ = opts.SetRange(0, *end)
+		return opts.SetRange(0, *end)
 	}
+	return nil
 }

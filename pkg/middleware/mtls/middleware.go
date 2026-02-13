@@ -87,21 +87,16 @@ func MTLSMiddleware(logger log.Logger, opts ...Option) middleware.Middleware {
 
 				// Skip mTLS for public endpoints
 				if isPublicEndpoint(operation, options.PublicEndpoints) {
-					l.Debugf("Skipping mTLS for public endpoint: %s", operation)
 					// Still add client info to context even for public endpoints (may be nil)
 					ctx = context.WithValue(ctx, ClientInfoKey, clientInfo)
 					return handler(ctx, req)
 				}
-
-				l.Debugf("Validating client certificate for operation: %s", operation)
 
 				// Validate client certificate for protected endpoints
 				if clientInfo == nil || !clientInfo.IsAuthenticated {
 					l.Error("Client certificate validation failed: no valid certificate")
 					return nil, status.Error(codes.Unauthenticated, "client certificate required for this endpoint")
 				}
-
-				l.Debugf("Client certificate validated successfully for operation: %s (CN: %s)", operation, clientInfo.CommonName)
 
 				// Add client info to context
 				ctx = context.WithValue(ctx, ClientInfoKey, clientInfo)
@@ -121,20 +116,17 @@ func isPublicEndpoint(operation string, publicEndpoints []string) bool {
 func extractClientInfo(p *peer.Peer, l *log.Helper, opts *Options) *ClientInfo {
 	// Check if the connection has TLS info
 	if p.AuthInfo == nil {
-		l.Debug("No TLS authentication info available")
 		return nil
 	}
 
 	// Cast to TLS credentials to access certificate information
 	tlsInfo, ok := p.AuthInfo.(credentials.TLSInfo)
 	if !ok {
-		l.Debug("Failed to cast to TLS credentials")
 		return nil
 	}
 
 	// Check if client certificates are present
 	if len(tlsInfo.State.PeerCertificates) == 0 {
-		l.Debug("No client certificates provided")
 		return nil
 	}
 
@@ -154,25 +146,19 @@ func extractClientInfo(p *peer.Peer, l *log.Helper, opts *Options) *ClientInfo {
 		IsAuthenticated: false, // Will be set to true after validation
 	}
 
-	// Log certificate information for debugging
-	l.Debugf("Client certificate Subject: %s", clientInfo.Subject)
-	l.Debugf("Client certificate Issuer: %s", clientInfo.Issuer)
-	l.Debugf("Client certificate Serial: %s", clientInfo.SerialNumber)
-
 	// Validate certificate
 	if err := validateCertificateValidity(clientCert); err != nil {
-		l.Debugf("Certificate validity check failed: %v", err)
+		l.Warnf("Certificate validity check failed: %v", err)
 		return clientInfo // Return with IsAuthenticated = false
 	}
 
 	if err := validateCertificateIssuer(clientCert, opts); err != nil {
-		l.Debugf("Certificate issuer validation failed: %v", err)
+		l.Warnf("Certificate issuer validation failed: %v", err)
 		return clientInfo // Return with IsAuthenticated = false
 	}
 
 	// Mark as authenticated if all validations pass
 	clientInfo.IsAuthenticated = true
-	l.Debugf("Client certificate validation successful")
 
 	return clientInfo
 }

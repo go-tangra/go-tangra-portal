@@ -121,13 +121,15 @@ func (r *MFARepo) CreateBackupCodes(ctx context.Context, userID, tenantID uint32
 	}
 
 	// Delete existing backup codes first
-	_, _ = r.entClient.Client().UserCredential.Delete().
+	if _, err := r.entClient.Client().UserCredential.Delete().
 		Where(
 			usercredential.UserIDEQ(userID),
 			usercredential.CredentialTypeEQ(usercredential.CredentialTypeOTP),
 			usercredential.IdentifierHasPrefix(fmt.Sprintf("mfa:backup:%d:", userID)),
 		).
-		Exec(ctx)
+		Exec(ctx); err != nil {
+		r.log.Warnf("failed to delete existing backup codes for user %d: %v", userID, err)
+	}
 
 	codes := make([]string, count)
 	builders := make([]*ent.UserCredentialCreate, count)
@@ -255,7 +257,9 @@ func (r *MFARepo) GetCredentialByID(ctx context.Context, credentialID uint32) (*
 // generateBackupCode creates a random 8-character hex string.
 func generateBackupCode() string {
 	b := make([]byte, 4)
-	_, _ = rand.Read(b)
+	if _, err := rand.Read(b); err != nil {
+		panic(fmt.Sprintf("crypto/rand.Read failed: %v", err))
+	}
 	return hex.EncodeToString(b)
 }
 

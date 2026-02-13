@@ -224,7 +224,7 @@ func (r *UserCredentialRepo) Update(ctx context.Context, req *authenticationV1.U
 		req.Data.Credential = trans.Ptr(newCredential)
 	}
 
-	builder := r.entClient.Client().Debug().UserCredential.Update()
+	builder := r.entClient.Client().UserCredential.Update()
 	err = r.repository.UpdateX(ctx, builder, req.Data, req.GetUpdateMask(),
 		func(dto *authenticationV1.UserCredential) {
 			builder.
@@ -442,12 +442,24 @@ func (r *UserCredentialRepo) prepareCredential(credentialType *usercredential.Cr
 func (r *UserCredentialRepo) ChangeCredential(ctx context.Context, req *authenticationV1.ChangeCredentialRequest) error {
 	if req.GetNeedDecrypt() {
 		// 解密密码
-		bytesPass, _ := base64.StdEncoding.DecodeString(req.GetOldCredential())
-		plainPassword, _ := crypto.AesDecrypt(bytesPass, crypto.DefaultAESKey, nil)
+		bytesPass, err := base64.StdEncoding.DecodeString(req.GetOldCredential())
+		if err != nil {
+			return authenticationV1.ErrorBadRequest("failed to decode old credential: %s", err)
+		}
+		plainPassword, err := crypto.AesDecrypt(bytesPass, crypto.DefaultAESKey, nil)
+		if err != nil {
+			return authenticationV1.ErrorBadRequest("failed to decrypt old credential: %s", err)
+		}
 		req.OldCredential = string(plainPassword)
 
-		bytesPass, _ = base64.StdEncoding.DecodeString(req.GetNewCredential())
-		plainPassword, _ = crypto.AesDecrypt(bytesPass, crypto.DefaultAESKey, nil)
+		bytesPass, err = base64.StdEncoding.DecodeString(req.GetNewCredential())
+		if err != nil {
+			return authenticationV1.ErrorBadRequest("failed to decode new credential: %s", err)
+		}
+		plainPassword, err = crypto.AesDecrypt(bytesPass, crypto.DefaultAESKey, nil)
+		if err != nil {
+			return authenticationV1.ErrorBadRequest("failed to decrypt new credential: %s", err)
+		}
 		req.NewCredential = string(plainPassword)
 	}
 
@@ -507,8 +519,14 @@ func (r *UserCredentialRepo) ChangeCredential(ctx context.Context, req *authenti
 func (r *UserCredentialRepo) ResetCredential(ctx context.Context, req *authenticationV1.ResetCredentialRequest) error {
 	if req.GetNeedDecrypt() {
 		// 解密密码
-		bytesPass, _ := base64.StdEncoding.DecodeString(req.GetNewCredential())
-		plainPassword, _ := crypto.AesDecrypt(bytesPass, crypto.DefaultAESKey, nil)
+		bytesPass, err := base64.StdEncoding.DecodeString(req.GetNewCredential())
+		if err != nil {
+			return authenticationV1.ErrorBadRequest("failed to decode new credential: %s", err)
+		}
+		plainPassword, err := crypto.AesDecrypt(bytesPass, crypto.DefaultAESKey, nil)
+		if err != nil {
+			return authenticationV1.ErrorBadRequest("failed to decrypt new credential: %s", err)
+		}
 		req.NewCredential = string(plainPassword)
 	}
 

@@ -66,7 +66,10 @@ func NewTranscoder(
 	requestBuilder *RequestBuilder,
 	responseTransformer *ResponseTransformer,
 ) *Transcoder {
-	ecKey, _ := generateECDSAKeyPair()
+	ecKey, err := generateECDSAKeyPair()
+	if err != nil {
+		panic(fmt.Sprintf("failed to generate ECDSA key pair for audit signing: %v", err))
+	}
 	return &Transcoder{
 		log:                 ctx.NewLoggerHelper("transcoder/admin-service"),
 		descParser:          descParser,
@@ -233,7 +236,9 @@ func (t *Transcoder) Handle(
 		reason = grpcErrorReason(err)
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(httpCode)
-		_, _ = w.Write(errJSON)
+		if _, err := w.Write(errJSON); err != nil {
+			t.log.Warnf("Failed to write HTTP error response: %v", err)
+		}
 		return
 	}
 
@@ -249,7 +254,9 @@ func (t *Transcoder) Handle(
 	// Write response
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	_, _ = w.Write(jsonBytes)
+	if _, err := w.Write(jsonBytes); err != nil {
+		t.log.Warnf("Failed to write HTTP response: %v", err)
+	}
 }
 
 // invokeMethod makes the actual gRPC call using dynamic invocation
@@ -295,8 +302,6 @@ func (t *Transcoder) injectAuthContext(ctx context.Context, r *http.Request) con
 		if roles := tokenPayload.GetRoles(); len(roles) > 0 {
 			md.Set("x-md-global-roles", strings.Join(roles, ","))
 		}
-		t.log.Debugf("Injected auth metadata: user_id=%d, tenant_id=%d, username=%v",
-			tokenPayload.GetUserId(), tokenPayload.GetTenantId(), tokenPayload.Username)
 	} else {
 		t.log.Warnf("No auth context available for module request: %v", err)
 	}
@@ -473,8 +478,14 @@ func (t *Transcoder) writeError(w http.ResponseWriter, code int, format string, 
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(code)
-	jsonBytes, _ := json.Marshal(httpErr)
-	_, _ = w.Write(jsonBytes)
+	jsonBytes, err := json.Marshal(httpErr)
+	if err != nil {
+		t.log.Warnf("Failed to marshal HTTP error: %v", err)
+		return
+	}
+	if _, err := w.Write(jsonBytes); err != nil {
+		t.log.Warnf("Failed to write HTTP error response: %v", err)
+	}
 }
 
 // ListModules returns a list of all registered modules

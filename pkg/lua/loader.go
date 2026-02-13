@@ -53,8 +53,6 @@ func (e *Engine) LoadScriptsFromDir(ctx context.Context, dir string) error {
 
 // LoadScriptFile loads and executes a single Lua script file
 func (e *Engine) LoadScriptFile(ctx context.Context, filePath string) error {
-	e.logger.Debugf("Loading script file: %s", filePath)
-
 	// Read file
 	content, err := os.ReadFile(filePath)
 	if err != nil {
@@ -73,8 +71,6 @@ func (e *Engine) LoadScriptFile(ctx context.Context, filePath string) error {
 		if !isDedicated {
 			// Return to pool only if not marked as dedicated
 			e.pool.Put(L)
-		} else {
-			e.logger.Debugf("VM marked as dedicated, not returning to pool")
 		}
 	}()
 
@@ -87,14 +83,11 @@ func (e *Engine) LoadScriptFile(ctx context.Context, filePath string) error {
 		return fmt.Errorf("failed to execute script: %w", err)
 	}
 
-	e.logger.Debugf("Successfully loaded script: %s", filePath)
 	return nil
 }
 
 // LoadScriptString loads and executes a Lua script from a string
 func (e *Engine) LoadScriptString(ctx context.Context, scriptName, source string) error {
-	e.logger.Debugf("Loading script: %s", scriptName)
-
 	// Get a VM from pool
 	L := e.pool.Get()
 
@@ -107,8 +100,6 @@ func (e *Engine) LoadScriptString(ctx context.Context, scriptName, source string
 		if !isDedicated {
 			// Return to pool only if not marked as dedicated
 			e.pool.Put(L)
-		} else {
-			e.logger.Debugf("VM marked as dedicated, not returning to pool")
 		}
 	}()
 
@@ -120,6 +111,5 @@ func (e *Engine) LoadScriptString(ctx context.Context, scriptName, source string
 		return fmt.Errorf("failed to execute script %s: %w", scriptName, err)
 	}
 
-	e.logger.Debugf("Successfully loaded script: %s", scriptName)
 	return nil
 }

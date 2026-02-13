@@ -130,10 +130,18 @@ func (c *MinIOClient) GetUploadPresignedUrl(ctx context.Context, req *fileV1.Get
 
 	case fileV1.GetUploadPresignedUrlRequest_Post:
 		policy := minio.NewPostPolicy()
-		_ = policy.SetBucket(bucketName)
-		_ = policy.SetKey(objectName)
-		_ = policy.SetExpires(time.Now().UTC().Add(expiry))
-		_ = policy.SetContentType(req.GetContentType())
+		if err := policy.SetBucket(bucketName); err != nil {
+			return nil, fileV1.ErrorInternalServerError("failed to set bucket in policy: %s", err)
+		}
+		if err := policy.SetKey(objectName); err != nil {
+			return nil, fileV1.ErrorInternalServerError("failed to set key in policy: %s", err)
+		}
+		if err := policy.SetExpires(time.Now().UTC().Add(expiry)); err != nil {
+			return nil, fileV1.ErrorInternalServerError("failed to set expiry in policy: %s", err)
+		}
+		if err := policy.SetContentType(req.GetContentType()); err != nil {
+			return nil, fileV1.ErrorInternalServerError("failed to set content type in policy: %s", err)
+		}
 
 		presignedURL, formData, err = c.mc.PresignedPostPolicy(ctx, policy)
 		if err != nil {
@@ -274,7 +282,9 @@ func (c *MinIOClient) UploadFile(ctx context.Context, bucketName string, objectN
 func (c *MinIOClient) getDownloadUrlWithStorageObjectDirect(ctx context.Context, req *fileV1.GetDownloadInfoRequest) (*fileV1.GetDownloadInfoResponse, error) {
 	opts := minio.GetObjectOptions{}
 
-	SetDownloadRange(&opts, req.RangeStart, req.RangeEnd)
+	if err := SetDownloadRange(&opts, req.RangeStart, req.RangeEnd); err != nil {
+		return nil, fileV1.ErrorBadRequest("failed to set download range: %s", err)
+	}
 
 	object, err := c.mc.GetObject(
 		ctx,
@@ -376,7 +386,9 @@ func (c *MinIOClient) GetDownloadUrl(ctx context.Context, req *fileV1.GetDownloa
 func (c *MinIOClient) downloadFileWithStorageObjectDirect(ctx context.Context, req *fileV1.DownloadFileRequest) (*fileV1.DownloadFileResponse, error) {
 	opts := minio.GetObjectOptions{}
 
-	SetDownloadRange(&opts, req.RangeStart, req.RangeEnd)
+	if err := SetDownloadRange(&opts, req.RangeStart, req.RangeEnd); err != nil {
+		return nil, fileV1.ErrorBadRequest("failed to set download range: %s", err)
+	}
 
 	object, err := c.mc.GetObject(
 		ctx,

@@ -99,7 +99,6 @@ func (s *FileTransferService) recordFile(
 	sha256Hex := hex.EncodeToString(sum[:]) // 转为十六进制字符串
 
 	dir, fileName, ext := parseKey(info.Key)
-	//s.log.Debugf("Parsed file - Dir: %s, FileName: %s, Ext: %s", dir, fileName, ext)
 
 	if err := s.fileRepo.Create(ctx, &fileV1.CreateFileRequest{
 		Data: &fileV1.File{

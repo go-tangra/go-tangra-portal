@@ -25,6 +25,7 @@ var (
 	_ emptypb.Empty
 	_ fieldmaskpb.FieldMask
 	_ timestamppb.Timestamp
+	_ redact.FieldRules
 	_ pagination.Sorting
 )
 
@@ -163,7 +164,9 @@ func (x *UserCredential) Redact() string {
 
 	// Safe field: CredentialType
 
-	// Safe field: Credential
+	// Redacting field: Credential
+	CredentialTmp := ``
+	x.Credential = &CredentialTmp
 
 	// Safe field: IsPrimary
 
@@ -269,7 +272,8 @@ func (x *VerifyCredentialRequest) Redact() string {
 
 	// Safe field: Identifier
 
-	// Safe field: Credential
+	// Redacting field: Credential
+	x.Credential = ``
 
 	// Safe field: NeedDecrypt
 	return x.String()
@@ -295,9 +299,11 @@ func (x *ChangeCredentialRequest) Redact() string {
 
 	// Safe field: Identifier
 
-	// Safe field: OldCredential
+	// Redacting field: OldCredential
+	x.OldCredential = ``
 
-	// Safe field: NewCredential
+	// Redacting field: NewCredential
+	x.NewCredential = ``
 
 	// Safe field: NeedDecrypt
 	return x.String()
@@ -313,7 +319,8 @@ func (x *ResetCredentialRequest) Redact() string {
 
 	// Safe field: Identifier
 
-	// Safe field: NewCredential
+	// Redacting field: NewCredential
+	x.NewCredential = ``
 
 	// Safe field: NeedDecrypt
 	return x.String()

@@ -8,6 +8,8 @@ import "google/protobuf/timestamp.proto";
 import "google/api/annotations.proto";
 import "google/api/field_behavior.proto";
 
+import "redact/v3/redact.proto";
+
 import "authentication/service/v1/authentication.proto";
 
 // Multi-Factor Authentication (MFA) service: step-by-step enrollment, challenge/verification, management of enrolled credentials and backup codes
@@ -113,9 +115,9 @@ message StartEnrollMethodResponse {
 
 message TOTPResult {
   // base32 secret: only returned once during enrollment, server should only store hash/reference
-  string secret = 1 [json_name = "secret"];
+  string secret = 1 [(redact.v3.value).string = "", json_name = "secret"];
   string otp_auth_url = 2 [json_name = "otp_auth_url"];
-  string qr_code_data_uri = 3 [json_name = "qr_code_data_uri"];
+  string qr_code_data_uri = 3 [(redact.v3.value).string = "", json_name = "qr_code_data_uri"];
 }
 
 message SMSResult {
@@ -191,7 +193,7 @@ message VerifyMFAChallengeRequest {
 message VerifyMFAChallengeResponse {
   bool success = 1 [json_name = "success"];
   // Optional: one-time login token or session id (implementation optional)
-  optional string session_token = 2 [json_name = "session_token"];
+  optional string session_token = 2 [(redact.v3.value).string = "", json_name = "session_token"];
   // When verified during login flow, contains the full login response with JWT tokens
   optional authentication.service.v1.LoginResponse login_response = 3 [json_name = "login_response"];
 }
@@ -206,7 +208,7 @@ message GenerateBackupCodesRequest {
 }
 message GenerateBackupCodesResponse {
   // Plaintext backup codes: only returned once, client should prompt user to save
-  repeated string codes = 1 [json_name = "codes"];
+  repeated string codes = 1 [(redact.v3.value).element.item.string = "", json_name = "codes"];
   optional google.protobuf.Timestamp generated_at = 2 [json_name = "generated_at"];
 }
 message ListBackupCodesRequest {}
@@ -222,7 +224,7 @@ message RevokeMFADeviceRequest {
 }
 message SMSVerification {
   string verification_id = 1 [json_name = "verification_id"];
-  string code = 2 [json_name = "code"];
+  string code = 2 [(redact.v3.value).string = "", json_name = "code"];
 }
 message WebAuthnAssertion {
   string id = 1 [json_name = "id"];

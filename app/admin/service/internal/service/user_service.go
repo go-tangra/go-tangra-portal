@@ -65,8 +65,15 @@ func NewUserService(
 
 func (s *UserService) init() {
 	ctx := appViewer.NewSystemViewerContext(context.Background())
-	if count, _ := s.userRepo.Count(ctx); count == 0 {
-		_ = s.createDefaultUser(ctx)
+	count, err := s.userRepo.Count(ctx)
+	if err != nil {
+		s.log.Errorf("failed to count users during init: %v", err)
+		return
+	}
+	if count == 0 {
+		if err := s.createDefaultUser(ctx); err != nil {
+			s.log.Errorf("failed to create default user: %v", err)
+		}
 	}
 }
 
@@ -265,7 +272,9 @@ func (s *UserService) Get(ctx context.Context, req *userV1.GetUserRequest) (*use
 		return nil, err
 	}
 
-	_ = s.fillUserInfo(ctx, resp)
+	if err := s.fillUserInfo(ctx, resp); err != nil {
+		s.log.Warnf("failed to fill user info: %v", err)
+	}
 
 	return resp, nil
 }

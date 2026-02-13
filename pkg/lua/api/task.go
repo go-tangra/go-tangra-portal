@@ -139,9 +139,6 @@ func registerTaskHandler(L *lua.LState) int {
 	// This ensures the handler function remains available for execution
 	if globalTaskRegistry.engine != nil {
 		globalTaskRegistry.engine.MarkVMDedicated(L)
-		if globalTaskRegistry.logger != nil {
-			globalTaskRegistry.logger.Debugf("VM marked as dedicated for task handler: %s", name)
-		}
 	}
 
 	if globalTaskRegistry.logger != nil {

@@ -919,23 +919,23 @@ var File_authentication_service_v1_authentication_proto protoreflect.FileDescrip
 
 const file_authentication_service_v1_authentication_proto_rawDesc = "" +
 	"\n" +
-	".authentication/service/v1/authentication.proto\x12\x19authentication.service.v1\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1egoogle/protobuf/duration.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x16redact/v3/redact.proto\x1a\x1auser/service/v1/user.proto\x1a\x1auser/service/v1/role.proto\x1a*authentication/service/v1/user_token.proto\"\x83\f\n" +
+	".authentication/service/v1/authentication.proto\x12\x19authentication.service.v1\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1egoogle/protobuf/duration.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x16redact/v3/redact.proto\x1a\x1auser/service/v1/user.proto\x1a\x1auser/service/v1/role.proto\x1a*authentication/service/v1/user_token.proto\"\x96\f\n" +
 	"\fLoginRequest\x12\x98\x01\n" +
 	"\n" +
 	"grant_type\x18\x01 \x01(\x0e2$.authentication.service.v1.GrantTypeBR\xe0A\x02\xbaGL\x8a\x02\n" +
 	"\x1a\bpassword\x92\x02<Grant type, the value here is fixed as \"password\", required.R\n" +
 	"grant_type\x122\n" +
-	"\tclient_id\x18\x02 \x01(\tB\x0f\xbaG\f\x92\x02\tClient IDH\x00R\tclient_id\x88\x01\x01\x12>\n" +
-	"\rclient_secret\x18\x03 \x01(\tB\x13\xbaG\x10\x92\x02\rClient secretH\x01R\rclient_secret\x88\x01\x01\x12\x8f\x01\n" +
+	"\tclient_id\x18\x02 \x01(\tB\x0f\xbaG\f\x92\x02\tClient IDH\x00R\tclient_id\x88\x01\x01\x12D\n" +
+	"\rclient_secret\x18\x03 \x01(\tB\x19\xbaG\x10\x92\x02\rClient secretڶ\x1a\x02z\x00H\x01R\rclient_secret\x88\x01\x01\x12\x8f\x01\n" +
 	"\x05scope\x18\x04 \x01(\tBt\xbaGq\x92\x02nSpace-separated list of user-granted scopes. If not provided, any scope is authorized, defaults to empty list.H\x02R\x05scope\x88\x01\x01\x12;\n" +
 	"\fredirect_uri\x18\x05 \x01(\tB\x12\xbaG\x0f\x92\x02\fRedirect URIH\x03R\fredirect_uri\x88\x01\x01\x12/\n" +
 	"\busername\x18\n" +
 	" \x01(\tB\x0e\xbaG\v\x92\x02\bUsernameH\x04R\busername\x88\x01\x01\x12:\n" +
 	"\bpassword\x18\v \x01(\tB\x19\xbaG\x10\x92\x02\rUser passwordڶ\x1a\x02z\x00H\x05R\bpassword\x88\x01\x01\x12,\n" +
 	"\auser_id\x18\f \x01(\rB\r\xbaG\n" +
-	"\x92\x02\aUser IDH\x06R\auser_id\x88\x01\x01\x12\xd7\x02\n" +
-	"\rrefresh_token\x18\x14 \x01(\tB\xab\x02\xbaG\xa7\x02\x92\x02\xa3\x02Refresh token, used to obtain the next access token, optional. If the access token is about to expire, returning a refresh token is useful, as the application can use the refresh token to obtain another access token. However, tokens issued through implicit grant cannot issue refresh tokens.H\aR\rrefresh_token\x88\x01\x01\x12\x94\x01\n" +
-	"\x04code\x18\x1e \x01(\tB{\xbaGx\x92\x02uOne-time verification/authentication code received in the authorization request. (When using authorization code mode)H\bR\x04code\x88\x01\x01\x12_\n" +
+	"\x92\x02\aUser IDH\x06R\auser_id\x88\x01\x01\x12\xdd\x02\n" +
+	"\rrefresh_token\x18\x14 \x01(\tB\xb1\x02\xbaG\xa7\x02\x92\x02\xa3\x02Refresh token, used to obtain the next access token, optional. If the access token is about to expire, returning a refresh token is useful, as the application can use the refresh token to obtain another access token. However, tokens issued through implicit grant cannot issue refresh tokens.ڶ\x1a\x02z\x00H\aR\rrefresh_token\x88\x01\x01\x12\x9b\x01\n" +
+	"\x04code\x18\x1e \x01(\tB\x81\x01\xbaGx\x92\x02uOne-time verification/authentication code received in the authorization request. (When using authorization code mode)ڶ\x1a\x02z\x00H\bR\x04code\x88\x01\x01\x12_\n" +
 	"\vclient_type\x18( \x01(\x0e2%.authentication.service.v1.ClientTypeB\x11\xbaG\x0e\x92\x02\vClient typeH\tR\vclient_type\x88\x01\x01\x12\x8d\x01\n" +
 	"\tdevice_id\x182 \x01(\tBj\xbaGg\x92\x02dDevice unique identifier (optional), used for device binding, push notifications, risk control, etc.H\n" +
 	"R\tdevice_id\x88\x01\x01B\f\n" +
@@ -952,21 +952,21 @@ const file_authentication_service_v1_authentication_proto_rawDesc = "" +
 	"\x05_codeB\x0e\n" +
 	"\f_client_typeB\f\n" +
 	"\n" +
-	"_device_id\"\xc1\f\n" +
+	"_device_id\"\xda\f\n" +
 	"\rLoginResponse\x12\xc0\x01\n" +
 	"\n" +
 	"token_type\x18\x01 \x01(\x0e2$.authentication.service.v1.TokenTypeBz\xbaGw\x8a\x02\b\x1a\x06Bearer\x92\x02iToken type, case-insensitive, required, can be bearer type or mac type, usually just the string \"Bearer\".R\n" +
-	"token_type\x12}\n" +
-	"\faccess_token\x18\x02 \x01(\tBY\xbaGV\x92\x02SAccess token, required. The access token string issued by the authorization server.R\faccess_token\x12L\n" +
+	"token_type\x12\x83\x01\n" +
+	"\faccess_token\x18\x02 \x01(\tB_\xbaGV\x92\x02SAccess token, required. The access token string issued by the authorization server.ڶ\x1a\x02z\x00R\faccess_token\x12L\n" +
 	"\n" +
 	"expires_in\x18\x03 \x01(\x03B,\xbaG)\x92\x02&Access token expiration time (seconds)R\n" +
-	"expires_in\x12\xd7\x02\n" +
-	"\rrefresh_token\x18\x04 \x01(\tB\xab\x02\xbaG\xa7\x02\x92\x02\xa3\x02Refresh token, used to obtain the next access token, optional. If the access token is about to expire, returning a refresh token is useful, as the application can use the refresh token to obtain another access token. However, tokens issued through implicit grant cannot issue refresh tokens.H\x00R\rrefresh_token\x88\x01\x01\x12\x8f\x01\n" +
+	"expires_in\x12\xdd\x02\n" +
+	"\rrefresh_token\x18\x04 \x01(\tB\xb1\x02\xbaG\xa7\x02\x92\x02\xa3\x02Refresh token, used to obtain the next access token, optional. If the access token is about to expire, returning a refresh token is useful, as the application can use the refresh token to obtain another access token. However, tokens issued through implicit grant cannot issue refresh tokens.ڶ\x1a\x02z\x00H\x00R\rrefresh_token\x88\x01\x01\x12\x8f\x01\n" +
 	"\x05scope\x18\x05 \x01(\tBt\xbaGq\x92\x02nSpace-separated list of user-granted scopes. If not provided, any scope is authorized, defaults to empty list.H\x01R\x05scope\x88\x01\x01\x12b\n" +
-	"\x12refresh_expires_in\x18\x06 \x01(\x03B-\xbaG*\x92\x02'Refresh token expiration time (seconds)H\x02R\x12refresh_expires_in\x88\x01\x01\x12e\n" +
-	"\bid_token\x18\a \x01(\tBD\xbaGA\x92\x02>ID token, JWT format token defined in OpenID Connect extensionH\x03R\bid_token\x88\x01\x01\x12\x8b\x01\n" +
-	"\fmfa_required\x18\x1e \x01(\bBb\xbaG_\x92\x02\\If true, access_token is empty and the client must complete MFA verification using mfa_tokenH\x04R\fmfa_required\x88\x01\x01\x12\x81\x01\n" +
-	"\tmfa_token\x18\x1f \x01(\tB^\xbaG[\x92\x02XShort-lived token (5 min) for MFA verification flow. Present only when mfa_required=trueH\x05R\tmfa_token\x88\x01\x01\x12x\n" +
+	"\x12refresh_expires_in\x18\x06 \x01(\x03B-\xbaG*\x92\x02'Refresh token expiration time (seconds)H\x02R\x12refresh_expires_in\x88\x01\x01\x12k\n" +
+	"\bid_token\x18\a \x01(\tBJ\xbaGA\x92\x02>ID token, JWT format token defined in OpenID Connect extensionڶ\x1a\x02z\x00H\x03R\bid_token\x88\x01\x01\x12\x8b\x01\n" +
+	"\fmfa_required\x18\x1e \x01(\bBb\xbaG_\x92\x02\\If true, access_token is empty and the client must complete MFA verification using mfa_tokenH\x04R\fmfa_required\x88\x01\x01\x12\x87\x01\n" +
+	"\tmfa_token\x18\x1f \x01(\tBd\xbaG[\x92\x02XShort-lived token (5 min) for MFA verification flow. Present only when mfa_required=trueڶ\x1a\x02z\x00H\x05R\tmfa_token\x88\x01\x01\x12x\n" +
 	"\vmfa_methods\x18  \x03(\tBV\xbaGS\x92\x02PList of enrolled MFA methods available for verification (e.g. TOTP, BACKUP_CODE)R\vmfa_methodsB\x10\n" +
 	"\x0e_refresh_tokenB\b\n" +
 	"\x06_scopeB\x15\n" +
@@ -979,21 +979,21 @@ const file_authentication_service_v1_authentication_proto_rawDesc = "" +
 	"\auser_id\x18\x01 \x01(\rB\r\xbaG\n" +
 	"\x92\x02\aUser IDR\x06userId\x12Y\n" +
 	"\vclient_type\x18\x02 \x01(\x0e2%.authentication.service.v1.ClientTypeB\x11\xbaG\x0e\x92\x02\vClient typeR\n" +
-	"clientType\"\xbf\x03\n" +
+	"clientType\"\xc5\x03\n" +
 	"\x14ValidateTokenRequest\x12&\n" +
 	"\auser_id\x18\x01 \x01(\rB\r\xbaG\n" +
-	"\x92\x02\aUser IDR\x06userId\x12!\n" +
-	"\x05token\x18\x02 \x01(\tB\v\xbaG\b\x92\x02\x05TokenR\x05token\x12Y\n" +
+	"\x92\x02\aUser IDR\x06userId\x12'\n" +
+	"\x05token\x18\x02 \x01(\tB\x11\xbaG\b\x92\x02\x05Tokenڶ\x1a\x02z\x00R\x05token\x12Y\n" +
 	"\vclient_type\x18\x03 \x01(\x0e2%.authentication.service.v1.ClientTypeB\x11\xbaG\x0e\x92\x02\vClient typeR\n" +
 	"clientType\x12\x80\x02\n" +
 	"\x0etoken_category\x18\x04 \x01(\x0e2(.authentication.service.v1.TokenCategoryB\xae\x01\xbaG\xaa\x01\x92\x02\xa6\x01Expected token category to validate: ACCESS=access token, REFRESH=refresh token. If not specified, the server may try to infer the handling method based on the token.R\rtokenCategory\"\xc0\x01\n" +
 	"\x15ValidateTokenResponse\x12;\n" +
 	"\bis_valid\x18\x01 \x01(\bB \xbaG\x1d\x92\x02\x1aWhether the token is validR\aisValid\x12`\n" +
 	"\x05claim\x18\x02 \x01(\v2+.authentication.service.v1.UserTokenPayloadB\x18\xbaG\x15\x92\x02\x12User token payloadH\x00R\x05claim\x88\x01\x01B\b\n" +
-	"\x06_claim\"\xe1\x01\n" +
+	"\x06_claim\"\xe7\x01\n" +
 	"\x13RegisterUserRequest\x12*\n" +
-	"\busername\x18\x01 \x01(\tB\x0e\xbaG\v\x92\x02\bUsernameR\busername\x120\n" +
-	"\bpassword\x18\x02 \x01(\tB\x14\xbaG\x11\x92\x02\x0eLogin passwordR\bpassword\x122\n" +
+	"\busername\x18\x01 \x01(\tB\x0e\xbaG\v\x92\x02\bUsernameR\busername\x126\n" +
+	"\bpassword\x18\x02 \x01(\tB\x1a\xbaG\x11\x92\x02\x0eLogin passwordڶ\x1a\x02z\x00R\bpassword\x122\n" +
 	"\vtenant_code\x18\x03 \x01(\tB\x11\xbaG\x0e\x92\x02\vTenant codeR\n" +
 	"tenantCode\x12.\n" +
 	"\x05email\x18\x04 \x01(\tB\x13\xbaG\x10\x92\x02\rEmail addressH\x00R\x05email\x88\x01\x01B\b\n" +
@@ -1008,9 +1008,9 @@ const file_authentication_service_v1_authentication_proto_rawDesc = "" +
 	"\auser_id\x18\x01 \x01(\rB\r\xbaG\n" +
 	"\x92\x02\aUser IDR\x06userId\x12Y\n" +
 	"\vclient_type\x18\x02 \x01(\x0e2%.authentication.service.v1.ClientTypeB\x11\xbaG\x0e\x92\x02\vClient typeR\n" +
-	"clientType\"W\n" +
-	"\x17GetAccessTokensResponse\x12<\n" +
-	"\raccess_tokens\x18\x01 \x03(\tB\x17\xbaG\x14\x92\x02\x11Access token listR\faccessTokens*j\n" +
+	"clientType\"b\n" +
+	"\x17GetAccessTokensResponse\x12G\n" +
+	"\raccess_tokens\x18\x01 \x03(\tB\"\xbaG\x14\x92\x02\x11Access token listڶ\x1a\a\xa2\x01\x04\x1a\x02z\x00R\faccessTokens*j\n" +
 	"\tGrantType\x12\f\n" +
 	"\bpassword\x10\x00\x12\x16\n" +
 	"\x12client_credentials\x10\x01\x12\x16\n" +

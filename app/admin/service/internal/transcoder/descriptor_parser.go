@@ -120,7 +120,9 @@ func (p *DescriptorParser) registerTypes(types *protoregistry.Types, fd protoref
 	enums := fd.Enums()
 	for i := 0; i < enums.Len(); i++ {
 		ed := enums.Get(i)
-		_ = types.RegisterEnum(dynamicEnumType{ed})
+		if err := types.RegisterEnum(dynamicEnumType{ed}); err != nil {
+			p.log.Warnf("Failed to register enum type %s: %v", ed.FullName(), err)
+		}
 	}
 }
 
@@ -165,7 +167,9 @@ func (d dynamicMessageType) Descriptor() protoreflect.MessageDescriptor {
 
 // registerMessage recursively registers a message and its nested types
 func (p *DescriptorParser) registerMessage(types *protoregistry.Types, md protoreflect.MessageDescriptor) {
-	_ = types.RegisterMessage(dynamicMessageType{md})
+	if err := types.RegisterMessage(dynamicMessageType{md}); err != nil {
+		p.log.Warnf("Failed to register message type %s: %v", md.FullName(), err)
+	}
 
 	// Register nested messages
 	nested := md.Messages()
@@ -176,7 +180,9 @@ func (p *DescriptorParser) registerMessage(types *protoregistry.Types, md protor
 	// Register nested enums
 	enums := md.Enums()
 	for i := 0; i < enums.Len(); i++ {
-		_ = types.RegisterEnum(dynamicEnumType{enums.Get(i)})
+		if err := types.RegisterEnum(dynamicEnumType{enums.Get(i)}); err != nil {
+			p.log.Warnf("Failed to register nested enum type %s: %v", enums.Get(i).FullName(), err)
+		}
 	}
 }
 

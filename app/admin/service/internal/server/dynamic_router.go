@@ -153,14 +153,12 @@ func (dr *DynamicRouter) authenticateRequest(r *http.Request) *http.Request {
 	}
 
 	token := authHeader[7:]
-	dr.log.Debugf("Authenticating token (length=%d) for %s %s", len(token), r.Method, r.URL.Path)
 	claims, err := dr.authenticator.AuthenticateToken(token)
 	if err != nil {
 		dr.log.Warnf("Failed to authenticate token for module request: %v", err)
 		return r
 	}
 
-	dr.log.Debugf("Successfully authenticated token, setting claims in context")
 	ctx := authnEngine.ContextWithAuthClaims(r.Context(), claims)
 	return r.WithContext(ctx)
 }
@@ -198,7 +196,9 @@ func (dr *DynamicRouter) writeError(w http.ResponseWriter, code int, format stri
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(code)
-	_, _ = w.Write([]byte(fmt.Sprintf(`{"code":%d,"message":"%s"}`, code, msg)))
+	if _, err := w.Write([]byte(fmt.Sprintf(`{"code":%d,"message":"%s"}`, code, msg))); err != nil {
+		dr.log.Warnf("Failed to write HTTP error response: %v", err)
+	}
 }
 
 // ListRegisteredModules returns a list of all modules with registered handlers

@@ -268,7 +268,7 @@ func (r *ApiRepo) Update(ctx context.Context, req *permissionV1.UpdateApiRequest
 		}
 	}
 
-	builder := r.entClient.Client().Debug().Api.Update()
+	builder := r.entClient.Client().Api.Update()
 	err := r.repository.UpdateX(ctx, builder, req.Data, req.GetUpdateMask(),
 		func(dto *permissionV1.Api) {
 			builder.
@@ -295,7 +295,7 @@ func (r *ApiRepo) Delete(ctx context.Context, req *permissionV1.DeleteApiRequest
 		return permissionV1.ErrorBadRequest("invalid parameter")
 	}
 
-	builder := r.entClient.Client().Debug().Api.Delete()
+	builder := r.entClient.Client().Api.Delete()
 
 	_, err := r.repository.Delete(ctx, builder, func(s *sql.Selector) {
 		s.Where(sql.EQ(api.FieldID, req.GetId()))
@@ -391,8 +391,7 @@ func (r *ApiRepo) UpsertAPI(ctx context.Context, data *permissionV1.Api) (*ent.A
 			r.log.Errorf("update API (id=%d) failed: %s", existing.ID, err.Error())
 			return nil, permissionV1.ErrorInternalServerError("update API failed")
 		}
-		r.log.Debugf("updated API (id=%d, module=%s, path=%s, method=%s)", updated.ID, data.GetModule(), data.GetPath(), data.GetMethod())
-		return updated, nil
+			return updated, nil
 	}
 
 	// Create new with OnConflict for atomic upsert
@@ -444,7 +443,6 @@ func (r *ApiRepo) UpsertAPI(ctx context.Context, data *permissionV1.Api) (*ent.A
 		r.log.Errorf("fetch API after upsert (id=%d) failed: %s", id, err.Error())
 		return nil, permissionV1.ErrorInternalServerError("fetch API failed")
 	}
-	r.log.Debugf("upserted API (id=%d, module=%s, path=%s, method=%s)", result.ID, data.GetModule(), data.GetPath(), data.GetMethod())
 	return result, nil
 }
 

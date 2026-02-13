@@ -38,7 +38,15 @@ type WriteApiLogFunc func(ctx context.Context, data *auditV1.ApiAuditLog) error
 // maxAuditBodySize limits the request body captured for audit logging.
 const maxAuditBodySize = 4096
 
-var auditGeoIPClient, _ = geolite.NewClient()
+var auditGeoIPClient *geolite.Client
+
+func init() {
+	var err error
+	auditGeoIPClient, err = geolite.NewClient()
+	if err != nil {
+		log.Warnf("Failed to initialize audit GeoIP client: %v", err)
+	}
+}
 
 // SetWriteApiLogFunc configures the audit log writer function.
 func (t *Transcoder) SetWriteApiLogFunc(fn WriteApiLogFunc) {
@@ -50,8 +58,14 @@ func bufferRequestBody(r *http.Request) []byte {
 	if r.Body == nil {
 		return nil
 	}
-	bodyBytes, _ := io.ReadAll(r.Body)
-	_ = r.Body.Close()
+	bodyBytes, err := io.ReadAll(r.Body)
+	if err != nil {
+		log.Warnf("Failed to read request body for audit: %v", err)
+		return nil
+	}
+	if err := r.Body.Close(); err != nil {
+		log.Warnf("Failed to close request body: %v", err)
+	}
 	r.Body = io.NopCloser(bytes.NewReader(bodyBytes))
 	if len(bodyBytes) > maxAuditBodySize {
 		return bodyBytes[:maxAuditBodySize]

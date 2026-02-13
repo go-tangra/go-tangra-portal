@@ -101,7 +101,6 @@ func RegisterEventBus(L *lua.LState, manager *eventbus.Manager, logger *log.Help
 				return 2
 			}
 
-			logger.Debugf("Subscribed Lua handler for event type: %s (bus: %s)", eventType, busName)
 			L.Push(lua.LBool(true))
 			return 1
 		}))
@@ -128,7 +127,6 @@ func RegisterEventBus(L *lua.LState, manager *eventbus.Manager, logger *log.Help
 				return 2
 			}
 
-			logger.Debugf("Subscribed async Lua handler for event type: %s (bus: %s)", eventType, busName)
 			L.Push(lua.LBool(true))
 			return 1
 		}))
@@ -155,7 +153,6 @@ func RegisterEventBus(L *lua.LState, manager *eventbus.Manager, logger *log.Help
 				return 2
 			}
 
-			logger.Debugf("Subscribed once Lua handler for event type: %s (bus: %s)", eventType, busName)
 			L.Push(lua.LBool(true))
 			return 1
 		}))
@@ -226,7 +223,6 @@ func RegisterEventBus(L *lua.LState, manager *eventbus.Manager, logger *log.Help
 				return 2
 			}
 
-			logger.Debugf("Published event: %s (bus: %s)", event.Type, busName)
 			L.Push(lua.LBool(true))
 			return 1
 		}))
@@ -251,7 +247,6 @@ func RegisterEventBus(L *lua.LState, manager *eventbus.Manager, logger *log.Help
 				return 2
 			}
 
-			logger.Debugf("Published async event: %s (bus: %s)", event.Type, busName)
 			L.Push(lua.LBool(true))
 			return 1
 		}))

@@ -29,9 +29,6 @@ func NewEntClient(ctx *bootstrap.Context) (*entCrud.EntClient[*ent.Client], func
 	cli := entBootstrap.NewEntClient(cfg, func(drv *sql.Driver) *ent.Client {
 		client := ent.NewClient(
 			ent.Driver(drv),
-			ent.Log(func(a ...any) {
-				l.Debug(a...)
-			}),
 		)
 		if client == nil {
 			l.Fatalf("failed creating ent client")

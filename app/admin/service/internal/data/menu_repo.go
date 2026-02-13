@@ -242,7 +242,7 @@ func (r *MenuRepo) Update(ctx context.Context, req *permissionV1.UpdateMenuReque
 		}
 	}
 
-	builder := r.entClient.Client().Debug().Menu.Update()
+	builder := r.entClient.Client().Menu.Update()
 	err := r.repository.UpdateX(ctx, builder, req.Data, req.GetUpdateMask(),
 		func(dto *permissionV1.Menu) {
 			builder.
@@ -309,7 +309,7 @@ func (r *MenuRepo) Delete(ctx context.Context, req *permissionV1.DeleteMenuReque
 		idsAny[i] = id
 	}
 
-	builder := r.entClient.Client().Debug().Menu.Delete()
+	builder := r.entClient.Client().Menu.Delete()
 
 	_, err = r.repository.Delete(ctx, builder, func(s *sql.Selector) {
 		s.Where(sql.In(menu.FieldID, idsAny...))

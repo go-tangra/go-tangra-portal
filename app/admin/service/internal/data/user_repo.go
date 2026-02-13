@@ -316,7 +316,7 @@ func (r *userRepo) List(ctx context.Context, req *paginationV1.PagingRequest) (*
 		return nil, userV1.ErrorBadRequest("invalid parameter")
 	}
 
-	builder := r.entClient.Client().Debug().User.Query()
+	builder := r.entClient.Client().User.Query()
 
 	filterExpr, err := r.repository.ConvertFilterByPagingRequest(req)
 	if err != nil {
@@ -334,8 +334,6 @@ func (r *userRepo) List(ctx context.Context, req *paginationV1.PagingRequest) (*
 	var positionIDs []uint32
 	var roleIDs []uint32
 	for _, cond := range excludeConditions {
-		//r.log.Debugf("excluding filter condition: field=%s operator=%s value=%v", cond.GetField(), cond.GetOp(), cond.GetValue())
-
 		var val uint64
 		switch cond.GetField() {
 		case "org_unit_id":
@@ -392,8 +390,6 @@ func (r *userRepo) List(ctx context.Context, req *paginationV1.PagingRequest) (*
 		return nil, err
 	}
 
-	//r.log.Debugf("filtered user ids by relation ids: [%v] [%v] [%v] [%v]", roleIDs, orgUnitIDs, positionIDs, mergedUserIDs)
-
 	hasRelationFilter := len(roleIDs) > 0 || len(orgUnitIDs) > 0 || len(positionIDs) > 0
 	if hasRelationFilter && len(mergedUserIDs) == 0 {
 		// 如果有关系过滤条件但没有匹配的用户ID，直接返回空结果
@@ -439,7 +435,6 @@ func (r *userRepo) List(ctx context.Context, req *paginationV1.PagingRequest) (*
 		item.PositionIds = positionIDs
 		item.OrgUnitIds = orgUnitIDs
 
-		//r.log.Debugf("user id=%d role_ids=%v position_ids=%v org_unit_ids=%v", item.GetId(), roleIDs, positionIDs, orgUnitIDs)
 	}
 
 	return resp, nil
@@ -858,7 +853,6 @@ func (r *userRepo) assignUserRelations(ctx context.Context, tx *ent.Tx,
 	}
 	if len(orgUnitIDs) > 0 {
 		orgUnitIDs = slice.Unique(orgUnitIDs)
-		//r.log.Debugf("assigning org unit ids: %v", orgUnitIDs)
 		var userOrgUnits []*userV1.UserOrgUnit
 		for _, orgUnitID := range orgUnitIDs {
 			userOrgUnits = append(userOrgUnits, &userV1.UserOrgUnit{
@@ -876,7 +870,6 @@ func (r *userRepo) assignUserRelations(ctx context.Context, tx *ent.Tx,
 	}
 	if len(positionIDs) > 0 {
 		positionIDs = slice.Unique(positionIDs)
-		//r.log.Debugf("assigning position ids: %v", positionIDs)
 		var userPositions []*userV1.UserPosition
 		for _, positionID := range positionIDs {
 			userPositions = append(userPositions, &userV1.UserPosition{

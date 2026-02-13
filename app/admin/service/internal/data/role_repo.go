@@ -132,7 +132,9 @@ func (r *RoleRepo) List(ctx context.Context, req *paginationV1.PagingRequest) (*
 	}
 
 	for _, item := range ret.Items {
-		_ = r.fillPermissionIDs(ctx, item)
+		if err := r.fillPermissionIDs(ctx, item); err != nil {
+		r.log.Warnf("failed to fill permission IDs for role %d: %v", item.GetId(), err)
+	}
 	}
 
 	return &userV1.ListRoleResponse{
@@ -173,7 +175,9 @@ func (r *RoleRepo) ListRolesByRoleCodes(ctx context.Context, codes []string) ([]
 	}
 
 	for _, item := range dtos {
-		_ = r.fillPermissionIDs(ctx, item)
+		if err := r.fillPermissionIDs(ctx, item); err != nil {
+		r.log.Warnf("failed to fill permission IDs for role %d: %v", item.GetId(), err)
+	}
 	}
 
 	return dtos, nil
@@ -200,7 +204,9 @@ func (r *RoleRepo) ListRolesByRoleIds(ctx context.Context, ids []uint32) ([]*use
 	}
 
 	for _, item := range dtos {
-		_ = r.fillPermissionIDs(ctx, item)
+		if err := r.fillPermissionIDs(ctx, item); err != nil {
+		r.log.Warnf("failed to fill permission IDs for role %d: %v", item.GetId(), err)
+	}
 	}
 
 	return dtos, nil

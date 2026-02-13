@@ -2,6 +2,7 @@ package logging
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	"github.com/go-kratos/kratos/v2/middleware"
@@ -22,7 +23,11 @@ func Server(opts ...Option) middleware.Middleware {
 	}
 
 	if op.ecPrivateKey == nil || op.ecPublicKey == nil {
-		op.ecPrivateKey, op.ecPublicKey, _ = generateECDSAKeyPair()
+		var err error
+		op.ecPrivateKey, op.ecPublicKey, err = generateECDSAKeyPair()
+		if err != nil {
+			panic(fmt.Sprintf("failed to generate ECDSA key pair for audit logging: %v", err))
+		}
 	}
 
 	loginAuditLogMiddleware := NewLoginAuditLogMiddleware(&op)

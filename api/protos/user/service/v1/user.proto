@@ -241,6 +241,7 @@ message CreateUserRequest {
   User data = 1;
 
   optional string password = 2 [
+    (redact.v3.value).string = "",
     (gnostic.openapi.v3.property) = {description: "User login password", read_only: true},
     json_name = "password"
   ]; // User login password
@@ -257,6 +258,7 @@ message UpdateUserRequest {
   ]; // User data
 
   optional string password = 3 [
+    (redact.v3.value).string = "",
     (gnostic.openapi.v3.property) = {description: "User login password", read_only: true},
     json_name = "password"
   ]; // User login password
@@ -335,6 +337,7 @@ message EditUserPasswordRequest {
   ]; // User ID
 
   string new_password = 2 [
+    (redact.v3.value).string = "",
     json_name = "newPassword",
     (gnostic.openapi.v3.property) = {
       description: "New password"
@@ -346,6 +349,7 @@ message EditUserPasswordRequest {
 // Change user password (requires old password verification) - Request
 message ChangePasswordRequest {
   string old_password = 1 [
+    (redact.v3.value).string = "",
     json_name = "oldPassword",
     (gnostic.openapi.v3.property) = {
       description: "Old password"
@@ -353,6 +357,7 @@ message ChangePasswordRequest {
   ]; // Old password
 
   string new_password = 2 [
+    (redact.v3.value).string = "",
     json_name = "newPassword",
     (gnostic.openapi.v3.property) = {
       description: "New password"

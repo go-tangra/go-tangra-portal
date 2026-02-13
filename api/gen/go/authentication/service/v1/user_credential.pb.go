@@ -8,6 +8,7 @@ package authenticationpb
 
 import (
 	_ "github.com/google/gnostic/openapiv3"
+	_ "github.com/menta2k/protoc-gen-redact/v3/redact/v3"
 	v1 "github.com/tx7do/go-crud/api/gen/go/pagination/v1"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
@@ -1067,7 +1068,7 @@ var File_authentication_service_v1_user_credential_proto protoreflect.FileDescri
 
 const file_authentication_service_v1_user_credential_proto_rawDesc = "" +
 	"\n" +
-	"/authentication/service/v1/user_credential.proto\x12\x19authentication.service.v1\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a google/protobuf/field_mask.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1epagination/v1/pagination.proto\"\xf7\x18\n" +
+	"/authentication/service/v1/user_credential.proto\x12\x19authentication.service.v1\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a google/protobuf/field_mask.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x16redact/v3/redact.proto\x1a\x1epagination/v1/pagination.proto\"\xfd\x18\n" +
 	"\x0eUserCredential\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\rR\x02id\x12J\n" +
 	"\auser_id\x18\x02 \x01(\rB,\xbaG)\x92\x02&User ID associated with the main tableH\x00R\x06userId\x88\x01\x01\x121\n" +
@@ -1077,9 +1078,9 @@ const file_authentication_service_v1_user_credential_proto_rawDesc = "" +
 	"\n" +
 	"identifier\x18\v \x01(\tB\xe3\x01\xbaG\xdf\x01\x92\x02\xdb\x01Identity unique identifier, if password login then username; if email login then email address; if phone login then phone number; if third-party platform login then the unique ID from that platform (e.g., WeChat OpenID)H\x03R\n" +
 	"identifier\x88\x01\x01\x12\xbc\x01\n" +
-	"\x0fcredential_type\x18\x14 \x01(\x0e28.authentication.service.v1.UserCredential.CredentialTypeBT\xbaGQ\x92\x02NCredential type, such as encrypted password, access token, refresh token, etc.H\x04R\x0ecredentialType\x88\x01\x01\x12\x80\x02\n" +
+	"\x0fcredential_type\x18\x14 \x01(\x0e28.authentication.service.v1.UserCredential.CredentialTypeBT\xbaGQ\x92\x02NCredential type, such as encrypted password, access token, refresh token, etc.H\x04R\x0ecredentialType\x88\x01\x01\x12\x86\x02\n" +
 	"\n" +
-	"credential\x18\x15 \x01(\tB\xda\x01\xbaG\xd6\x01\x92\x02\xd2\x01Credential, if password login then password hash; if email login then email verification code; if phone login then phone verification code; if third-party platform login then the access_token from that platformH\x05R\n" +
+	"credential\x18\x15 \x01(\tB\xe0\x01\xbaG\xd6\x01\x92\x02\xd2\x01Credential, if password login then password hash; if email login then email verification code; if phone login then phone verification code; if third-party platform login then the access_token from that platformڶ\x1a\x02z\x00H\x05R\n" +
 	"credential\x88\x01\x01\x12\xb9\x01\n" +
 	"\n" +
 	"is_primary\x18\x1e \x01(\bB\x94\x01\xbaG\x90\x01\x92\x02\x8c\x01Whether primary authentication method, if user has both email and phone bound, email can be designated as the primary authentication method.H\x06R\tisPrimary\x88\x01\x01\x12f\n" +
@@ -1195,33 +1196,33 @@ const file_authentication_service_v1_user_credential_proto_rawDesc = "" +
 	"\ridentity_type\x18\x01 \x01(\x0e26.authentication.service.v1.UserCredential.IdentityTypeB\x13\xbaG\x10\x92\x02\rIdentity typeR\fidentityType\x12@\n" +
 	"\n" +
 	"identifier\x18\x02 \x01(\tB \xbaG\x1d\x92\x02\x1aIdentity unique identifierR\n" +
-	"identifier\"\xc6\x02\n" +
+	"identifier\"\xcc\x02\n" +
 	"\x17VerifyCredentialRequest\x12p\n" +
 	"\ridentity_type\x18\x01 \x01(\x0e26.authentication.service.v1.UserCredential.IdentityTypeB\x13\xbaG\x10\x92\x02\rIdentity typeR\fidentityType\x12@\n" +
 	"\n" +
 	"identifier\x18\x02 \x01(\tB \xbaG\x1d\x92\x02\x1aIdentity unique identifierR\n" +
-	"identifier\x120\n" +
+	"identifier\x126\n" +
 	"\n" +
-	"credential\x18\x03 \x01(\tB\x10\xbaG\r\x92\x02\n" +
-	"CredentialR\n" +
+	"credential\x18\x03 \x01(\tB\x16\xbaG\r\x92\x02\n" +
+	"Credentialڶ\x1a\x02z\x00R\n" +
 	"credential\x12E\n" +
 	"\fneed_decrypt\x18\x04 \x01(\bB\"\xbaG\x1f\x92\x02\x1cWhether decryption is neededR\vneedDecrypt\"4\n" +
 	"\x18VerifyCredentialResponse\x12\x18\n" +
-	"\asuccess\x18\x01 \x01(\bR\asuccess\"\x8e\x03\n" +
+	"\asuccess\x18\x01 \x01(\bR\asuccess\"\x9a\x03\n" +
 	"\x17ChangeCredentialRequest\x12p\n" +
 	"\ridentity_type\x18\x01 \x01(\x0e26.authentication.service.v1.UserCredential.IdentityTypeB\x13\xbaG\x10\x92\x02\rIdentity typeR\fidentityType\x12@\n" +
 	"\n" +
 	"identifier\x18\x02 \x01(\tB \xbaG\x1d\x92\x02\x1aIdentity unique identifierR\n" +
-	"identifier\x12;\n" +
-	"\x0eold_credential\x18\x03 \x01(\tB\x14\xbaG\x11\x92\x02\x0eOld credentialR\roldCredential\x12;\n" +
-	"\x0enew_credential\x18\x04 \x01(\tB\x14\xbaG\x11\x92\x02\x0eNew credentialR\rnewCredential\x12E\n" +
-	"\fneed_decrypt\x18\x05 \x01(\bB\"\xbaG\x1f\x92\x02\x1cWhether decryption is neededR\vneedDecrypt\"\xd0\x02\n" +
+	"identifier\x12A\n" +
+	"\x0eold_credential\x18\x03 \x01(\tB\x1a\xbaG\x11\x92\x02\x0eOld credentialڶ\x1a\x02z\x00R\roldCredential\x12A\n" +
+	"\x0enew_credential\x18\x04 \x01(\tB\x1a\xbaG\x11\x92\x02\x0eNew credentialڶ\x1a\x02z\x00R\rnewCredential\x12E\n" +
+	"\fneed_decrypt\x18\x05 \x01(\bB\"\xbaG\x1f\x92\x02\x1cWhether decryption is neededR\vneedDecrypt\"\xd6\x02\n" +
 	"\x16ResetCredentialRequest\x12p\n" +
 	"\ridentity_type\x18\x01 \x01(\x0e26.authentication.service.v1.UserCredential.IdentityTypeB\x13\xbaG\x10\x92\x02\rIdentity typeR\fidentityType\x12@\n" +
 	"\n" +
 	"identifier\x18\x02 \x01(\tB \xbaG\x1d\x92\x02\x1aIdentity unique identifierR\n" +
-	"identifier\x12;\n" +
-	"\x0enew_credential\x18\x03 \x01(\tB\x14\xbaG\x11\x92\x02\x0eNew credentialR\rnewCredential\x12E\n" +
+	"identifier\x12A\n" +
+	"\x0enew_credential\x18\x03 \x01(\tB\x1a\xbaG\x11\x92\x02\x0eNew credentialڶ\x1a\x02z\x00R\rnewCredential\x12E\n" +
 	"\fneed_decrypt\x18\x04 \x01(\bB\"\xbaG\x1f\x92\x02\x1cWhether decryption is neededR\vneedDecrypt2\xb2\a\n" +
 	"\x15UserCredentialService\x12Z\n" +
 	"\x04List\x12\x19.pagination.PagingRequest\x1a5.authentication.service.v1.ListUserCredentialResponse\"\x00\x12g\n" +

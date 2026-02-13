@@ -244,7 +244,9 @@ func (x *CreateUserRequest) Redact() string {
 
 	// Safe field: Data
 
-	// Safe field: Password
+	// Redacting field: Password
+	PasswordTmp := ``
+	x.Password = &PasswordTmp
 	return x.String()
 }
 
@@ -258,7 +260,9 @@ func (x *UpdateUserRequest) Redact() string {
 
 	// Safe field: Data
 
-	// Safe field: Password
+	// Redacting field: Password
+	PasswordTmp := ``
+	x.Password = &PasswordTmp
 
 	// Safe field: UpdateMask
 
@@ -338,7 +342,8 @@ func (x *EditUserPasswordRequest) Redact() string {
 
 	// Safe field: UserId
 
-	// Safe field: NewPassword
+	// Redacting field: NewPassword
+	x.NewPassword = ``
 	return x.String()
 }
 
@@ -348,9 +353,11 @@ func (x *ChangePasswordRequest) Redact() string {
 		return ""
 	}
 
-	// Safe field: OldPassword
+	// Redacting field: OldPassword
+	x.OldPassword = ``
 
-	// Safe field: NewPassword
+	// Redacting field: NewPassword
+	x.NewPassword = ``
 	return x.String()
 }
 

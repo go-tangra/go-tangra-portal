@@ -126,7 +126,7 @@ func (r *DataAccessAuditLogRepo) Get(ctx context.Context, req *auditV1.GetDataAc
 		return nil, adminV1.ErrorBadRequest("invalid parameter")
 	}
 
-	builder := r.entClient.Client().Debug().DataAccessAuditLog.Query()
+	builder := r.entClient.Client().DataAccessAuditLog.Query()
 
 	var whereCond []func(s *sql.Selector)
 	switch req.QueryBy.(type) {

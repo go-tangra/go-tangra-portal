@@ -216,16 +216,22 @@ func (s *InternalMessageService) SendMessage(ctx context.Context, req *internalM
 			s.log.Errorf("send message failed, list users failed, %s", err)
 		} else {
 			for _, user := range users.Items {
-				_ = s.sendNotification(ctx, msg.GetId(), user.GetId(), operator.GetUserId(), &now, msg.GetTitle(), msg.GetContent())
+				if err := s.sendNotification(ctx, msg.GetId(), user.GetId(), operator.GetUserId(), &now, msg.GetTitle(), msg.GetContent()); err != nil {
+					s.log.Warnf("failed to send notification to user %d: %v", user.GetId(), err)
+				}
 			}
 		}
 	} else {
 		if req.RecipientUserId != nil {
-			_ = s.sendNotification(ctx, msg.GetId(), req.GetRecipientUserId(), operator.GetUserId(), &now, msg.GetTitle(), msg.GetContent())
+			if err := s.sendNotification(ctx, msg.GetId(), req.GetRecipientUserId(), operator.GetUserId(), &now, msg.GetTitle(), msg.GetContent()); err != nil {
+				s.log.Warnf("failed to send notification to user %d: %v", req.GetRecipientUserId(), err)
+			}
 		} else {
 			if len(req.TargetUserIds) != 0 {
 				for _, uid := range req.TargetUserIds {
-					_ = s.sendNotification(ctx, msg.GetId(), uid, operator.GetUserId(), &now, msg.GetTitle(), msg.GetContent())
+					if err := s.sendNotification(ctx, msg.GetId(), uid, operator.GetUserId(), &now, msg.GetTitle(), msg.GetContent()); err != nil {
+						s.log.Warnf("failed to send notification to user %d: %v", uid, err)
+					}
 				}
 			}
 		}

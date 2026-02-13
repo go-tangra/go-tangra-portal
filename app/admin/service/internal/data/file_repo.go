@@ -222,7 +222,7 @@ func (r *FileRepo) Update(ctx context.Context, req *fileV1.UpdateFileRequest) er
 		}
 	}
 
-	builder := r.entClient.Client().Debug().File.Update()
+	builder := r.entClient.Client().File.Update()
 	err := r.repository.UpdateX(ctx, builder, req.Data, req.GetUpdateMask(),
 		func(dto *fileV1.File) {
 			builder.

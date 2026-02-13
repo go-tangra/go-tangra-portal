@@ -115,9 +115,6 @@ func (a *Authorizer) ResetPolicies(ctx context.Context) error {
 		return err
 	}
 
-	//a.log.Debugf("roles [%d] apis [%d]", len(roles.Items), len(apis.Items))
-	//a.log.Debugf("Generating policies for engine: %s", a.engine.Name())
-
 	var policies authzEngine.PolicyMap
 
 	switch a.engine.Name() {
@@ -141,8 +138,6 @@ func (a *Authorizer) ResetPolicies(ctx context.Context) error {
 		a.log.Warnf(err.Error())
 		return err
 	}
-
-	//a.log.Debugf("***************** policy rules len: %v", len(policies))
 
 	if err = a.engine.SetPolicies(ctx, policies, nil); err != nil {
 		a.log.Errorf("set policies error: %v", err)
@@ -196,7 +191,6 @@ func (a *Authorizer) generateOpaPolicies(data AuthorizerDataMap) (authzEngine.Po
 				Method:  api.Method,
 			})
 
-			//a.log.Debugf("OPA Policy - Role: [%s], Path: [%s], Method: [%s]", roleCode, api.Path, api.Method)
 		}
 
 		policies[roleCode] = paths

@@ -146,7 +146,9 @@ func (s *TaskService) Delete(ctx context.Context, req *taskV1.DeleteTaskRequest)
 	}
 
 	if t != nil {
-		_ = s.stopTask(t)
+		if err := s.stopTask(t); err != nil {
+			s.log.Warnf("failed to stop task %s on delete: %v", t.GetTypeName(), err)
+		}
 	}
 
 	return &emptypb.Empty{}, nil
@@ -279,7 +281,9 @@ func (s *TaskService) convertTaskOption(t *taskV1.Task) (opts []asynq.Option, pa
 	}
 
 	if len(t.GetTaskPayload()) > 0 {
-		_ = json.Unmarshal([]byte(t.GetTaskPayload()), &payload)
+		if err := json.Unmarshal([]byte(t.GetTaskPayload()), &payload); err != nil {
+			s.log.Warnf("failed to unmarshal task payload for %s: %v", t.GetTypeName(), err)
+		}
 	}
 
 	if t.TaskOptions != nil {

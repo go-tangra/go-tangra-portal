@@ -2,6 +2,8 @@ package eventbus
 
 import (
 	"context"
+	"fmt"
+	"os"
 )
 
 // EventHandler is a function that handles an event
@@ -33,7 +35,9 @@ func NewAsyncHandler(handler Handler) *AsyncHandler {
 // Handle executes the handler asynchronously
 func (h *AsyncHandler) Handle(ctx context.Context, event *Event) error {
 	go func() {
-		_ = h.handler.Handle(ctx, event)
+		if err := h.handler.Handle(ctx, event); err != nil {
+			fmt.Fprintf(os.Stderr, "async event handler failed for %s: %v\n", event.Type, err)
+		}
 	}()
 	return nil
 }

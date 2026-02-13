@@ -24,6 +24,7 @@ var (
 	_ emptypb.Empty
 	_ timestamppb.Timestamp
 	_ annotations.FieldBehavior
+	_ redact.FieldRules
 )
 
 // RegisterRedactedMFAServiceServer wraps the MFAServiceServer with the redacted server and registers the service in GRPC
@@ -256,11 +257,13 @@ func (x *TOTPResult) Redact() string {
 		return ""
 	}
 
-	// Safe field: Secret
+	// Redacting field: Secret
+	x.Secret = ``
 
 	// Safe field: OtpAuthUrl
 
-	// Safe field: QrCodeDataUri
+	// Redacting field: QrCodeDataUri
+	x.QrCodeDataUri = ``
 	return x.String()
 }
 
@@ -404,7 +407,9 @@ func (x *VerifyMFAChallengeResponse) Redact() string {
 
 	// Safe field: Success
 
-	// Safe field: SessionToken
+	// Redacting field: SessionToken
+	SessionTokenTmp := ``
+	x.SessionToken = &SessionTokenTmp
 
 	// Safe field: LoginResponse
 	return x.String()
@@ -426,7 +431,10 @@ func (x *GenerateBackupCodesResponse) Redact() string {
 		return ""
 	}
 
-	// Safe field: Codes
+	// Redacting field: Codes
+	for k := range x.Codes {
+		x.Codes[k] = ``
+	}
 
 	// Safe field: GeneratedAt
 	return x.String()
@@ -470,7 +478,8 @@ func (x *SMSVerification) Redact() string {
 
 	// Safe field: VerificationId
 
-	// Safe field: Code
+	// Redacting field: Code
+	x.Code = ``
 	return x.String()
 }
 

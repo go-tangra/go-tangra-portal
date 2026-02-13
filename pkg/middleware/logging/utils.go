@@ -32,7 +32,15 @@ import (
 	"github.com/go-tangra/go-tangra-portal/pkg/jwt"
 )
 
-var ipClient, _ = geolite.NewClient()
+var ipClient *geolite.Client
+
+func init() {
+	var err error
+	ipClient, err = geolite.NewClient()
+	if err != nil {
+		log.Warnf("Failed to initialize GeoIP client: %v", err)
+	}
+}
 
 // extractAuthToken 从JWT Token中提取用户信息
 func extractAuthToken(htr *http.Transport) *authenticationV1.UserTokenPayload {
@@ -238,7 +246,9 @@ func extractUsernameFromRequest(r *http.Request) (username string, err error) {
 	if err != nil {
 		return "", err
 	}
-	_ = r.Body.Close()
+	if err := r.Body.Close(); err != nil {
+		log.Warnf("Failed to close request body: %v", err)
+	}
 	// 恢复 Body，避免影响后续处理
 	r.Body = io.NopCloser(bytes.NewReader(body))
 

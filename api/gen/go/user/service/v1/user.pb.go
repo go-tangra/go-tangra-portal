@@ -1823,15 +1823,15 @@ const file_user_service_v1_user_proto_rawDesc = "" +
 	"\n" +
 	"\bquery_byB\f\n" +
 	"\n" +
-	"_view_mask\"\x89\x01\n" +
+	"_view_mask\"\x8f\x01\n" +
 	"\x11CreateUserRequest\x12)\n" +
-	"\x04data\x18\x01 \x01(\v2\x15.user.service.v1.UserR\x04data\x12<\n" +
-	"\bpassword\x18\x02 \x01(\tB\x1b\xbaG\x18\x18\x01\x92\x02\x13User login passwordH\x00R\bpassword\x88\x01\x01B\v\n" +
-	"\t_password\"\xee\x03\n" +
+	"\x04data\x18\x01 \x01(\v2\x15.user.service.v1.UserR\x04data\x12B\n" +
+	"\bpassword\x18\x02 \x01(\tB!\xbaG\x18\x18\x01\x92\x02\x13User login passwordڶ\x1a\x02z\x00H\x00R\bpassword\x88\x01\x01B\v\n" +
+	"\t_password\"\xf4\x03\n" +
 	"\x11UpdateUserRequest\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\rR\x02id\x12=\n" +
-	"\x04data\x18\x02 \x01(\v2\x15.user.service.v1.UserB\x12\xe0A\x02\xbaG\f\x92\x02\tUser dataR\x04data\x12<\n" +
-	"\bpassword\x18\x03 \x01(\tB\x1b\xbaG\x18\x18\x01\x92\x02\x13User login passwordH\x00R\bpassword\x88\x01\x01\x12s\n" +
+	"\x04data\x18\x02 \x01(\v2\x15.user.service.v1.UserB\x12\xe0A\x02\xbaG\f\x92\x02\tUser dataR\x04data\x12B\n" +
+	"\bpassword\x18\x03 \x01(\tB!\xbaG\x18\x18\x01\x92\x02\x13User login passwordڶ\x1a\x02z\x00H\x00R\bpassword\x88\x01\x01\x12s\n" +
 	"\vupdate_mask\x18\x04 \x01(\v2\x1a.google.protobuf.FieldMaskB6\xbaG3:\x16\x12\x14id,realname,username\x92\x02\x18List of fields to updateR\n" +
 	"updateMask\x12\xb7\x01\n" +
 	"\rallow_missing\x18\x05 \x01(\bB\x8c\x01\xbaG\x88\x01\x92\x02\x84\x01If set to true, the resource will be created (inserted) if it does not exist, and the updateMask field will be ignored in this case.H\x01R\fallowMissing\x88\x01\x01B\v\n" +
@@ -1854,14 +1854,14 @@ const file_user_service_v1_user_proto_rawDesc = "" +
 	"\vcreated_ids\x18\x01 \x03(\x05B+\xbaG(\x92\x02%List of successfully created user IDsR\n" +
 	"createdIds\"(\n" +
 	"\x14GetUsersByIdsRequest\x12\x10\n" +
-	"\x03ids\x18\x01 \x03(\rR\x03ids\"x\n" +
+	"\x03ids\x18\x01 \x03(\rR\x03ids\"~\n" +
 	"\x17EditUserPasswordRequest\x12&\n" +
 	"\auser_id\x18\x01 \x01(\rB\r\xbaG\n" +
-	"\x92\x02\aUser IDR\x06userId\x125\n" +
-	"\fnew_password\x18\x02 \x01(\tB\x12\xbaG\x0f\x92\x02\fNew passwordR\vnewPassword\"\x85\x01\n" +
-	"\x15ChangePasswordRequest\x125\n" +
-	"\fold_password\x18\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\fOld passwordR\voldPassword\x125\n" +
-	"\fnew_password\x18\x02 \x01(\tB\x12\xbaG\x0f\x92\x02\fNew passwordR\vnewPassword\"c\n" +
+	"\x92\x02\aUser IDR\x06userId\x12;\n" +
+	"\fnew_password\x18\x02 \x01(\tB\x18\xbaG\x0f\x92\x02\fNew passwordڶ\x1a\x02z\x00R\vnewPassword\"\x91\x01\n" +
+	"\x15ChangePasswordRequest\x12;\n" +
+	"\fold_password\x18\x01 \x01(\tB\x18\xbaG\x0f\x92\x02\fOld passwordڶ\x1a\x02z\x00R\voldPassword\x12;\n" +
+	"\fnew_password\x18\x02 \x01(\tB\x18\xbaG\x0f\x92\x02\fNew passwordڶ\x1a\x02z\x00R\vnewPassword\"c\n" +
 	"\x13UploadAvatarRequest\x12#\n" +
 	"\fimage_base64\x18\x01 \x01(\tH\x00R\vimageBase64\x12\x1d\n" +
 	"\timage_url\x18\x02 \x01(\tH\x00R\bimageUrlB\b\n" +

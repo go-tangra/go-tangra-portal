@@ -8,6 +8,7 @@ package authenticationpb
 
 import (
 	_ "github.com/google/gnostic/openapiv3"
+	_ "github.com/menta2k/protoc-gen-redact/v3/redact/v3"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
@@ -1547,11 +1548,11 @@ var File_authentication_service_v1_oauth_proto protoreflect.FileDescriptor
 
 const file_authentication_service_v1_oauth_proto_rawDesc = "" +
 	"\n" +
-	"%authentication/service/v1/oauth.proto\x12\x19authentication.service.v1\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a/authentication/service/v1/user_credential.proto\"\xd2\x01\n" +
+	"%authentication/service/v1/oauth.proto\x12\x19authentication.service.v1\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x16redact/v3/redact.proto\x1a/authentication/service/v1/user_credential.proto\"\xe2\x01\n" +
 	"\n" +
-	"OAuthToken\x12!\n" +
-	"\faccess_token\x18\x01 \x01(\tR\vaccessToken\x12(\n" +
-	"\rrefresh_token\x18\x02 \x01(\tH\x00R\frefreshToken\x88\x01\x01\x12\x16\n" +
+	"OAuthToken\x12)\n" +
+	"\faccess_token\x18\x01 \x01(\tB\x06ڶ\x1a\x02z\x00R\vaccessToken\x120\n" +
+	"\rrefresh_token\x18\x02 \x01(\tB\x06ڶ\x1a\x02z\x00H\x00R\frefreshToken\x88\x01\x01\x12\x16\n" +
 	"\x06scopes\x18\x03 \x03(\tR\x06scopes\x12>\n" +
 	"\n" +
 	"expires_at\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampH\x01R\texpiresAt\x88\x01\x01B\x10\n" +
@@ -1570,11 +1571,11 @@ const file_authentication_service_v1_oauth_proto_rawDesc = "" +
 	"\x1aListLinkedAccountsResponse\x12?\n" +
 	"\x05items\x18\x01 \x03(\v2).authentication.service.v1.UserCredentialR\x05items\x12\x14\n" +
 	"\x05total\x18\x02 \x01(\x04R\x05total\x12&\n" +
-	"\x0fnext_page_token\x18\x03 \x01(\tR\rnextPageToken\"\xc5\x01\n" +
+	"\x0fnext_page_token\x18\x03 \x01(\tR\rnextPageToken\"\xcd\x01\n" +
 	"\x10LinkOAuthRequest\x12D\n" +
 	"\bprovider\x18\x01 \x01(\x0e2(.authentication.service.v1.OAuthProviderR\bprovider\x12'\n" +
-	"\x0fprovider_custom\x18\x02 \x01(\tR\x0eproviderCustom\x12\x1f\n" +
-	"\voauth_token\x18\x03 \x01(\tR\n" +
+	"\x0fprovider_custom\x18\x02 \x01(\tR\x0eproviderCustom\x12'\n" +
+	"\voauth_token\x18\x03 \x01(\tB\x06ڶ\x1a\x02z\x00R\n" +
 	"oauthToken\x12!\n" +
 	"\fredirect_uri\x18\x04 \x01(\tR\vredirectUri\"X\n" +
 	"\x11LinkOAuthResponse\x12C\n" +
@@ -1625,24 +1626,24 @@ const file_authentication_service_v1_oauth_proto_rawDesc = "" +
 	"\aaccount\x18\x01 \x01(\v2).authentication.service.v1.UserCredentialR\aaccount\x12B\n" +
 	"\x06secret\x18\n" +
 	" \x01(\v2%.authentication.service.v1.OAuthTokenH\x00R\x06secret\x88\x01\x01B\t\n" +
-	"\a_secret\"{\n" +
+	"\a_secret\"\x83\x01\n" +
 	"\x18RefreshOAuthTokenRequest\x12#\n" +
-	"\rcredential_id\x18\x01 \x01(\tR\fcredentialId\x12(\n" +
-	"\rrefresh_token\x18\x02 \x01(\tH\x00R\frefreshToken\x88\x01\x01B\x10\n" +
-	"\x0e_refresh_token\"\x8e\x02\n" +
-	"\x19RefreshOAuthTokenResponse\x12&\n" +
-	"\faccess_token\x18\x01 \x01(\tH\x00R\vaccessToken\x88\x01\x01\x12>\n" +
+	"\rcredential_id\x18\x01 \x01(\tR\fcredentialId\x120\n" +
+	"\rrefresh_token\x18\x02 \x01(\tB\x06ڶ\x1a\x02z\x00H\x00R\frefreshToken\x88\x01\x01B\x10\n" +
+	"\x0e_refresh_token\"\x96\x02\n" +
+	"\x19RefreshOAuthTokenResponse\x12.\n" +
+	"\faccess_token\x18\x01 \x01(\tB\x06ڶ\x1a\x02z\x00H\x00R\vaccessToken\x88\x01\x01\x12>\n" +
 	"\n" +
 	"expires_at\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampH\x01R\texpiresAt\x88\x01\x01\x12\x16\n" +
 	"\x06scopes\x18\x03 \x03(\tR\x06scopes\x127\n" +
 	"\x15refresh_token_present\x18\x04 \x01(\bH\x02R\x13refreshTokenPresent\x88\x01\x01B\x0f\n" +
 	"\r_access_tokenB\r\n" +
 	"\v_expires_atB\x18\n" +
-	"\x16_refresh_token_present\"\xc0\x01\n" +
+	"\x16_refresh_token_present\"\xc8\x01\n" +
 	"\x18ExchangeOAuthCodeRequest\x12D\n" +
 	"\bprovider\x18\x01 \x01(\x0e2(.authentication.service.v1.OAuthProviderR\bprovider\x12'\n" +
-	"\x0fprovider_custom\x18\x02 \x01(\tR\x0eproviderCustom\x12\x12\n" +
-	"\x04code\x18\x03 \x01(\tR\x04code\x12!\n" +
+	"\x0fprovider_custom\x18\x02 \x01(\tR\x0eproviderCustom\x12\x1a\n" +
+	"\x04code\x18\x03 \x01(\tB\x06ڶ\x1a\x02z\x00R\x04code\x12!\n" +
 	"\fredirect_uri\x18\x04 \x01(\tR\vredirectUri\"\xa1\x01\n" +
 	"\x19ExchangeOAuthCodeResponse\x12;\n" +
 	"\x05token\x18\x01 \x01(\v2%.authentication.service.v1.OAuthTokenR\x05token\x12G\n" +

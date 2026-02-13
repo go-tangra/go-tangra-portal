@@ -24,6 +24,7 @@ var (
 	_ emptypb.Empty
 	_ timestamppb.Timestamp
 	_ annotations.FieldBehavior
+	_ redact.FieldRules
 )
 
 // RegisterRedactedOAuthServiceServer wraps the OAuthServiceServer with the redacted server and registers the service in GRPC
@@ -171,9 +172,12 @@ func (x *OAuthToken) Redact() string {
 		return ""
 	}
 
-	// Safe field: AccessToken
+	// Redacting field: AccessToken
+	x.AccessToken = ``
 
-	// Safe field: RefreshToken
+	// Redacting field: RefreshToken
+	RefreshTokenTmp := ``
+	x.RefreshToken = &RefreshTokenTmp
 
 	// Safe field: Scopes
 
@@ -219,7 +223,8 @@ func (x *LinkOAuthRequest) Redact() string {
 
 	// Safe field: ProviderCustom
 
-	// Safe field: OauthToken
+	// Redacting field: OauthToken
+	x.OauthToken = ``
 
 	// Safe field: RedirectUri
 	return x.String()
@@ -347,7 +352,9 @@ func (x *RefreshOAuthTokenRequest) Redact() string {
 
 	// Safe field: CredentialId
 
-	// Safe field: RefreshToken
+	// Redacting field: RefreshToken
+	RefreshTokenTmp := ``
+	x.RefreshToken = &RefreshTokenTmp
 	return x.String()
 }
 
@@ -357,7 +364,9 @@ func (x *RefreshOAuthTokenResponse) Redact() string {
 		return ""
 	}
 
-	// Safe field: AccessToken
+	// Redacting field: AccessToken
+	AccessTokenTmp := ``
+	x.AccessToken = &AccessTokenTmp
 
 	// Safe field: ExpiresAt
 
@@ -377,7 +386,8 @@ func (x *ExchangeOAuthCodeRequest) Redact() string {
 
 	// Safe field: ProviderCustom
 
-	// Safe field: Code
+	// Redacting field: Code
+	x.Code = ``
 
 	// Safe field: RedirectUri
 	return x.String()

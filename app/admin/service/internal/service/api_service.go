@@ -56,8 +56,15 @@ func NewApiService(
 
 func (s *ApiService) init() {
 	ctx := appViewer.NewSystemViewerContext(context.Background())
-	if count, _ := s.repo.Count(ctx, []func(s *sql.Selector){}); count == 0 {
-		_, _ = s.SyncApis(ctx, &emptypb.Empty{})
+	count, err := s.repo.Count(ctx, []func(s *sql.Selector){})
+	if err != nil {
+		s.log.Errorf("failed to count APIs during init: %v", err)
+		return
+	}
+	if count == 0 {
+		if _, err := s.SyncApis(ctx, &emptypb.Empty{}); err != nil {
+			s.log.Errorf("failed to sync APIs during init: %v", err)
+		}
 	}
 }
 
@@ -140,7 +147,10 @@ func (s *ApiService) Delete(ctx context.Context, req *permissionV1.DeleteApiRequ
 }
 
 func (s *ApiService) SyncApis(ctx context.Context, _ *emptypb.Empty) (*emptypb.Empty, error) {
-	_ = s.repo.Truncate(ctx)
+	if err := s.repo.Truncate(ctx); err != nil {
+		s.log.Errorf("failed to truncate APIs: %v", err)
+		return nil, err
+	}
 
 	//if err := s.syncWithWalkRoute(ctx); err != nil {
 	//	return nil, err
@@ -209,10 +219,12 @@ func (s *ApiService) syncWithOpenAPI(ctx context.Context) error {
 
 	for i, res := range apiList {
 		res.Id = trans.Ptr(uint32(i + 1))
-		_ = s.repo.Update(ctx, &permissionV1.UpdateApiRequest{
+		if err := s.repo.Update(ctx, &permissionV1.UpdateApiRequest{
 			AllowMissing: trans.Ptr(true),
 			Data:         res,
-		})
+		}); err != nil {
+			s.log.Warnf("failed to upsert API %s %s: %v", res.GetMethod(), res.GetPath(), err)
+		}
 	}
 
 	return nil
@@ -253,10 +265,12 @@ func (s *ApiService) syncWithWalkRoute(ctx context.Context) error {
 
 	for i, res := range apiList {
 		res.Id = trans.Ptr(uint32(i + 1))
-		_ = s.repo.Update(ctx, &permissionV1.UpdateApiRequest{
+		if err := s.repo.Update(ctx, &permissionV1.UpdateApiRequest{
 			AllowMissing: trans.Ptr(true),
 			Data:         res,
-		})
+		}); err != nil {
+			s.log.Warnf("failed to upsert API %s %s: %v", res.GetMethod(), res.GetPath(), err)
+		}
 	}
 
 	return nil

@@ -126,7 +126,7 @@ func (r *OperationAuditLogRepo) Get(ctx context.Context, req *auditV1.GetOperati
 		return nil, adminV1.ErrorBadRequest("invalid parameter")
 	}
 
-	builder := r.entClient.Client().Debug().OperationAuditLog.Query()
+	builder := r.entClient.Client().OperationAuditLog.Query()
 
 	var whereCond []func(s *sql.Selector)
 	switch req.QueryBy.(type) {

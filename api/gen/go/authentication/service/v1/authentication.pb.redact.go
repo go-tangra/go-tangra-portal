@@ -137,7 +137,9 @@ func (x *LoginRequest) Redact() string {
 
 	// Safe field: ClientId
 
-	// Safe field: ClientSecret
+	// Redacting field: ClientSecret
+	ClientSecretTmp := ``
+	x.ClientSecret = &ClientSecretTmp
 
 	// Safe field: Scope
 
@@ -151,9 +153,13 @@ func (x *LoginRequest) Redact() string {
 
 	// Safe field: UserId
 
-	// Safe field: RefreshToken
+	// Redacting field: RefreshToken
+	RefreshTokenTmp := ``
+	x.RefreshToken = &RefreshTokenTmp
 
-	// Safe field: Code
+	// Redacting field: Code
+	CodeTmp := ``
+	x.Code = &CodeTmp
 
 	// Safe field: ClientType
 
@@ -169,21 +175,28 @@ func (x *LoginResponse) Redact() string {
 
 	// Safe field: TokenType
 
-	// Safe field: AccessToken
+	// Redacting field: AccessToken
+	x.AccessToken = ``
 
 	// Safe field: ExpiresIn
 
-	// Safe field: RefreshToken
+	// Redacting field: RefreshToken
+	RefreshTokenTmp := ``
+	x.RefreshToken = &RefreshTokenTmp
 
 	// Safe field: Scope
 
 	// Safe field: RefreshExpiresIn
 
-	// Safe field: IdToken
+	// Redacting field: IdToken
+	IdTokenTmp := ``
+	x.IdToken = &IdTokenTmp
 
 	// Safe field: MfaRequired
 
-	// Safe field: MfaToken
+	// Redacting field: MfaToken
+	MfaTokenTmp := ``
+	x.MfaToken = &MfaTokenTmp
 
 	// Safe field: MfaMethods
 	return x.String()
@@ -209,7 +222,8 @@ func (x *ValidateTokenRequest) Redact() string {
 
 	// Safe field: UserId
 
-	// Safe field: Token
+	// Redacting field: Token
+	x.Token = ``
 
 	// Safe field: ClientType
 
@@ -237,7 +251,8 @@ func (x *RegisterUserRequest) Redact() string {
 
 	// Safe field: Username
 
-	// Safe field: Password
+	// Redacting field: Password
+	x.Password = ``
 
 	// Safe field: TenantCode
 
@@ -285,6 +300,9 @@ func (x *GetAccessTokensResponse) Redact() string {
 		return ""
 	}
 
-	// Safe field: AccessTokens
+	// Redacting field: AccessTokens
+	for k := range x.AccessTokens {
+		x.AccessTokens[k] = ``
+	}
 	return x.String()
 }

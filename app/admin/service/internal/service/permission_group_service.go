@@ -47,8 +47,15 @@ func NewPermissionGroupService(
 
 func (s *PermissionGroupService) init() {
 	ctx := appViewer.NewSystemViewerContext(context.Background())
-	if count, _ := s.permissionGroupRepo.Count(ctx, []func(s *sql.Selector){}); count == 0 {
-		_ = s.createDefaultPermissionGroups(ctx)
+	count, err := s.permissionGroupRepo.Count(ctx, []func(s *sql.Selector){})
+	if err != nil {
+		s.log.Errorf("failed to count permission groups during init: %v", err)
+		return
+	}
+	if count == 0 {
+		if err := s.createDefaultPermissionGroups(ctx); err != nil {
+			s.log.Errorf("failed to create default permission groups: %v", err)
+		}
 	}
 }
 

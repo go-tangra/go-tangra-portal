@@ -44,8 +44,15 @@ func NewLanguageService(
 
 func (s *LanguageService) init() {
 	ctx := appViewer.NewSystemViewerContext(context.Background())
-	if count, _ := s.languageRepo.Count(ctx, []func(s *sql.Selector){}); count == 0 {
-		_ = s.createDefaultLanguage(ctx)
+	count, err := s.languageRepo.Count(ctx, []func(s *sql.Selector){})
+	if err != nil {
+		s.log.Errorf("failed to count languages during init: %v", err)
+		return
+	}
+	if count == 0 {
+		if err := s.createDefaultLanguage(ctx); err != nil {
+			s.log.Errorf("failed to create default language: %v", err)
+		}
 	}
 }
 

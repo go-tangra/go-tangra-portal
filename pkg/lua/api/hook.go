@@ -43,13 +43,9 @@ func RegisterHookAPI(L *lua.LState, engine HookEngine, logger *log.Helper) {
 			description := L.OptString(2, "")
 			callback := L.Get(3) // Optional callback function
 
-			// Register the hook (ignore error if already registered)
-			err := engine.RegisterHook(hookName, description)
-			if err != nil {
-				// Only log error, don't return - we still want to register the callback
-				logger.Debugf("hook.register: %v (continuing to register callback)", err)
-			} else {
-				logger.Debugf("Registered hook: %s", hookName)
+			// Register the hook — expected to fail if already registered from another script
+			if err := engine.RegisterHook(hookName, description); err != nil {
+				logger.Infof("hook.register: %v (continuing)", err)
 			}
 
 			// If callback provided, register it directly with the engine
@@ -58,7 +54,6 @@ func RegisterHookAPI(L *lua.LState, engine HookEngine, logger *log.Helper) {
 					// Register the callback function with the engine
 					// The engine will store the LState and function for later execution
 					engine.RegisterCallback(hookName, L, fn)
-					logger.Debugf("Registered callback for hook: %s", hookName)
 				} else {
 					logger.Warnf("Third argument is not a function, ignoring callback")
 				}
@@ -114,7 +109,6 @@ func RegisterHookAPI(L *lua.LState, engine HookEngine, logger *log.Helper) {
 				return 2
 			}
 
-			logger.Debugf("Added script '%s' to hook: %s", name, hookName)
 			L.Push(lua.LBool(true))
 			return 1
 		}))

@@ -21,10 +21,6 @@ func RegisterUtilAPI(L *lua.LState, logger *log.Helper) {
 			seconds := L.CheckNumber(1)
 			duration := time.Duration(float64(seconds) * float64(time.Second))
 
-			if logger != nil {
-				logger.Debugf("Lua sleep: %v", duration)
-			}
-
 			time.Sleep(duration)
 			return 0
 		}))
@@ -57,8 +53,4 @@ func RegisterUtilAPI(L *lua.LState, logger *log.Helper) {
 
 	// Register as requireable module
 	L.PreloadModule("kratos_util", loader)
-
-	if logger != nil {
-		logger.Debug("Registered Lua util API")
-	}
 }

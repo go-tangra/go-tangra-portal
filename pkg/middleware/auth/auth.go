@@ -65,7 +65,6 @@ func Server(opts ...Option) middleware.Middleware {
 			// 校验访问令牌是否存在
 			if op.accessTokenChecker != nil {
 				token := tr.RequestHeader().Get(authnEngine.HeaderAuthorize)
-				//op.log.Debug("auth middleware: processing request, method:", tr.Operation(), " token:", token)
 
 				if len(token) > 7 && token[0:6] == authnEngine.BearerWord {
 					token = token[7:]

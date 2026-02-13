@@ -8,6 +8,7 @@ package authenticationpb
 
 import (
 	_ "github.com/google/gnostic/openapiv3"
+	_ "github.com/menta2k/protoc-gen-redact/v3/redact/v3"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
@@ -1819,7 +1820,7 @@ var File_authentication_service_v1_mfa_proto protoreflect.FileDescriptor
 
 const file_authentication_service_v1_mfa_proto_rawDesc = "" +
 	"\n" +
-	"#authentication/service/v1/mfa.proto\x12\x19authentication.service.v1\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a.authentication/service/v1/authentication.proto\"@\n" +
+	"#authentication/service/v1/mfa.proto\x12\x19authentication.service.v1\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x16redact/v3/redact.proto\x1a.authentication/service/v1/authentication.proto\"@\n" +
 	"\x13GetMFAStatusRequest\x12\x1d\n" +
 	"\auser_id\x18\x01 \x01(\tH\x00R\auser_id\x88\x01\x01B\n" +
 	"\n" +
@@ -1861,12 +1862,12 @@ const file_authentication_service_v1_mfa_proto_rawDesc = "" +
 	"expires_at\x88\x01\x01\x12\"\n" +
 	"\foperation_id\x18\v \x01(\tR\foperation_idB\b\n" +
 	"\x06resultB\r\n" +
-	"\v_expires_at\"t\n" +
+	"\v_expires_at\"\x84\x01\n" +
 	"\n" +
-	"TOTPResult\x12\x16\n" +
-	"\x06secret\x18\x01 \x01(\tR\x06secret\x12\"\n" +
-	"\fotp_auth_url\x18\x02 \x01(\tR\fotp_auth_url\x12*\n" +
-	"\x10qr_code_data_uri\x18\x03 \x01(\tR\x10qr_code_data_uri\"u\n" +
+	"TOTPResult\x12\x1e\n" +
+	"\x06secret\x18\x01 \x01(\tB\x06ڶ\x1a\x02z\x00R\x06secret\x12\"\n" +
+	"\fotp_auth_url\x18\x02 \x01(\tR\fotp_auth_url\x122\n" +
+	"\x10qr_code_data_uri\x18\x03 \x01(\tB\x06ڶ\x1a\x02z\x00R\x10qr_code_data_uri\"u\n" +
 	"\tSMSResult\x12(\n" +
 	"\x0fverification_id\x18\x01 \x01(\tR\x0fverification_id\x12\x1a\n" +
 	"\bsms_sent\x18\x02 \x01(\bR\bsms_sent\x12\"\n" +
@@ -1930,18 +1931,18 @@ const file_authentication_service_v1_mfa_proto_rawDesc = "" +
 	"\bwebauthn\x18\f \x01(\v2,.authentication.service.v1.WebAuthnAssertionH\x00R\bwebauthn\x12\"\n" +
 	"\vbackup_code\x18\r \x01(\tH\x00R\vbackup_codeB\n" +
 	"\n" +
-	"\bresponse\"\xdd\x01\n" +
+	"\bresponse\"\xe5\x01\n" +
 	"\x1aVerifyMFAChallengeResponse\x12\x18\n" +
-	"\asuccess\x18\x01 \x01(\bR\asuccess\x12)\n" +
-	"\rsession_token\x18\x02 \x01(\tH\x00R\rsession_token\x88\x01\x01\x12U\n" +
+	"\asuccess\x18\x01 \x01(\bR\asuccess\x121\n" +
+	"\rsession_token\x18\x02 \x01(\tB\x06ڶ\x1a\x02z\x00H\x00R\rsession_token\x88\x01\x01\x12U\n" +
 	"\x0elogin_response\x18\x03 \x01(\v2(.authentication.service.v1.LoginResponseH\x01R\x0elogin_response\x88\x01\x01B\x10\n" +
 	"\x0e_session_tokenB\x11\n" +
 	"\x0f_login_response\"k\n" +
 	"\x1aGenerateBackupCodesRequest\x12C\n" +
 	"\x05count\x18\x01 \x01(\x05B(\xbaG%\x92\x02\"Number of backup codes to generateH\x00R\x05count\x88\x01\x01B\b\n" +
-	"\x06_count\"\x89\x01\n" +
-	"\x1bGenerateBackupCodesResponse\x12\x14\n" +
-	"\x05codes\x18\x01 \x03(\tR\x05codes\x12C\n" +
+	"\x06_count\"\x96\x01\n" +
+	"\x1bGenerateBackupCodesResponse\x12!\n" +
+	"\x05codes\x18\x01 \x03(\tB\vڶ\x1a\a\xa2\x01\x04\x1a\x02z\x00R\x05codes\x12C\n" +
 	"\fgenerated_at\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampH\x00R\fgenerated_at\x88\x01\x01B\x0f\n" +
 	"\r_generated_at\"\x18\n" +
 	"\x16ListBackupCodesRequest\"\x8d\x01\n" +
@@ -1950,10 +1951,10 @@ const file_authentication_service_v1_mfa_proto_rawDesc = "" +
 	"\fgenerated_at\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampH\x00R\fgenerated_at\x88\x01\x01B\x0f\n" +
 	"\r_generated_at\">\n" +
 	"\x16RevokeMFADeviceRequest\x12$\n" +
-	"\rcredential_id\x18\x01 \x01(\tR\rcredential_id\"O\n" +
+	"\rcredential_id\x18\x01 \x01(\tR\rcredential_id\"W\n" +
 	"\x0fSMSVerification\x12(\n" +
-	"\x0fverification_id\x18\x01 \x01(\tR\x0fverification_id\x12\x12\n" +
-	"\x04code\x18\x02 \x01(\tR\x04code\"\xd4\x01\n" +
+	"\x0fverification_id\x18\x01 \x01(\tR\x0fverification_id\x12\x1a\n" +
+	"\x04code\x18\x02 \x01(\tB\x06ڶ\x1a\x02z\x00R\x04code\"\xd4\x01\n" +
 	"\x11WebAuthnAssertion\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12*\n" +
 	"\x10client_data_json\x18\x02 \x01(\tR\x10client_data_json\x12.\n" +

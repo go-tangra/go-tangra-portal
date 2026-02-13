@@ -3,6 +3,8 @@ package logging
 import (
 	"context"
 	"fmt"
+	"os"
+	"strings"
 	"time"
 
 	"github.com/go-kratos/kratos/v2/errors"
@@ -36,10 +38,15 @@ func RedactedServer(logger log.Logger) middleware.Middleware {
 			reply, err = handler(ctx, req)
 			latency := time.Since(startTime).Seconds()
 
+			// Skip logging for successful heartbeats (too noisy)
+			if err == nil && strings.HasSuffix(operation, "/Heartbeat") {
+				return
+			}
+
 			level, stack := extractError(err)
 			args := extractArgs(req)
 
-			_ = log.WithContext(ctx, logger).Log(level,
+			if logErr := log.WithContext(ctx, logger).Log(level,
 				"kind", "server",
 				"component", component,
 				"operation", operation,
@@ -48,7 +55,9 @@ func RedactedServer(logger log.Logger) middleware.Middleware {
 				"reason", extractReason(err),
 				"stack", stack,
 				"latency", latency,
-			)
+			); logErr != nil {
+				fmt.Fprintf(os.Stderr, "redacted logging failed: %v\n", logErr)
+			}
 
 			return
 		}

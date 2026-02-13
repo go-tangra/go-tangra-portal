@@ -91,6 +91,7 @@ message LoginRequest {
     }
   ];
   optional string client_secret = 3 [
+    (redact.v3.value).string = "",
     json_name = "client_secret",
     (gnostic.openapi.v3.property) = {
       description: "Client secret"
@@ -128,6 +129,7 @@ message LoginRequest {
   ]; // User ID
 
   optional string refresh_token = 20 [
+    (redact.v3.value).string = "",
     json_name = "refresh_token",
     (gnostic.openapi.v3.property) = {
       description: "Refresh token, used to obtain the next access token, optional. If the access token is about to expire, returning a refresh token is useful, as the application can use the refresh token to obtain another access token. However, tokens issued through implicit grant cannot issue refresh tokens."
@@ -135,6 +137,7 @@ message LoginRequest {
   ]; // Refresh token, used to obtain the next access token, required.
 
   optional string code = 30 [
+    (redact.v3.value).string = "",
     json_name = "code",
     (gnostic.openapi.v3.property) = {
       description: "One-time verification/authentication code received in the authorization request. (When using authorization code mode)"
@@ -167,6 +170,7 @@ message LoginResponse {
   ]; // Token type, case-insensitive, required, can be bearer type or mac type.
 
   string access_token = 2 [
+    (redact.v3.value).string = "",
     json_name = "access_token",
     (gnostic.openapi.v3.property) = {
       description: "Access token, required. The access token string issued by the authorization server."
@@ -181,6 +185,7 @@ message LoginResponse {
   ]; // Access token expiration time (seconds)
 
   optional string refresh_token = 4 [
+    (redact.v3.value).string = "",
     json_name = "refresh_token",
     (gnostic.openapi.v3.property) = {
       description: "Refresh token, used to obtain the next access token, optional. If the access token is about to expire, returning a refresh token is useful, as the application can use the refresh token to obtain another access token. However, tokens issued through implicit grant cannot issue refresh tokens."
@@ -202,6 +207,7 @@ message LoginResponse {
   ]; // Refresh token expiration time (seconds)
 
   optional string id_token = 7 [
+    (redact.v3.value).string = "",
     json_name = "id_token",
     (gnostic.openapi.v3.property) = {
       description: "ID token, JWT format token defined in OpenID Connect extension"
@@ -217,6 +223,7 @@ message LoginResponse {
   ];
 
   optional string mfa_token = 31 [
+    (redact.v3.value).string = "",
     json_name = "mfa_token",
     (gnostic.openapi.v3.property) = {
       description: "Short-lived token (5 min) for MFA verification flow. Present only when mfa_required=true"
@@ -258,6 +265,7 @@ message ValidateTokenRequest {
   ]; // User ID
 
   string token = 2 [
+    (redact.v3.value).string = "",
     json_name = "token",
     (gnostic.openapi.v3.property) = {
       description: "Token"
@@ -305,6 +313,7 @@ message RegisterUserRequest {
   ]; // Username
 
   string password = 2 [
+    (redact.v3.value).string = "",
     json_name = "password",
     (gnostic.openapi.v3.property) = {
       description: "Login password"
@@ -363,6 +372,7 @@ message GetAccessTokensRequest {
 }
 message GetAccessTokensResponse {
   repeated string access_tokens = 1 [
+    (redact.v3.value).element.item.string = "",
     json_name = "accessTokens",
     (gnostic.openapi.v3.property) = {
       description: "Access token list"

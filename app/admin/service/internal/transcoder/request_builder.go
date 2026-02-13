@@ -82,7 +82,7 @@ func (b *RequestBuilder) BuildRequest(
 		}
 		if len(values) > 0 {
 			if err := b.setFieldByPath(msg, name, values[0]); err != nil {
-				b.log.Debugf("Failed to set query param %s=%s: %v", name, values[0], err)
+				b.log.Warnf("Failed to set query param %s=%s: %v", name, values[0], err)
 			}
 		}
 	}

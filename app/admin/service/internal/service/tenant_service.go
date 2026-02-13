@@ -198,7 +198,9 @@ func (s *TenantService) CreateTenantWithAdminUser(ctx context.Context, req *user
 		}
 
 		if err == nil {
-			_ = s.authorizer.ResetPolicies(ctx)
+			if resetErr := s.authorizer.ResetPolicies(ctx); resetErr != nil {
+				s.log.Errorf("failed to reset policies after tenant creation: %v", resetErr)
+			}
 		}
 	}()
 

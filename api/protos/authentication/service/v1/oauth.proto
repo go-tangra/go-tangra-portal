@@ -10,6 +10,8 @@ import "google/protobuf/timestamp.proto";
 import "google/api/annotations.proto";
 import "google/api/field_behavior.proto";
 
+import "redact/v3/redact.proto";
+
 import "authentication/service/v1/user_credential.proto";
 
 // OAuth service interface
@@ -102,8 +104,8 @@ enum OAuthGrantType {
 
 // Simplified token representation (be careful when returning)
 message OAuthToken {
-  string access_token = 1;
-  optional string refresh_token = 2;
+  string access_token = 1 [(redact.v3.value).string = ""];
+  optional string refresh_token = 2 [(redact.v3.value).string = ""];
   repeated string scopes = 3;
   optional google.protobuf.Timestamp expires_at = 4;
 }
@@ -123,7 +125,7 @@ message ListLinkedAccountsResponse {
 message LinkOAuthRequest {
   OAuthProvider provider = 1 [json_name = "provider"];
   string provider_custom = 2 [json_name = "providerCustom"]; // Optional: fill in when using custom platform or refined identifier
-  string oauth_token = 3 [json_name = "oauthToken"];         // Token / code returned by third party
+  string oauth_token = 3 [(redact.v3.value).string = "", json_name = "oauthToken"];         // Token / code returned by third party
   string redirect_uri = 4 [json_name = "redirectUri"];       // Optional: used for callback verification on some platforms
 }
 
@@ -182,10 +184,10 @@ message ConfirmLinkOAuthResponse {
 // Refresh / Exchange / Revoke
 message RefreshOAuthTokenRequest {
   string credential_id = 1;
-  optional string refresh_token = 2;
+  optional string refresh_token = 2 [(redact.v3.value).string = ""];
 }
 message RefreshOAuthTokenResponse {
-  optional string access_token = 1;
+  optional string access_token = 1 [(redact.v3.value).string = ""];
   optional google.protobuf.Timestamp expires_at = 2;
   repeated string scopes = 3;
   optional bool refresh_token_present = 4;
@@ -194,7 +196,7 @@ message RefreshOAuthTokenResponse {
 message ExchangeOAuthCodeRequest {
   OAuthProvider provider = 1;
   string provider_custom = 2;
-  string code = 3;
+  string code = 3 [(redact.v3.value).string = ""];
   string redirect_uri = 4;
 }
 message ExchangeOAuthCodeResponse {
