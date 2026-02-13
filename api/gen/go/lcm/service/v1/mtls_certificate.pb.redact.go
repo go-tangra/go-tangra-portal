@@ -270,12 +270,6 @@ func (x *GetMtlsCertificateRequest) Redact() string {
 		return ""
 	}
 
-	// Safe field: SerialNumber
-
-	// Safe field: FingerprintSha256
-
-	// Safe field: CommonName
-
 	// Safe field: ViewMask
 	return x.String()
 }

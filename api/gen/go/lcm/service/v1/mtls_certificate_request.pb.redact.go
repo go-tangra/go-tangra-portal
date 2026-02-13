@@ -221,10 +221,6 @@ func (x *GetMtlsCertificateRequestRequest) Redact() string {
 		return ""
 	}
 
-	// Safe field: Id
-
-	// Safe field: RequestId
-
 	// Safe field: ViewMask
 	return x.String()
 }

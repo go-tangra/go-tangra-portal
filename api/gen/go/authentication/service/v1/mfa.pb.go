@@ -1851,9 +1851,9 @@ const file_authentication_service_v1_mfa_proto_rawDesc = "" +
 	"\x05phone\x18\x02 \x01(\tH\x00R\x05phone\x88\x01\x01\x12\x19\n" +
 	"\x05email\x18\x03 \x01(\tH\x01R\x05email\x88\x01\x01B\b\n" +
 	"\x06_phoneB\b\n" +
-	"\x06_email\"\xd9\x02\n" +
-	"\x19StartEnrollMethodResponse\x12;\n" +
-	"\x04totp\x18\x01 \x01(\v2%.authentication.service.v1.TOTPResultH\x00R\x04totp\x128\n" +
+	"\x06_email\"\xe4\x02\n" +
+	"\x19StartEnrollMethodResponse\x12F\n" +
+	"\x04totp\x18\x01 \x01(\v2%.authentication.service.v1.TOTPResultB\tڶ\x1a\x05\x9a\x01\x02 \x01H\x00R\x04totp\x128\n" +
 	"\x03sms\x18\x02 \x01(\v2$.authentication.service.v1.SMSResultH\x00R\x03sms\x12G\n" +
 	"\bwebauthn\x18\x03 \x01(\v2).authentication.service.v1.WebAuthnResultH\x00R\bwebauthn\x12?\n" +
 	"\n" +
@@ -1875,15 +1875,15 @@ const file_authentication_service_v1_mfa_proto_rawDesc = "" +
 	"\x0eWebAuthnResult\x12\x1c\n" +
 	"\tchallenge\x18\x01 \x01(\tR\tchallenge\x12\"\n" +
 	"\foptions_json\x18\x02 \x01(\tR\foptions_json\x12\x14\n" +
-	"\x05rp_id\x18\x03 \x01(\tR\x05rp_id\"\x87\x03\n" +
+	"\x05rp_id\x18\x03 \x01(\tR\x05rp_id\"\xa2\x03\n" +
 	"\x1aConfirmEnrollMethodRequest\x12<\n" +
 	"\x06method\x18\x01 \x01(\x0e2$.authentication.service.v1.MFAMethodR\x06method\x12\"\n" +
-	"\foperation_id\x18\x02 \x01(\tR\foperation_id\x12\x1e\n" +
+	"\foperation_id\x18\x02 \x01(\tR\foperation_id\x12&\n" +
 	"\ttotp_code\x18\n" +
-	" \x01(\tH\x00R\ttotp_code\x12>\n" +
-	"\x03sms\x18\v \x01(\v2*.authentication.service.v1.SMSVerificationH\x00R\x03sms\x12J\n" +
-	"\bwebauthn\x18\f \x01(\v2,.authentication.service.v1.WebAuthnAssertionH\x00R\bwebauthn\x12\"\n" +
-	"\vbackup_code\x18\r \x01(\tH\x00R\vbackup_code\x12\x1d\n" +
+	" \x01(\tB\x06ڶ\x1a\x02z\x00H\x00R\ttotp_code\x12I\n" +
+	"\x03sms\x18\v \x01(\v2*.authentication.service.v1.SMSVerificationB\tڶ\x1a\x05\x9a\x01\x02 \x01H\x00R\x03sms\x12J\n" +
+	"\bwebauthn\x18\f \x01(\v2,.authentication.service.v1.WebAuthnAssertionH\x00R\bwebauthn\x12*\n" +
+	"\vbackup_code\x18\r \x01(\tB\x06ڶ\x1a\x02z\x00H\x00R\vbackup_code\x12\x1d\n" +
 	"\adisplay\x18\x14 \x01(\tH\x01R\adisplay\x88\x01\x01B\f\n" +
 	"\n" +
 	"credentialB\n" +
@@ -1891,14 +1891,14 @@ const file_authentication_service_v1_mfa_proto_rawDesc = "" +
 	"\b_display\"]\n" +
 	"\x1bConfirmEnrollMethodResponse\x12\x18\n" +
 	"\asuccess\x18\x01 \x01(\bR\asuccess\x12$\n" +
-	"\rcredential_id\x18\x02 \x01(\tR\rcredential_id\"\x9c\x03\n" +
+	"\rcredential_id\x18\x02 \x01(\tR\rcredential_id\"\xb7\x03\n" +
 	"\x11DisableMFARequest\x12)\n" +
 	"\rcredential_id\x18\x01 \x01(\tH\x01R\rcredential_id\x88\x01\x01\x12A\n" +
-	"\x06method\x18\x02 \x01(\x0e2$.authentication.service.v1.MFAMethodH\x02R\x06method\x88\x01\x01\x12\x1c\n" +
+	"\x06method\x18\x02 \x01(\x0e2$.authentication.service.v1.MFAMethodH\x02R\x06method\x88\x01\x01\x12$\n" +
 	"\bpassword\x18\n" +
-	" \x01(\tH\x00R\bpassword\x12\x1e\n" +
-	"\ttotp_code\x18\v \x01(\tH\x00R\ttotp_code\x12>\n" +
-	"\x03sms\x18\f \x01(\v2*.authentication.service.v1.SMSVerificationH\x00R\x03sms\x12J\n" +
+	" \x01(\tB\x06ڶ\x1a\x02z\x00H\x00R\bpassword\x12&\n" +
+	"\ttotp_code\x18\v \x01(\tB\x06ڶ\x1a\x02z\x00H\x00R\ttotp_code\x12I\n" +
+	"\x03sms\x18\f \x01(\v2*.authentication.service.v1.SMSVerificationB\tڶ\x1a\x05\x9a\x01\x02 \x01H\x00R\x03sms\x12J\n" +
 	"\bwebauthn\x18\r \x01(\v2,.authentication.service.v1.WebAuthnAssertionH\x00R\bwebauthn\x12\x1b\n" +
 	"\x06reason\x18\x14 \x01(\tH\x03R\x06reason\x88\x01\x01B\n" +
 	"\n" +
@@ -1922,14 +1922,14 @@ const file_authentication_service_v1_mfa_proto_rawDesc = "" +
 	"expires_at\x18\v \x01(\v2\x1a.google.protobuf.TimestampH\x01R\n" +
 	"expires_at\x88\x01\x01B\v\n" +
 	"\tchallengeB\r\n" +
-	"\v_expires_at\"\x9b\x02\n" +
+	"\v_expires_at\"\xb6\x02\n" +
 	"\x19VerifyMFAChallengeRequest\x12\"\n" +
-	"\foperation_id\x18\x01 \x01(\tR\foperation_id\x12\x1e\n" +
+	"\foperation_id\x18\x01 \x01(\tR\foperation_id\x12&\n" +
 	"\ttotp_code\x18\n" +
-	" \x01(\tH\x00R\ttotp_code\x12>\n" +
-	"\x03sms\x18\v \x01(\v2*.authentication.service.v1.SMSVerificationH\x00R\x03sms\x12J\n" +
-	"\bwebauthn\x18\f \x01(\v2,.authentication.service.v1.WebAuthnAssertionH\x00R\bwebauthn\x12\"\n" +
-	"\vbackup_code\x18\r \x01(\tH\x00R\vbackup_codeB\n" +
+	" \x01(\tB\x06ڶ\x1a\x02z\x00H\x00R\ttotp_code\x12I\n" +
+	"\x03sms\x18\v \x01(\v2*.authentication.service.v1.SMSVerificationB\tڶ\x1a\x05\x9a\x01\x02 \x01H\x00R\x03sms\x12J\n" +
+	"\bwebauthn\x18\f \x01(\v2,.authentication.service.v1.WebAuthnAssertionH\x00R\bwebauthn\x12*\n" +
+	"\vbackup_code\x18\r \x01(\tB\x06ڶ\x1a\x02z\x00H\x00R\vbackup_codeB\n" +
 	"\n" +
 	"\bresponse\"\xe5\x01\n" +
 	"\x1aVerifyMFAChallengeResponse\x12\x18\n" +

@@ -104,7 +104,7 @@ message StartEnrollMethodRequest {
 message StartEnrollMethodResponse {
   // Start result for different methods
   oneof result {
-    TOTPResult totp = 1;
+    TOTPResult totp = 1 [(redact.v3.value).message = {apply: true}];
     SMSResult sms = 2;
     WebAuthnResult webauthn = 3;
   }
@@ -137,10 +137,10 @@ message ConfirmEnrollMethodRequest {
   MFAMethod method = 1 [json_name = "method"];
   string operation_id = 2 [json_name = "operation_id"];
   oneof credential {
-    string totp_code = 10 [json_name = "totp_code"];
-    SMSVerification sms = 11;
+    string totp_code = 10 [(redact.v3.value).string = "", json_name = "totp_code"];
+    SMSVerification sms = 11 [(redact.v3.value).message = {apply: true}];
     WebAuthnAssertion webauthn = 12;
-    string backup_code = 13 [json_name = "backup_code"];
+    string backup_code = 13 [(redact.v3.value).string = "", json_name = "backup_code"];
   }
   // Optional: device/display name
   optional string display = 20 [json_name = "display"];
@@ -157,9 +157,9 @@ message DisableMFARequest {
   optional MFAMethod method = 2 [json_name = "method"];
   // Verification credential: password or verification code
   oneof verifier {
-    string password = 10 [json_name = "password"];
-    string totp_code = 11 [json_name = "totp_code"];
-    SMSVerification sms = 12;
+    string password = 10 [(redact.v3.value).string = "", json_name = "password"];
+    string totp_code = 11 [(redact.v3.value).string = "", json_name = "totp_code"];
+    SMSVerification sms = 12 [(redact.v3.value).message = {apply: true}];
     WebAuthnAssertion webauthn = 13;
   }
   optional string reason = 20 [json_name = "reason"];
@@ -184,10 +184,10 @@ message StartMFAChallengeResponse {
 message VerifyMFAChallengeRequest {
   string operation_id = 1 [json_name = "operation_id"];
   oneof response {
-    string totp_code = 10 [json_name = "totp_code"];
-    SMSVerification sms = 11;
+    string totp_code = 10 [(redact.v3.value).string = "", json_name = "totp_code"];
+    SMSVerification sms = 11 [(redact.v3.value).message = {apply: true}];
     WebAuthnAssertion webauthn = 12;
-    string backup_code = 13 [json_name = "backup_code"];
+    string backup_code = 13 [(redact.v3.value).string = "", json_name = "backup_code"];
   }
 }
 message VerifyMFAChallengeResponse {

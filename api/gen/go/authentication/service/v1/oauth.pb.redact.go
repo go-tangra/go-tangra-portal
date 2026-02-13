@@ -320,15 +320,18 @@ func (x *ConfirmLinkOAuthRequest) Redact() string {
 
 	// Safe field: ProviderCustom
 
-	// Safe field: OauthToken
-
-	// Safe field: Code
-
-	// Safe field: AuthorizationResponse
-
 	// Safe field: State
 
 	// Safe field: DisplayName
+	// Redacting oneof: Credential
+	switch v := x.Credential.(type) {
+	case *ConfirmLinkOAuthRequest_OauthToken:
+		v.OauthToken = ``
+	case *ConfirmLinkOAuthRequest_Code:
+		v.Code = ``
+	case *ConfirmLinkOAuthRequest_AuthorizationResponse:
+		v.AuthorizationResponse = ``
+	}
 	return x.String()
 }
 

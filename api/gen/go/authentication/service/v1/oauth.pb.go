@@ -1605,16 +1605,16 @@ const file_authentication_service_v1_oauth_proto_rawDesc = "" +
 	"\x12_authorization_urlB\x0f\n" +
 	"\r_operation_idB\r\n" +
 	"\v_expires_atB\x0f\n" +
-	"\r_display_hint\"\x9f\x03\n" +
+	"\r_display_hint\"\xb7\x03\n" +
 	"\x17ConfirmLinkOAuthRequest\x12&\n" +
 	"\foperation_id\x18\x01 \x01(\tH\x01R\voperationId\x88\x01\x01\x12D\n" +
 	"\bprovider\x18\x02 \x01(\x0e2(.authentication.service.v1.OAuthProviderR\bprovider\x12'\n" +
-	"\x0fprovider_custom\x18\x03 \x01(\tR\x0eproviderCustom\x12!\n" +
+	"\x0fprovider_custom\x18\x03 \x01(\tR\x0eproviderCustom\x12)\n" +
 	"\voauth_token\x18\n" +
-	" \x01(\tH\x00R\n" +
-	"oauthToken\x12\x14\n" +
-	"\x04code\x18\v \x01(\tH\x00R\x04code\x127\n" +
-	"\x16authorization_response\x18\f \x01(\tH\x00R\x15authorizationResponse\x12\x19\n" +
+	" \x01(\tB\x06ڶ\x1a\x02z\x00H\x00R\n" +
+	"oauthToken\x12\x1c\n" +
+	"\x04code\x18\v \x01(\tB\x06ڶ\x1a\x02z\x00H\x00R\x04code\x12?\n" +
+	"\x16authorization_response\x18\f \x01(\tB\x06ڶ\x1a\x02z\x00H\x00R\x15authorizationResponse\x12\x19\n" +
 	"\x05state\x18\x14 \x01(\tH\x02R\x05state\x88\x01\x01\x12&\n" +
 	"\fdisplay_name\x18\x15 \x01(\tH\x03R\vdisplayName\x88\x01\x01B\f\n" +
 	"\n" +

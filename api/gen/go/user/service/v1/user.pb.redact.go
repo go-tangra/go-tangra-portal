@@ -228,10 +228,6 @@ func (x *GetUserRequest) Redact() string {
 		return ""
 	}
 
-	// Safe field: Id
-
-	// Safe field: Username
-
 	// Safe field: ViewMask
 	return x.String()
 }
@@ -275,10 +271,6 @@ func (x *DeleteUserRequest) Redact() string {
 	if x == nil {
 		return ""
 	}
-
-	// Safe field: Id
-
-	// Safe field: Username
 	return x.String()
 }
 
@@ -287,10 +279,6 @@ func (x *UserExistsRequest) Redact() string {
 	if x == nil {
 		return ""
 	}
-
-	// Safe field: Id
-
-	// Safe field: Username
 	return x.String()
 }
 
@@ -366,10 +354,6 @@ func (x *UploadAvatarRequest) Redact() string {
 	if x == nil {
 		return ""
 	}
-
-	// Safe field: ImageBase64
-
-	// Safe field: ImageUrl
 	return x.String()
 }
 
@@ -388,10 +372,13 @@ func (x *BindContactRequest) Redact() string {
 	if x == nil {
 		return ""
 	}
-
-	// Safe field: Phone
-
-	// Safe field: Email
+	// Redacting oneof: Contact
+	switch v := x.Contact.(type) {
+	case *BindContactRequest_Phone:
+		redact.Apply(v.Phone)
+	case *BindContactRequest_Email:
+		redact.Apply(v.Email)
+	}
 	return x.String()
 }
 
@@ -403,7 +390,8 @@ func (x *BindPhoneRequest) Redact() string {
 
 	// Safe field: Phone
 
-	// Safe field: Code
+	// Redacting field: Code
+	x.Code = ``
 	return x.String()
 }
 
@@ -415,7 +403,9 @@ func (x *BindEmailRequest) Redact() string {
 
 	// Safe field: Email
 
-	// Safe field: VerificationCode
+	// Redacting field: VerificationCode
+	VerificationCodeTmp := ``
+	x.VerificationCode = &VerificationCodeTmp
 	return x.String()
 }
 
@@ -425,11 +415,14 @@ func (x *VerifyContactRequest) Redact() string {
 		return ""
 	}
 
-	// Safe field: Phone
-
-	// Safe field: Email
-
 	// Safe field: VerificationId
+	// Redacting oneof: Contact
+	switch v := x.Contact.(type) {
+	case *VerifyContactRequest_Phone:
+		redact.Apply(v.Phone)
+	case *VerifyContactRequest_Email:
+		redact.Apply(v.Email)
+	}
 	return x.String()
 }
 
@@ -441,7 +434,8 @@ func (x *PhoneVerification) Redact() string {
 
 	// Safe field: Phone
 
-	// Safe field: Code
+	// Redacting field: Code
+	x.Code = ``
 	return x.String()
 }
 
@@ -453,6 +447,7 @@ func (x *EmailVerification) Redact() string {
 
 	// Safe field: Email
 
-	// Safe field: Code
+	// Redacting field: Code
+	x.Code = ``
 	return x.String()
 }

@@ -244,8 +244,6 @@ func (x *GetUserCredentialRequest) Redact() string {
 		return ""
 	}
 
-	// Safe field: Id
-
 	// Safe field: ViewMask
 	return x.String()
 }

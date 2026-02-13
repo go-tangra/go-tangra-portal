@@ -239,15 +239,14 @@ func (x *StartEnrollMethodResponse) Redact() string {
 		return ""
 	}
 
-	// Safe field: Totp
-
-	// Safe field: Sms
-
-	// Safe field: Webauthn
-
 	// Safe field: ExpiresAt
 
 	// Safe field: OperationId
+	// Redacting oneof: Result
+	switch v := x.Result.(type) {
+	case *StartEnrollMethodResponse_Totp:
+		redact.Apply(v.Totp)
+	}
 	return x.String()
 }
 
@@ -305,15 +304,16 @@ func (x *ConfirmEnrollMethodRequest) Redact() string {
 
 	// Safe field: OperationId
 
-	// Safe field: TotpCode
-
-	// Safe field: Sms
-
-	// Safe field: Webauthn
-
-	// Safe field: BackupCode
-
 	// Safe field: Display
+	// Redacting oneof: Credential
+	switch v := x.Credential.(type) {
+	case *ConfirmEnrollMethodRequest_TotpCode:
+		v.TotpCode = ``
+	case *ConfirmEnrollMethodRequest_Sms:
+		redact.Apply(v.Sms)
+	case *ConfirmEnrollMethodRequest_BackupCode:
+		v.BackupCode = ``
+	}
 	return x.String()
 }
 
@@ -339,15 +339,16 @@ func (x *DisableMFARequest) Redact() string {
 
 	// Safe field: Method
 
-	// Safe field: Password
-
-	// Safe field: TotpCode
-
-	// Safe field: Sms
-
-	// Safe field: Webauthn
-
 	// Safe field: Reason
+	// Redacting oneof: Verifier
+	switch v := x.Verifier.(type) {
+	case *DisableMFARequest_Password:
+		v.Password = ``
+	case *DisableMFARequest_TotpCode:
+		v.TotpCode = ``
+	case *DisableMFARequest_Sms:
+		redact.Apply(v.Sms)
+	}
 	return x.String()
 }
 
@@ -371,10 +372,6 @@ func (x *StartMFAChallengeResponse) Redact() string {
 		return ""
 	}
 
-	// Safe field: Sms
-
-	// Safe field: Webauthn
-
 	// Safe field: OperationId
 
 	// Safe field: ExpiresAt
@@ -388,14 +385,15 @@ func (x *VerifyMFAChallengeRequest) Redact() string {
 	}
 
 	// Safe field: OperationId
-
-	// Safe field: TotpCode
-
-	// Safe field: Sms
-
-	// Safe field: Webauthn
-
-	// Safe field: BackupCode
+	// Redacting oneof: Response
+	switch v := x.Response.(type) {
+	case *VerifyMFAChallengeRequest_TotpCode:
+		v.TotpCode = ``
+	case *VerifyMFAChallengeRequest_Sms:
+		redact.Apply(v.Sms)
+	case *VerifyMFAChallengeRequest_BackupCode:
+		v.BackupCode = ``
+	}
 	return x.String()
 }
 

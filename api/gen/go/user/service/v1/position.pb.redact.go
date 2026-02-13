@@ -192,12 +192,6 @@ func (x *GetPositionRequest) Redact() string {
 		return ""
 	}
 
-	// Safe field: Id
-
-	// Safe field: Name
-
-	// Safe field: Code
-
 	// Safe field: ViewMask
 	return x.String()
 }

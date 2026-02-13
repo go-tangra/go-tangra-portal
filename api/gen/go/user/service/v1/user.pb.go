@@ -1867,30 +1867,30 @@ const file_user_service_v1_user_proto_rawDesc = "" +
 	"\timage_url\x18\x02 \x01(\tH\x00R\bimageUrlB\b\n" +
 	"\x06source\"(\n" +
 	"\x14UploadAvatarResponse\x12\x10\n" +
-	"\x03url\x18\x01 \x01(\tR\x03url\"\x95\x01\n" +
-	"\x12BindContactRequest\x129\n" +
-	"\x05phone\x18\x01 \x01(\v2!.user.service.v1.BindPhoneRequestH\x00R\x05phone\x129\n" +
-	"\x05email\x18\x02 \x01(\v2!.user.service.v1.BindEmailRequestH\x00R\x05emailB\t\n" +
-	"\acontact\"i\n" +
+	"\x03url\x18\x01 \x01(\tR\x03url\"\xab\x01\n" +
+	"\x12BindContactRequest\x12D\n" +
+	"\x05phone\x18\x01 \x01(\v2!.user.service.v1.BindPhoneRequestB\tڶ\x1a\x05\x9a\x01\x02 \x01H\x00R\x05phone\x12D\n" +
+	"\x05email\x18\x02 \x01(\v2!.user.service.v1.BindEmailRequestB\tڶ\x1a\x05\x9a\x01\x02 \x01H\x00R\x05emailB\t\n" +
+	"\acontact\"o\n" +
 	"\x10BindPhoneRequest\x12(\n" +
-	"\x05phone\x18\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\fPhone numberR\x05phone\x12+\n" +
-	"\x04code\x18\x02 \x01(\tB\x17\xbaG\x14\x92\x02\x11Verification codeR\x04code\"\xaf\x01\n" +
+	"\x05phone\x18\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\fPhone numberR\x05phone\x121\n" +
+	"\x04code\x18\x02 \x01(\tB\x1d\xbaG\x14\x92\x02\x11Verification codeڶ\x1a\x02z\x00R\x04code\"\xb5\x01\n" +
 	"\x10BindEmailRequest\x12)\n" +
-	"\x05email\x18\x01 \x01(\tB\x13\xbaG\x10\x92\x02\rEmail addressR\x05email\x12Z\n" +
-	"\x11verification_code\x18\x02 \x01(\tB(\xbaG%\x92\x02\"Email verification code (optional)H\x00R\x10verificationCode\x88\x01\x01B\x14\n" +
-	"\x12_verification_code\"\x96\x02\n" +
-	"\x14VerifyContactRequest\x12:\n" +
-	"\x05phone\x18\x01 \x01(\v2\".user.service.v1.PhoneVerificationH\x00R\x05phone\x12:\n" +
-	"\x05email\x18\x02 \x01(\v2\".user.service.v1.EmailVerificationH\x00R\x05email\x12g\n" +
+	"\x05email\x18\x01 \x01(\tB\x13\xbaG\x10\x92\x02\rEmail addressR\x05email\x12`\n" +
+	"\x11verification_code\x18\x02 \x01(\tB.\xbaG%\x92\x02\"Email verification code (optional)ڶ\x1a\x02z\x00H\x00R\x10verificationCode\x88\x01\x01B\x14\n" +
+	"\x12_verification_code\"\xac\x02\n" +
+	"\x14VerifyContactRequest\x12E\n" +
+	"\x05phone\x18\x01 \x01(\v2\".user.service.v1.PhoneVerificationB\tڶ\x1a\x05\x9a\x01\x02 \x01H\x00R\x05phone\x12E\n" +
+	"\x05email\x18\x02 \x01(\v2\".user.service.v1.EmailVerificationB\tڶ\x1a\x05\x9a\x01\x02 \x01H\x00R\x05email\x12g\n" +
 	"\x0fverification_id\x18\x03 \x01(\tB9\xbaG6\x92\x023Server-generated verification session ID (optional)H\x01R\x0everificationId\x88\x01\x01B\t\n" +
 	"\acontactB\x12\n" +
-	"\x10_verification_id\"\x83\x01\n" +
+	"\x10_verification_id\"\x89\x01\n" +
 	"\x11PhoneVerification\x12:\n" +
-	"\x05phone\x18\x01 \x01(\tB$\xbaG!\x92\x02\x1ePhone number with country codeR\x05phone\x122\n" +
-	"\x04code\x18\x02 \x01(\tB\x1e\xe0A\x02\xbaG\x18\x92\x02\x15SMS verification codeR\x04code\"t\n" +
+	"\x05phone\x18\x01 \x01(\tB$\xbaG!\x92\x02\x1ePhone number with country codeR\x05phone\x128\n" +
+	"\x04code\x18\x02 \x01(\tB$\xe0A\x02\xbaG\x18\x92\x02\x15SMS verification codeڶ\x1a\x02z\x00R\x04code\"z\n" +
 	"\x11EmailVerification\x12)\n" +
-	"\x05email\x18\x01 \x01(\tB\x13\xbaG\x10\x92\x02\rEmail addressR\x05email\x124\n" +
-	"\x04code\x18\x02 \x01(\tB \xe0A\x02\xbaG\x1a\x92\x02\x17Email verification codeR\x04code2\xad\x04\n" +
+	"\x05email\x18\x01 \x01(\tB\x13\xbaG\x10\x92\x02\rEmail addressR\x05email\x12:\n" +
+	"\x04code\x18\x02 \x01(\tB&\xe0A\x02\xbaG\x1a\x92\x02\x17Email verification codeڶ\x1a\x02z\x00R\x04code2\xad\x04\n" +
 	"\vUserService\x12F\n" +
 	"\x04List\x12\x19.pagination.PagingRequest\x1a!.user.service.v1.ListUserResponse\"\x00\x12?\n" +
 	"\x03Get\x12\x1f.user.service.v1.GetUserRequest\x1a\x15.user.service.v1.User\"\x00\x12F\n" +

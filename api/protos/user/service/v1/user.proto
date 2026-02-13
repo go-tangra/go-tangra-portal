@@ -377,18 +377,19 @@ message UploadAvatarResponse {
 
 message BindContactRequest {
   oneof contact {
-    BindPhoneRequest phone = 1;
-    BindEmailRequest email = 2;
+    BindPhoneRequest phone = 1 [(redact.v3.value).message = {apply: true}];
+    BindEmailRequest email = 2 [(redact.v3.value).message = {apply: true}];
   }
 }
 message BindPhoneRequest {
   string phone = 1 [(gnostic.openapi.v3.property) = { description: "Phone number" }];
-  string code = 2 [(gnostic.openapi.v3.property) = { description: "Verification code" }];
+  string code = 2 [(redact.v3.value).string = "", (gnostic.openapi.v3.property) = { description: "Verification code" }];
 }
 message BindEmailRequest {
   string email = 1 [(gnostic.openapi.v3.property) = { description: "Email address" }];
 
   optional string verification_code = 2 [
+    (redact.v3.value).string = "",
     json_name = "verificationCode",
     (gnostic.openapi.v3.property) = { description: "Email verification code (optional)" }
   ];
@@ -397,8 +398,8 @@ message BindEmailRequest {
 
 message VerifyContactRequest {
   oneof contact {
-    PhoneVerification phone = 1;
-    EmailVerification email = 2;
+    PhoneVerification phone = 1 [(redact.v3.value).message = {apply: true}];
+    EmailVerification email = 2 [(redact.v3.value).message = {apply: true}];
   }
 
   // Optional: Server-generated verification session ID (for multi-step or callback verification)
@@ -416,6 +417,7 @@ message PhoneVerification {
   ];
 
   string code = 2 [
+    (redact.v3.value).string = "",
     json_name = "code",
     (google.api.field_behavior) = REQUIRED,
     (gnostic.openapi.v3.property) = { description: "SMS verification code" }
@@ -430,6 +432,7 @@ message EmailVerification {
   ];
 
   string code = 2 [
+    (redact.v3.value).string = "",
     json_name = "code",
     (google.api.field_behavior) = REQUIRED,
     (gnostic.openapi.v3.property) = { description: "Email verification code" }
