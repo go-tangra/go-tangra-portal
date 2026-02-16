@@ -7,8 +7,6 @@ import (
 	"database/sql/driver"
 	"errors"
 	"fmt"
-	"github.com/go-tangra/go-tangra-portal/app/admin/service/internal/data/ent/orgunit"
-	"github.com/go-tangra/go-tangra-portal/app/admin/service/internal/data/ent/predicate"
 	"math"
 
 	"entgo.io/ent"
@@ -16,6 +14,8 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/go-tangra/go-tangra-portal/app/admin/service/internal/data/ent/orgunit"
+	"github.com/go-tangra/go-tangra-portal/app/admin/service/internal/data/ent/predicate"
 )
 
 // OrgUnitQuery is the builder for querying OrgUnit entities.

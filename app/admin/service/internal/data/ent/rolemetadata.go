@@ -5,13 +5,13 @@ package ent
 import (
 	"encoding/json"
 	"fmt"
-	userpb "github.com/go-tangra/go-tangra-portal/api/gen/go/user/service/v1"
-	"github.com/go-tangra/go-tangra-portal/app/admin/service/internal/data/ent/rolemetadata"
 	"strings"
 	"time"
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
+	userpb "github.com/go-tangra/go-tangra-portal/api/gen/go/user/service/v1"
+	"github.com/go-tangra/go-tangra-portal/app/admin/service/internal/data/ent/rolemetadata"
 )
 
 // 角色元数据

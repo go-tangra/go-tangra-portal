@@ -69,7 +69,7 @@ var (
 	// SysAPIAuditLogsColumns holds the columns for the "sys_api_audit_logs" table.
 	SysAPIAuditLogsColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeUint32, Increment: true, Comment: "id"},
-		{Name: "created_at", Type: field.TypeTime, Nullable: true, Comment: "创建时间"},
+		{Name: "created_at", Type: field.TypeTime, Comment: "创建时间"},
 		{Name: "tenant_id", Type: field.TypeUint32, Nullable: true, Comment: "租户ID", Default: 0},
 		{Name: "user_id", Type: field.TypeUint32, Nullable: true, Comment: "操作者用户ID"},
 		{Name: "username", Type: field.TypeString, Nullable: true, Comment: "操作者账号名"},
@@ -755,7 +755,7 @@ var (
 	// SysLoginAuditLogsColumns holds the columns for the "sys_login_audit_logs" table.
 	SysLoginAuditLogsColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeUint32, Increment: true, Comment: "id"},
-		{Name: "created_at", Type: field.TypeTime, Nullable: true, Comment: "创建时间"},
+		{Name: "created_at", Type: field.TypeTime, Comment: "创建时间"},
 		{Name: "tenant_id", Type: field.TypeUint32, Nullable: true, Comment: "租户ID", Default: 0},
 		{Name: "user_id", Type: field.TypeUint32, Nullable: true, Comment: "操作者用户ID"},
 		{Name: "username", Type: field.TypeString, Nullable: true, Comment: "操作者账号名"},
@@ -1415,7 +1415,7 @@ var (
 	// SysOperationAuditLogsColumns holds the columns for the "sys_operation_audit_logs" table.
 	SysOperationAuditLogsColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeUint32, Increment: true, Comment: "id"},
-		{Name: "created_at", Type: field.TypeTime, Nullable: true, Comment: "创建时间"},
+		{Name: "created_at", Type: field.TypeTime, Comment: "创建时间"},
 		{Name: "tenant_id", Type: field.TypeUint32, Nullable: true, Comment: "租户ID", Default: 0},
 		{Name: "user_id", Type: field.TypeUint32, Nullable: true, Comment: "操作者用户ID"},
 		{Name: "username", Type: field.TypeString, Nullable: true, Comment: "操作者账号名"},
@@ -2622,6 +2622,37 @@ var (
 			},
 		},
 	}
+	// SysUserDashboardsColumns holds the columns for the "sys_user_dashboards" table.
+	SysUserDashboardsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUint32, Increment: true, Comment: "id"},
+		{Name: "created_at", Type: field.TypeTime, Nullable: true, Comment: "创建时间"},
+		{Name: "updated_at", Type: field.TypeTime, Nullable: true, Comment: "更新时间"},
+		{Name: "deleted_at", Type: field.TypeTime, Nullable: true, Comment: "删除时间"},
+		{Name: "user_id", Type: field.TypeUint32, Comment: "User who owns this dashboard"},
+		{Name: "tenant_id", Type: field.TypeUint32, Comment: "Tenant scope"},
+		{Name: "name", Type: field.TypeString, Comment: "Dashboard name", Default: "My Dashboard"},
+		{Name: "widgets", Type: field.TypeJSON, Nullable: true, Comment: "Dashboard widget layout configuration", SchemaType: map[string]string{"mysql": "json", "postgres": "jsonb"}},
+		{Name: "is_default", Type: field.TypeBool, Comment: "Whether this is the user's default dashboard", Default: true},
+	}
+	// SysUserDashboardsTable holds the schema information for the "sys_user_dashboards" table.
+	SysUserDashboardsTable = &schema.Table{
+		Name:       "sys_user_dashboards",
+		Comment:    "User dashboard layout configuration",
+		Columns:    SysUserDashboardsColumns,
+		PrimaryKey: []*schema.Column{SysUserDashboardsColumns[0]},
+		Indexes: []*schema.Index{
+			{
+				Name:    "idx_sys_user_dashboards_user_tenant",
+				Unique:  false,
+				Columns: []*schema.Column{SysUserDashboardsColumns[4], SysUserDashboardsColumns[5]},
+			},
+			{
+				Name:    "idx_sys_user_dashboards_user_tenant_default",
+				Unique:  false,
+				Columns: []*schema.Column{SysUserDashboardsColumns[4], SysUserDashboardsColumns[5], SysUserDashboardsColumns[8]},
+			},
+		},
+	}
 	// SysUserOrgUnitsColumns holds the columns for the "sys_user_org_units" table.
 	SysUserOrgUnitsColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeUint32, Increment: true, Comment: "id"},
@@ -2938,6 +2969,7 @@ var (
 		SysTenantsTable,
 		SysUsersTable,
 		SysUserCredentialsTable,
+		SysUserDashboardsTable,
 		SysUserOrgUnitsTable,
 		SysUserPositionsTable,
 		SysUserRolesTable,
@@ -3133,6 +3165,11 @@ func init() {
 	}
 	SysUserCredentialsTable.Annotation = &entsql.Annotation{
 		Table:     "sys_user_credentials",
+		Charset:   "utf8mb4",
+		Collation: "utf8mb4_bin",
+	}
+	SysUserDashboardsTable.Annotation = &entsql.Annotation{
+		Table:     "sys_user_dashboards",
 		Charset:   "utf8mb4",
 		Collation: "utf8mb4_bin",
 	}

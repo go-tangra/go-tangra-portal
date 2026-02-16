@@ -4,12 +4,12 @@ package ent
 
 import (
 	"context"
-	"github.com/go-tangra/go-tangra-portal/app/admin/service/internal/data/ent/orgunit"
-	"github.com/go-tangra/go-tangra-portal/app/admin/service/internal/data/ent/predicate"
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/go-tangra/go-tangra-portal/app/admin/service/internal/data/ent/orgunit"
+	"github.com/go-tangra/go-tangra-portal/app/admin/service/internal/data/ent/predicate"
 )
 
 // OrgUnitDelete is the builder for deleting a OrgUnit entity.

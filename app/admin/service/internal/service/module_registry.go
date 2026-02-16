@@ -37,6 +37,9 @@ type RegisteredModule struct {
 	// Dynamic menus parsed from menus.yaml (recovered from DB on restart)
 	Menus []*ParsedMenu
 
+	// Dashboard widgets parsed from menus.yaml
+	Widgets []*ParsedWidget
+
 	// Counts
 	MenuCount  int32
 	APICount   int32
@@ -107,14 +110,20 @@ func (r *ModuleRegistry) LoadFromDatabase(ctx context.Context) error {
 	for _, entity := range entities {
 		mod := r.entityToRegistered(entity)
 
-		// Try to recover menus from stored menus_yaml first (preferred)
+		// Try to recover menus and widgets from stored menus_yaml first (preferred)
 		if len(mod.MenusYaml) > 0 && r.menuParser != nil {
 			menusFile, err := r.menuParser.Parse(mod.MenusYaml)
 			if err != nil {
 				r.log.Warnf("Failed to parse stored menus.yaml for module %s during startup: %v", mod.ModuleID, err)
-			} else if len(menusFile.Menus) > 0 {
-				mod.Menus = menusFile.Menus
-				r.log.Infof("Loaded %d menus for module %s from stored menus.yaml", len(menusFile.Menus), mod.ModuleID)
+			} else {
+				if len(menusFile.Menus) > 0 {
+					mod.Menus = menusFile.Menus
+					r.log.Infof("Loaded %d menus for module %s from stored menus.yaml", len(menusFile.Menus), mod.ModuleID)
+				}
+				if len(menusFile.DashboardWidgets) > 0 {
+					mod.Widgets = menusFile.DashboardWidgets
+					r.log.Infof("Loaded %d dashboard widgets for module %s from stored menus.yaml", len(menusFile.DashboardWidgets), mod.ModuleID)
+				}
 			}
 		}
 
@@ -300,6 +309,27 @@ func (r *ModuleRegistry) SetModuleMenus(moduleID string, menus []*ParsedMenu) {
 		mod.Menus = menus
 		mod.MenuCount = int32(len(menus))
 	}
+}
+
+// SetModuleWidgets stores the parsed dashboard widgets for a module.
+func (r *ModuleRegistry) SetModuleWidgets(moduleID string, widgets []*ParsedWidget) {
+	if val, ok := r.modules.Load(moduleID); ok {
+		mod := val.(*RegisteredModule)
+		mod.Widgets = widgets
+	}
+}
+
+// GetAllDashboardWidgets returns all dashboard widgets from healthy registered modules.
+func (r *ModuleRegistry) GetAllDashboardWidgets() []*ParsedWidget {
+	var allWidgets []*ParsedWidget
+	r.modules.Range(func(key, value interface{}) bool {
+		mod := value.(*RegisteredModule)
+		if mod.Health == adminV1.ModuleHealth_MODULE_HEALTH_HEALTHY && len(mod.Widgets) > 0 {
+			allWidgets = append(allWidgets, mod.Widgets...)
+		}
+		return true
+	})
+	return allWidgets
 }
 
 // UpdateCounts updates the menu, API, and route counts for a module.

@@ -6,13 +6,13 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	auditpb "github.com/go-tangra/go-tangra-portal/api/gen/go/audit/service/v1"
-	"github.com/go-tangra/go-tangra-portal/app/admin/service/internal/data/ent/apiauditlog"
-	"github.com/go-tangra/go-tangra-portal/app/admin/service/internal/data/ent/predicate"
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	auditpb "github.com/go-tangra/go-tangra-portal/api/gen/go/audit/service/v1"
+	"github.com/go-tangra/go-tangra-portal/app/admin/service/internal/data/ent/apiauditlog"
+	"github.com/go-tangra/go-tangra-portal/app/admin/service/internal/data/ent/predicate"
 )
 
 // ApiAuditLogUpdate is the builder for updating ApiAuditLog entities.
@@ -572,9 +572,6 @@ func (_u *ApiAuditLogUpdate) sqlSave(ctx context.Context) (_node int, err error)
 				ps[i](selector)
 			}
 		}
-	}
-	if _u.mutation.CreatedAtCleared() {
-		_spec.ClearField(apiauditlog.FieldCreatedAt, field.TypeTime)
 	}
 	if _u.mutation.TenantIDCleared() {
 		_spec.ClearField(apiauditlog.FieldTenantID, field.TypeUint32)
@@ -1333,9 +1330,6 @@ func (_u *ApiAuditLogUpdateOne) sqlSave(ctx context.Context) (_node *ApiAuditLog
 				ps[i](selector)
 			}
 		}
-	}
-	if _u.mutation.CreatedAtCleared() {
-		_spec.ClearField(apiauditlog.FieldCreatedAt, field.TypeTime)
 	}
 	if _u.mutation.TenantIDCleared() {
 		_spec.ClearField(apiauditlog.FieldTenantID, field.TypeUint32)

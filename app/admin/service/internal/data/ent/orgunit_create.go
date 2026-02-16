@@ -6,12 +6,12 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/go-tangra/go-tangra-portal/app/admin/service/internal/data/ent/orgunit"
 	"time"
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/go-tangra/go-tangra-portal/app/admin/service/internal/data/ent/orgunit"
 )
 
 // OrgUnitCreate is the builder for creating a OrgUnit entity.

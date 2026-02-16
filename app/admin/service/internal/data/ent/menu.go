@@ -5,13 +5,13 @@ package ent
 import (
 	"encoding/json"
 	"fmt"
-	permissionpb "github.com/go-tangra/go-tangra-portal/api/gen/go/permission/service/v1"
-	"github.com/go-tangra/go-tangra-portal/app/admin/service/internal/data/ent/menu"
 	"strings"
 	"time"
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
+	permissionpb "github.com/go-tangra/go-tangra-portal/api/gen/go/permission/service/v1"
+	"github.com/go-tangra/go-tangra-portal/app/admin/service/internal/data/ent/menu"
 )
 
 // 菜单资源表

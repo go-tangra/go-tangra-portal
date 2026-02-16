@@ -6,8 +6,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/go-tangra/go-tangra-portal/app/admin/service/internal/data/ent/predicate"
-	"github.com/go-tangra/go-tangra-portal/app/admin/service/internal/data/ent/user"
 	"math"
 
 	"entgo.io/ent"
@@ -15,6 +13,8 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/go-tangra/go-tangra-portal/app/admin/service/internal/data/ent/predicate"
+	"github.com/go-tangra/go-tangra-portal/app/admin/service/internal/data/ent/user"
 )
 
 // UserQuery is the builder for querying User entities.

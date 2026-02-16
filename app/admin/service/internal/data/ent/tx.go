@@ -86,6 +86,8 @@ type Tx struct {
 	User *UserClient
 	// UserCredential is the client for interacting with the UserCredential builders.
 	UserCredential *UserCredentialClient
+	// UserDashboard is the client for interacting with the UserDashboard builders.
+	UserDashboard *UserDashboardClient
 	// UserOrgUnit is the client for interacting with the UserOrgUnit builders.
 	UserOrgUnit *UserOrgUnitClient
 	// UserPosition is the client for interacting with the UserPosition builders.
@@ -260,6 +262,7 @@ func (tx *Tx) init() {
 	tx.Tenant = NewTenantClient(tx.config)
 	tx.User = NewUserClient(tx.config)
 	tx.UserCredential = NewUserCredentialClient(tx.config)
+	tx.UserDashboard = NewUserDashboardClient(tx.config)
 	tx.UserOrgUnit = NewUserOrgUnitClient(tx.config)
 	tx.UserPosition = NewUserPositionClient(tx.config)
 	tx.UserRole = NewUserRoleClient(tx.config)

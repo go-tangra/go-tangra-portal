@@ -6,13 +6,13 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	auditpb "github.com/go-tangra/go-tangra-portal/api/gen/go/audit/service/v1"
-	"github.com/go-tangra/go-tangra-portal/app/admin/service/internal/data/ent/dataaccessauditlog"
-	"github.com/go-tangra/go-tangra-portal/app/admin/service/internal/data/ent/predicate"
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	auditpb "github.com/go-tangra/go-tangra-portal/api/gen/go/audit/service/v1"
+	"github.com/go-tangra/go-tangra-portal/app/admin/service/internal/data/ent/dataaccessauditlog"
+	"github.com/go-tangra/go-tangra-portal/app/admin/service/internal/data/ent/predicate"
 )
 
 // DataAccessAuditLogUpdate is the builder for updating DataAccessAuditLog entities.

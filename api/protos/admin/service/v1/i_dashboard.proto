@@ -1,0 +1,134 @@
+syntax = "proto3";
+
+package admin.service.v1;
+
+option go_package = "github.com/go-tangra/go-tangra-portal/api/gen/go/admin/service/v1;adminV1";
+
+import "google/api/annotations.proto";
+import "google/protobuf/struct.proto";
+import "google/protobuf/timestamp.proto";
+
+// DashboardService provides user-customizable dashboard management.
+// Widget definitions are populated from module registrations and built-in admin widgets.
+service DashboardService {
+  // ListWidgets returns the widget catalog from all registered modules.
+  rpc ListWidgets (ListWidgetsRequest) returns (ListWidgetsResponse) {
+    option (google.api.http) = {
+      get: "/admin/v1/dashboard/widgets"
+    };
+  }
+
+  // GetUserDashboard returns the current user's dashboard layout.
+  rpc GetUserDashboard (GetUserDashboardRequest) returns (GetUserDashboardResponse) {
+    option (google.api.http) = {
+      get: "/admin/v1/dashboard"
+    };
+  }
+
+  // SaveUserDashboard saves the user's dashboard layout.
+  rpc SaveUserDashboard (SaveUserDashboardRequest) returns (SaveUserDashboardResponse) {
+    option (google.api.http) = {
+      put: "/admin/v1/dashboard"
+      body: "*"
+    };
+  }
+
+  // ResetUserDashboard resets the user's dashboard to the default layout.
+  rpc ResetUserDashboard (ResetUserDashboardRequest) returns (ResetUserDashboardResponse) {
+    option (google.api.http) = {
+      post: "/admin/v1/dashboard/reset"
+      body: "*"
+    };
+  }
+}
+
+// ListWidgetsRequest is the request for ListWidgets.
+message ListWidgetsRequest {
+  // Optional filter by module ID
+  optional string module_id = 1;
+  // Optional filter by widget type
+  optional string widget_type = 2;
+  // Optional filter by tag
+  optional string tag = 3;
+}
+
+// ListWidgetsResponse is the response for ListWidgets.
+message ListWidgetsResponse {
+  repeated WidgetDefinition widgets = 1;
+  int32 total = 2;
+}
+
+// WidgetDefinition describes a dashboard widget available from a module.
+message WidgetDefinition {
+  string id = 1;
+  string module_id = 2;
+  string name = 3;
+  string description = 4;
+  string icon = 5;
+  string widget_type = 6;
+  WidgetDataSourceProto data_source = 7;
+  google.protobuf.Struct data_mapping = 8;
+  WidgetSizeProto default_size = 9;
+  repeated string tags = 10;
+  repeated string authority = 11;
+}
+
+// WidgetDataSourceProto defines how a widget fetches its data.
+message WidgetDataSourceProto {
+  string endpoint = 1;
+  string method = 2;
+  map<string, string> params = 3;
+}
+
+// WidgetSizeProto defines default grid dimensions.
+message WidgetSizeProto {
+  int32 width = 1;
+  int32 height = 2;
+}
+
+// GetUserDashboardRequest is the request for GetUserDashboard.
+message GetUserDashboardRequest {}
+
+// GetUserDashboardResponse is the response for GetUserDashboard.
+message GetUserDashboardResponse {
+  UserDashboard dashboard = 1;
+}
+
+// UserDashboard represents a user's dashboard configuration.
+message UserDashboard {
+  uint32 id = 1;
+  string name = 2;
+  repeated DashboardWidget widgets = 3;
+  bool is_default = 4;
+  google.protobuf.Timestamp created_at = 5;
+  google.protobuf.Timestamp updated_at = 6;
+}
+
+// DashboardWidget represents a widget placed on a user's dashboard.
+message DashboardWidget {
+  string widget_id = 1;
+  int32 grid_x = 2;
+  int32 grid_y = 3;
+  int32 grid_w = 4;
+  int32 grid_h = 5;
+  google.protobuf.Struct config = 6;
+}
+
+// SaveUserDashboardRequest is the request for SaveUserDashboard.
+message SaveUserDashboardRequest {
+  string name = 1;
+  repeated DashboardWidget widgets = 2;
+}
+
+// SaveUserDashboardResponse is the response for SaveUserDashboard.
+message SaveUserDashboardResponse {
+  UserDashboard dashboard = 1;
+}
+
+// ResetUserDashboardRequest is the request for ResetUserDashboard.
+message ResetUserDashboardRequest {}
+
+// ResetUserDashboardResponse is the response for ResetUserDashboard.
+message ResetUserDashboardResponse {
+  UserDashboard dashboard = 1;
+}

@@ -4,12 +4,12 @@ package ent
 
 import (
 	"fmt"
-	"github.com/go-tangra/go-tangra-portal/app/admin/service/internal/data/ent/usercredential"
 	"strings"
 	"time"
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
+	"github.com/go-tangra/go-tangra-portal/app/admin/service/internal/data/ent/usercredential"
 )
 
 // 用户认证信息表

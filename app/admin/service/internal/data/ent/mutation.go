@@ -6,6 +6,11 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"sync"
+	"time"
+
+	"entgo.io/ent"
+	"entgo.io/ent/dialect/sql"
 	auditpb "github.com/go-tangra/go-tangra-portal/api/gen/go/audit/service/v1"
 	permissionpb "github.com/go-tangra/go-tangra-portal/api/gen/go/permission/service/v1"
 	servicev1 "github.com/go-tangra/go-tangra-portal/api/gen/go/task/service/v1"
@@ -44,18 +49,15 @@ import (
 	"github.com/go-tangra/go-tangra-portal/app/admin/service/internal/data/ent/role"
 	"github.com/go-tangra/go-tangra-portal/app/admin/service/internal/data/ent/rolemetadata"
 	"github.com/go-tangra/go-tangra-portal/app/admin/service/internal/data/ent/rolepermission"
+	"github.com/go-tangra/go-tangra-portal/app/admin/service/internal/data/ent/schema"
 	"github.com/go-tangra/go-tangra-portal/app/admin/service/internal/data/ent/task"
 	"github.com/go-tangra/go-tangra-portal/app/admin/service/internal/data/ent/tenant"
 	"github.com/go-tangra/go-tangra-portal/app/admin/service/internal/data/ent/user"
 	"github.com/go-tangra/go-tangra-portal/app/admin/service/internal/data/ent/usercredential"
+	"github.com/go-tangra/go-tangra-portal/app/admin/service/internal/data/ent/userdashboard"
 	"github.com/go-tangra/go-tangra-portal/app/admin/service/internal/data/ent/userorgunit"
 	"github.com/go-tangra/go-tangra-portal/app/admin/service/internal/data/ent/userposition"
 	"github.com/go-tangra/go-tangra-portal/app/admin/service/internal/data/ent/userrole"
-	"sync"
-	"time"
-
-	"entgo.io/ent"
-	"entgo.io/ent/dialect/sql"
 )
 
 const (
@@ -104,6 +106,7 @@ const (
 	TypeTenant                   = "Tenant"
 	TypeUser                     = "User"
 	TypeUserCredential           = "UserCredential"
+	TypeUserDashboard            = "UserDashboard"
 	TypeUserOrgUnit              = "UserOrgUnit"
 	TypeUserPosition             = "UserPosition"
 	TypeUserRole                 = "UserRole"
@@ -1662,7 +1665,7 @@ func (m *ApiAuditLogMutation) CreatedAt() (r time.Time, exists bool) {
 // OldCreatedAt returns the old "created_at" field's value of the ApiAuditLog entity.
 // If the ApiAuditLog object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *ApiAuditLogMutation) OldCreatedAt(ctx context.Context) (v *time.Time, err error) {
+func (m *ApiAuditLogMutation) OldCreatedAt(ctx context.Context) (v time.Time, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldCreatedAt is only allowed on UpdateOne operations")
 	}
@@ -1676,22 +1679,9 @@ func (m *ApiAuditLogMutation) OldCreatedAt(ctx context.Context) (v *time.Time, e
 	return oldValue.CreatedAt, nil
 }
 
-// ClearCreatedAt clears the value of the "created_at" field.
-func (m *ApiAuditLogMutation) ClearCreatedAt() {
-	m.created_at = nil
-	m.clearedFields[apiauditlog.FieldCreatedAt] = struct{}{}
-}
-
-// CreatedAtCleared returns if the "created_at" field was cleared in this mutation.
-func (m *ApiAuditLogMutation) CreatedAtCleared() bool {
-	_, ok := m.clearedFields[apiauditlog.FieldCreatedAt]
-	return ok
-}
-
 // ResetCreatedAt resets all changes to the "created_at" field.
 func (m *ApiAuditLogMutation) ResetCreatedAt() {
 	m.created_at = nil
-	delete(m.clearedFields, apiauditlog.FieldCreatedAt)
 }
 
 // SetTenantID sets the "tenant_id" field.
@@ -3572,9 +3562,6 @@ func (m *ApiAuditLogMutation) AddField(name string, value ent.Value) error {
 // mutation.
 func (m *ApiAuditLogMutation) ClearedFields() []string {
 	var fields []string
-	if m.FieldCleared(apiauditlog.FieldCreatedAt) {
-		fields = append(fields, apiauditlog.FieldCreatedAt)
-	}
 	if m.FieldCleared(apiauditlog.FieldTenantID) {
 		fields = append(fields, apiauditlog.FieldTenantID)
 	}
@@ -3667,9 +3654,6 @@ func (m *ApiAuditLogMutation) FieldCleared(name string) bool {
 // error if the field is not defined in the schema.
 func (m *ApiAuditLogMutation) ClearField(name string) error {
 	switch name {
-	case apiauditlog.FieldCreatedAt:
-		m.ClearCreatedAt()
-		return nil
 	case apiauditlog.FieldTenantID:
 		m.ClearTenantID()
 		return nil
@@ -18689,7 +18673,7 @@ func (m *LoginAuditLogMutation) CreatedAt() (r time.Time, exists bool) {
 // OldCreatedAt returns the old "created_at" field's value of the LoginAuditLog entity.
 // If the LoginAuditLog object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *LoginAuditLogMutation) OldCreatedAt(ctx context.Context) (v *time.Time, err error) {
+func (m *LoginAuditLogMutation) OldCreatedAt(ctx context.Context) (v time.Time, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldCreatedAt is only allowed on UpdateOne operations")
 	}
@@ -18703,22 +18687,9 @@ func (m *LoginAuditLogMutation) OldCreatedAt(ctx context.Context) (v *time.Time,
 	return oldValue.CreatedAt, nil
 }
 
-// ClearCreatedAt clears the value of the "created_at" field.
-func (m *LoginAuditLogMutation) ClearCreatedAt() {
-	m.created_at = nil
-	m.clearedFields[loginauditlog.FieldCreatedAt] = struct{}{}
-}
-
-// CreatedAtCleared returns if the "created_at" field was cleared in this mutation.
-func (m *LoginAuditLogMutation) CreatedAtCleared() bool {
-	_, ok := m.clearedFields[loginauditlog.FieldCreatedAt]
-	return ok
-}
-
 // ResetCreatedAt resets all changes to the "created_at" field.
 func (m *LoginAuditLogMutation) ResetCreatedAt() {
 	m.created_at = nil
-	delete(m.clearedFields, loginauditlog.FieldCreatedAt)
 }
 
 // SetTenantID sets the "tenant_id" field.
@@ -20141,9 +20112,6 @@ func (m *LoginAuditLogMutation) AddField(name string, value ent.Value) error {
 // mutation.
 func (m *LoginAuditLogMutation) ClearedFields() []string {
 	var fields []string
-	if m.FieldCleared(loginauditlog.FieldCreatedAt) {
-		fields = append(fields, loginauditlog.FieldCreatedAt)
-	}
 	if m.FieldCleared(loginauditlog.FieldTenantID) {
 		fields = append(fields, loginauditlog.FieldTenantID)
 	}
@@ -20215,9 +20183,6 @@ func (m *LoginAuditLogMutation) FieldCleared(name string) bool {
 // error if the field is not defined in the schema.
 func (m *LoginAuditLogMutation) ClearField(name string) error {
 	switch name {
-	case loginauditlog.FieldCreatedAt:
-		m.ClearCreatedAt()
-		return nil
 	case loginauditlog.FieldTenantID:
 		m.ClearTenantID()
 		return nil
@@ -32492,7 +32457,7 @@ func (m *OperationAuditLogMutation) CreatedAt() (r time.Time, exists bool) {
 // OldCreatedAt returns the old "created_at" field's value of the OperationAuditLog entity.
 // If the OperationAuditLog object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *OperationAuditLogMutation) OldCreatedAt(ctx context.Context) (v *time.Time, err error) {
+func (m *OperationAuditLogMutation) OldCreatedAt(ctx context.Context) (v time.Time, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldCreatedAt is only allowed on UpdateOne operations")
 	}
@@ -32506,22 +32471,9 @@ func (m *OperationAuditLogMutation) OldCreatedAt(ctx context.Context) (v *time.T
 	return oldValue.CreatedAt, nil
 }
 
-// ClearCreatedAt clears the value of the "created_at" field.
-func (m *OperationAuditLogMutation) ClearCreatedAt() {
-	m.created_at = nil
-	m.clearedFields[operationauditlog.FieldCreatedAt] = struct{}{}
-}
-
-// CreatedAtCleared returns if the "created_at" field was cleared in this mutation.
-func (m *OperationAuditLogMutation) CreatedAtCleared() bool {
-	_, ok := m.clearedFields[operationauditlog.FieldCreatedAt]
-	return ok
-}
-
 // ResetCreatedAt resets all changes to the "created_at" field.
 func (m *OperationAuditLogMutation) ResetCreatedAt() {
 	m.created_at = nil
-	delete(m.clearedFields, operationauditlog.FieldCreatedAt)
 }
 
 // SetTenantID sets the "tenant_id" field.
@@ -33832,9 +33784,6 @@ func (m *OperationAuditLogMutation) AddField(name string, value ent.Value) error
 // mutation.
 func (m *OperationAuditLogMutation) ClearedFields() []string {
 	var fields []string
-	if m.FieldCleared(operationauditlog.FieldCreatedAt) {
-		fields = append(fields, operationauditlog.FieldCreatedAt)
-	}
 	if m.FieldCleared(operationauditlog.FieldTenantID) {
 		fields = append(fields, operationauditlog.FieldTenantID)
 	}
@@ -33903,9 +33852,6 @@ func (m *OperationAuditLogMutation) FieldCleared(name string) bool {
 // error if the field is not defined in the schema.
 func (m *OperationAuditLogMutation) ClearField(name string) error {
 	switch name {
-	case operationauditlog.FieldCreatedAt:
-		m.ClearCreatedAt()
-		return nil
 	case operationauditlog.FieldTenantID:
 		m.ClearTenantID()
 		return nil
@@ -59938,6 +59884,881 @@ func (m *UserCredentialMutation) ClearEdge(name string) error {
 // It returns an error if the edge is not defined in the schema.
 func (m *UserCredentialMutation) ResetEdge(name string) error {
 	return fmt.Errorf("unknown UserCredential edge %s", name)
+}
+
+// UserDashboardMutation represents an operation that mutates the UserDashboard nodes in the graph.
+type UserDashboardMutation struct {
+	config
+	op            Op
+	typ           string
+	id            *uint32
+	created_at    *time.Time
+	updated_at    *time.Time
+	deleted_at    *time.Time
+	user_id       *uint32
+	adduser_id    *int32
+	tenant_id     *uint32
+	addtenant_id  *int32
+	name          *string
+	widgets       *[]schema.DashboardWidgetConfig
+	appendwidgets []schema.DashboardWidgetConfig
+	is_default    *bool
+	clearedFields map[string]struct{}
+	done          bool
+	oldValue      func(context.Context) (*UserDashboard, error)
+	predicates    []predicate.UserDashboard
+}
+
+var _ ent.Mutation = (*UserDashboardMutation)(nil)
+
+// userdashboardOption allows management of the mutation configuration using functional options.
+type userdashboardOption func(*UserDashboardMutation)
+
+// newUserDashboardMutation creates new mutation for the UserDashboard entity.
+func newUserDashboardMutation(c config, op Op, opts ...userdashboardOption) *UserDashboardMutation {
+	m := &UserDashboardMutation{
+		config:        c,
+		op:            op,
+		typ:           TypeUserDashboard,
+		clearedFields: make(map[string]struct{}),
+	}
+	for _, opt := range opts {
+		opt(m)
+	}
+	return m
+}
+
+// withUserDashboardID sets the ID field of the mutation.
+func withUserDashboardID(id uint32) userdashboardOption {
+	return func(m *UserDashboardMutation) {
+		var (
+			err   error
+			once  sync.Once
+			value *UserDashboard
+		)
+		m.oldValue = func(ctx context.Context) (*UserDashboard, error) {
+			once.Do(func() {
+				if m.done {
+					err = errors.New("querying old values post mutation is not allowed")
+				} else {
+					value, err = m.Client().UserDashboard.Get(ctx, id)
+				}
+			})
+			return value, err
+		}
+		m.id = &id
+	}
+}
+
+// withUserDashboard sets the old UserDashboard of the mutation.
+func withUserDashboard(node *UserDashboard) userdashboardOption {
+	return func(m *UserDashboardMutation) {
+		m.oldValue = func(context.Context) (*UserDashboard, error) {
+			return node, nil
+		}
+		m.id = &node.ID
+	}
+}
+
+// Client returns a new `ent.Client` from the mutation. If the mutation was
+// executed in a transaction (ent.Tx), a transactional client is returned.
+func (m UserDashboardMutation) Client() *Client {
+	client := &Client{config: m.config}
+	client.init()
+	return client
+}
+
+// Tx returns an `ent.Tx` for mutations that were executed in transactions;
+// it returns an error otherwise.
+func (m UserDashboardMutation) Tx() (*Tx, error) {
+	if _, ok := m.driver.(*txDriver); !ok {
+		return nil, errors.New("ent: mutation is not running in a transaction")
+	}
+	tx := &Tx{config: m.config}
+	tx.init()
+	return tx, nil
+}
+
+// SetID sets the value of the id field. Note that this
+// operation is only accepted on creation of UserDashboard entities.
+func (m *UserDashboardMutation) SetID(id uint32) {
+	m.id = &id
+}
+
+// ID returns the ID value in the mutation. Note that the ID is only available
+// if it was provided to the builder or after it was returned from the database.
+func (m *UserDashboardMutation) ID() (id uint32, exists bool) {
+	if m.id == nil {
+		return
+	}
+	return *m.id, true
+}
+
+// IDs queries the database and returns the entity ids that match the mutation's predicate.
+// That means, if the mutation is applied within a transaction with an isolation level such
+// as sql.LevelSerializable, the returned ids match the ids of the rows that will be updated
+// or updated by the mutation.
+func (m *UserDashboardMutation) IDs(ctx context.Context) ([]uint32, error) {
+	switch {
+	case m.op.Is(OpUpdateOne | OpDeleteOne):
+		id, exists := m.ID()
+		if exists {
+			return []uint32{id}, nil
+		}
+		fallthrough
+	case m.op.Is(OpUpdate | OpDelete):
+		return m.Client().UserDashboard.Query().Where(m.predicates...).IDs(ctx)
+	default:
+		return nil, fmt.Errorf("IDs is not allowed on %s operations", m.op)
+	}
+}
+
+// SetCreatedAt sets the "created_at" field.
+func (m *UserDashboardMutation) SetCreatedAt(t time.Time) {
+	m.created_at = &t
+}
+
+// CreatedAt returns the value of the "created_at" field in the mutation.
+func (m *UserDashboardMutation) CreatedAt() (r time.Time, exists bool) {
+	v := m.created_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldCreatedAt returns the old "created_at" field's value of the UserDashboard entity.
+// If the UserDashboard object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *UserDashboardMutation) OldCreatedAt(ctx context.Context) (v *time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldCreatedAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldCreatedAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldCreatedAt: %w", err)
+	}
+	return oldValue.CreatedAt, nil
+}
+
+// ClearCreatedAt clears the value of the "created_at" field.
+func (m *UserDashboardMutation) ClearCreatedAt() {
+	m.created_at = nil
+	m.clearedFields[userdashboard.FieldCreatedAt] = struct{}{}
+}
+
+// CreatedAtCleared returns if the "created_at" field was cleared in this mutation.
+func (m *UserDashboardMutation) CreatedAtCleared() bool {
+	_, ok := m.clearedFields[userdashboard.FieldCreatedAt]
+	return ok
+}
+
+// ResetCreatedAt resets all changes to the "created_at" field.
+func (m *UserDashboardMutation) ResetCreatedAt() {
+	m.created_at = nil
+	delete(m.clearedFields, userdashboard.FieldCreatedAt)
+}
+
+// SetUpdatedAt sets the "updated_at" field.
+func (m *UserDashboardMutation) SetUpdatedAt(t time.Time) {
+	m.updated_at = &t
+}
+
+// UpdatedAt returns the value of the "updated_at" field in the mutation.
+func (m *UserDashboardMutation) UpdatedAt() (r time.Time, exists bool) {
+	v := m.updated_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldUpdatedAt returns the old "updated_at" field's value of the UserDashboard entity.
+// If the UserDashboard object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *UserDashboardMutation) OldUpdatedAt(ctx context.Context) (v *time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldUpdatedAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldUpdatedAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldUpdatedAt: %w", err)
+	}
+	return oldValue.UpdatedAt, nil
+}
+
+// ClearUpdatedAt clears the value of the "updated_at" field.
+func (m *UserDashboardMutation) ClearUpdatedAt() {
+	m.updated_at = nil
+	m.clearedFields[userdashboard.FieldUpdatedAt] = struct{}{}
+}
+
+// UpdatedAtCleared returns if the "updated_at" field was cleared in this mutation.
+func (m *UserDashboardMutation) UpdatedAtCleared() bool {
+	_, ok := m.clearedFields[userdashboard.FieldUpdatedAt]
+	return ok
+}
+
+// ResetUpdatedAt resets all changes to the "updated_at" field.
+func (m *UserDashboardMutation) ResetUpdatedAt() {
+	m.updated_at = nil
+	delete(m.clearedFields, userdashboard.FieldUpdatedAt)
+}
+
+// SetDeletedAt sets the "deleted_at" field.
+func (m *UserDashboardMutation) SetDeletedAt(t time.Time) {
+	m.deleted_at = &t
+}
+
+// DeletedAt returns the value of the "deleted_at" field in the mutation.
+func (m *UserDashboardMutation) DeletedAt() (r time.Time, exists bool) {
+	v := m.deleted_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldDeletedAt returns the old "deleted_at" field's value of the UserDashboard entity.
+// If the UserDashboard object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *UserDashboardMutation) OldDeletedAt(ctx context.Context) (v *time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldDeletedAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldDeletedAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldDeletedAt: %w", err)
+	}
+	return oldValue.DeletedAt, nil
+}
+
+// ClearDeletedAt clears the value of the "deleted_at" field.
+func (m *UserDashboardMutation) ClearDeletedAt() {
+	m.deleted_at = nil
+	m.clearedFields[userdashboard.FieldDeletedAt] = struct{}{}
+}
+
+// DeletedAtCleared returns if the "deleted_at" field was cleared in this mutation.
+func (m *UserDashboardMutation) DeletedAtCleared() bool {
+	_, ok := m.clearedFields[userdashboard.FieldDeletedAt]
+	return ok
+}
+
+// ResetDeletedAt resets all changes to the "deleted_at" field.
+func (m *UserDashboardMutation) ResetDeletedAt() {
+	m.deleted_at = nil
+	delete(m.clearedFields, userdashboard.FieldDeletedAt)
+}
+
+// SetUserID sets the "user_id" field.
+func (m *UserDashboardMutation) SetUserID(u uint32) {
+	m.user_id = &u
+	m.adduser_id = nil
+}
+
+// UserID returns the value of the "user_id" field in the mutation.
+func (m *UserDashboardMutation) UserID() (r uint32, exists bool) {
+	v := m.user_id
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldUserID returns the old "user_id" field's value of the UserDashboard entity.
+// If the UserDashboard object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *UserDashboardMutation) OldUserID(ctx context.Context) (v uint32, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldUserID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldUserID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldUserID: %w", err)
+	}
+	return oldValue.UserID, nil
+}
+
+// AddUserID adds u to the "user_id" field.
+func (m *UserDashboardMutation) AddUserID(u int32) {
+	if m.adduser_id != nil {
+		*m.adduser_id += u
+	} else {
+		m.adduser_id = &u
+	}
+}
+
+// AddedUserID returns the value that was added to the "user_id" field in this mutation.
+func (m *UserDashboardMutation) AddedUserID() (r int32, exists bool) {
+	v := m.adduser_id
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetUserID resets all changes to the "user_id" field.
+func (m *UserDashboardMutation) ResetUserID() {
+	m.user_id = nil
+	m.adduser_id = nil
+}
+
+// SetTenantID sets the "tenant_id" field.
+func (m *UserDashboardMutation) SetTenantID(u uint32) {
+	m.tenant_id = &u
+	m.addtenant_id = nil
+}
+
+// TenantID returns the value of the "tenant_id" field in the mutation.
+func (m *UserDashboardMutation) TenantID() (r uint32, exists bool) {
+	v := m.tenant_id
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldTenantID returns the old "tenant_id" field's value of the UserDashboard entity.
+// If the UserDashboard object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *UserDashboardMutation) OldTenantID(ctx context.Context) (v uint32, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldTenantID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldTenantID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldTenantID: %w", err)
+	}
+	return oldValue.TenantID, nil
+}
+
+// AddTenantID adds u to the "tenant_id" field.
+func (m *UserDashboardMutation) AddTenantID(u int32) {
+	if m.addtenant_id != nil {
+		*m.addtenant_id += u
+	} else {
+		m.addtenant_id = &u
+	}
+}
+
+// AddedTenantID returns the value that was added to the "tenant_id" field in this mutation.
+func (m *UserDashboardMutation) AddedTenantID() (r int32, exists bool) {
+	v := m.addtenant_id
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetTenantID resets all changes to the "tenant_id" field.
+func (m *UserDashboardMutation) ResetTenantID() {
+	m.tenant_id = nil
+	m.addtenant_id = nil
+}
+
+// SetName sets the "name" field.
+func (m *UserDashboardMutation) SetName(s string) {
+	m.name = &s
+}
+
+// Name returns the value of the "name" field in the mutation.
+func (m *UserDashboardMutation) Name() (r string, exists bool) {
+	v := m.name
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldName returns the old "name" field's value of the UserDashboard entity.
+// If the UserDashboard object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *UserDashboardMutation) OldName(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldName is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldName requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldName: %w", err)
+	}
+	return oldValue.Name, nil
+}
+
+// ResetName resets all changes to the "name" field.
+func (m *UserDashboardMutation) ResetName() {
+	m.name = nil
+}
+
+// SetWidgets sets the "widgets" field.
+func (m *UserDashboardMutation) SetWidgets(swc []schema.DashboardWidgetConfig) {
+	m.widgets = &swc
+	m.appendwidgets = nil
+}
+
+// Widgets returns the value of the "widgets" field in the mutation.
+func (m *UserDashboardMutation) Widgets() (r []schema.DashboardWidgetConfig, exists bool) {
+	v := m.widgets
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldWidgets returns the old "widgets" field's value of the UserDashboard entity.
+// If the UserDashboard object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *UserDashboardMutation) OldWidgets(ctx context.Context) (v []schema.DashboardWidgetConfig, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldWidgets is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldWidgets requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldWidgets: %w", err)
+	}
+	return oldValue.Widgets, nil
+}
+
+// AppendWidgets adds swc to the "widgets" field.
+func (m *UserDashboardMutation) AppendWidgets(swc []schema.DashboardWidgetConfig) {
+	m.appendwidgets = append(m.appendwidgets, swc...)
+}
+
+// AppendedWidgets returns the list of values that were appended to the "widgets" field in this mutation.
+func (m *UserDashboardMutation) AppendedWidgets() ([]schema.DashboardWidgetConfig, bool) {
+	if len(m.appendwidgets) == 0 {
+		return nil, false
+	}
+	return m.appendwidgets, true
+}
+
+// ClearWidgets clears the value of the "widgets" field.
+func (m *UserDashboardMutation) ClearWidgets() {
+	m.widgets = nil
+	m.appendwidgets = nil
+	m.clearedFields[userdashboard.FieldWidgets] = struct{}{}
+}
+
+// WidgetsCleared returns if the "widgets" field was cleared in this mutation.
+func (m *UserDashboardMutation) WidgetsCleared() bool {
+	_, ok := m.clearedFields[userdashboard.FieldWidgets]
+	return ok
+}
+
+// ResetWidgets resets all changes to the "widgets" field.
+func (m *UserDashboardMutation) ResetWidgets() {
+	m.widgets = nil
+	m.appendwidgets = nil
+	delete(m.clearedFields, userdashboard.FieldWidgets)
+}
+
+// SetIsDefault sets the "is_default" field.
+func (m *UserDashboardMutation) SetIsDefault(b bool) {
+	m.is_default = &b
+}
+
+// IsDefault returns the value of the "is_default" field in the mutation.
+func (m *UserDashboardMutation) IsDefault() (r bool, exists bool) {
+	v := m.is_default
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldIsDefault returns the old "is_default" field's value of the UserDashboard entity.
+// If the UserDashboard object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *UserDashboardMutation) OldIsDefault(ctx context.Context) (v bool, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldIsDefault is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldIsDefault requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldIsDefault: %w", err)
+	}
+	return oldValue.IsDefault, nil
+}
+
+// ResetIsDefault resets all changes to the "is_default" field.
+func (m *UserDashboardMutation) ResetIsDefault() {
+	m.is_default = nil
+}
+
+// Where appends a list predicates to the UserDashboardMutation builder.
+func (m *UserDashboardMutation) Where(ps ...predicate.UserDashboard) {
+	m.predicates = append(m.predicates, ps...)
+}
+
+// WhereP appends storage-level predicates to the UserDashboardMutation builder. Using this method,
+// users can use type-assertion to append predicates that do not depend on any generated package.
+func (m *UserDashboardMutation) WhereP(ps ...func(*sql.Selector)) {
+	p := make([]predicate.UserDashboard, len(ps))
+	for i := range ps {
+		p[i] = ps[i]
+	}
+	m.Where(p...)
+}
+
+// Op returns the operation name.
+func (m *UserDashboardMutation) Op() Op {
+	return m.op
+}
+
+// SetOp allows setting the mutation operation.
+func (m *UserDashboardMutation) SetOp(op Op) {
+	m.op = op
+}
+
+// Type returns the node type of this mutation (UserDashboard).
+func (m *UserDashboardMutation) Type() string {
+	return m.typ
+}
+
+// Fields returns all fields that were changed during this mutation. Note that in
+// order to get all numeric fields that were incremented/decremented, call
+// AddedFields().
+func (m *UserDashboardMutation) Fields() []string {
+	fields := make([]string, 0, 8)
+	if m.created_at != nil {
+		fields = append(fields, userdashboard.FieldCreatedAt)
+	}
+	if m.updated_at != nil {
+		fields = append(fields, userdashboard.FieldUpdatedAt)
+	}
+	if m.deleted_at != nil {
+		fields = append(fields, userdashboard.FieldDeletedAt)
+	}
+	if m.user_id != nil {
+		fields = append(fields, userdashboard.FieldUserID)
+	}
+	if m.tenant_id != nil {
+		fields = append(fields, userdashboard.FieldTenantID)
+	}
+	if m.name != nil {
+		fields = append(fields, userdashboard.FieldName)
+	}
+	if m.widgets != nil {
+		fields = append(fields, userdashboard.FieldWidgets)
+	}
+	if m.is_default != nil {
+		fields = append(fields, userdashboard.FieldIsDefault)
+	}
+	return fields
+}
+
+// Field returns the value of a field with the given name. The second boolean
+// return value indicates that this field was not set, or was not defined in the
+// schema.
+func (m *UserDashboardMutation) Field(name string) (ent.Value, bool) {
+	switch name {
+	case userdashboard.FieldCreatedAt:
+		return m.CreatedAt()
+	case userdashboard.FieldUpdatedAt:
+		return m.UpdatedAt()
+	case userdashboard.FieldDeletedAt:
+		return m.DeletedAt()
+	case userdashboard.FieldUserID:
+		return m.UserID()
+	case userdashboard.FieldTenantID:
+		return m.TenantID()
+	case userdashboard.FieldName:
+		return m.Name()
+	case userdashboard.FieldWidgets:
+		return m.Widgets()
+	case userdashboard.FieldIsDefault:
+		return m.IsDefault()
+	}
+	return nil, false
+}
+
+// OldField returns the old value of the field from the database. An error is
+// returned if the mutation operation is not UpdateOne, or the query to the
+// database failed.
+func (m *UserDashboardMutation) OldField(ctx context.Context, name string) (ent.Value, error) {
+	switch name {
+	case userdashboard.FieldCreatedAt:
+		return m.OldCreatedAt(ctx)
+	case userdashboard.FieldUpdatedAt:
+		return m.OldUpdatedAt(ctx)
+	case userdashboard.FieldDeletedAt:
+		return m.OldDeletedAt(ctx)
+	case userdashboard.FieldUserID:
+		return m.OldUserID(ctx)
+	case userdashboard.FieldTenantID:
+		return m.OldTenantID(ctx)
+	case userdashboard.FieldName:
+		return m.OldName(ctx)
+	case userdashboard.FieldWidgets:
+		return m.OldWidgets(ctx)
+	case userdashboard.FieldIsDefault:
+		return m.OldIsDefault(ctx)
+	}
+	return nil, fmt.Errorf("unknown UserDashboard field %s", name)
+}
+
+// SetField sets the value of a field with the given name. It returns an error if
+// the field is not defined in the schema, or if the type mismatched the field
+// type.
+func (m *UserDashboardMutation) SetField(name string, value ent.Value) error {
+	switch name {
+	case userdashboard.FieldCreatedAt:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetCreatedAt(v)
+		return nil
+	case userdashboard.FieldUpdatedAt:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetUpdatedAt(v)
+		return nil
+	case userdashboard.FieldDeletedAt:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetDeletedAt(v)
+		return nil
+	case userdashboard.FieldUserID:
+		v, ok := value.(uint32)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetUserID(v)
+		return nil
+	case userdashboard.FieldTenantID:
+		v, ok := value.(uint32)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetTenantID(v)
+		return nil
+	case userdashboard.FieldName:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetName(v)
+		return nil
+	case userdashboard.FieldWidgets:
+		v, ok := value.([]schema.DashboardWidgetConfig)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetWidgets(v)
+		return nil
+	case userdashboard.FieldIsDefault:
+		v, ok := value.(bool)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetIsDefault(v)
+		return nil
+	}
+	return fmt.Errorf("unknown UserDashboard field %s", name)
+}
+
+// AddedFields returns all numeric fields that were incremented/decremented during
+// this mutation.
+func (m *UserDashboardMutation) AddedFields() []string {
+	var fields []string
+	if m.adduser_id != nil {
+		fields = append(fields, userdashboard.FieldUserID)
+	}
+	if m.addtenant_id != nil {
+		fields = append(fields, userdashboard.FieldTenantID)
+	}
+	return fields
+}
+
+// AddedField returns the numeric value that was incremented/decremented on a field
+// with the given name. The second boolean return value indicates that this field
+// was not set, or was not defined in the schema.
+func (m *UserDashboardMutation) AddedField(name string) (ent.Value, bool) {
+	switch name {
+	case userdashboard.FieldUserID:
+		return m.AddedUserID()
+	case userdashboard.FieldTenantID:
+		return m.AddedTenantID()
+	}
+	return nil, false
+}
+
+// AddField adds the value to the field with the given name. It returns an error if
+// the field is not defined in the schema, or if the type mismatched the field
+// type.
+func (m *UserDashboardMutation) AddField(name string, value ent.Value) error {
+	switch name {
+	case userdashboard.FieldUserID:
+		v, ok := value.(int32)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddUserID(v)
+		return nil
+	case userdashboard.FieldTenantID:
+		v, ok := value.(int32)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddTenantID(v)
+		return nil
+	}
+	return fmt.Errorf("unknown UserDashboard numeric field %s", name)
+}
+
+// ClearedFields returns all nullable fields that were cleared during this
+// mutation.
+func (m *UserDashboardMutation) ClearedFields() []string {
+	var fields []string
+	if m.FieldCleared(userdashboard.FieldCreatedAt) {
+		fields = append(fields, userdashboard.FieldCreatedAt)
+	}
+	if m.FieldCleared(userdashboard.FieldUpdatedAt) {
+		fields = append(fields, userdashboard.FieldUpdatedAt)
+	}
+	if m.FieldCleared(userdashboard.FieldDeletedAt) {
+		fields = append(fields, userdashboard.FieldDeletedAt)
+	}
+	if m.FieldCleared(userdashboard.FieldWidgets) {
+		fields = append(fields, userdashboard.FieldWidgets)
+	}
+	return fields
+}
+
+// FieldCleared returns a boolean indicating if a field with the given name was
+// cleared in this mutation.
+func (m *UserDashboardMutation) FieldCleared(name string) bool {
+	_, ok := m.clearedFields[name]
+	return ok
+}
+
+// ClearField clears the value of the field with the given name. It returns an
+// error if the field is not defined in the schema.
+func (m *UserDashboardMutation) ClearField(name string) error {
+	switch name {
+	case userdashboard.FieldCreatedAt:
+		m.ClearCreatedAt()
+		return nil
+	case userdashboard.FieldUpdatedAt:
+		m.ClearUpdatedAt()
+		return nil
+	case userdashboard.FieldDeletedAt:
+		m.ClearDeletedAt()
+		return nil
+	case userdashboard.FieldWidgets:
+		m.ClearWidgets()
+		return nil
+	}
+	return fmt.Errorf("unknown UserDashboard nullable field %s", name)
+}
+
+// ResetField resets all changes in the mutation for the field with the given name.
+// It returns an error if the field is not defined in the schema.
+func (m *UserDashboardMutation) ResetField(name string) error {
+	switch name {
+	case userdashboard.FieldCreatedAt:
+		m.ResetCreatedAt()
+		return nil
+	case userdashboard.FieldUpdatedAt:
+		m.ResetUpdatedAt()
+		return nil
+	case userdashboard.FieldDeletedAt:
+		m.ResetDeletedAt()
+		return nil
+	case userdashboard.FieldUserID:
+		m.ResetUserID()
+		return nil
+	case userdashboard.FieldTenantID:
+		m.ResetTenantID()
+		return nil
+	case userdashboard.FieldName:
+		m.ResetName()
+		return nil
+	case userdashboard.FieldWidgets:
+		m.ResetWidgets()
+		return nil
+	case userdashboard.FieldIsDefault:
+		m.ResetIsDefault()
+		return nil
+	}
+	return fmt.Errorf("unknown UserDashboard field %s", name)
+}
+
+// AddedEdges returns all edge names that were set/added in this mutation.
+func (m *UserDashboardMutation) AddedEdges() []string {
+	edges := make([]string, 0, 0)
+	return edges
+}
+
+// AddedIDs returns all IDs (to other nodes) that were added for the given edge
+// name in this mutation.
+func (m *UserDashboardMutation) AddedIDs(name string) []ent.Value {
+	return nil
+}
+
+// RemovedEdges returns all edge names that were removed in this mutation.
+func (m *UserDashboardMutation) RemovedEdges() []string {
+	edges := make([]string, 0, 0)
+	return edges
+}
+
+// RemovedIDs returns all IDs (to other nodes) that were removed for the edge with
+// the given name in this mutation.
+func (m *UserDashboardMutation) RemovedIDs(name string) []ent.Value {
+	return nil
+}
+
+// ClearedEdges returns all edge names that were cleared in this mutation.
+func (m *UserDashboardMutation) ClearedEdges() []string {
+	edges := make([]string, 0, 0)
+	return edges
+}
+
+// EdgeCleared returns a boolean which indicates if the edge with the given name
+// was cleared in this mutation.
+func (m *UserDashboardMutation) EdgeCleared(name string) bool {
+	return false
+}
+
+// ClearEdge clears the value of the edge with the given name. It returns an error
+// if that edge is not defined in the schema.
+func (m *UserDashboardMutation) ClearEdge(name string) error {
+	return fmt.Errorf("unknown UserDashboard unique edge %s", name)
+}
+
+// ResetEdge resets all changes to the edge with the given name in this mutation.
+// It returns an error if the edge is not defined in the schema.
+func (m *UserDashboardMutation) ResetEdge(name string) error {
+	return fmt.Errorf("unknown UserDashboard edge %s", name)
 }
 
 // UserOrgUnitMutation represents an operation that mutates the UserOrgUnit nodes in the graph.

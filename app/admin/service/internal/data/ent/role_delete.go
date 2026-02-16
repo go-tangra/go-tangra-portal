@@ -4,12 +4,12 @@ package ent
 
 import (
 	"context"
-	"github.com/go-tangra/go-tangra-portal/app/admin/service/internal/data/ent/predicate"
-	"github.com/go-tangra/go-tangra-portal/app/admin/service/internal/data/ent/role"
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/go-tangra/go-tangra-portal/app/admin/service/internal/data/ent/predicate"
+	"github.com/go-tangra/go-tangra-portal/app/admin/service/internal/data/ent/role"
 )
 
 // RoleDelete is the builder for deleting a Role entity.

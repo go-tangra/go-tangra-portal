@@ -4,10 +4,10 @@ package rolemetadata
 
 import (
 	"fmt"
-	userpb "github.com/go-tangra/go-tangra-portal/api/gen/go/user/service/v1"
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
+	userpb "github.com/go-tangra/go-tangra-portal/api/gen/go/user/service/v1"
 )
 
 const (

@@ -28,6 +28,7 @@ var (
 	_ emptypb.Empty
 	_ structpb.Struct
 	_ timestamppb.Timestamp
+	_ redact.FieldRules
 )
 
 // RegisterRedactedWardenSecretServiceServer wraps the WardenSecretServiceServer with the redacted server and registers the service in GRPC
@@ -252,7 +253,8 @@ func (x *CreateSecretRequest) Redact() string {
 
 	// Safe field: Username
 
-	// Safe field: Password
+	// Redacting field: Password
+	x.Password = ``
 
 	// Safe field: HostUrl
 
@@ -312,7 +314,8 @@ func (x *GetSecretPasswordResponse) Redact() string {
 		return ""
 	}
 
-	// Safe field: Password
+	// Redacting field: Password
+	x.Password = ``
 
 	// Safe field: Version
 	return x.String()
@@ -388,7 +391,8 @@ func (x *UpdateSecretPasswordRequest) Redact() string {
 
 	// Safe field: Id
 
-	// Safe field: Password
+	// Redacting field: Password
+	x.Password = ``
 
 	// Safe field: Comment
 	return x.String()
@@ -488,7 +492,9 @@ func (x *GetVersionResponse) Redact() string {
 
 	// Safe field: Version
 
-	// Safe field: Password
+	// Redacting field: Password
+	PasswordTmp := ``
+	x.Password = &PasswordTmp
 	return x.String()
 }
 

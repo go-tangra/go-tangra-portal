@@ -3,11 +3,11 @@
 package dictentry
 
 import (
-	"github.com/go-tangra/go-tangra-portal/app/admin/service/internal/data/ent/predicate"
 	"time"
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
+	"github.com/go-tangra/go-tangra-portal/app/admin/service/internal/data/ent/predicate"
 )
 
 // ID filters vertices based on their ID field.

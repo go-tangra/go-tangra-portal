@@ -6,13 +6,13 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/go-tangra/go-tangra-portal/app/admin/service/internal/data/ent/dicttype"
-	"github.com/go-tangra/go-tangra-portal/app/admin/service/internal/data/ent/dicttypei18n"
 	"time"
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/go-tangra/go-tangra-portal/app/admin/service/internal/data/ent/dicttype"
+	"github.com/go-tangra/go-tangra-portal/app/admin/service/internal/data/ent/dicttypei18n"
 )
 
 // DictTypeI18nCreate is the builder for creating a DictTypeI18n entity.

@@ -6,6 +6,12 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"reflect"
+	"sync"
+
+	"entgo.io/ent"
+	"entgo.io/ent/dialect/sql"
+	"entgo.io/ent/dialect/sql/sqlgraph"
 	"github.com/go-tangra/go-tangra-portal/app/admin/service/internal/data/ent/api"
 	"github.com/go-tangra/go-tangra-portal/app/admin/service/internal/data/ent/apiauditlog"
 	"github.com/go-tangra/go-tangra-portal/app/admin/service/internal/data/ent/dataaccessauditlog"
@@ -43,15 +49,10 @@ import (
 	"github.com/go-tangra/go-tangra-portal/app/admin/service/internal/data/ent/tenant"
 	"github.com/go-tangra/go-tangra-portal/app/admin/service/internal/data/ent/user"
 	"github.com/go-tangra/go-tangra-portal/app/admin/service/internal/data/ent/usercredential"
+	"github.com/go-tangra/go-tangra-portal/app/admin/service/internal/data/ent/userdashboard"
 	"github.com/go-tangra/go-tangra-portal/app/admin/service/internal/data/ent/userorgunit"
 	"github.com/go-tangra/go-tangra-portal/app/admin/service/internal/data/ent/userposition"
 	"github.com/go-tangra/go-tangra-portal/app/admin/service/internal/data/ent/userrole"
-	"reflect"
-	"sync"
-
-	"entgo.io/ent"
-	"entgo.io/ent/dialect/sql"
-	"entgo.io/ent/dialect/sql/sqlgraph"
 )
 
 // ent aliases to avoid import conflicts in user's code.
@@ -149,6 +150,7 @@ func checkColumn(t, c string) error {
 			tenant.Table:                   tenant.ValidColumn,
 			user.Table:                     user.ValidColumn,
 			usercredential.Table:           usercredential.ValidColumn,
+			userdashboard.Table:            userdashboard.ValidColumn,
 			userorgunit.Table:              userorgunit.ValidColumn,
 			userposition.Table:             userposition.ValidColumn,
 			userrole.Table:                 userrole.ValidColumn,

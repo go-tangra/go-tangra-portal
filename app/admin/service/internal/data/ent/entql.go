@@ -41,6 +41,7 @@ import (
 	"github.com/go-tangra/go-tangra-portal/app/admin/service/internal/data/ent/tenant"
 	"github.com/go-tangra/go-tangra-portal/app/admin/service/internal/data/ent/user"
 	"github.com/go-tangra/go-tangra-portal/app/admin/service/internal/data/ent/usercredential"
+	"github.com/go-tangra/go-tangra-portal/app/admin/service/internal/data/ent/userdashboard"
 	"github.com/go-tangra/go-tangra-portal/app/admin/service/internal/data/ent/userorgunit"
 	"github.com/go-tangra/go-tangra-portal/app/admin/service/internal/data/ent/userposition"
 	"github.com/go-tangra/go-tangra-portal/app/admin/service/internal/data/ent/userrole"
@@ -53,7 +54,7 @@ import (
 
 // schemaGraph holds a representation of ent/schema at runtime.
 var schemaGraph = func() *sqlgraph.Schema {
-	graph := &sqlgraph.Schema{Nodes: make([]*sqlgraph.Node, 40)}
+	graph := &sqlgraph.Schema{Nodes: make([]*sqlgraph.Node, 41)}
 	graph.Nodes[0] = &sqlgraph.Node{
 		NodeSpec: sqlgraph.NodeSpec{
 			Table:   api.Table,
@@ -1128,6 +1129,27 @@ var schemaGraph = func() *sqlgraph.Schema {
 	}
 	graph.Nodes[37] = &sqlgraph.Node{
 		NodeSpec: sqlgraph.NodeSpec{
+			Table:   userdashboard.Table,
+			Columns: userdashboard.Columns,
+			ID: &sqlgraph.FieldSpec{
+				Type:   field.TypeUint32,
+				Column: userdashboard.FieldID,
+			},
+		},
+		Type: "UserDashboard",
+		Fields: map[string]*sqlgraph.FieldSpec{
+			userdashboard.FieldCreatedAt: {Type: field.TypeTime, Column: userdashboard.FieldCreatedAt},
+			userdashboard.FieldUpdatedAt: {Type: field.TypeTime, Column: userdashboard.FieldUpdatedAt},
+			userdashboard.FieldDeletedAt: {Type: field.TypeTime, Column: userdashboard.FieldDeletedAt},
+			userdashboard.FieldUserID:    {Type: field.TypeUint32, Column: userdashboard.FieldUserID},
+			userdashboard.FieldTenantID:  {Type: field.TypeUint32, Column: userdashboard.FieldTenantID},
+			userdashboard.FieldName:      {Type: field.TypeString, Column: userdashboard.FieldName},
+			userdashboard.FieldWidgets:   {Type: field.TypeJSON, Column: userdashboard.FieldWidgets},
+			userdashboard.FieldIsDefault: {Type: field.TypeBool, Column: userdashboard.FieldIsDefault},
+		},
+	}
+	graph.Nodes[38] = &sqlgraph.Node{
+		NodeSpec: sqlgraph.NodeSpec{
 			Table:   userorgunit.Table,
 			Columns: userorgunit.Columns,
 			ID: &sqlgraph.FieldSpec{
@@ -1156,7 +1178,7 @@ var schemaGraph = func() *sqlgraph.Schema {
 			userorgunit.FieldStatus:     {Type: field.TypeEnum, Column: userorgunit.FieldStatus},
 		},
 	}
-	graph.Nodes[38] = &sqlgraph.Node{
+	graph.Nodes[39] = &sqlgraph.Node{
 		NodeSpec: sqlgraph.NodeSpec{
 			Table:   userposition.Table,
 			Columns: userposition.Columns,
@@ -1185,7 +1207,7 @@ var schemaGraph = func() *sqlgraph.Schema {
 			userposition.FieldStatus:     {Type: field.TypeEnum, Column: userposition.FieldStatus},
 		},
 	}
-	graph.Nodes[39] = &sqlgraph.Node{
+	graph.Nodes[40] = &sqlgraph.Node{
 		NodeSpec: sqlgraph.NodeSpec{
 			Table:   userrole.Table,
 			Columns: userrole.Columns,
@@ -5970,6 +5992,86 @@ func (f *UserCredentialFilter) WhereResetTokenUsedAt(p entql.TimeP) {
 }
 
 // addPredicate implements the predicateAdder interface.
+func (_q *UserDashboardQuery) addPredicate(pred func(s *sql.Selector)) {
+	_q.predicates = append(_q.predicates, pred)
+}
+
+// Filter returns a Filter implementation to apply filters on the UserDashboardQuery builder.
+func (_q *UserDashboardQuery) Filter() *UserDashboardFilter {
+	return &UserDashboardFilter{config: _q.config, predicateAdder: _q}
+}
+
+// addPredicate implements the predicateAdder interface.
+func (m *UserDashboardMutation) addPredicate(pred func(s *sql.Selector)) {
+	m.predicates = append(m.predicates, pred)
+}
+
+// Filter returns an entql.Where implementation to apply filters on the UserDashboardMutation builder.
+func (m *UserDashboardMutation) Filter() *UserDashboardFilter {
+	return &UserDashboardFilter{config: m.config, predicateAdder: m}
+}
+
+// UserDashboardFilter provides a generic filtering capability at runtime for UserDashboardQuery.
+type UserDashboardFilter struct {
+	predicateAdder
+	config
+}
+
+// Where applies the entql predicate on the query filter.
+func (f *UserDashboardFilter) Where(p entql.P) {
+	f.addPredicate(func(s *sql.Selector) {
+		if err := schemaGraph.EvalP(schemaGraph.Nodes[37].Type, p, s); err != nil {
+			s.AddError(err)
+		}
+	})
+}
+
+// WhereID applies the entql uint32 predicate on the id field.
+func (f *UserDashboardFilter) WhereID(p entql.Uint32P) {
+	f.Where(p.Field(userdashboard.FieldID))
+}
+
+// WhereCreatedAt applies the entql time.Time predicate on the created_at field.
+func (f *UserDashboardFilter) WhereCreatedAt(p entql.TimeP) {
+	f.Where(p.Field(userdashboard.FieldCreatedAt))
+}
+
+// WhereUpdatedAt applies the entql time.Time predicate on the updated_at field.
+func (f *UserDashboardFilter) WhereUpdatedAt(p entql.TimeP) {
+	f.Where(p.Field(userdashboard.FieldUpdatedAt))
+}
+
+// WhereDeletedAt applies the entql time.Time predicate on the deleted_at field.
+func (f *UserDashboardFilter) WhereDeletedAt(p entql.TimeP) {
+	f.Where(p.Field(userdashboard.FieldDeletedAt))
+}
+
+// WhereUserID applies the entql uint32 predicate on the user_id field.
+func (f *UserDashboardFilter) WhereUserID(p entql.Uint32P) {
+	f.Where(p.Field(userdashboard.FieldUserID))
+}
+
+// WhereTenantID applies the entql uint32 predicate on the tenant_id field.
+func (f *UserDashboardFilter) WhereTenantID(p entql.Uint32P) {
+	f.Where(p.Field(userdashboard.FieldTenantID))
+}
+
+// WhereName applies the entql string predicate on the name field.
+func (f *UserDashboardFilter) WhereName(p entql.StringP) {
+	f.Where(p.Field(userdashboard.FieldName))
+}
+
+// WhereWidgets applies the entql json.RawMessage predicate on the widgets field.
+func (f *UserDashboardFilter) WhereWidgets(p entql.BytesP) {
+	f.Where(p.Field(userdashboard.FieldWidgets))
+}
+
+// WhereIsDefault applies the entql bool predicate on the is_default field.
+func (f *UserDashboardFilter) WhereIsDefault(p entql.BoolP) {
+	f.Where(p.Field(userdashboard.FieldIsDefault))
+}
+
+// addPredicate implements the predicateAdder interface.
 func (_q *UserOrgUnitQuery) addPredicate(pred func(s *sql.Selector)) {
 	_q.predicates = append(_q.predicates, pred)
 }
@@ -5998,7 +6100,7 @@ type UserOrgUnitFilter struct {
 // Where applies the entql predicate on the query filter.
 func (f *UserOrgUnitFilter) Where(p entql.P) {
 	f.addPredicate(func(s *sql.Selector) {
-		if err := schemaGraph.EvalP(schemaGraph.Nodes[37].Type, p, s); err != nil {
+		if err := schemaGraph.EvalP(schemaGraph.Nodes[38].Type, p, s); err != nil {
 			s.AddError(err)
 		}
 	})
@@ -6123,7 +6225,7 @@ type UserPositionFilter struct {
 // Where applies the entql predicate on the query filter.
 func (f *UserPositionFilter) Where(p entql.P) {
 	f.addPredicate(func(s *sql.Selector) {
-		if err := schemaGraph.EvalP(schemaGraph.Nodes[38].Type, p, s); err != nil {
+		if err := schemaGraph.EvalP(schemaGraph.Nodes[39].Type, p, s); err != nil {
 			s.AddError(err)
 		}
 	})
@@ -6243,7 +6345,7 @@ type UserRoleFilter struct {
 // Where applies the entql predicate on the query filter.
 func (f *UserRoleFilter) Where(p entql.P) {
 	f.addPredicate(func(s *sql.Selector) {
-		if err := schemaGraph.EvalP(schemaGraph.Nodes[39].Type, p, s); err != nil {
+		if err := schemaGraph.EvalP(schemaGraph.Nodes[40].Type, p, s); err != nil {
 			s.AddError(err)
 		}
 	})

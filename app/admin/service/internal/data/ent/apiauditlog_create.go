@@ -6,13 +6,13 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	auditpb "github.com/go-tangra/go-tangra-portal/api/gen/go/audit/service/v1"
-	"github.com/go-tangra/go-tangra-portal/app/admin/service/internal/data/ent/apiauditlog"
 	"time"
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	auditpb "github.com/go-tangra/go-tangra-portal/api/gen/go/audit/service/v1"
+	"github.com/go-tangra/go-tangra-portal/app/admin/service/internal/data/ent/apiauditlog"
 )
 
 // ApiAuditLogCreate is the builder for creating a ApiAuditLog entity.
@@ -420,6 +420,13 @@ func (_c *ApiAuditLogCreate) ExecX(ctx context.Context) {
 
 // defaults sets the default values of the builder before save.
 func (_c *ApiAuditLogCreate) defaults() error {
+	if _, ok := _c.mutation.CreatedAt(); !ok {
+		if apiauditlog.DefaultCreatedAt == nil {
+			return fmt.Errorf("ent: uninitialized apiauditlog.DefaultCreatedAt (forgotten import ent/runtime?)")
+		}
+		v := apiauditlog.DefaultCreatedAt()
+		_c.mutation.SetCreatedAt(v)
+	}
 	if _, ok := _c.mutation.TenantID(); !ok {
 		v := apiauditlog.DefaultTenantID
 		_c.mutation.SetTenantID(v)
@@ -429,6 +436,9 @@ func (_c *ApiAuditLogCreate) defaults() error {
 
 // check runs all checks and user-defined validators on the builder.
 func (_c *ApiAuditLogCreate) check() error {
+	if _, ok := _c.mutation.CreatedAt(); !ok {
+		return &ValidationError{Name: "created_at", err: errors.New(`ent: missing required field "ApiAuditLog.created_at"`)}
+	}
 	if v, ok := _c.mutation.GeoLocation(); ok {
 		if err := v.Validate(); err != nil {
 			return &ValidationError{Name: "geo_location", err: fmt.Errorf(`ent: validator failed for field "ApiAuditLog.geo_location": %w`, err)}
@@ -479,7 +489,7 @@ func (_c *ApiAuditLogCreate) createSpec() (*ApiAuditLog, *sqlgraph.CreateSpec) {
 	}
 	if value, ok := _c.mutation.CreatedAt(); ok {
 		_spec.SetField(apiauditlog.FieldCreatedAt, field.TypeTime, value)
-		_node.CreatedAt = &value
+		_node.CreatedAt = value
 	}
 	if value, ok := _c.mutation.TenantID(); ok {
 		_spec.SetField(apiauditlog.FieldTenantID, field.TypeUint32, value)

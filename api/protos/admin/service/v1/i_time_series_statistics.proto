@@ -1,0 +1,213 @@
+syntax = "proto3";
+
+package admin.service.v1;
+
+option go_package = "github.com/go-tangra/go-tangra-portal/api/gen/go/admin/service/v1;adminV1";
+
+import "google/api/annotations.proto";
+import "gnostic/openapi/v3/annotations.proto";
+
+// TimeSeriesStatisticsService provides TimescaleDB-powered time-series analytics.
+// All endpoints query audit log hypertables using time_bucket() aggregation.
+service TimeSeriesStatisticsService {
+  // GetApiRequestVolume returns API request counts over time.
+  rpc GetApiRequestVolume (TimeSeriesRequest) returns (TimeSeriesDataResponse) {
+    option (google.api.http) = {
+      get: "/admin/v1/statistics/ts/api-requests"
+    };
+    option (gnostic.openapi.v3.operation) = {
+      summary: "API request volume over time"
+      description: "Returns time-bucketed API request counts from sys_api_audit_logs"
+      tags: ["Time Series Statistics"]
+    };
+  }
+
+  // GetApiLatencyPercentiles returns p50/p95/p99 API latency over time.
+  rpc GetApiLatencyPercentiles (TimeSeriesRequest) returns (TimeSeriesDataResponse) {
+    option (google.api.http) = {
+      get: "/admin/v1/statistics/ts/api-latency"
+    };
+    option (gnostic.openapi.v3.operation) = {
+      summary: "API latency percentiles over time"
+      description: "Returns p50, p95, p99 latency from sys_api_audit_logs"
+      tags: ["Time Series Statistics"]
+    };
+  }
+
+  // GetLoginActivity returns login attempt counts over time.
+  rpc GetLoginActivity (TimeSeriesRequest) returns (TimeSeriesDataResponse) {
+    option (google.api.http) = {
+      get: "/admin/v1/statistics/ts/login-activity"
+    };
+    option (gnostic.openapi.v3.operation) = {
+      summary: "Login activity over time"
+      description: "Returns time-bucketed login success/failure counts from sys_login_audit_logs"
+      tags: ["Time Series Statistics"]
+    };
+  }
+
+  // GetActiveUsers returns unique active user counts over time.
+  rpc GetActiveUsers (TimeSeriesRequest) returns (TimeSeriesDataResponse) {
+    option (google.api.http) = {
+      get: "/admin/v1/statistics/ts/active-users"
+    };
+    option (gnostic.openapi.v3.operation) = {
+      summary: "Active users over time"
+      description: "Returns unique active users per bucket from sys_api_audit_logs"
+      tags: ["Time Series Statistics"]
+    };
+  }
+
+  // GetLoginHeatmap returns login activity as an hour-of-day x day-of-week matrix.
+  rpc GetLoginHeatmap (HeatmapRequest) returns (HeatmapResponse) {
+    option (google.api.http) = {
+      get: "/admin/v1/statistics/ts/login-heatmap"
+    };
+    option (gnostic.openapi.v3.operation) = {
+      summary: "Login activity heatmap"
+      description: "Returns login attempts by hour-of-day and day-of-week from sys_login_audit_logs"
+      tags: ["Time Series Statistics"]
+    };
+  }
+
+  // GetTopEndpoints returns most-used API endpoints with performance metrics.
+  rpc GetTopEndpoints (TopEndpointsRequest) returns (TopEndpointsResponse) {
+    option (google.api.http) = {
+      get: "/admin/v1/statistics/ts/top-endpoints"
+    };
+    option (gnostic.openapi.v3.operation) = {
+      summary: "Top API endpoints"
+      description: "Returns top API endpoints by request count with average latency and error rate"
+      tags: ["Time Series Statistics"]
+    };
+  }
+
+  // GetSecurityOverview returns security-related trend metrics.
+  rpc GetSecurityOverview (SecurityOverviewRequest) returns (SecurityOverviewResponse) {
+    option (google.api.http) = {
+      get: "/admin/v1/statistics/ts/security"
+    };
+    option (gnostic.openapi.v3.operation) = {
+      summary: "Security overview metrics"
+      description: "Returns failed login trends, risk score trends, and sparkline data"
+      tags: ["Time Series Statistics"]
+    };
+  }
+
+  // GetApiErrorRate returns current API error rate with trend.
+  rpc GetApiErrorRate (SecurityOverviewRequest) returns (SecurityOverviewResponse) {
+    option (google.api.http) = {
+      get: "/admin/v1/statistics/ts/api-error-rate"
+    };
+    option (gnostic.openapi.v3.operation) = {
+      summary: "API error rate trend"
+      description: "Returns API error rate with change percentage and sparkline"
+      tags: ["Time Series Statistics"]
+    };
+  }
+}
+
+// TimeSeriesRequest is the common request for time-series data.
+message TimeSeriesRequest {
+  // Bucket interval: "1h", "6h", "1d", "1w". Default: "1h".
+  optional string interval = 1 [
+    (gnostic.openapi.v3.property) = {description: "Time bucket interval (1h, 6h, 1d, 1w)"}
+  ];
+
+  // Time range: "24h", "7d", "30d", "90d". Default: "7d".
+  optional string range = 2 [
+    (gnostic.openapi.v3.property) = {description: "Time range to query (24h, 7d, 30d, 90d)"}
+  ];
+}
+
+// TimeSeriesDataResponse is the common response for time-series data.
+message TimeSeriesDataResponse {
+  // ISO 8601 timestamps for each bucket
+  repeated string buckets = 1;
+
+  // Named data series. Key is series name (e.g. "total", "success", "p95").
+  map<string, DoubleSeries> series = 2;
+
+  // The actual interval used
+  string interval = 3;
+}
+
+// DoubleSeries is a series of double values matching the buckets array.
+message DoubleSeries {
+  repeated double values = 1;
+}
+
+// HeatmapRequest is the request for heatmap data.
+message HeatmapRequest {
+  // Time range: "7d", "30d", "90d". Default: "30d".
+  optional string range = 1;
+}
+
+// HeatmapResponse is the response containing heatmap matrix data.
+message HeatmapResponse {
+  // X-axis labels (hours 0-23)
+  repeated int32 hours = 1;
+  // Y-axis labels (day names)
+  repeated string days = 2;
+  // Heatmap data points [hour_index, day_index, value]
+  repeated HeatmapCell data = 3;
+  // Max value in the data (for color scaling)
+  int64 max_value = 4;
+}
+
+// HeatmapCell represents a single cell in the heatmap.
+message HeatmapCell {
+  int32 hour = 1;
+  int32 day = 2;
+  int64 value = 3;
+}
+
+// TopEndpointsRequest is the request for top endpoints.
+message TopEndpointsRequest {
+  // Time range: "24h", "7d", "30d". Default: "7d".
+  optional string range = 1;
+  // Max results to return. Default: 10.
+  optional int32 limit = 2;
+}
+
+// TopEndpointsResponse contains the most-used API endpoints.
+message TopEndpointsResponse {
+  repeated EndpointStats endpoints = 1;
+}
+
+// EndpointStats represents statistics for a single API endpoint.
+message EndpointStats {
+  string path = 1;
+  string method = 2;
+  string module = 3;
+  int64 total_requests = 4;
+  double avg_latency_ms = 5;
+  double p95_latency_ms = 6;
+  double error_rate = 7;
+  int64 error_count = 8;
+  int64 success_count = 9;
+}
+
+// SecurityOverviewRequest is the request for security overview.
+message SecurityOverviewRequest {}
+
+// SecurityOverviewResponse contains security/performance trend metrics.
+// Used by sparkline_card and trend_card widget types.
+message SecurityOverviewResponse {
+  // Current period metrics
+  int64 value = 1;
+  int64 previous_value = 2;
+  double change_percent = 3;
+  string trend = 4;  // "up", "down", "stable"
+  string label = 5;
+
+  // Sparkline data (last 7 days, hourly or daily depending on context)
+  repeated double sparkline = 6;
+
+  // Additional breakdown fields
+  int64 failed_logins_24h = 10;
+  int64 failed_logins_7d = 11;
+  double avg_risk_score = 12;
+  int64 unique_ips_24h = 13;
+  double error_rate_percent = 14;
+}

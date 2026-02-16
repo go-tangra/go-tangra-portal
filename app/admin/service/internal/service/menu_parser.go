@@ -14,12 +14,40 @@ type MenuParser struct {
 }
 
 // MenusFile represents the structure of a menus.yaml file.
-// This now includes roles and permission_groups for unified module definition.
+// This now includes roles, permission_groups, and dashboard_widgets for unified module definition.
 type MenusFile struct {
 	Module           ModuleInfo               `yaml:"module"`
 	Menus            []*ParsedMenu            `yaml:"menus"`
 	Roles            []*ParsedRole            `yaml:"roles"`
 	PermissionGroups []*ParsedPermissionGroup `yaml:"permission_groups"`
+	DashboardWidgets []*ParsedWidget          `yaml:"dashboard_widgets"`
+}
+
+// ParsedWidget represents a dashboard widget defined in a module's YAML file.
+type ParsedWidget struct {
+	ID          string            `yaml:"id"`          // e.g. "lcm.cert_status_pie"
+	Name        string            `yaml:"name"`        // Display name
+	Description string            `yaml:"description"` // Widget description
+	Icon        string            `yaml:"icon"`        // Icon identifier
+	WidgetType  string            `yaml:"widget_type"` // stat_card|pie_chart|bar_chart|line_chart|gauge|table|list
+	DataSource  WidgetDataSource  `yaml:"data_source"` // How to fetch data
+	DataMapping map[string]string `yaml:"data_mapping"`
+	DefaultSize WidgetSize        `yaml:"default_size"` // Default grid size
+	Tags        []string          `yaml:"tags"`          // Categorization tags
+	Authority   []string          `yaml:"authority"`     // Required roles
+}
+
+// WidgetDataSource defines how a widget fetches its data.
+type WidgetDataSource struct {
+	Endpoint string            `yaml:"endpoint"` // Gateway HTTP path, e.g. "/admin/v1/modules/lcm/v1/statistics"
+	Method   string            `yaml:"method"`   // GET or POST
+	Params   map[string]string `yaml:"params"`   // Default query parameters
+}
+
+// WidgetSize defines the default grid dimensions for a widget.
+type WidgetSize struct {
+	Width  int32 `yaml:"width"`  // 1-12 grid columns
+	Height int32 `yaml:"height"` // Grid rows
 }
 
 // ModuleInfo contains module metadata from menus.yaml.
@@ -77,8 +105,8 @@ func (p *MenuParser) Parse(yamlData []byte) (*MenusFile, error) {
 		return nil, err
 	}
 
-	p.log.Infof("Parsed menus.yaml: module=%s, menus=%d, roles=%d, permission_groups=%d",
-		menusFile.Module.ID, len(menusFile.Menus), len(menusFile.Roles), len(menusFile.PermissionGroups))
+	p.log.Infof("Parsed menus.yaml: module=%s, menus=%d, roles=%d, permission_groups=%d, dashboard_widgets=%d",
+		menusFile.Module.ID, len(menusFile.Menus), len(menusFile.Roles), len(menusFile.PermissionGroups), len(menusFile.DashboardWidgets))
 
 	return &menusFile, nil
 }
@@ -107,6 +135,36 @@ func (p *MenuParser) validate(menusFile *MenusFile) error {
 		}
 		if role.Name == "" {
 			return fmt.Errorf("role at index %d missing required field: name", i)
+		}
+	}
+
+	// Validate each dashboard widget entry
+	validWidgetTypes := map[string]bool{
+		"stat_card": true, "pie_chart": true, "bar_chart": true,
+		"line_chart": true, "gauge": true, "table": true, "list": true,
+	}
+	for i, widget := range menusFile.DashboardWidgets {
+		if widget.ID == "" {
+			return fmt.Errorf("dashboard_widget at index %d missing required field: id", i)
+		}
+		if widget.WidgetType == "" {
+			return fmt.Errorf("dashboard_widget '%s' missing required field: widget_type", widget.ID)
+		}
+		if !validWidgetTypes[widget.WidgetType] {
+			return fmt.Errorf("dashboard_widget '%s' has invalid widget_type: %s", widget.ID, widget.WidgetType)
+		}
+		if widget.DataSource.Endpoint == "" {
+			return fmt.Errorf("dashboard_widget '%s' missing required field: data_source.endpoint", widget.ID)
+		}
+		if widget.DefaultSize.Width < 1 || widget.DefaultSize.Width > 12 {
+			return fmt.Errorf("dashboard_widget '%s' default_size.width must be between 1 and 12, got %d", widget.ID, widget.DefaultSize.Width)
+		}
+		if widget.DefaultSize.Height < 1 {
+			return fmt.Errorf("dashboard_widget '%s' default_size.height must be at least 1, got %d", widget.ID, widget.DefaultSize.Height)
+		}
+		// Default method to GET
+		if widget.DataSource.Method == "" {
+			menusFile.DashboardWidgets[i].DataSource.Method = "GET"
 		}
 	}
 

@@ -24,6 +24,7 @@ var (
 	_ validate.Rule
 	_ annotations.FieldBehavior
 	_ emptypb.Empty
+	_ redact.FieldRules
 )
 
 // RegisterRedactedWardenBitwardenTransferServiceServer wraps the WardenBitwardenTransferServiceServer with the redacted server and registers the service in GRPC
@@ -111,9 +112,12 @@ func (x *BitwardenLogin) Redact() string {
 
 	// Safe field: Username
 
-	// Safe field: Password
+	// Redacting field: Password
+	x.Password = ``
 
-	// Safe field: Totp
+	// Redacting field: Totp
+	TotpTmp := ``
+	x.Totp = &TotpTmp
 	return x.String()
 }
 
@@ -125,7 +129,8 @@ func (x *BitwardenField) Redact() string {
 
 	// Safe field: Name
 
-	// Safe field: Value
+	// Redacting field: Value
+	x.Value = ``
 
 	// Safe field: Type
 	return x.String()
@@ -139,7 +144,8 @@ func (x *BitwardenPasswordHistory) Redact() string {
 
 	// Safe field: LastUsedDate
 
-	// Safe field: Password
+	// Redacting field: Password
+	x.Password = ``
 	return x.String()
 }
 
@@ -205,7 +211,8 @@ func (x *ExportToBitwardenResponse) Redact() string {
 		return ""
 	}
 
-	// Safe field: JsonData
+	// Redacting field: JsonData
+	x.JsonData = ``
 
 	// Safe field: FoldersExported
 
@@ -237,7 +244,8 @@ func (x *ImportFromBitwardenRequest) Redact() string {
 		return ""
 	}
 
-	// Safe field: JsonData
+	// Redacting field: JsonData
+	x.JsonData = ``
 
 	// Safe field: TargetFolderId
 
@@ -293,7 +301,8 @@ func (x *ValidateBitwardenImportRequest) Redact() string {
 		return ""
 	}
 
-	// Safe field: JsonData
+	// Redacting field: JsonData
+	x.JsonData = ``
 
 	// Safe field: TargetFolderId
 

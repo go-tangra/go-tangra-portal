@@ -111,6 +111,12 @@ func (s *ModuleRegistrationService) RegisterModule(ctx context.Context, req *adm
 		}
 	}
 
+	// Store dashboard widgets in-memory on the module
+	if menusFile != nil && len(menusFile.DashboardWidgets) > 0 {
+		s.registry.SetModuleWidgets(req.GetModuleId(), menusFile.DashboardWidgets)
+		s.log.Infof("Stored %d dashboard widgets for module %s", len(menusFile.DashboardWidgets), req.GetModuleId())
+	}
+
 	// Inject permission groups first (permissions must exist before roles can reference them)
 	if menusFile != nil && len(menusFile.PermissionGroups) > 0 {
 		_, err := s.permissionGroupInjector.InjectPermissionGroups(ctx, req.GetModuleId(), menusFile.PermissionGroups)

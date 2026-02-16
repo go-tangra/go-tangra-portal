@@ -6,13 +6,13 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	userpb "github.com/go-tangra/go-tangra-portal/api/gen/go/user/service/v1"
-	"github.com/go-tangra/go-tangra-portal/app/admin/service/internal/data/ent/rolemetadata"
 	"time"
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	userpb "github.com/go-tangra/go-tangra-portal/api/gen/go/user/service/v1"
+	"github.com/go-tangra/go-tangra-portal/app/admin/service/internal/data/ent/rolemetadata"
 )
 
 // RoleMetadataCreate is the builder for creating a RoleMetadata entity.

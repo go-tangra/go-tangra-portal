@@ -7,10 +7,6 @@ import (
 	"database/sql/driver"
 	"errors"
 	"fmt"
-	"github.com/go-tangra/go-tangra-portal/app/admin/service/internal/data/ent/dictentry"
-	"github.com/go-tangra/go-tangra-portal/app/admin/service/internal/data/ent/dicttype"
-	"github.com/go-tangra/go-tangra-portal/app/admin/service/internal/data/ent/dicttypei18n"
-	"github.com/go-tangra/go-tangra-portal/app/admin/service/internal/data/ent/predicate"
 	"math"
 
 	"entgo.io/ent"
@@ -18,6 +14,10 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/go-tangra/go-tangra-portal/app/admin/service/internal/data/ent/dictentry"
+	"github.com/go-tangra/go-tangra-portal/app/admin/service/internal/data/ent/dicttype"
+	"github.com/go-tangra/go-tangra-portal/app/admin/service/internal/data/ent/dicttypei18n"
+	"github.com/go-tangra/go-tangra-portal/app/admin/service/internal/data/ent/predicate"
 )
 
 // DictTypeQuery is the builder for querying DictType entities.

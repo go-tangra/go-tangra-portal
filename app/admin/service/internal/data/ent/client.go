@@ -11,6 +11,10 @@ import (
 
 	"github.com/go-tangra/go-tangra-portal/app/admin/service/internal/data/ent/migrate"
 
+	"entgo.io/ent"
+	"entgo.io/ent/dialect"
+	"entgo.io/ent/dialect/sql"
+	"entgo.io/ent/dialect/sql/sqlgraph"
 	"github.com/go-tangra/go-tangra-portal/app/admin/service/internal/data/ent/api"
 	"github.com/go-tangra/go-tangra-portal/app/admin/service/internal/data/ent/apiauditlog"
 	"github.com/go-tangra/go-tangra-portal/app/admin/service/internal/data/ent/dataaccessauditlog"
@@ -48,14 +52,10 @@ import (
 	"github.com/go-tangra/go-tangra-portal/app/admin/service/internal/data/ent/tenant"
 	"github.com/go-tangra/go-tangra-portal/app/admin/service/internal/data/ent/user"
 	"github.com/go-tangra/go-tangra-portal/app/admin/service/internal/data/ent/usercredential"
+	"github.com/go-tangra/go-tangra-portal/app/admin/service/internal/data/ent/userdashboard"
 	"github.com/go-tangra/go-tangra-portal/app/admin/service/internal/data/ent/userorgunit"
 	"github.com/go-tangra/go-tangra-portal/app/admin/service/internal/data/ent/userposition"
 	"github.com/go-tangra/go-tangra-portal/app/admin/service/internal/data/ent/userrole"
-
-	"entgo.io/ent"
-	"entgo.io/ent/dialect"
-	"entgo.io/ent/dialect/sql"
-	"entgo.io/ent/dialect/sql/sqlgraph"
 )
 
 // Client is the client that holds all ent builders.
@@ -137,6 +137,8 @@ type Client struct {
 	User *UserClient
 	// UserCredential is the client for interacting with the UserCredential builders.
 	UserCredential *UserCredentialClient
+	// UserDashboard is the client for interacting with the UserDashboard builders.
+	UserDashboard *UserDashboardClient
 	// UserOrgUnit is the client for interacting with the UserOrgUnit builders.
 	UserOrgUnit *UserOrgUnitClient
 	// UserPosition is the client for interacting with the UserPosition builders.
@@ -191,6 +193,7 @@ func (c *Client) init() {
 	c.Tenant = NewTenantClient(c.config)
 	c.User = NewUserClient(c.config)
 	c.UserCredential = NewUserCredentialClient(c.config)
+	c.UserDashboard = NewUserDashboardClient(c.config)
 	c.UserOrgUnit = NewUserOrgUnitClient(c.config)
 	c.UserPosition = NewUserPositionClient(c.config)
 	c.UserRole = NewUserRoleClient(c.config)
@@ -323,6 +326,7 @@ func (c *Client) Tx(ctx context.Context) (*Tx, error) {
 		Tenant:                   NewTenantClient(cfg),
 		User:                     NewUserClient(cfg),
 		UserCredential:           NewUserCredentialClient(cfg),
+		UserDashboard:            NewUserDashboardClient(cfg),
 		UserOrgUnit:              NewUserOrgUnitClient(cfg),
 		UserPosition:             NewUserPositionClient(cfg),
 		UserRole:                 NewUserRoleClient(cfg),
@@ -382,6 +386,7 @@ func (c *Client) BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error) 
 		Tenant:                   NewTenantClient(cfg),
 		User:                     NewUserClient(cfg),
 		UserCredential:           NewUserCredentialClient(cfg),
+		UserDashboard:            NewUserDashboardClient(cfg),
 		UserOrgUnit:              NewUserOrgUnitClient(cfg),
 		UserPosition:             NewUserPositionClient(cfg),
 		UserRole:                 NewUserRoleClient(cfg),
@@ -422,7 +427,7 @@ func (c *Client) Use(hooks ...Hook) {
 		c.OrgUnit, c.Permission, c.PermissionApi, c.PermissionAuditLog,
 		c.PermissionGroup, c.PermissionMenu, c.PermissionPolicy, c.PolicyEvaluationLog,
 		c.Position, c.Role, c.RoleMetadata, c.RolePermission, c.Task, c.Tenant, c.User,
-		c.UserCredential, c.UserOrgUnit, c.UserPosition, c.UserRole,
+		c.UserCredential, c.UserDashboard, c.UserOrgUnit, c.UserPosition, c.UserRole,
 	} {
 		n.Use(hooks...)
 	}
@@ -440,7 +445,7 @@ func (c *Client) Intercept(interceptors ...Interceptor) {
 		c.OrgUnit, c.Permission, c.PermissionApi, c.PermissionAuditLog,
 		c.PermissionGroup, c.PermissionMenu, c.PermissionPolicy, c.PolicyEvaluationLog,
 		c.Position, c.Role, c.RoleMetadata, c.RolePermission, c.Task, c.Tenant, c.User,
-		c.UserCredential, c.UserOrgUnit, c.UserPosition, c.UserRole,
+		c.UserCredential, c.UserDashboard, c.UserOrgUnit, c.UserPosition, c.UserRole,
 	} {
 		n.Intercept(interceptors...)
 	}
@@ -523,6 +528,8 @@ func (c *Client) Mutate(ctx context.Context, m Mutation) (Value, error) {
 		return c.User.mutate(ctx, m)
 	case *UserCredentialMutation:
 		return c.UserCredential.mutate(ctx, m)
+	case *UserDashboardMutation:
+		return c.UserDashboard.mutate(ctx, m)
 	case *UserOrgUnitMutation:
 		return c.UserOrgUnit.mutate(ctx, m)
 	case *UserPositionMutation:
@@ -5674,6 +5681,139 @@ func (c *UserCredentialClient) mutate(ctx context.Context, m *UserCredentialMuta
 	}
 }
 
+// UserDashboardClient is a client for the UserDashboard schema.
+type UserDashboardClient struct {
+	config
+}
+
+// NewUserDashboardClient returns a client for the UserDashboard from the given config.
+func NewUserDashboardClient(c config) *UserDashboardClient {
+	return &UserDashboardClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `userdashboard.Hooks(f(g(h())))`.
+func (c *UserDashboardClient) Use(hooks ...Hook) {
+	c.hooks.UserDashboard = append(c.hooks.UserDashboard, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `userdashboard.Intercept(f(g(h())))`.
+func (c *UserDashboardClient) Intercept(interceptors ...Interceptor) {
+	c.inters.UserDashboard = append(c.inters.UserDashboard, interceptors...)
+}
+
+// Create returns a builder for creating a UserDashboard entity.
+func (c *UserDashboardClient) Create() *UserDashboardCreate {
+	mutation := newUserDashboardMutation(c.config, OpCreate)
+	return &UserDashboardCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of UserDashboard entities.
+func (c *UserDashboardClient) CreateBulk(builders ...*UserDashboardCreate) *UserDashboardCreateBulk {
+	return &UserDashboardCreateBulk{config: c.config, builders: builders}
+}
+
+// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
+// a builder and applies setFunc on it.
+func (c *UserDashboardClient) MapCreateBulk(slice any, setFunc func(*UserDashboardCreate, int)) *UserDashboardCreateBulk {
+	rv := reflect.ValueOf(slice)
+	if rv.Kind() != reflect.Slice {
+		return &UserDashboardCreateBulk{err: fmt.Errorf("calling to UserDashboardClient.MapCreateBulk with wrong type %T, need slice", slice)}
+	}
+	builders := make([]*UserDashboardCreate, rv.Len())
+	for i := 0; i < rv.Len(); i++ {
+		builders[i] = c.Create()
+		setFunc(builders[i], i)
+	}
+	return &UserDashboardCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for UserDashboard.
+func (c *UserDashboardClient) Update() *UserDashboardUpdate {
+	mutation := newUserDashboardMutation(c.config, OpUpdate)
+	return &UserDashboardUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *UserDashboardClient) UpdateOne(_m *UserDashboard) *UserDashboardUpdateOne {
+	mutation := newUserDashboardMutation(c.config, OpUpdateOne, withUserDashboard(_m))
+	return &UserDashboardUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *UserDashboardClient) UpdateOneID(id uint32) *UserDashboardUpdateOne {
+	mutation := newUserDashboardMutation(c.config, OpUpdateOne, withUserDashboardID(id))
+	return &UserDashboardUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for UserDashboard.
+func (c *UserDashboardClient) Delete() *UserDashboardDelete {
+	mutation := newUserDashboardMutation(c.config, OpDelete)
+	return &UserDashboardDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *UserDashboardClient) DeleteOne(_m *UserDashboard) *UserDashboardDeleteOne {
+	return c.DeleteOneID(_m.ID)
+}
+
+// DeleteOneID returns a builder for deleting the given entity by its id.
+func (c *UserDashboardClient) DeleteOneID(id uint32) *UserDashboardDeleteOne {
+	builder := c.Delete().Where(userdashboard.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &UserDashboardDeleteOne{builder}
+}
+
+// Query returns a query builder for UserDashboard.
+func (c *UserDashboardClient) Query() *UserDashboardQuery {
+	return &UserDashboardQuery{
+		config: c.config,
+		ctx:    &QueryContext{Type: TypeUserDashboard},
+		inters: c.Interceptors(),
+	}
+}
+
+// Get returns a UserDashboard entity by its id.
+func (c *UserDashboardClient) Get(ctx context.Context, id uint32) (*UserDashboard, error) {
+	return c.Query().Where(userdashboard.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *UserDashboardClient) GetX(ctx context.Context, id uint32) *UserDashboard {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// Hooks returns the client hooks.
+func (c *UserDashboardClient) Hooks() []Hook {
+	return c.hooks.UserDashboard
+}
+
+// Interceptors returns the client interceptors.
+func (c *UserDashboardClient) Interceptors() []Interceptor {
+	return c.inters.UserDashboard
+}
+
+func (c *UserDashboardClient) mutate(ctx context.Context, m *UserDashboardMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&UserDashboardCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&UserDashboardUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&UserDashboardUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&UserDashboardDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("ent: unknown UserDashboard mutation op: %q", m.Op())
+	}
+}
+
 // UserOrgUnitClient is a client for the UserOrgUnit schema.
 type UserOrgUnitClient struct {
 	config
@@ -6086,7 +6226,7 @@ type (
 		OperationAuditLog, OrgUnit, Permission, PermissionApi, PermissionAuditLog,
 		PermissionGroup, PermissionMenu, PermissionPolicy, PolicyEvaluationLog,
 		Position, Role, RoleMetadata, RolePermission, Task, Tenant, User,
-		UserCredential, UserOrgUnit, UserPosition, UserRole []ent.Hook
+		UserCredential, UserDashboard, UserOrgUnit, UserPosition, UserRole []ent.Hook
 	}
 	inters struct {
 		Api, ApiAuditLog, DataAccessAuditLog, DictEntry, DictEntryI18n, DictType,
@@ -6096,6 +6236,7 @@ type (
 		OperationAuditLog, OrgUnit, Permission, PermissionApi, PermissionAuditLog,
 		PermissionGroup, PermissionMenu, PermissionPolicy, PolicyEvaluationLog,
 		Position, Role, RoleMetadata, RolePermission, Task, Tenant, User,
-		UserCredential, UserOrgUnit, UserPosition, UserRole []ent.Interceptor
+		UserCredential, UserDashboard, UserOrgUnit, UserPosition,
+		UserRole []ent.Interceptor
 	}
 )

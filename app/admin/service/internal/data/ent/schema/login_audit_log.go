@@ -151,7 +151,7 @@ func (LoginAuditLog) Fields() []ent.Field {
 func (LoginAuditLog) Mixin() []ent.Mixin {
 	return []ent.Mixin{
 		mixin.AutoIncrementId{},
-		mixin.CreatedAt{},
+		NotNullCreatedAt{},
 		mixin.TenantID[uint32]{},
 	}
 }

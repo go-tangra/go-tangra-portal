@@ -89,7 +89,7 @@ var DefaultPermissions = []*permissionV1.Permission{
 		Code:        trans.Ptr(SystemPlatformAdminPermissionCode),
 		Status:      trans.Ptr(permissionV1.Permission_ON),
 		MenuIds: []uint32{
-			1, 2,
+			1, 2, 3,
 			10, 11,
 			20, 21, 22, 23, 24,
 			30, 31, 32, 33, 34,
@@ -123,7 +123,7 @@ var DefaultPermissions = []*permissionV1.Permission{
 		Code:        trans.Ptr(SystemTenantManagerPermissionCode),
 		Status:      trans.Ptr(permissionV1.Permission_ON),
 		MenuIds: []uint32{
-			1, 2,
+			1, 2, 3,
 			20, 21, 22, 23, 24,
 			30, 32,
 			40, 41,

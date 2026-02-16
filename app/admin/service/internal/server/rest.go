@@ -126,6 +126,12 @@ func NewRestServer(
 	// Platform Statistics Service
 	platformStatisticsService *service.PlatformStatisticsService,
 
+	// Dashboard Service
+	dashboardService *service.DashboardService,
+
+	// Time Series Statistics Service
+	timeSeriesStatisticsService *service.TimeSeriesStatisticsService,
+
 	// Dynamic Router for module registration
 	dynamicRouter *DynamicRouter,
 
@@ -180,6 +186,12 @@ func NewRestServer(
 
 	// Platform Statistics Service
 	adminV1.RegisterPlatformStatisticsServiceHTTPServer(srv, platformStatisticsService)
+
+	// Dashboard Service
+	adminV1.RegisterDashboardServiceHTTPServer(srv, dashboardService)
+
+	// Time Series Statistics Service (TimescaleDB-powered)
+	adminV1.RegisterTimeSeriesStatisticsServiceHTTPServer(srv, timeSeriesStatisticsService)
 
 	// 注册文件传输服务，用于处理文件上传下载等功能
 	// TODO 它不能够使用代码生成器生成的Handler，需要手动注册。代码生成器生成的Handler无法处理文件上传下载的请求。

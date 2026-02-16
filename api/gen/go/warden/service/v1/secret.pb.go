@@ -8,6 +8,7 @@ package wardenV1
 
 import (
 	_ "buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go/buf/validate"
+	_ "github.com/menta2k/protoc-gen-redact/v3/redact/v3"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
@@ -1708,7 +1709,7 @@ var File_warden_service_v1_secret_proto protoreflect.FileDescriptor
 
 const file_warden_service_v1_secret_proto_rawDesc = "" +
 	"\n" +
-	"\x1ewarden/service/v1/secret.proto\x12\x11warden.service.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a\x1cgoogle/protobuf/struct.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xea\x04\n" +
+	"\x1ewarden/service/v1/secret.proto\x12\x11warden.service.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a\x1cgoogle/protobuf/struct.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x16redact/v3/redact.proto\"\xea\x04\n" +
 	"\x06Secret\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x1b\n" +
 	"\ttenant_id\x18\x02 \x01(\rR\btenantId\x12 \n" +
@@ -1745,12 +1746,12 @@ const file_warden_service_v1_secret_proto_rawDesc = "" +
 	"createTime\x12\"\n" +
 	"\n" +
 	"created_by\x18\a \x01(\rH\x00R\tcreatedBy\x88\x01\x01B\r\n" +
-	"\v_created_by\"\xb0\x03\n" +
+	"\v_created_by\"\xb6\x03\n" +
 	"\x13CreateSecretRequest\x12;\n" +
 	"\tfolder_id\x18\x01 \x01(\tB\x19\xbaH\x16r\x14\x18$2\x10^[a-fA-F0-9\\-]*$H\x00R\bfolderId\x88\x01\x01\x12C\n" +
 	"\x04name\x18\x02 \x01(\tB/\xe0A\x02\xbaH)r'\x10\x01\x18\xff\x012 ^[a-zA-Z0-9][a-zA-Z0-9\\-_\\.\\s]*$R\x04name\x12$\n" +
-	"\busername\x18\x03 \x01(\tB\b\xbaH\x05r\x03\x18\xff\x01R\busername\x12*\n" +
-	"\bpassword\x18\x04 \x01(\tB\x0e\xe0A\x02\xbaH\br\x06\x10\x01\x18\x80\x80\x04R\bpassword\x12#\n" +
+	"\busername\x18\x03 \x01(\tB\b\xbaH\x05r\x03\x18\xff\x01R\busername\x120\n" +
+	"\bpassword\x18\x04 \x01(\tB\x14\xe0A\x02\xbaH\br\x06\x10\x01\x18\x80\x80\x04ڶ\x1a\x02z\x00R\bpassword\x12#\n" +
 	"\bhost_url\x18\x05 \x01(\tB\b\xbaH\x05r\x03\x18\x80\x10R\ahostUrl\x12*\n" +
 	"\vdescription\x18\x06 \x01(\tB\b\xbaH\x05r\x03\x18\x80 R\vdescription\x123\n" +
 	"\bmetadata\x18\a \x01(\v2\x17.google.protobuf.StructR\bmetadata\x121\n" +
@@ -1767,9 +1768,9 @@ const file_warden_service_v1_secret_proto_rawDesc = "" +
 	"\x02id\x18\x01 \x01(\tB\x1e\xe0A\x02\xbaH\x18r\x16\x10\x01\x18$2\x10^[a-fA-F0-9\\-]+$R\x02id\x12\x1d\n" +
 	"\aversion\x18\x02 \x01(\x05H\x00R\aversion\x88\x01\x01B\n" +
 	"\n" +
-	"\b_version\"Q\n" +
-	"\x19GetSecretPasswordResponse\x12\x1a\n" +
-	"\bpassword\x18\x01 \x01(\tR\bpassword\x12\x18\n" +
+	"\b_version\"Y\n" +
+	"\x19GetSecretPasswordResponse\x12\"\n" +
+	"\bpassword\x18\x01 \x01(\tB\x06ڶ\x1a\x02z\x00R\bpassword\x12\x18\n" +
 	"\aversion\x18\x02 \x01(\x05R\aversion\"\xb0\x02\n" +
 	"\x12ListSecretsRequest\x12;\n" +
 	"\tfolder_id\x18\x01 \x01(\tB\x19\xbaH\x16r\x14\x18$2\x10^[a-fA-F0-9\\-]*$H\x00R\bfolderId\x88\x01\x01\x12\x17\n" +
@@ -1803,10 +1804,10 @@ const file_warden_service_v1_secret_proto_rawDesc = "" +
 	"\t_metadataB\t\n" +
 	"\a_status\"I\n" +
 	"\x14UpdateSecretResponse\x121\n" +
-	"\x06secret\x18\x01 \x01(\v2\x19.warden.service.v1.SecretR\x06secret\"\x9d\x01\n" +
+	"\x06secret\x18\x01 \x01(\v2\x19.warden.service.v1.SecretR\x06secret\"\xa3\x01\n" +
 	"\x1bUpdateSecretPasswordRequest\x12.\n" +
-	"\x02id\x18\x01 \x01(\tB\x1e\xe0A\x02\xbaH\x18r\x16\x10\x01\x18$2\x10^[a-fA-F0-9\\-]+$R\x02id\x12*\n" +
-	"\bpassword\x18\x02 \x01(\tB\x0e\xe0A\x02\xbaH\br\x06\x10\x01\x18\x80\x80\x04R\bpassword\x12\"\n" +
+	"\x02id\x18\x01 \x01(\tB\x1e\xe0A\x02\xbaH\x18r\x16\x10\x01\x18$2\x10^[a-fA-F0-9\\-]+$R\x02id\x120\n" +
+	"\bpassword\x18\x02 \x01(\tB\x14\xe0A\x02\xbaH\br\x06\x10\x01\x18\x80\x80\x04ڶ\x1a\x02z\x00R\bpassword\x12\"\n" +
 	"\acomment\x18\x03 \x01(\tB\b\xbaH\x05r\x03\x18\x80\bR\acomment\"\x8d\x01\n" +
 	"\x1cUpdateSecretPasswordResponse\x121\n" +
 	"\x06secret\x18\x01 \x01(\v2\x19.warden.service.v1.SecretR\x06secret\x12:\n" +
@@ -1834,10 +1835,10 @@ const file_warden_service_v1_secret_proto_rawDesc = "" +
 	"\tsecret_id\x18\x01 \x01(\tB\x1e\xe0A\x02\xbaH\x18r\x16\x10\x01\x18$2\x10^[a-fA-F0-9\\-]+$R\bsecretId\x121\n" +
 	"\x0eversion_number\x18\x02 \x01(\x05B\n" +
 	"\xe0A\x02\xbaH\x04\x1a\x02(\x01R\rversionNumber\x12)\n" +
-	"\x10include_password\x18\x03 \x01(\bR\x0fincludePassword\"~\n" +
+	"\x10include_password\x18\x03 \x01(\bR\x0fincludePassword\"\x86\x01\n" +
 	"\x12GetVersionResponse\x12:\n" +
-	"\aversion\x18\x01 \x01(\v2 .warden.service.v1.SecretVersionR\aversion\x12\x1f\n" +
-	"\bpassword\x18\x02 \x01(\tH\x00R\bpassword\x88\x01\x01B\v\n" +
+	"\aversion\x18\x01 \x01(\v2 .warden.service.v1.SecretVersionR\aversion\x12'\n" +
+	"\bpassword\x18\x02 \x01(\tB\x06ڶ\x1a\x02z\x00H\x00R\bpassword\x88\x01\x01B\v\n" +
 	"\t_password\"\xab\x01\n" +
 	"\x15RestoreVersionRequest\x12;\n" +
 	"\tsecret_id\x18\x01 \x01(\tB\x1e\xe0A\x02\xbaH\x18r\x16\x10\x01\x18$2\x10^[a-fA-F0-9\\-]+$R\bsecretId\x121\n" +

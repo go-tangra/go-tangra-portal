@@ -5,13 +5,13 @@ package ent
 import (
 	"encoding/json"
 	"fmt"
-	servicev1 "github.com/go-tangra/go-tangra-portal/api/gen/go/task/service/v1"
-	"github.com/go-tangra/go-tangra-portal/app/admin/service/internal/data/ent/task"
 	"strings"
 	"time"
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
+	servicev1 "github.com/go-tangra/go-tangra-portal/api/gen/go/task/service/v1"
+	"github.com/go-tangra/go-tangra-portal/app/admin/service/internal/data/ent/task"
 )
 
 // 任务表

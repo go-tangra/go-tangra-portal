@@ -8,6 +8,7 @@ package wardenV1
 
 import (
 	_ "buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go/buf/validate"
+	_ "github.com/menta2k/protoc-gen-redact/v3/redact/v3"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
@@ -1208,27 +1209,27 @@ var File_warden_service_v1_bitwarden_transfer_proto protoreflect.FileDescriptor
 
 const file_warden_service_v1_bitwarden_transfer_proto_rawDesc = "" +
 	"\n" +
-	"*warden/service/v1/bitwarden_transfer.proto\x12\x11warden.service.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a\"warden/service/v1/permission.proto\"5\n" +
+	"*warden/service/v1/bitwarden_transfer.proto\x12\x11warden.service.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a\x16redact/v3/redact.proto\x1a\"warden/service/v1/permission.proto\"5\n" +
 	"\x0fBitwardenFolder\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\"E\n" +
 	"\fBitwardenUri\x12\x10\n" +
 	"\x03uri\x18\x01 \x01(\tR\x03uri\x12\x19\n" +
 	"\x05match\x18\x02 \x01(\x05H\x00R\x05match\x88\x01\x01B\b\n" +
-	"\x06_match\"\x9f\x01\n" +
+	"\x06_match\"\xaf\x01\n" +
 	"\x0eBitwardenLogin\x123\n" +
 	"\x04uris\x18\x01 \x03(\v2\x1f.warden.service.v1.BitwardenUriR\x04uris\x12\x1a\n" +
-	"\busername\x18\x02 \x01(\tR\busername\x12\x1a\n" +
-	"\bpassword\x18\x03 \x01(\tR\bpassword\x12\x17\n" +
-	"\x04totp\x18\x04 \x01(\tH\x00R\x04totp\x88\x01\x01B\a\n" +
-	"\x05_totp\"N\n" +
+	"\busername\x18\x02 \x01(\tR\busername\x12\"\n" +
+	"\bpassword\x18\x03 \x01(\tB\x06ڶ\x1a\x02z\x00R\bpassword\x12\x1f\n" +
+	"\x04totp\x18\x04 \x01(\tB\x06ڶ\x1a\x02z\x00H\x00R\x04totp\x88\x01\x01B\a\n" +
+	"\x05_totp\"V\n" +
 	"\x0eBitwardenField\x12\x12\n" +
-	"\x04name\x18\x01 \x01(\tR\x04name\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value\x12\x12\n" +
-	"\x04type\x18\x03 \x01(\x05R\x04type\"\\\n" +
+	"\x04name\x18\x01 \x01(\tR\x04name\x12\x1c\n" +
+	"\x05value\x18\x02 \x01(\tB\x06ڶ\x1a\x02z\x00R\x05value\x12\x12\n" +
+	"\x04type\x18\x03 \x01(\x05R\x04type\"d\n" +
 	"\x18BitwardenPasswordHistory\x12$\n" +
-	"\x0elast_used_date\x18\x01 \x01(\tR\flastUsedDate\x12\x1a\n" +
-	"\bpassword\x18\x02 \x01(\tR\bpassword\"\x8b\x04\n" +
+	"\x0elast_used_date\x18\x01 \x01(\tR\flastUsedDate\x12\"\n" +
+	"\bpassword\x18\x02 \x01(\tB\x06ڶ\x1a\x02z\x00R\bpassword\"\x8b\x04\n" +
 	"\rBitwardenItem\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12 \n" +
 	"\tfolder_id\x18\x02 \x01(\tH\x00R\bfolderId\x88\x01\x01\x12\x12\n" +
@@ -1256,9 +1257,9 @@ const file_warden_service_v1_bitwarden_transfer_proto_rawDesc = "" +
 	"\tfolder_id\x18\x01 \x01(\tB\x19\xbaH\x16r\x14\x18$2\x10^[a-fA-F0-9\\-]*$H\x00R\bfolderId\x88\x01\x01\x12-\n" +
 	"\x12include_subfolders\x18\x02 \x01(\bR\x11includeSubfoldersB\f\n" +
 	"\n" +
-	"_folder_id\"\xde\x01\n" +
-	"\x19ExportToBitwardenResponse\x12\x1b\n" +
-	"\tjson_data\x18\x01 \x01(\tR\bjsonData\x12)\n" +
+	"_folder_id\"\xe6\x01\n" +
+	"\x19ExportToBitwardenResponse\x12#\n" +
+	"\tjson_data\x18\x01 \x01(\tB\x06ڶ\x1a\x02z\x00R\bjsonData\x12)\n" +
 	"\x10folders_exported\x18\x02 \x01(\x05R\x0ffoldersExported\x12%\n" +
 	"\x0eitems_exported\x18\x03 \x01(\x05R\ritemsExported\x12#\n" +
 	"\ritems_skipped\x18\x04 \x01(\x05R\fitemsSkipped\x12-\n" +
@@ -1267,9 +1268,9 @@ const file_warden_service_v1_bitwarden_transfer_proto_rawDesc = "" +
 	"\fsubject_type\x18\x01 \x01(\x0e2\x1e.warden.service.v1.SubjectTypeR\vsubjectType\x12\x1d\n" +
 	"\n" +
 	"subject_id\x18\x02 \x01(\tR\tsubjectId\x127\n" +
-	"\brelation\x18\x03 \x01(\x0e2\x1b.warden.service.v1.RelationR\brelation\"\xfd\x02\n" +
-	"\x1aImportFromBitwardenRequest\x12,\n" +
-	"\tjson_data\x18\x01 \x01(\tB\x0f\xe0A\x02\xbaH\tr\a\x10\x02\x18\x80\x80\x80\x05R\bjsonData\x12H\n" +
+	"\brelation\x18\x03 \x01(\x0e2\x1b.warden.service.v1.RelationR\brelation\"\x83\x03\n" +
+	"\x1aImportFromBitwardenRequest\x122\n" +
+	"\tjson_data\x18\x01 \x01(\tB\x15\xe0A\x02\xbaH\tr\a\x10\x02\x18\x80\x80\x80\x05ڶ\x1a\x02z\x00R\bjsonData\x12H\n" +
 	"\x10target_folder_id\x18\x02 \x01(\tB\x19\xbaH\x16r\x14\x18$2\x10^[a-fA-F0-9\\-]*$H\x00R\x0etargetFolderId\x88\x01\x01\x12S\n" +
 	"\x12duplicate_handling\x18\x03 \x01(\x0e2$.warden.service.v1.DuplicateHandlingR\x11duplicateHandling\x12)\n" +
 	"\x10preserve_folders\x18\x04 \x01(\bR\x0fpreserveFolders\x12R\n" +
@@ -1294,9 +1295,9 @@ const file_warden_service_v1_bitwarden_transfer_proto_rawDesc = "" +
 	"\titem_name\x18\x02 \x01(\tR\bitemName\x12\x1d\n" +
 	"\n" +
 	"error_type\x18\x03 \x01(\tR\terrorType\x12\x18\n" +
-	"\amessage\x18\x04 \x01(\tR\amessage\"\xd8\x01\n" +
-	"\x1eValidateBitwardenImportRequest\x12,\n" +
-	"\tjson_data\x18\x01 \x01(\tB\x0f\xe0A\x02\xbaH\tr\a\x10\x02\x18\x80\x80\x80\x05R\bjsonData\x12H\n" +
+	"\amessage\x18\x04 \x01(\tR\amessage\"\xde\x01\n" +
+	"\x1eValidateBitwardenImportRequest\x122\n" +
+	"\tjson_data\x18\x01 \x01(\tB\x15\xe0A\x02\xbaH\tr\a\x10\x02\x18\x80\x80\x80\x05ڶ\x1a\x02z\x00R\bjsonData\x12H\n" +
 	"\x10target_folder_id\x18\x02 \x01(\tB\x19\xbaH\x16r\x14\x18$2\x10^[a-fA-F0-9\\-]*$H\x00R\x0etargetFolderId\x88\x01\x01\x12)\n" +
 	"\x10preserve_folders\x18\x03 \x01(\bR\x0fpreserveFoldersB\x13\n" +
 	"\x11_target_folder_id\"\x96\x02\n" +

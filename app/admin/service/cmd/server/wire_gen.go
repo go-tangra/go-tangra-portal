@@ -151,12 +151,16 @@ func initApp(context *bootstrap.Context) (*kratos.App, func(), error) {
 		return nil, nil, err
 	}
 	platformStatisticsService := service.NewPlatformStatisticsService(context, lcmClients, deployerClients, paperlessClients, ipamClients, entClient)
+	userDashboardRepo := data.NewUserDashboardRepo(context, entClient)
+	dashboardService := service.NewDashboardService(context, moduleRegistry, userDashboardRepo)
+	timeSeriesRepo := data.NewTimeSeriesRepo(context, entClient)
+	timeSeriesStatisticsService := service.NewTimeSeriesStatisticsService(context, timeSeriesRepo)
 	descriptorParser := transcoder.NewDescriptorParser(context)
 	requestBuilder := transcoder.NewRequestBuilder(context)
 	responseTransformer := transcoder.NewResponseTransformer(context)
 	transcoderTranscoder := transcoder.NewTranscoder(context, descriptorParser, requestBuilder, responseTransformer)
 	dynamicRouter := server.NewDynamicRouter(context, transcoderTranscoder, moduleRegistry, authenticator, apiAuditLogRepo)
-	httpServer, err := server.NewRestServer(context, v, authorizer, authenticationService, mfaService, loginPolicyService, adminPortalService, taskService, uEditorService, fileService, fileTransferService, dictTypeService, dictEntryService, languageService, tenantService, userService, userProfileService, roleService, positionService, orgUnitService, menuService, apiService, permissionService, permissionGroupService, permissionAuditLogService, policyEvaluationLogService, loginAuditLogService, apiAuditLogService, operationAuditLogService, dataAccessAuditLogService, internalMessageService, internalMessageCategoryService, internalMessageRecipientService, platformStatisticsService, dynamicRouter)
+	httpServer, err := server.NewRestServer(context, v, authorizer, authenticationService, mfaService, loginPolicyService, adminPortalService, taskService, uEditorService, fileService, fileTransferService, dictTypeService, dictEntryService, languageService, tenantService, userService, userProfileService, roleService, positionService, orgUnitService, menuService, apiService, permissionService, permissionGroupService, permissionAuditLogService, policyEvaluationLogService, loginAuditLogService, apiAuditLogService, operationAuditLogService, dataAccessAuditLogService, internalMessageService, internalMessageCategoryService, internalMessageRecipientService, platformStatisticsService, dashboardService, timeSeriesStatisticsService, dynamicRouter)
 	if err != nil {
 		cleanup6()
 		cleanup5()

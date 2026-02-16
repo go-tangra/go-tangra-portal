@@ -6,13 +6,13 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	auditpb "github.com/go-tangra/go-tangra-portal/api/gen/go/audit/service/v1"
-	"github.com/go-tangra/go-tangra-portal/app/admin/service/internal/data/ent/operationauditlog"
-	"github.com/go-tangra/go-tangra-portal/app/admin/service/internal/data/ent/predicate"
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	auditpb "github.com/go-tangra/go-tangra-portal/api/gen/go/audit/service/v1"
+	"github.com/go-tangra/go-tangra-portal/app/admin/service/internal/data/ent/operationauditlog"
+	"github.com/go-tangra/go-tangra-portal/app/admin/service/internal/data/ent/predicate"
 )
 
 // OperationAuditLogUpdate is the builder for updating OperationAuditLog entities.
@@ -426,9 +426,6 @@ func (_u *OperationAuditLogUpdate) sqlSave(ctx context.Context) (_node int, err 
 				ps[i](selector)
 			}
 		}
-	}
-	if _u.mutation.CreatedAtCleared() {
-		_spec.ClearField(operationauditlog.FieldCreatedAt, field.TypeTime)
 	}
 	if _u.mutation.TenantIDCleared() {
 		_spec.ClearField(operationauditlog.FieldTenantID, field.TypeUint32)
@@ -987,9 +984,6 @@ func (_u *OperationAuditLogUpdateOne) sqlSave(ctx context.Context) (_node *Opera
 				ps[i](selector)
 			}
 		}
-	}
-	if _u.mutation.CreatedAtCleared() {
-		_spec.ClearField(operationauditlog.FieldCreatedAt, field.TypeTime)
 	}
 	if _u.mutation.TenantIDCleared() {
 		_spec.ClearField(operationauditlog.FieldTenantID, field.TypeUint32)

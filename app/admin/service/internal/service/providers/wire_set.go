@@ -55,6 +55,12 @@ var ProviderSet = wire.NewSet(
 	// MFA
 	service.NewMFAService,
 
+	// Dashboard
+	service.NewDashboardService,
+
+	// Time Series Statistics
+	service.NewTimeSeriesStatisticsService,
+
 	// Dynamic Module Registration
 	service.NewModuleRegistry,
 	service.NewOpenAPIParser,

@@ -999,6 +999,30 @@ func (f UserCredentialMutationRuleFunc) EvalMutation(ctx context.Context, m ent.
 	return Denyf("ent/privacy: unexpected mutation type %T, expect *ent.UserCredentialMutation", m)
 }
 
+// The UserDashboardQueryRuleFunc type is an adapter to allow the use of ordinary
+// functions as a query rule.
+type UserDashboardQueryRuleFunc func(context.Context, *ent.UserDashboardQuery) error
+
+// EvalQuery return f(ctx, q).
+func (f UserDashboardQueryRuleFunc) EvalQuery(ctx context.Context, q ent.Query) error {
+	if q, ok := q.(*ent.UserDashboardQuery); ok {
+		return f(ctx, q)
+	}
+	return Denyf("ent/privacy: unexpected query type %T, expect *ent.UserDashboardQuery", q)
+}
+
+// The UserDashboardMutationRuleFunc type is an adapter to allow the use of ordinary
+// functions as a mutation rule.
+type UserDashboardMutationRuleFunc func(context.Context, *ent.UserDashboardMutation) error
+
+// EvalMutation calls f(ctx, m).
+func (f UserDashboardMutationRuleFunc) EvalMutation(ctx context.Context, m ent.Mutation) error {
+	if m, ok := m.(*ent.UserDashboardMutation); ok {
+		return f(ctx, m)
+	}
+	return Denyf("ent/privacy: unexpected mutation type %T, expect *ent.UserDashboardMutation", m)
+}
+
 // The UserOrgUnitQueryRuleFunc type is an adapter to allow the use of ordinary
 // functions as a query rule.
 type UserOrgUnitQueryRuleFunc func(context.Context, *ent.UserOrgUnitQuery) error
@@ -1180,6 +1204,8 @@ func queryFilter(q ent.Query) (Filter, error) {
 		return q.Filter(), nil
 	case *ent.UserCredentialQuery:
 		return q.Filter(), nil
+	case *ent.UserDashboardQuery:
+		return q.Filter(), nil
 	case *ent.UserOrgUnitQuery:
 		return q.Filter(), nil
 	case *ent.UserPositionQuery:
@@ -1266,6 +1292,8 @@ func mutationFilter(m ent.Mutation) (Filter, error) {
 	case *ent.UserMutation:
 		return m.Filter(), nil
 	case *ent.UserCredentialMutation:
+		return m.Filter(), nil
+	case *ent.UserDashboardMutation:
 		return m.Filter(), nil
 	case *ent.UserOrgUnitMutation:
 		return m.Filter(), nil

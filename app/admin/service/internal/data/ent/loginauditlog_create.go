@@ -6,13 +6,13 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	auditpb "github.com/go-tangra/go-tangra-portal/api/gen/go/audit/service/v1"
-	"github.com/go-tangra/go-tangra-portal/app/admin/service/internal/data/ent/loginauditlog"
 	"time"
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	auditpb "github.com/go-tangra/go-tangra-portal/api/gen/go/audit/service/v1"
+	"github.com/go-tangra/go-tangra-portal/app/admin/service/internal/data/ent/loginauditlog"
 )
 
 // LoginAuditLogCreate is the builder for creating a LoginAuditLog entity.
@@ -314,6 +314,13 @@ func (_c *LoginAuditLogCreate) ExecX(ctx context.Context) {
 
 // defaults sets the default values of the builder before save.
 func (_c *LoginAuditLogCreate) defaults() error {
+	if _, ok := _c.mutation.CreatedAt(); !ok {
+		if loginauditlog.DefaultCreatedAt == nil {
+			return fmt.Errorf("ent: uninitialized loginauditlog.DefaultCreatedAt (forgotten import ent/runtime?)")
+		}
+		v := loginauditlog.DefaultCreatedAt()
+		_c.mutation.SetCreatedAt(v)
+	}
 	if _, ok := _c.mutation.TenantID(); !ok {
 		v := loginauditlog.DefaultTenantID
 		_c.mutation.SetTenantID(v)
@@ -323,6 +330,9 @@ func (_c *LoginAuditLogCreate) defaults() error {
 
 // check runs all checks and user-defined validators on the builder.
 func (_c *LoginAuditLogCreate) check() error {
+	if _, ok := _c.mutation.CreatedAt(); !ok {
+		return &ValidationError{Name: "created_at", err: errors.New(`ent: missing required field "LoginAuditLog.created_at"`)}
+	}
 	if v, ok := _c.mutation.GeoLocation(); ok {
 		if err := v.Validate(); err != nil {
 			return &ValidationError{Name: "geo_location", err: fmt.Errorf(`ent: validator failed for field "LoginAuditLog.geo_location": %w`, err)}
@@ -393,7 +403,7 @@ func (_c *LoginAuditLogCreate) createSpec() (*LoginAuditLog, *sqlgraph.CreateSpe
 	}
 	if value, ok := _c.mutation.CreatedAt(); ok {
 		_spec.SetField(loginauditlog.FieldCreatedAt, field.TypeTime, value)
-		_node.CreatedAt = &value
+		_node.CreatedAt = value
 	}
 	if value, ok := _c.mutation.TenantID(); ok {
 		_spec.SetField(loginauditlog.FieldTenantID, field.TypeUint32, value)

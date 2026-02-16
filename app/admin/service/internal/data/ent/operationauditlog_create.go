@@ -6,13 +6,13 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	auditpb "github.com/go-tangra/go-tangra-portal/api/gen/go/audit/service/v1"
-	"github.com/go-tangra/go-tangra-portal/app/admin/service/internal/data/ent/operationauditlog"
 	"time"
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	auditpb "github.com/go-tangra/go-tangra-portal/api/gen/go/audit/service/v1"
+	"github.com/go-tangra/go-tangra-portal/app/admin/service/internal/data/ent/operationauditlog"
 )
 
 // OperationAuditLogCreate is the builder for creating a OperationAuditLog entity.
@@ -308,6 +308,13 @@ func (_c *OperationAuditLogCreate) ExecX(ctx context.Context) {
 
 // defaults sets the default values of the builder before save.
 func (_c *OperationAuditLogCreate) defaults() error {
+	if _, ok := _c.mutation.CreatedAt(); !ok {
+		if operationauditlog.DefaultCreatedAt == nil {
+			return fmt.Errorf("ent: uninitialized operationauditlog.DefaultCreatedAt (forgotten import ent/runtime?)")
+		}
+		v := operationauditlog.DefaultCreatedAt()
+		_c.mutation.SetCreatedAt(v)
+	}
 	if _, ok := _c.mutation.TenantID(); !ok {
 		v := operationauditlog.DefaultTenantID
 		_c.mutation.SetTenantID(v)
@@ -317,6 +324,9 @@ func (_c *OperationAuditLogCreate) defaults() error {
 
 // check runs all checks and user-defined validators on the builder.
 func (_c *OperationAuditLogCreate) check() error {
+	if _, ok := _c.mutation.CreatedAt(); !ok {
+		return &ValidationError{Name: "created_at", err: errors.New(`ent: missing required field "OperationAuditLog.created_at"`)}
+	}
 	if v, ok := _c.mutation.Action(); ok {
 		if err := operationauditlog.ActionValidator(v); err != nil {
 			return &ValidationError{Name: "action", err: fmt.Errorf(`ent: validator failed for field "OperationAuditLog.action": %w`, err)}
@@ -377,7 +387,7 @@ func (_c *OperationAuditLogCreate) createSpec() (*OperationAuditLog, *sqlgraph.C
 	}
 	if value, ok := _c.mutation.CreatedAt(); ok {
 		_spec.SetField(operationauditlog.FieldCreatedAt, field.TypeTime, value)
-		_node.CreatedAt = &value
+		_node.CreatedAt = value
 	}
 	if value, ok := _c.mutation.TenantID(); ok {
 		_spec.SetField(operationauditlog.FieldTenantID, field.TypeUint32, value)

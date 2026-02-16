@@ -91,4 +91,10 @@ var ProviderSet = wire.NewSet(
 
 	// Dynamic Module Registration
 	data.NewModuleRepo,
+
+	// Dashboard
+	data.NewUserDashboardRepo,
+
+	// Time Series
+	data.NewTimeSeriesRepo,
 )

@@ -6,14 +6,14 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/go-tangra/go-tangra-portal/app/admin/service/internal/data/ent/dictentry"
-	"github.com/go-tangra/go-tangra-portal/app/admin/service/internal/data/ent/dicttype"
-	"github.com/go-tangra/go-tangra-portal/app/admin/service/internal/data/ent/dicttypei18n"
 	"time"
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/go-tangra/go-tangra-portal/app/admin/service/internal/data/ent/dictentry"
+	"github.com/go-tangra/go-tangra-portal/app/admin/service/internal/data/ent/dicttype"
+	"github.com/go-tangra/go-tangra-portal/app/admin/service/internal/data/ent/dicttypei18n"
 )
 
 // DictTypeCreate is the builder for creating a DictType entity.

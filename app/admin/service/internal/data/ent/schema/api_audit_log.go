@@ -161,7 +161,7 @@ func (ApiAuditLog) Fields() []ent.Field {
 func (ApiAuditLog) Mixin() []ent.Mixin {
 	return []ent.Mixin{
 		mixin.AutoIncrementId{},
-		mixin.CreatedAt{},
+		NotNullCreatedAt{},
 		mixin.TenantID[uint32]{},
 	}
 }

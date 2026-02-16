@@ -3,10 +3,10 @@
 package operationauditlog
 
 import (
-	"github.com/go-tangra/go-tangra-portal/app/admin/service/internal/data/ent/predicate"
 	"time"
 
 	"entgo.io/ent/dialect/sql"
+	"github.com/go-tangra/go-tangra-portal/app/admin/service/internal/data/ent/predicate"
 )
 
 // ID filters vertices based on their ID field.
@@ -167,16 +167,6 @@ func CreatedAtLT(v time.Time) predicate.OperationAuditLog {
 // CreatedAtLTE applies the LTE predicate on the "created_at" field.
 func CreatedAtLTE(v time.Time) predicate.OperationAuditLog {
 	return predicate.OperationAuditLog(sql.FieldLTE(FieldCreatedAt, v))
-}
-
-// CreatedAtIsNil applies the IsNil predicate on the "created_at" field.
-func CreatedAtIsNil() predicate.OperationAuditLog {
-	return predicate.OperationAuditLog(sql.FieldIsNull(FieldCreatedAt))
-}
-
-// CreatedAtNotNil applies the NotNil predicate on the "created_at" field.
-func CreatedAtNotNil() predicate.OperationAuditLog {
-	return predicate.OperationAuditLog(sql.FieldNotNull(FieldCreatedAt))
 }
 
 // TenantIDEQ applies the EQ predicate on the "tenant_id" field.

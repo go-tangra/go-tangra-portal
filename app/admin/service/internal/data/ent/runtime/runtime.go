@@ -4,6 +4,8 @@ package runtime
 
 import (
 	"context"
+	"time"
+
 	userpb "github.com/go-tangra/go-tangra-portal/api/gen/go/user/service/v1"
 	"github.com/go-tangra/go-tangra-portal/app/admin/service/internal/data/ent/api"
 	"github.com/go-tangra/go-tangra-portal/app/admin/service/internal/data/ent/apiauditlog"
@@ -43,6 +45,7 @@ import (
 	"github.com/go-tangra/go-tangra-portal/app/admin/service/internal/data/ent/tenant"
 	"github.com/go-tangra/go-tangra-portal/app/admin/service/internal/data/ent/user"
 	"github.com/go-tangra/go-tangra-portal/app/admin/service/internal/data/ent/usercredential"
+	"github.com/go-tangra/go-tangra-portal/app/admin/service/internal/data/ent/userdashboard"
 	"github.com/go-tangra/go-tangra-portal/app/admin/service/internal/data/ent/userorgunit"
 	"github.com/go-tangra/go-tangra-portal/app/admin/service/internal/data/ent/userposition"
 	"github.com/go-tangra/go-tangra-portal/app/admin/service/internal/data/ent/userrole"
@@ -78,10 +81,16 @@ func init() {
 	}
 	apiauditlogMixinFields0 := apiauditlogMixin[0].Fields()
 	_ = apiauditlogMixinFields0
+	apiauditlogMixinFields1 := apiauditlogMixin[1].Fields()
+	_ = apiauditlogMixinFields1
 	apiauditlogMixinFields2 := apiauditlogMixin[2].Fields()
 	_ = apiauditlogMixinFields2
 	apiauditlogFields := schema.ApiAuditLog{}.Fields()
 	_ = apiauditlogFields
+	// apiauditlogDescCreatedAt is the schema descriptor for created_at field.
+	apiauditlogDescCreatedAt := apiauditlogMixinFields1[0].Descriptor()
+	// apiauditlog.DefaultCreatedAt holds the default value on creation for the created_at field.
+	apiauditlog.DefaultCreatedAt = apiauditlogDescCreatedAt.Default.(func() time.Time)
 	// apiauditlogDescTenantID is the schema descriptor for tenant_id field.
 	apiauditlogDescTenantID := apiauditlogMixinFields2[0].Descriptor()
 	// apiauditlog.DefaultTenantID holds the default value on creation for the tenant_id field.
@@ -429,10 +438,16 @@ func init() {
 	}
 	loginauditlogMixinFields0 := loginauditlogMixin[0].Fields()
 	_ = loginauditlogMixinFields0
+	loginauditlogMixinFields1 := loginauditlogMixin[1].Fields()
+	_ = loginauditlogMixinFields1
 	loginauditlogMixinFields2 := loginauditlogMixin[2].Fields()
 	_ = loginauditlogMixinFields2
 	loginauditlogFields := schema.LoginAuditLog{}.Fields()
 	_ = loginauditlogFields
+	// loginauditlogDescCreatedAt is the schema descriptor for created_at field.
+	loginauditlogDescCreatedAt := loginauditlogMixinFields1[0].Descriptor()
+	// loginauditlog.DefaultCreatedAt holds the default value on creation for the created_at field.
+	loginauditlog.DefaultCreatedAt = loginauditlogDescCreatedAt.Default.(func() time.Time)
 	// loginauditlogDescTenantID is the schema descriptor for tenant_id field.
 	loginauditlogDescTenantID := loginauditlogMixinFields2[0].Descriptor()
 	// loginauditlog.DefaultTenantID holds the default value on creation for the tenant_id field.
@@ -653,10 +668,16 @@ func init() {
 	}
 	operationauditlogMixinFields0 := operationauditlogMixin[0].Fields()
 	_ = operationauditlogMixinFields0
+	operationauditlogMixinFields1 := operationauditlogMixin[1].Fields()
+	_ = operationauditlogMixinFields1
 	operationauditlogMixinFields2 := operationauditlogMixin[2].Fields()
 	_ = operationauditlogMixinFields2
 	operationauditlogFields := schema.OperationAuditLog{}.Fields()
 	_ = operationauditlogFields
+	// operationauditlogDescCreatedAt is the schema descriptor for created_at field.
+	operationauditlogDescCreatedAt := operationauditlogMixinFields1[0].Descriptor()
+	// operationauditlog.DefaultCreatedAt holds the default value on creation for the created_at field.
+	operationauditlog.DefaultCreatedAt = operationauditlogDescCreatedAt.Default.(func() time.Time)
 	// operationauditlogDescTenantID is the schema descriptor for tenant_id field.
 	operationauditlogDescTenantID := operationauditlogMixinFields2[0].Descriptor()
 	// operationauditlog.DefaultTenantID holds the default value on creation for the tenant_id field.
@@ -1153,6 +1174,23 @@ func init() {
 	usercredentialDescID := usercredentialMixinFields1[0].Descriptor()
 	// usercredential.IDValidator is a validator for the "id" field. It is called by the builders before save.
 	usercredential.IDValidator = usercredentialDescID.Validators[0].(func(uint32) error)
+	userdashboardMixin := schema.UserDashboard{}.Mixin()
+	userdashboardMixinFields0 := userdashboardMixin[0].Fields()
+	_ = userdashboardMixinFields0
+	userdashboardFields := schema.UserDashboard{}.Fields()
+	_ = userdashboardFields
+	// userdashboardDescName is the schema descriptor for name field.
+	userdashboardDescName := userdashboardFields[2].Descriptor()
+	// userdashboard.DefaultName holds the default value on creation for the name field.
+	userdashboard.DefaultName = userdashboardDescName.Default.(string)
+	// userdashboardDescIsDefault is the schema descriptor for is_default field.
+	userdashboardDescIsDefault := userdashboardFields[4].Descriptor()
+	// userdashboard.DefaultIsDefault holds the default value on creation for the is_default field.
+	userdashboard.DefaultIsDefault = userdashboardDescIsDefault.Default.(bool)
+	// userdashboardDescID is the schema descriptor for id field.
+	userdashboardDescID := userdashboardMixinFields0[0].Descriptor()
+	// userdashboard.IDValidator is a validator for the "id" field. It is called by the builders before save.
+	userdashboard.IDValidator = userdashboardDescID.Validators[0].(func(uint32) error)
 	userorgunitMixin := schema.UserOrgUnit{}.Mixin()
 	userorgunit.Policy = privacy.NewPolicies(userorgunitMixin[3], schema.UserOrgUnit{})
 	userorgunit.Hooks[0] = func(next ent.Mutator) ent.Mutator {
