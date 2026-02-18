@@ -8,6 +8,7 @@ package lcmV1
 
 import (
 	_ "buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go/buf/validate"
+	_ "github.com/menta2k/protoc-gen-redact/v3/redact/v3"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
@@ -1186,17 +1187,17 @@ var File_lcm_service_v1_mtls_certificate_request_proto protoreflect.FileDescript
 
 const file_lcm_service_v1_mtls_certificate_request_proto_rawDesc = "" +
 	"\n" +
-	"-lcm/service/v1/mtls_certificate_request.proto\x12\x0elcm.service.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a google/protobuf/field_mask.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1blcm/service/v1/client.proto\"\x84\r\n" +
+	"-lcm/service/v1/mtls_certificate_request.proto\x12\x0elcm.service.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a google/protobuf/field_mask.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x16redact/v3/redact.proto\x1a\x1blcm/service/v1/client.proto\"\x94\r\n" +
 	"\x16MtlsCertificateRequest\x12\x13\n" +
 	"\x02id\x18\x01 \x01(\rH\x00R\x02id\x88\x01\x01\x12\"\n" +
 	"\n" +
 	"request_id\x18\x02 \x01(\tH\x01R\trequestId\x88\x01\x01\x12 \n" +
 	"\tclient_id\x18\x03 \x01(\tH\x02R\bclientId\x88\x01\x01\x12$\n" +
 	"\vcommon_name\x18\x04 \x01(\tH\x03R\n" +
-	"commonName\x88\x01\x01\x12\x1c\n" +
-	"\acsr_pem\x18\x05 \x01(\tH\x04R\x06csrPem\x88\x01\x01\x12\"\n" +
+	"commonName\x88\x01\x01\x12$\n" +
+	"\acsr_pem\x18\x05 \x01(\tB\x06ڶ\x1a\x02z\x00H\x04R\x06csrPem\x88\x01\x01\x12*\n" +
 	"\n" +
-	"public_key\x18\x06 \x01(\tH\x05R\tpublicKey\x88\x01\x01\x12\x1b\n" +
+	"public_key\x18\x06 \x01(\tB\x06ڶ\x1a\x02z\x00H\x05R\tpublicKey\x88\x01\x01\x12\x1b\n" +
 	"\tdns_names\x18\a \x03(\tR\bdnsNames\x12!\n" +
 	"\fip_addresses\x18\b \x03(\tR\vipAddresses\x12$\n" +
 	"\vissuer_name\x18\t \x01(\tH\x06R\n" +
@@ -1290,14 +1291,14 @@ const file_lcm_service_v1_mtls_certificate_request_proto_rawDesc = "" +
 	"\n" +
 	"_view_mask\"\x85\x01\n" +
 	"!GetMtlsCertificateRequestResponse\x12`\n" +
-	"\x18mtls_certificate_request\x18\x01 \x01(\v2&.lcm.service.v1.MtlsCertificateRequestR\x16mtlsCertificateRequest\"\xfc\b\n" +
+	"\x18mtls_certificate_request\x18\x01 \x01(\v2&.lcm.service.v1.MtlsCertificateRequestR\x16mtlsCertificateRequest\"\x89\t\n" +
 	"#CreateMtlsCertificateRequestRequest\x12F\n" +
 	"\tclient_id\x18\x01 \x01(\tB)\xe0A\x02\xbaH#r!\x10\x01\x18@2\x1b^[a-zA-Z0-9][a-zA-Z0-9_-]*$R\bclientId\x12M\n" +
 	"\vcommon_name\x18\x02 \x01(\tB,\xe0A\x02\xbaH&r$\x10\x01\x18\xfd\x012\x1d^[a-zA-Z0-9][a-zA-Z0-9\\-\\.]*$R\n" +
-	"commonName\x12{\n" +
-	"\acsr_pem\x18\x03 \x01(\tB]\xbaHZrX\x18\x80\x80\x012R^-----BEGIN CERTIFICATE REQUEST-----[\\s\\S]*-----END CERTIFICATE REQUEST-----[\\s]*$H\x00R\x06csrPem\x88\x01\x01\x12n\n" +
+	"commonName\x12\x81\x01\n" +
+	"\acsr_pem\x18\x03 \x01(\tBc\xbaHZrX\x18\x80\x80\x012R^-----BEGIN CERTIFICATE REQUEST-----[\\s\\S]*-----END CERTIFICATE REQUEST-----[\\s]*$ڶ\x1a\x02z\x00H\x00R\x06csrPem\x88\x01\x01\x12t\n" +
 	"\n" +
-	"public_key\x18\x04 \x01(\tBJ\xbaHGrE\x18\x80@2@^-----BEGIN PUBLIC KEY-----[\\s\\S]*-----END PUBLIC KEY-----[\\s]*$H\x01R\tpublicKey\x88\x01\x01\x12\x95\x01\n" +
+	"public_key\x18\x04 \x01(\tBP\xbaHGrE\x18\x80@2@^-----BEGIN PUBLIC KEY-----[\\s\\S]*-----END PUBLIC KEY-----[\\s]*$ڶ\x1a\x02z\x00H\x01R\tpublicKey\x88\x01\x01\x12\x95\x01\n" +
 	"\tdns_names\x18\x05 \x03(\tBx\xbaHu\x92\x01r\x10d\"nrl\x10\x01\x18\xfd\x012e^[a-zA-Z0-9*]([a-zA-Z0-9\\-*]{0,61}[a-zA-Z0-9*])?(\\.[a-zA-Z0-9*]([a-zA-Z0-9\\-*]{0,61}[a-zA-Z0-9*])?)*$R\bdnsNames\x121\n" +
 	"\fip_addresses\x18\x06 \x03(\tB\x0e\xbaH\v\x92\x01\b\x102\"\x04r\x02p\x01R\vipAddresses\x12@\n" +
 	"\vissuer_name\x18\a \x01(\tB\x1a\xbaH\x17r\x15\x18d2\x11^[a-zA-Z0-9\\-_]*$H\x02R\n" +

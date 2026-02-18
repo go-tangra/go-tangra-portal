@@ -8,6 +8,7 @@ package ipampb
 
 import (
 	_ "buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go/buf/validate"
+	_ "github.com/menta2k/protoc-gen-redact/v3/redact/v3"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
@@ -1540,11 +1541,194 @@ func (x *PingAddressResponse) GetCheckedAt() *timestamppb.Timestamp {
 	return nil
 }
 
+// SuggestAvailableAddressesRequest requests available IP address suggestions for a subnet
+type SuggestAvailableAddressesRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	TenantId      *uint32                `protobuf:"varint,1,opt,name=tenant_id,json=tenantId,proto3,oneof" json:"tenant_id,omitempty"`
+	SubnetId      string                 `protobuf:"bytes,2,opt,name=subnet_id,json=subnetId,proto3" json:"subnet_id,omitempty"`
+	Count         *int32                 `protobuf:"varint,3,opt,name=count,proto3,oneof" json:"count,omitempty"`
+	SkipAddresses []string               `protobuf:"bytes,4,rep,name=skip_addresses,json=skipAddresses,proto3" json:"skip_addresses,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *SuggestAvailableAddressesRequest) Reset() {
+	*x = SuggestAvailableAddressesRequest{}
+	mi := &file_ipam_service_v1_ip_address_proto_msgTypes[18]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *SuggestAvailableAddressesRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SuggestAvailableAddressesRequest) ProtoMessage() {}
+
+func (x *SuggestAvailableAddressesRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_ipam_service_v1_ip_address_proto_msgTypes[18]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SuggestAvailableAddressesRequest.ProtoReflect.Descriptor instead.
+func (*SuggestAvailableAddressesRequest) Descriptor() ([]byte, []int) {
+	return file_ipam_service_v1_ip_address_proto_rawDescGZIP(), []int{18}
+}
+
+func (x *SuggestAvailableAddressesRequest) GetTenantId() uint32 {
+	if x != nil && x.TenantId != nil {
+		return *x.TenantId
+	}
+	return 0
+}
+
+func (x *SuggestAvailableAddressesRequest) GetSubnetId() string {
+	if x != nil {
+		return x.SubnetId
+	}
+	return ""
+}
+
+func (x *SuggestAvailableAddressesRequest) GetCount() int32 {
+	if x != nil && x.Count != nil {
+		return *x.Count
+	}
+	return 0
+}
+
+func (x *SuggestAvailableAddressesRequest) GetSkipAddresses() []string {
+	if x != nil {
+		return x.SkipAddresses
+	}
+	return nil
+}
+
+// SuggestedAddress represents a single suggested available IP address
+type SuggestedAddress struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Address       string                 `protobuf:"bytes,1,opt,name=address,proto3" json:"address,omitempty"`
+	PingFree      bool                   `protobuf:"varint,2,opt,name=ping_free,json=pingFree,proto3" json:"ping_free,omitempty"`
+	PortScanFree  bool                   `protobuf:"varint,3,opt,name=port_scan_free,json=portScanFree,proto3" json:"port_scan_free,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *SuggestedAddress) Reset() {
+	*x = SuggestedAddress{}
+	mi := &file_ipam_service_v1_ip_address_proto_msgTypes[19]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *SuggestedAddress) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SuggestedAddress) ProtoMessage() {}
+
+func (x *SuggestedAddress) ProtoReflect() protoreflect.Message {
+	mi := &file_ipam_service_v1_ip_address_proto_msgTypes[19]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SuggestedAddress.ProtoReflect.Descriptor instead.
+func (*SuggestedAddress) Descriptor() ([]byte, []int) {
+	return file_ipam_service_v1_ip_address_proto_rawDescGZIP(), []int{19}
+}
+
+func (x *SuggestedAddress) GetAddress() string {
+	if x != nil {
+		return x.Address
+	}
+	return ""
+}
+
+func (x *SuggestedAddress) GetPingFree() bool {
+	if x != nil {
+		return x.PingFree
+	}
+	return false
+}
+
+func (x *SuggestedAddress) GetPortScanFree() bool {
+	if x != nil {
+		return x.PortScanFree
+	}
+	return false
+}
+
+// SuggestAvailableAddressesResponse returns suggested available addresses
+type SuggestAvailableAddressesResponse struct {
+	state            protoimpl.MessageState `protogen:"open.v1"`
+	Addresses        []*SuggestedAddress    `protobuf:"bytes,1,rep,name=addresses,proto3" json:"addresses,omitempty"`
+	TotalUnallocated *int64                 `protobuf:"varint,2,opt,name=total_unallocated,json=totalUnallocated,proto3,oneof" json:"total_unallocated,omitempty"`
+	unknownFields    protoimpl.UnknownFields
+	sizeCache        protoimpl.SizeCache
+}
+
+func (x *SuggestAvailableAddressesResponse) Reset() {
+	*x = SuggestAvailableAddressesResponse{}
+	mi := &file_ipam_service_v1_ip_address_proto_msgTypes[20]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *SuggestAvailableAddressesResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SuggestAvailableAddressesResponse) ProtoMessage() {}
+
+func (x *SuggestAvailableAddressesResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_ipam_service_v1_ip_address_proto_msgTypes[20]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SuggestAvailableAddressesResponse.ProtoReflect.Descriptor instead.
+func (*SuggestAvailableAddressesResponse) Descriptor() ([]byte, []int) {
+	return file_ipam_service_v1_ip_address_proto_rawDescGZIP(), []int{20}
+}
+
+func (x *SuggestAvailableAddressesResponse) GetAddresses() []*SuggestedAddress {
+	if x != nil {
+		return x.Addresses
+	}
+	return nil
+}
+
+func (x *SuggestAvailableAddressesResponse) GetTotalUnallocated() int64 {
+	if x != nil && x.TotalUnallocated != nil {
+		return *x.TotalUnallocated
+	}
+	return 0
+}
+
 var File_ipam_service_v1_ip_address_proto protoreflect.FileDescriptor
 
 const file_ipam_service_v1_ip_address_proto_rawDesc = "" +
 	"\n" +
-	" ipam/service/v1/ip_address.proto\x12\x0fipam.service.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a google/protobuf/field_mask.proto\"\xef\n" +
+	" ipam/service/v1/ip_address.proto\x12\x0fipam.service.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a google/protobuf/field_mask.proto\x1a\x16redact/v3/redact.proto\"\xf7\n" +
 	"\n" +
 	"\tIpAddress\x12\x13\n" +
 	"\x02id\x18\x01 \x01(\tH\x00R\x02id\x88\x01\x01\x12 \n" +
@@ -1565,8 +1749,8 @@ const file_ipam_service_v1_ip_address_proto_rawDesc = "" +
 	"is_primary\x18\f \x01(\bH\vR\tisPrimary\x88\x01\x01\x12\"\n" +
 	"\n" +
 	"ptr_record\x18\r \x01(\tH\fR\tptrRecord\x88\x01\x01\x12\x1e\n" +
-	"\bdns_name\x18\x0e \x01(\tH\rR\adnsName\x88\x01\x01\x12\x19\n" +
-	"\x05owner\x18\x0f \x01(\tH\x0eR\x05owner\x88\x01\x01\x12<\n" +
+	"\bdns_name\x18\x0e \x01(\tH\rR\adnsName\x88\x01\x01\x12!\n" +
+	"\x05owner\x18\x0f \x01(\tB\x06ڶ\x1a\x02z\x00H\x0eR\x05owner\x88\x01\x01\x12<\n" +
 	"\tlast_seen\x18\x10 \x01(\v2\x1a.google.protobuf.TimestampH\x0fR\blastSeen\x88\x01\x01\x12B\n" +
 	"\flease_expiry\x18\x11 \x01(\v2\x1a.google.protobuf.TimestampH\x10R\vleaseExpiry\x88\x01\x01\x12+\n" +
 	"\x0fhas_reverse_dns\x18\x12 \x01(\bH\x11R\rhasReverseDns\x88\x01\x01\x12\x17\n" +
@@ -1610,7 +1794,7 @@ const file_ipam_service_v1_ip_address_proto_rawDesc = "" +
 	"\v_created_atB\r\n" +
 	"\v_updated_atB\r\n" +
 	"\v_created_byB\r\n" +
-	"\v_updated_by\"\x97\a\n" +
+	"\v_updated_by\"\x9f\a\n" +
 	"\x16CreateIpAddressRequest\x12%\n" +
 	"\ttenant_id\x18\x01 \x01(\rB\x03\xe0A\x02H\x00R\btenantId\x88\x01\x01\x12)\n" +
 	"\aaddress\x18\x02 \x01(\tB\n" +
@@ -1631,8 +1815,8 @@ const file_ipam_service_v1_ip_address_proto_rawDesc = "" +
 	"R\tisPrimary\x88\x01\x01\x12\"\n" +
 	"\n" +
 	"ptr_record\x18\f \x01(\tH\vR\tptrRecord\x88\x01\x01\x12\x1e\n" +
-	"\bdns_name\x18\r \x01(\tH\fR\adnsName\x88\x01\x01\x12\x19\n" +
-	"\x05owner\x18\x0e \x01(\tH\rR\x05owner\x88\x01\x01\x12\x17\n" +
+	"\bdns_name\x18\r \x01(\tH\fR\adnsName\x88\x01\x01\x12!\n" +
+	"\x05owner\x18\x0e \x01(\tB\x06ڶ\x1a\x02z\x00H\rR\x05owner\x88\x01\x01\x12\x17\n" +
 	"\x04tags\x18\x0f \x01(\tH\x0eR\x04tags\x88\x01\x01\x12\x1f\n" +
 	"\bmetadata\x18\x10 \x01(\tH\x0fR\bmetadata\x88\x01\x01\x12\x17\n" +
 	"\x04note\x18\x11 \x01(\tH\x10R\x04note\x88\x01\x01B\f\n" +
@@ -1716,7 +1900,7 @@ const file_ipam_service_v1_ip_address_proto_rawDesc = "" +
 	"ip_address\x18\x01 \x01(\v2\x1a.ipam.service.v1.IpAddressR\tipAddress\"4\n" +
 	"\x16DeleteIpAddressRequest\x12\x1a\n" +
 	"\x02id\x18\x01 \x01(\tB\n" +
-	"\xe0A\x02\xbaH\x04r\x02\x10\x01R\x02id\"\xd8\x03\n" +
+	"\xe0A\x02\xbaH\x04r\x02\x10\x01R\x02id\"\xe0\x03\n" +
 	"\x1aAllocateNextAddressRequest\x12%\n" +
 	"\ttenant_id\x18\x01 \x01(\rB\x03\xe0A\x02H\x00R\btenantId\x88\x01\x01\x12'\n" +
 	"\tsubnet_id\x18\x02 \x01(\tB\n" +
@@ -1724,8 +1908,8 @@ const file_ipam_service_v1_ip_address_proto_rawDesc = "" +
 	"\bhostname\x18\x03 \x01(\tH\x01R\bhostname\x88\x01\x01\x12%\n" +
 	"\vdescription\x18\x04 \x01(\tH\x02R\vdescription\x88\x01\x01\x12 \n" +
 	"\tdevice_id\x18\x05 \x01(\tH\x03R\bdeviceId\x88\x01\x01\x12=\n" +
-	"\x06status\x18\x06 \x01(\x0e2 .ipam.service.v1.IpAddressStatusH\x04R\x06status\x88\x01\x01\x12\x19\n" +
-	"\x05owner\x18\a \x01(\tH\x05R\x05owner\x88\x01\x01\x12%\n" +
+	"\x06status\x18\x06 \x01(\x0e2 .ipam.service.v1.IpAddressStatusH\x04R\x06status\x88\x01\x01\x12!\n" +
+	"\x05owner\x18\a \x01(\tB\x06ڶ\x1a\x02z\x00H\x05R\x05owner\x88\x01\x01\x12%\n" +
 	"\x0eskip_addresses\x18\n" +
 	" \x03(\tR\rskipAddresses\x12\"\n" +
 	"\n" +
@@ -1772,7 +1956,24 @@ const file_ipam_service_v1_ip_address_proto_rawDesc = "" +
 	"\n" +
 	"checked_at\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampH\x01R\tcheckedAt\x88\x01\x01B\r\n" +
 	"\v_latency_msB\r\n" +
-	"\v_checked_at*\xcf\x01\n" +
+	"\v_checked_at\"\xcc\x01\n" +
+	" SuggestAvailableAddressesRequest\x12%\n" +
+	"\ttenant_id\x18\x01 \x01(\rB\x03\xe0A\x02H\x00R\btenantId\x88\x01\x01\x12'\n" +
+	"\tsubnet_id\x18\x02 \x01(\tB\n" +
+	"\xe0A\x02\xbaH\x04r\x02\x10\x01R\bsubnetId\x12\x19\n" +
+	"\x05count\x18\x03 \x01(\x05H\x01R\x05count\x88\x01\x01\x12%\n" +
+	"\x0eskip_addresses\x18\x04 \x03(\tR\rskipAddressesB\f\n" +
+	"\n" +
+	"_tenant_idB\b\n" +
+	"\x06_count\"o\n" +
+	"\x10SuggestedAddress\x12\x18\n" +
+	"\aaddress\x18\x01 \x01(\tR\aaddress\x12\x1b\n" +
+	"\tping_free\x18\x02 \x01(\bR\bpingFree\x12$\n" +
+	"\x0eport_scan_free\x18\x03 \x01(\bR\fportScanFree\"\xac\x01\n" +
+	"!SuggestAvailableAddressesResponse\x12?\n" +
+	"\taddresses\x18\x01 \x03(\v2!.ipam.service.v1.SuggestedAddressR\taddresses\x120\n" +
+	"\x11total_unallocated\x18\x02 \x01(\x03H\x00R\x10totalUnallocated\x88\x01\x01B\x14\n" +
+	"\x12_total_unallocated*\xcf\x01\n" +
 	"\x0fIpAddressStatus\x12!\n" +
 	"\x1dIP_ADDRESS_STATUS_UNSPECIFIED\x10\x00\x12\x1c\n" +
 	"\x18IP_ADDRESS_STATUS_ACTIVE\x10\x01\x12\x1e\n" +
@@ -1787,7 +1988,8 @@ const file_ipam_service_v1_ip_address_proto_rawDesc = "" +
 	"\x19IP_ADDRESS_TYPE_BROADCAST\x10\x03\x12\x1b\n" +
 	"\x17IP_ADDRESS_TYPE_NETWORK\x10\x04\x12\x1b\n" +
 	"\x17IP_ADDRESS_TYPE_VIRTUAL\x10\x05\x12\x1b\n" +
-	"\x17IP_ADDRESS_TYPE_ANYCAST\x10\x062\xc2\t\n" +
+	"\x17IP_ADDRESS_TYPE_ANYCAST\x10\x062\xe9\n" +
+	"\n" +
 	"\x10IpAddressService\x12\x81\x01\n" +
 	"\x0fCreateIpAddress\x12'.ipam.service.v1.CreateIpAddressRequest\x1a(.ipam.service.v1.CreateIpAddressResponse\"\x1b\x82\xd3\xe4\x93\x02\x15:\x01*\"\x10/v1/ip-addresses\x12z\n" +
 	"\fGetIpAddress\x12$.ipam.service.v1.GetIpAddressRequest\x1a%.ipam.service.v1.GetIpAddressResponse\"\x1d\x82\xd3\xe4\x93\x02\x17\x12\x15/v1/ip-addresses/{id}\x12~\n" +
@@ -1797,7 +1999,8 @@ const file_ipam_service_v1_ip_address_proto_rawDesc = "" +
 	"\x13AllocateNextAddress\x12+.ipam.service.v1.AllocateNextAddressRequest\x1a,.ipam.service.v1.AllocateNextAddressResponse\"$\x82\xd3\xe4\x93\x02\x1e:\x01*\"\x19/v1/ip-addresses/allocate\x12\xa1\x01\n" +
 	"\x15BulkAllocateAddresses\x12-.ipam.service.v1.BulkAllocateAddressesRequest\x1a..ipam.service.v1.BulkAllocateAddressesResponse\")\x82\xd3\xe4\x93\x02#:\x01*\"\x1e/v1/ip-addresses/bulk-allocate\x12w\n" +
 	"\vFindAddress\x12#.ipam.service.v1.FindAddressRequest\x1a$.ipam.service.v1.FindAddressResponse\"\x1d\x82\xd3\xe4\x93\x02\x17\x12\x15/v1/ip-addresses/find\x12|\n" +
-	"\vPingAddress\x12#.ipam.service.v1.PingAddressRequest\x1a$.ipam.service.v1.PingAddressResponse\"\"\x82\xd3\xe4\x93\x02\x1c\"\x1a/v1/ip-addresses/{id}/pingB\xcc\x01\n" +
+	"\vPingAddress\x12#.ipam.service.v1.PingAddressRequest\x1a$.ipam.service.v1.PingAddressResponse\"\"\x82\xd3\xe4\x93\x02\x1c\"\x1a/v1/ip-addresses/{id}/ping\x12\xa4\x01\n" +
+	"\x19SuggestAvailableAddresses\x121.ipam.service.v1.SuggestAvailableAddressesRequest\x1a2.ipam.service.v1.SuggestAvailableAddressesResponse\" \x82\xd3\xe4\x93\x02\x1a\x12\x18/v1/ip-addresses/suggestB\xcc\x01\n" +
 	"\x13com.ipam.service.v1B\x0eIpAddressProtoP\x01ZGgithub.com/go-tangra/go-tangra-portal/api/gen/go/ipam/service/v1;ipampb\xa2\x02\x03ISX\xaa\x02\x0fIpam.Service.V1\xca\x02\x0fIpam\\Service\\V1\xe2\x02\x1bIpam\\Service\\V1\\GPBMetadata\xea\x02\x11Ipam::Service::V1b\x06proto3"
 
 var (
@@ -1813,39 +2016,42 @@ func file_ipam_service_v1_ip_address_proto_rawDescGZIP() []byte {
 }
 
 var file_ipam_service_v1_ip_address_proto_enumTypes = make([]protoimpl.EnumInfo, 2)
-var file_ipam_service_v1_ip_address_proto_msgTypes = make([]protoimpl.MessageInfo, 18)
+var file_ipam_service_v1_ip_address_proto_msgTypes = make([]protoimpl.MessageInfo, 21)
 var file_ipam_service_v1_ip_address_proto_goTypes = []any{
-	(IpAddressStatus)(0),                  // 0: ipam.service.v1.IpAddressStatus
-	(IpAddressType)(0),                    // 1: ipam.service.v1.IpAddressType
-	(*IpAddress)(nil),                     // 2: ipam.service.v1.IpAddress
-	(*CreateIpAddressRequest)(nil),        // 3: ipam.service.v1.CreateIpAddressRequest
-	(*CreateIpAddressResponse)(nil),       // 4: ipam.service.v1.CreateIpAddressResponse
-	(*GetIpAddressRequest)(nil),           // 5: ipam.service.v1.GetIpAddressRequest
-	(*GetIpAddressResponse)(nil),          // 6: ipam.service.v1.GetIpAddressResponse
-	(*ListIpAddressesRequest)(nil),        // 7: ipam.service.v1.ListIpAddressesRequest
-	(*ListIpAddressesResponse)(nil),       // 8: ipam.service.v1.ListIpAddressesResponse
-	(*UpdateIpAddressRequest)(nil),        // 9: ipam.service.v1.UpdateIpAddressRequest
-	(*UpdateIpAddressResponse)(nil),       // 10: ipam.service.v1.UpdateIpAddressResponse
-	(*DeleteIpAddressRequest)(nil),        // 11: ipam.service.v1.DeleteIpAddressRequest
-	(*AllocateNextAddressRequest)(nil),    // 12: ipam.service.v1.AllocateNextAddressRequest
-	(*AllocateNextAddressResponse)(nil),   // 13: ipam.service.v1.AllocateNextAddressResponse
-	(*BulkAllocateAddressesRequest)(nil),  // 14: ipam.service.v1.BulkAllocateAddressesRequest
-	(*BulkAllocateAddressesResponse)(nil), // 15: ipam.service.v1.BulkAllocateAddressesResponse
-	(*FindAddressRequest)(nil),            // 16: ipam.service.v1.FindAddressRequest
-	(*FindAddressResponse)(nil),           // 17: ipam.service.v1.FindAddressResponse
-	(*PingAddressRequest)(nil),            // 18: ipam.service.v1.PingAddressRequest
-	(*PingAddressResponse)(nil),           // 19: ipam.service.v1.PingAddressResponse
-	(*timestamppb.Timestamp)(nil),         // 20: google.protobuf.Timestamp
-	(*fieldmaskpb.FieldMask)(nil),         // 21: google.protobuf.FieldMask
-	(*emptypb.Empty)(nil),                 // 22: google.protobuf.Empty
+	(IpAddressStatus)(0),                      // 0: ipam.service.v1.IpAddressStatus
+	(IpAddressType)(0),                        // 1: ipam.service.v1.IpAddressType
+	(*IpAddress)(nil),                         // 2: ipam.service.v1.IpAddress
+	(*CreateIpAddressRequest)(nil),            // 3: ipam.service.v1.CreateIpAddressRequest
+	(*CreateIpAddressResponse)(nil),           // 4: ipam.service.v1.CreateIpAddressResponse
+	(*GetIpAddressRequest)(nil),               // 5: ipam.service.v1.GetIpAddressRequest
+	(*GetIpAddressResponse)(nil),              // 6: ipam.service.v1.GetIpAddressResponse
+	(*ListIpAddressesRequest)(nil),            // 7: ipam.service.v1.ListIpAddressesRequest
+	(*ListIpAddressesResponse)(nil),           // 8: ipam.service.v1.ListIpAddressesResponse
+	(*UpdateIpAddressRequest)(nil),            // 9: ipam.service.v1.UpdateIpAddressRequest
+	(*UpdateIpAddressResponse)(nil),           // 10: ipam.service.v1.UpdateIpAddressResponse
+	(*DeleteIpAddressRequest)(nil),            // 11: ipam.service.v1.DeleteIpAddressRequest
+	(*AllocateNextAddressRequest)(nil),        // 12: ipam.service.v1.AllocateNextAddressRequest
+	(*AllocateNextAddressResponse)(nil),       // 13: ipam.service.v1.AllocateNextAddressResponse
+	(*BulkAllocateAddressesRequest)(nil),      // 14: ipam.service.v1.BulkAllocateAddressesRequest
+	(*BulkAllocateAddressesResponse)(nil),     // 15: ipam.service.v1.BulkAllocateAddressesResponse
+	(*FindAddressRequest)(nil),                // 16: ipam.service.v1.FindAddressRequest
+	(*FindAddressResponse)(nil),               // 17: ipam.service.v1.FindAddressResponse
+	(*PingAddressRequest)(nil),                // 18: ipam.service.v1.PingAddressRequest
+	(*PingAddressResponse)(nil),               // 19: ipam.service.v1.PingAddressResponse
+	(*SuggestAvailableAddressesRequest)(nil),  // 20: ipam.service.v1.SuggestAvailableAddressesRequest
+	(*SuggestedAddress)(nil),                  // 21: ipam.service.v1.SuggestedAddress
+	(*SuggestAvailableAddressesResponse)(nil), // 22: ipam.service.v1.SuggestAvailableAddressesResponse
+	(*timestamppb.Timestamp)(nil),             // 23: google.protobuf.Timestamp
+	(*fieldmaskpb.FieldMask)(nil),             // 24: google.protobuf.FieldMask
+	(*emptypb.Empty)(nil),                     // 25: google.protobuf.Empty
 }
 var file_ipam_service_v1_ip_address_proto_depIdxs = []int32{
 	0,  // 0: ipam.service.v1.IpAddress.status:type_name -> ipam.service.v1.IpAddressStatus
 	1,  // 1: ipam.service.v1.IpAddress.address_type:type_name -> ipam.service.v1.IpAddressType
-	20, // 2: ipam.service.v1.IpAddress.last_seen:type_name -> google.protobuf.Timestamp
-	20, // 3: ipam.service.v1.IpAddress.lease_expiry:type_name -> google.protobuf.Timestamp
-	20, // 4: ipam.service.v1.IpAddress.created_at:type_name -> google.protobuf.Timestamp
-	20, // 5: ipam.service.v1.IpAddress.updated_at:type_name -> google.protobuf.Timestamp
+	23, // 2: ipam.service.v1.IpAddress.last_seen:type_name -> google.protobuf.Timestamp
+	23, // 3: ipam.service.v1.IpAddress.lease_expiry:type_name -> google.protobuf.Timestamp
+	23, // 4: ipam.service.v1.IpAddress.created_at:type_name -> google.protobuf.Timestamp
+	23, // 5: ipam.service.v1.IpAddress.updated_at:type_name -> google.protobuf.Timestamp
 	0,  // 6: ipam.service.v1.CreateIpAddressRequest.status:type_name -> ipam.service.v1.IpAddressStatus
 	1,  // 7: ipam.service.v1.CreateIpAddressRequest.address_type:type_name -> ipam.service.v1.IpAddressType
 	2,  // 8: ipam.service.v1.CreateIpAddressResponse.ip_address:type_name -> ipam.service.v1.IpAddress
@@ -1854,37 +2060,40 @@ var file_ipam_service_v1_ip_address_proto_depIdxs = []int32{
 	1,  // 11: ipam.service.v1.ListIpAddressesRequest.address_type:type_name -> ipam.service.v1.IpAddressType
 	2,  // 12: ipam.service.v1.ListIpAddressesResponse.items:type_name -> ipam.service.v1.IpAddress
 	2,  // 13: ipam.service.v1.UpdateIpAddressRequest.data:type_name -> ipam.service.v1.IpAddress
-	21, // 14: ipam.service.v1.UpdateIpAddressRequest.update_mask:type_name -> google.protobuf.FieldMask
+	24, // 14: ipam.service.v1.UpdateIpAddressRequest.update_mask:type_name -> google.protobuf.FieldMask
 	2,  // 15: ipam.service.v1.UpdateIpAddressResponse.ip_address:type_name -> ipam.service.v1.IpAddress
 	0,  // 16: ipam.service.v1.AllocateNextAddressRequest.status:type_name -> ipam.service.v1.IpAddressStatus
 	2,  // 17: ipam.service.v1.AllocateNextAddressResponse.ip_address:type_name -> ipam.service.v1.IpAddress
 	0,  // 18: ipam.service.v1.BulkAllocateAddressesRequest.status:type_name -> ipam.service.v1.IpAddressStatus
 	2,  // 19: ipam.service.v1.BulkAllocateAddressesResponse.ip_addresses:type_name -> ipam.service.v1.IpAddress
 	2,  // 20: ipam.service.v1.FindAddressResponse.ip_address:type_name -> ipam.service.v1.IpAddress
-	20, // 21: ipam.service.v1.PingAddressResponse.checked_at:type_name -> google.protobuf.Timestamp
-	3,  // 22: ipam.service.v1.IpAddressService.CreateIpAddress:input_type -> ipam.service.v1.CreateIpAddressRequest
-	5,  // 23: ipam.service.v1.IpAddressService.GetIpAddress:input_type -> ipam.service.v1.GetIpAddressRequest
-	7,  // 24: ipam.service.v1.IpAddressService.ListIpAddresses:input_type -> ipam.service.v1.ListIpAddressesRequest
-	9,  // 25: ipam.service.v1.IpAddressService.UpdateIpAddress:input_type -> ipam.service.v1.UpdateIpAddressRequest
-	11, // 26: ipam.service.v1.IpAddressService.DeleteIpAddress:input_type -> ipam.service.v1.DeleteIpAddressRequest
-	12, // 27: ipam.service.v1.IpAddressService.AllocateNextAddress:input_type -> ipam.service.v1.AllocateNextAddressRequest
-	14, // 28: ipam.service.v1.IpAddressService.BulkAllocateAddresses:input_type -> ipam.service.v1.BulkAllocateAddressesRequest
-	16, // 29: ipam.service.v1.IpAddressService.FindAddress:input_type -> ipam.service.v1.FindAddressRequest
-	18, // 30: ipam.service.v1.IpAddressService.PingAddress:input_type -> ipam.service.v1.PingAddressRequest
-	4,  // 31: ipam.service.v1.IpAddressService.CreateIpAddress:output_type -> ipam.service.v1.CreateIpAddressResponse
-	6,  // 32: ipam.service.v1.IpAddressService.GetIpAddress:output_type -> ipam.service.v1.GetIpAddressResponse
-	8,  // 33: ipam.service.v1.IpAddressService.ListIpAddresses:output_type -> ipam.service.v1.ListIpAddressesResponse
-	10, // 34: ipam.service.v1.IpAddressService.UpdateIpAddress:output_type -> ipam.service.v1.UpdateIpAddressResponse
-	22, // 35: ipam.service.v1.IpAddressService.DeleteIpAddress:output_type -> google.protobuf.Empty
-	13, // 36: ipam.service.v1.IpAddressService.AllocateNextAddress:output_type -> ipam.service.v1.AllocateNextAddressResponse
-	15, // 37: ipam.service.v1.IpAddressService.BulkAllocateAddresses:output_type -> ipam.service.v1.BulkAllocateAddressesResponse
-	17, // 38: ipam.service.v1.IpAddressService.FindAddress:output_type -> ipam.service.v1.FindAddressResponse
-	19, // 39: ipam.service.v1.IpAddressService.PingAddress:output_type -> ipam.service.v1.PingAddressResponse
-	31, // [31:40] is the sub-list for method output_type
-	22, // [22:31] is the sub-list for method input_type
-	22, // [22:22] is the sub-list for extension type_name
-	22, // [22:22] is the sub-list for extension extendee
-	0,  // [0:22] is the sub-list for field type_name
+	23, // 21: ipam.service.v1.PingAddressResponse.checked_at:type_name -> google.protobuf.Timestamp
+	21, // 22: ipam.service.v1.SuggestAvailableAddressesResponse.addresses:type_name -> ipam.service.v1.SuggestedAddress
+	3,  // 23: ipam.service.v1.IpAddressService.CreateIpAddress:input_type -> ipam.service.v1.CreateIpAddressRequest
+	5,  // 24: ipam.service.v1.IpAddressService.GetIpAddress:input_type -> ipam.service.v1.GetIpAddressRequest
+	7,  // 25: ipam.service.v1.IpAddressService.ListIpAddresses:input_type -> ipam.service.v1.ListIpAddressesRequest
+	9,  // 26: ipam.service.v1.IpAddressService.UpdateIpAddress:input_type -> ipam.service.v1.UpdateIpAddressRequest
+	11, // 27: ipam.service.v1.IpAddressService.DeleteIpAddress:input_type -> ipam.service.v1.DeleteIpAddressRequest
+	12, // 28: ipam.service.v1.IpAddressService.AllocateNextAddress:input_type -> ipam.service.v1.AllocateNextAddressRequest
+	14, // 29: ipam.service.v1.IpAddressService.BulkAllocateAddresses:input_type -> ipam.service.v1.BulkAllocateAddressesRequest
+	16, // 30: ipam.service.v1.IpAddressService.FindAddress:input_type -> ipam.service.v1.FindAddressRequest
+	18, // 31: ipam.service.v1.IpAddressService.PingAddress:input_type -> ipam.service.v1.PingAddressRequest
+	20, // 32: ipam.service.v1.IpAddressService.SuggestAvailableAddresses:input_type -> ipam.service.v1.SuggestAvailableAddressesRequest
+	4,  // 33: ipam.service.v1.IpAddressService.CreateIpAddress:output_type -> ipam.service.v1.CreateIpAddressResponse
+	6,  // 34: ipam.service.v1.IpAddressService.GetIpAddress:output_type -> ipam.service.v1.GetIpAddressResponse
+	8,  // 35: ipam.service.v1.IpAddressService.ListIpAddresses:output_type -> ipam.service.v1.ListIpAddressesResponse
+	10, // 36: ipam.service.v1.IpAddressService.UpdateIpAddress:output_type -> ipam.service.v1.UpdateIpAddressResponse
+	25, // 37: ipam.service.v1.IpAddressService.DeleteIpAddress:output_type -> google.protobuf.Empty
+	13, // 38: ipam.service.v1.IpAddressService.AllocateNextAddress:output_type -> ipam.service.v1.AllocateNextAddressResponse
+	15, // 39: ipam.service.v1.IpAddressService.BulkAllocateAddresses:output_type -> ipam.service.v1.BulkAllocateAddressesResponse
+	17, // 40: ipam.service.v1.IpAddressService.FindAddress:output_type -> ipam.service.v1.FindAddressResponse
+	19, // 41: ipam.service.v1.IpAddressService.PingAddress:output_type -> ipam.service.v1.PingAddressResponse
+	22, // 42: ipam.service.v1.IpAddressService.SuggestAvailableAddresses:output_type -> ipam.service.v1.SuggestAvailableAddressesResponse
+	33, // [33:43] is the sub-list for method output_type
+	23, // [23:33] is the sub-list for method input_type
+	23, // [23:23] is the sub-list for extension type_name
+	23, // [23:23] is the sub-list for extension extendee
+	0,  // [0:23] is the sub-list for field type_name
 }
 
 func init() { file_ipam_service_v1_ip_address_proto_init() }
@@ -1901,13 +2110,15 @@ func file_ipam_service_v1_ip_address_proto_init() {
 	file_ipam_service_v1_ip_address_proto_msgTypes[12].OneofWrappers = []any{}
 	file_ipam_service_v1_ip_address_proto_msgTypes[14].OneofWrappers = []any{}
 	file_ipam_service_v1_ip_address_proto_msgTypes[17].OneofWrappers = []any{}
+	file_ipam_service_v1_ip_address_proto_msgTypes[18].OneofWrappers = []any{}
+	file_ipam_service_v1_ip_address_proto_msgTypes[20].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_ipam_service_v1_ip_address_proto_rawDesc), len(file_ipam_service_v1_ip_address_proto_rawDesc)),
 			NumEnums:      2,
-			NumMessages:   18,
+			NumMessages:   21,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

@@ -8,6 +8,7 @@ package lcmV1
 
 import (
 	_ "buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go/buf/validate"
+	_ "github.com/menta2k/protoc-gen-redact/v3/redact/v3"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
@@ -782,7 +783,7 @@ var File_lcm_service_v1_tenant_secret_proto protoreflect.FileDescriptor
 
 const file_lcm_service_v1_tenant_secret_proto_rawDesc = "" +
 	"\n" +
-	"\"lcm/service/v1/tenant_secret.proto\x12\x0elcm.service.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1bgoogle/protobuf/empty.proto\"\xb8\x04\n" +
+	"\"lcm/service/v1/tenant_secret.proto\x12\x0elcm.service.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a\x16redact/v3/redact.proto\"\xb8\x04\n" +
 	"\fTenantSecret\x12\x13\n" +
 	"\x02id\x18\x01 \x01(\rH\x00R\x02id\x88\x01\x01\x12 \n" +
 	"\ttenant_id\x18\x02 \x01(\rH\x01R\btenantId\x88\x01\x01\x12%\n" +
@@ -807,10 +808,10 @@ const file_lcm_service_v1_tenant_secret_proto_rawDesc = "" +
 	"\v_created_byB\r\n" +
 	"\v_updated_byB\x0e\n" +
 	"\f_create_timeB\x0e\n" +
-	"\f_update_time\"\xf4\x01\n" +
+	"\f_update_time\"\xfa\x01\n" +
 	"\x19CreateTenantSecretRequest\x12 \n" +
-	"\ttenant_id\x18\x01 \x01(\rB\x03\xe0A\x02R\btenantId\x12%\n" +
-	"\x06secret\x18\x02 \x01(\tB\r\xe0A\x02\xbaH\ar\x05\x10\x10\x18\x80\x02R\x06secret\x12/\n" +
+	"\ttenant_id\x18\x01 \x01(\rB\x03\xe0A\x02R\btenantId\x12+\n" +
+	"\x06secret\x18\x02 \x01(\tB\x13\xe0A\x02\xbaH\ar\x05\x10\x10\x18\x80\x02ڶ\x1a\x02z\x00R\x06secret\x12/\n" +
 	"\vdescription\x18\x03 \x01(\tB\b\xbaH\x05r\x03\x18\x80\x04H\x00R\vdescription\x88\x01\x01\x12>\n" +
 	"\n" +
 	"expires_at\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampH\x01R\texpiresAt\x88\x01\x01B\x0e\n" +
@@ -849,11 +850,11 @@ const file_lcm_service_v1_tenant_secret_proto_rawDesc = "" +
 	"\x1aUpdateTenantSecretResponse\x12A\n" +
 	"\rtenant_secret\x18\x01 \x01(\v2\x1c.lcm.service.v1.TenantSecretR\ftenantSecret\"0\n" +
 	"\x19DeleteTenantSecretRequest\x12\x13\n" +
-	"\x02id\x18\x01 \x01(\rB\x03\xe0A\x02R\x02id\"\x94\x01\n" +
+	"\x02id\x18\x01 \x01(\rB\x03\xe0A\x02R\x02id\"\x9a\x01\n" +
 	"\x19RotateTenantSecretRequest\x12\x13\n" +
-	"\x02id\x18\x01 \x01(\rB\x03\xe0A\x02R\x02id\x12,\n" +
+	"\x02id\x18\x01 \x01(\rB\x03\xe0A\x02R\x02id\x122\n" +
 	"\n" +
-	"new_secret\x18\x02 \x01(\tB\r\xe0A\x02\xbaH\ar\x05\x10\x10\x18\x80\x02R\tnewSecret\x12$\n" +
+	"new_secret\x18\x02 \x01(\tB\x13\xe0A\x02\xbaH\ar\x05\x10\x10\x18\x80\x02ڶ\x1a\x02z\x00R\tnewSecret\x12$\n" +
 	"\vdisable_old\x18\x03 \x01(\bH\x00R\n" +
 	"disableOld\x88\x01\x01B\x0e\n" +
 	"\f_disable_old\"\xaa\x01\n" +

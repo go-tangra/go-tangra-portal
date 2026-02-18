@@ -2,6 +2,7 @@ syntax = "proto3";
 
 package admin.service.v1;
 
+import "google/api/annotations.proto";
 import "google/protobuf/empty.proto";
 import "google/protobuf/timestamp.proto";
 import "redact/v3/redact.proto";
@@ -25,10 +26,18 @@ service ModuleRegistrationService {
 
   // List all registered modules.
   // Used by admin UI to display module status.
-  rpc ListModules(ListModulesRequest) returns (ListModulesResponse);
+  rpc ListModules(ListModulesRequest) returns (ListModulesResponse) {
+    option (google.api.http) = {
+      get: "/admin/v1/registration/modules"
+    };
+  }
 
   // Get a specific module's details.
-  rpc GetModule(GetModuleRequest) returns (Module);
+  rpc GetModule(GetModuleRequest) returns (Module) {
+    option (google.api.http) = {
+      get: "/admin/v1/registration/modules/{module_id}"
+    };
+  }
 }
 
 // RegisterModuleRequest contains all information needed to register a module.

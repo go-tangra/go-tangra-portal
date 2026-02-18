@@ -8,6 +8,7 @@ package ipampb
 
 import (
 	_ "buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go/buf/validate"
+	_ "github.com/menta2k/protoc-gen-redact/v3/redact/v3"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
@@ -1661,7 +1662,7 @@ var File_ipam_service_v1_device_proto protoreflect.FileDescriptor
 
 const file_ipam_service_v1_device_proto_rawDesc = "" +
 	"\n" +
-	"\x1cipam/service/v1/device.proto\x12\x0fipam.service.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a google/protobuf/field_mask.proto\"\xa7\r\n" +
+	"\x1cipam/service/v1/device.proto\x12\x0fipam.service.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a google/protobuf/field_mask.proto\x1a\x16redact/v3/redact.proto\"\xaf\r\n" +
 	"\x06Device\x12\x13\n" +
 	"\x02id\x18\x01 \x01(\tH\x00R\x02id\x88\x01\x01\x12 \n" +
 	"\ttenant_id\x18\x02 \x01(\rH\x01R\btenantId\x88\x01\x01\x12\x17\n" +
@@ -1690,8 +1691,8 @@ const file_ipam_service_v1_device_proto_rawDesc = "" +
 	"os_version\x18\x12 \x01(\tH\x12R\tosVersion\x88\x01\x01\x12.\n" +
 	"\x10firmware_version\x18\x13 \x01(\tH\x13R\x0ffirmwareVersion\x88\x01\x01\x12,\n" +
 	"\x0finterface_count\x18\x14 \x01(\x05H\x14R\x0einterfaceCount\x88\x01\x01\x12(\n" +
-	"\raddress_count\x18\x15 \x01(\x05H\x15R\faddressCount\x88\x01\x01\x12\x1d\n" +
-	"\acontact\x18\x16 \x01(\tH\x16R\acontact\x88\x01\x01\x12\x17\n" +
+	"\raddress_count\x18\x15 \x01(\x05H\x15R\faddressCount\x88\x01\x01\x12%\n" +
+	"\acontact\x18\x16 \x01(\tB\x06ڶ\x1a\x02z\x00H\x16R\acontact\x88\x01\x01\x12\x17\n" +
 	"\x04tags\x18\x19 \x01(\tH\x17R\x04tags\x88\x01\x01\x12\x1f\n" +
 	"\bmetadata\x18\x1a \x01(\tH\x18R\bmetadata\x88\x01\x01\x12\x19\n" +
 	"\x05notes\x18\x1b \x01(\tH\x19R\x05notes\x88\x01\x01\x12<\n" +
@@ -1768,7 +1769,7 @@ const file_ipam_service_v1_device_proto_rawDesc = "" +
 	"\v_speed_mbpsB\x0e\n" +
 	"\f_descriptionB\r\n" +
 	"\v_created_atB\r\n" +
-	"\v_updated_at\"\xe0\b\n" +
+	"\v_updated_at\"\xe8\b\n" +
 	"\x13CreateDeviceRequest\x12%\n" +
 	"\ttenant_id\x18\x01 \x01(\rB\x03\xe0A\x02H\x00R\btenantId\x88\x01\x01\x12&\n" +
 	"\x04name\x18\x02 \x01(\tB\r\xe0A\x02\xbaH\ar\x05\x10\x01\x18\xff\x01H\x01R\x04name\x88\x01\x01\x12A\n" +
@@ -1791,8 +1792,8 @@ const file_ipam_service_v1_device_proto_rawDesc = "" +
 	"\rmanagement_ip\x18\x0e \x01(\tH\rR\fmanagementIp\x88\x01\x01\x12\x1c\n" +
 	"\aos_type\x18\x0f \x01(\tH\x0eR\x06osType\x88\x01\x01\x12\"\n" +
 	"\n" +
-	"os_version\x18\x10 \x01(\tH\x0fR\tosVersion\x88\x01\x01\x12\x1d\n" +
-	"\acontact\x18\x11 \x01(\tH\x10R\acontact\x88\x01\x01\x12\x17\n" +
+	"os_version\x18\x10 \x01(\tH\x0fR\tosVersion\x88\x01\x01\x12%\n" +
+	"\acontact\x18\x11 \x01(\tB\x06ڶ\x1a\x02z\x00H\x10R\acontact\x88\x01\x01\x12\x17\n" +
 	"\x04tags\x18\x12 \x01(\tH\x11R\x04tags\x88\x01\x01\x12\x1f\n" +
 	"\bmetadata\x18\x13 \x01(\tH\x12R\bmetadata\x88\x01\x01\x12\x19\n" +
 	"\x05notes\x18\x14 \x01(\tH\x13R\x05notes\x88\x01\x01\x12+\n" +

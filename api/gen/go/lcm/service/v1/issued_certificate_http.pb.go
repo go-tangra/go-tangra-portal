@@ -19,10 +19,13 @@ var _ = binding.EncodeURL
 
 const _ = http.SupportPackageIsVersion1
 
+const OperationLcmIssuedCertificateServiceForceRenewCertificate = "/lcm.service.v1.LcmIssuedCertificateService/ForceRenewCertificate"
 const OperationLcmIssuedCertificateServiceGetIssuedCertificate = "/lcm.service.v1.LcmIssuedCertificateService/GetIssuedCertificate"
 const OperationLcmIssuedCertificateServiceListIssuedCertificates = "/lcm.service.v1.LcmIssuedCertificateService/ListIssuedCertificates"
 
 type LcmIssuedCertificateServiceHTTPServer interface {
+	// ForceRenewCertificate Force renew an issued certificate
+	ForceRenewCertificate(context.Context, *ForceRenewCertificateRequest) (*ForceRenewCertificateResponse, error)
 	// GetIssuedCertificate Get a single issued certificate by ID
 	GetIssuedCertificate(context.Context, *GetIssuedCertificateRequest) (*GetIssuedCertificateResponse, error)
 	// ListIssuedCertificates List issued certificates with optional filters
@@ -33,6 +36,7 @@ func RegisterLcmIssuedCertificateServiceHTTPServer(s *http.Server, srv LcmIssued
 	r := s.Route("/")
 	r.GET("/v1/issued-certificates", _LcmIssuedCertificateService_ListIssuedCertificates0_HTTP_Handler(srv))
 	r.GET("/v1/issued-certificates/{id}", _LcmIssuedCertificateService_GetIssuedCertificate0_HTTP_Handler(srv))
+	r.POST("/v1/issued-certificates/{id}/renew", _LcmIssuedCertificateService_ForceRenewCertificate0_HTTP_Handler(srv))
 }
 
 func _LcmIssuedCertificateService_ListIssuedCertificates0_HTTP_Handler(srv LcmIssuedCertificateServiceHTTPServer) func(ctx http.Context) error {
@@ -76,7 +80,34 @@ func _LcmIssuedCertificateService_GetIssuedCertificate0_HTTP_Handler(srv LcmIssu
 	}
 }
 
+func _LcmIssuedCertificateService_ForceRenewCertificate0_HTTP_Handler(srv LcmIssuedCertificateServiceHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in ForceRenewCertificateRequest
+		if err := ctx.Bind(&in); err != nil {
+			return err
+		}
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		if err := ctx.BindVars(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationLcmIssuedCertificateServiceForceRenewCertificate)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.ForceRenewCertificate(ctx, req.(*ForceRenewCertificateRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*ForceRenewCertificateResponse)
+		return ctx.Result(200, reply)
+	}
+}
+
 type LcmIssuedCertificateServiceHTTPClient interface {
+	// ForceRenewCertificate Force renew an issued certificate
+	ForceRenewCertificate(ctx context.Context, req *ForceRenewCertificateRequest, opts ...http.CallOption) (rsp *ForceRenewCertificateResponse, err error)
 	// GetIssuedCertificate Get a single issued certificate by ID
 	GetIssuedCertificate(ctx context.Context, req *GetIssuedCertificateRequest, opts ...http.CallOption) (rsp *GetIssuedCertificateResponse, err error)
 	// ListIssuedCertificates List issued certificates with optional filters
@@ -89,6 +120,20 @@ type LcmIssuedCertificateServiceHTTPClientImpl struct {
 
 func NewLcmIssuedCertificateServiceHTTPClient(client *http.Client) LcmIssuedCertificateServiceHTTPClient {
 	return &LcmIssuedCertificateServiceHTTPClientImpl{client}
+}
+
+// ForceRenewCertificate Force renew an issued certificate
+func (c *LcmIssuedCertificateServiceHTTPClientImpl) ForceRenewCertificate(ctx context.Context, in *ForceRenewCertificateRequest, opts ...http.CallOption) (*ForceRenewCertificateResponse, error) {
+	var out ForceRenewCertificateResponse
+	pattern := "/v1/issued-certificates/{id}/renew"
+	path := binding.EncodeURL(pattern, in, false)
+	opts = append(opts, http.Operation(OperationLcmIssuedCertificateServiceForceRenewCertificate))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, nil
 }
 
 // GetIssuedCertificate Get a single issued certificate by ID

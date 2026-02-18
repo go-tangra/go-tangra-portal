@@ -22,6 +22,7 @@ var (
 	_ status.Status
 	_ validate.Rule
 	_ timestamppb.Timestamp
+	_ redact.FieldRules
 )
 
 // RegisterRedactedLcmClientServiceServer wraps the LcmClientServiceServer with the redacted server and registers the service in GRPC
@@ -100,7 +101,8 @@ func (x *DownloadClientCertificateRequest) Redact() string {
 		return ""
 	}
 
-	// Safe field: PublicKey
+	// Redacting field: PublicKey
+	x.PublicKey = ``
 
 	// Safe field: RequestId
 
@@ -114,9 +116,13 @@ func (x *DownloadClientCertificateResponse) Redact() string {
 		return ""
 	}
 
-	// Safe field: CertificatePem
+	// Redacting field: CertificatePem
+	CertificatePemTmp := ``
+	x.CertificatePem = &CertificatePemTmp
 
-	// Safe field: CaCertificatePem
+	// Redacting field: CaCertificatePem
+	CaCertificatePemTmp := ``
+	x.CaCertificatePem = &CaCertificatePemTmp
 
 	// Safe field: Status
 	return x.String()
@@ -162,9 +168,12 @@ func (x *CreateLcmClientRequest) Redact() string {
 
 	// Safe field: Hostname
 
-	// Safe field: SharedSecret
+	// Redacting field: SharedSecret
+	SharedSecretTmp := ``
+	x.SharedSecret = &SharedSecretTmp
 
-	// Safe field: PublicKey
+	// Redacting field: PublicKey
+	x.PublicKey = ``
 
 	// Safe field: DnsNames
 
@@ -196,7 +205,9 @@ func (x *CreateLcmClientResponse) Redact() string {
 
 	// Safe field: Certificate
 
-	// Safe field: CaCertificate
+	// Redacting field: CaCertificate
+	CaCertificateTmp := ``
+	x.CaCertificate = &CaCertificateTmp
 	return x.String()
 }
 
@@ -220,7 +231,9 @@ func (x *ClientCertificate) Redact() string {
 
 	// Safe field: Fingerprint
 
-	// Safe field: CertificatePem
+	// Redacting field: CertificatePem
+	CertificatePemTmp := ``
+	x.CertificatePem = &CertificatePemTmp
 
 	// Safe field: NotBefore
 
@@ -318,7 +331,9 @@ func (x *ListClientCertificatesResponse) Redact() string {
 
 	// Safe field: Certificates
 
-	// Safe field: CaCertificatePem
+	// Redacting field: CaCertificatePem
+	CaCertificatePemTmp := ``
+	x.CaCertificatePem = &CaCertificatePemTmp
 	return x.String()
 }
 
@@ -346,7 +361,9 @@ func (x *CertificateInfo) Redact() string {
 
 	// Safe field: ExpiresAt
 
-	// Safe field: CertificatePem
+	// Redacting field: CertificatePem
+	CertificatePemTmp := ``
+	x.CertificatePem = &CertificatePemTmp
 
 	// Safe field: FingerprintSha256
 
@@ -376,7 +393,9 @@ func (x *CertificateUpdateEvent) Redact() string {
 
 	// Safe field: Certificate
 
-	// Safe field: CaCertificatePem
+	// Redacting field: CaCertificatePem
+	CaCertificatePemTmp := ``
+	x.CaCertificatePem = &CaCertificatePemTmp
 
 	// Safe field: EventTime
 

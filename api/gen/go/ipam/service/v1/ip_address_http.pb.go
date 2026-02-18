@@ -28,6 +28,7 @@ const OperationIpAddressServiceFindAddress = "/ipam.service.v1.IpAddressService/
 const OperationIpAddressServiceGetIpAddress = "/ipam.service.v1.IpAddressService/GetIpAddress"
 const OperationIpAddressServiceListIpAddresses = "/ipam.service.v1.IpAddressService/ListIpAddresses"
 const OperationIpAddressServicePingAddress = "/ipam.service.v1.IpAddressService/PingAddress"
+const OperationIpAddressServiceSuggestAvailableAddresses = "/ipam.service.v1.IpAddressService/SuggestAvailableAddresses"
 const OperationIpAddressServiceUpdateIpAddress = "/ipam.service.v1.IpAddressService/UpdateIpAddress"
 
 type IpAddressServiceHTTPServer interface {
@@ -47,6 +48,8 @@ type IpAddressServiceHTTPServer interface {
 	ListIpAddresses(context.Context, *ListIpAddressesRequest) (*ListIpAddressesResponse, error)
 	// PingAddress Ping an address to check reachability
 	PingAddress(context.Context, *PingAddressRequest) (*PingAddressResponse, error)
+	// SuggestAvailableAddresses Suggest available IP addresses in a subnet (verified via ICMP ping + TCP port scan)
+	SuggestAvailableAddresses(context.Context, *SuggestAvailableAddressesRequest) (*SuggestAvailableAddressesResponse, error)
 	// UpdateIpAddress Update an IP address
 	UpdateIpAddress(context.Context, *UpdateIpAddressRequest) (*UpdateIpAddressResponse, error)
 }
@@ -62,6 +65,7 @@ func RegisterIpAddressServiceHTTPServer(s *http.Server, srv IpAddressServiceHTTP
 	r.POST("/v1/ip-addresses/bulk-allocate", _IpAddressService_BulkAllocateAddresses0_HTTP_Handler(srv))
 	r.GET("/v1/ip-addresses/find", _IpAddressService_FindAddress0_HTTP_Handler(srv))
 	r.POST("/v1/ip-addresses/{id}/ping", _IpAddressService_PingAddress0_HTTP_Handler(srv))
+	r.GET("/v1/ip-addresses/suggest", _IpAddressService_SuggestAvailableAddresses0_HTTP_Handler(srv))
 }
 
 func _IpAddressService_CreateIpAddress0_HTTP_Handler(srv IpAddressServiceHTTPServer) func(ctx http.Context) error {
@@ -259,6 +263,25 @@ func _IpAddressService_PingAddress0_HTTP_Handler(srv IpAddressServiceHTTPServer)
 	}
 }
 
+func _IpAddressService_SuggestAvailableAddresses0_HTTP_Handler(srv IpAddressServiceHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in SuggestAvailableAddressesRequest
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationIpAddressServiceSuggestAvailableAddresses)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.SuggestAvailableAddresses(ctx, req.(*SuggestAvailableAddressesRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*SuggestAvailableAddressesResponse)
+		return ctx.Result(200, reply)
+	}
+}
+
 type IpAddressServiceHTTPClient interface {
 	// AllocateNextAddress Allocate the next available address in a subnet
 	AllocateNextAddress(ctx context.Context, req *AllocateNextAddressRequest, opts ...http.CallOption) (rsp *AllocateNextAddressResponse, err error)
@@ -276,6 +299,8 @@ type IpAddressServiceHTTPClient interface {
 	ListIpAddresses(ctx context.Context, req *ListIpAddressesRequest, opts ...http.CallOption) (rsp *ListIpAddressesResponse, err error)
 	// PingAddress Ping an address to check reachability
 	PingAddress(ctx context.Context, req *PingAddressRequest, opts ...http.CallOption) (rsp *PingAddressResponse, err error)
+	// SuggestAvailableAddresses Suggest available IP addresses in a subnet (verified via ICMP ping + TCP port scan)
+	SuggestAvailableAddresses(ctx context.Context, req *SuggestAvailableAddressesRequest, opts ...http.CallOption) (rsp *SuggestAvailableAddressesResponse, err error)
 	// UpdateIpAddress Update an IP address
 	UpdateIpAddress(ctx context.Context, req *UpdateIpAddressRequest, opts ...http.CallOption) (rsp *UpdateIpAddressResponse, err error)
 }
@@ -394,6 +419,20 @@ func (c *IpAddressServiceHTTPClientImpl) PingAddress(ctx context.Context, in *Pi
 	opts = append(opts, http.Operation(OperationIpAddressServicePingAddress))
 	opts = append(opts, http.PathTemplate(pattern))
 	err := c.cc.Invoke(ctx, "POST", path, nil, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, nil
+}
+
+// SuggestAvailableAddresses Suggest available IP addresses in a subnet (verified via ICMP ping + TCP port scan)
+func (c *IpAddressServiceHTTPClientImpl) SuggestAvailableAddresses(ctx context.Context, in *SuggestAvailableAddressesRequest, opts ...http.CallOption) (*SuggestAvailableAddressesResponse, error) {
+	var out SuggestAvailableAddressesResponse
+	pattern := "/v1/ip-addresses/suggest"
+	path := binding.EncodeURL(pattern, in, true)
+	opts = append(opts, http.Operation(OperationIpAddressServiceSuggestAvailableAddresses))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
 	if err != nil {
 		return nil, err
 	}

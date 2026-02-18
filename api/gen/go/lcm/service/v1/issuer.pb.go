@@ -8,6 +8,7 @@ package lcmV1
 
 import (
 	_ "buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go/buf/validate"
+	_ "github.com/menta2k/protoc-gen-redact/v3/redact/v3"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
@@ -1024,21 +1025,21 @@ var File_lcm_service_v1_issuer_proto protoreflect.FileDescriptor
 
 const file_lcm_service_v1_issuer_proto_rawDesc = "" +
 	"\n" +
-	"\x1blcm/service/v1/issuer.proto\x12\x0elcm.service.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"K\n" +
+	"\x1blcm/service/v1/issuer.proto\x12\x0elcm.service.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x16redact/v3/redact.proto\"K\n" +
 	"\x13ListIssuersResponse\x124\n" +
 	"\aissuers\x18\x01 \x03(\v2\x1a.lcm.service.v1.IssuerInfoR\aissuers\"U\n" +
 	"\x14GetIssuerInfoRequest\x12=\n" +
 	"\vissuer_name\x18\x01 \x01(\tB\x1c\xbaH\x19r\x17\x10\x01\x18d2\x11^[a-zA-Z0-9\\-_]+$R\n" +
 	"issuerName\"K\n" +
 	"\x15GetIssuerInfoResponse\x122\n" +
-	"\x06issuer\x18\x01 \x01(\v2\x1a.lcm.service.v1.IssuerInfoR\x06issuer\"\x91\x03\n" +
+	"\x06issuer\x18\x01 \x01(\v2\x1a.lcm.service.v1.IssuerInfoR\x06issuer\"\x9c\x03\n" +
 	"\n" +
 	"IssuerInfo\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12\x12\n" +
 	"\x04type\x18\x02 \x01(\tR\x04type\x129\n" +
 	"\x06status\x18\x03 \x01(\x0e2\x1c.lcm.service.v1.IssuerStatusH\x00R\x06status\x88\x01\x01\x12 \n" +
-	"\vdescription\x18\x04 \x01(\tR\vdescription\x12>\n" +
-	"\x06config\x18\x05 \x03(\v2&.lcm.service.v1.IssuerInfo.ConfigEntryR\x06config\x12;\n" +
+	"\vdescription\x18\x04 \x01(\tR\vdescription\x12I\n" +
+	"\x06config\x18\x05 \x03(\v2&.lcm.service.v1.IssuerInfo.ConfigEntryB\tڶ\x1a\x05\xa2\x01\x02\b\x01R\x06config\x12;\n" +
 	"\vcreate_time\x18\x06 \x01(\v2\x1a.google.protobuf.TimestampR\n" +
 	"createTime\x12;\n" +
 	"\vupdate_time\x18\a \x01(\v2\x1a.google.protobuf.TimestampR\n" +
@@ -1079,7 +1080,7 @@ const file_lcm_service_v1_issuer_proto_rawDesc = "" +
 	"caLocality\x124\n" +
 	"\x10ca_validity_days\x18\n" +
 	" \x01(\x05B\n" +
-	"\xbaH\a\x1a\x05\x18\xc2\x1c(\x1eR\x0ecaValidityDays\"\xed\x05\n" +
+	"\xbaH\a\x1a\x05\x18\xc2\x1c(\x1eR\x0ecaValidityDays\"\xfe\x05\n" +
 	"\n" +
 	"AcmeIssuer\x12R\n" +
 	"\x05email\x18\x01 \x01(\tB<\xbaH9r7\x10\x03\x18\xfe\x0120^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$R\x05email\x125\n" +
@@ -1091,11 +1092,11 @@ const file_lcm_service_v1_issuer_proto_rawDesc = "" +
 	"\n" +
 	"base_delay\x18\x06 \x01(\tB\x12\xbaH\x0fr\r2\v^\\d+[smhd]$R\tbaseDelay\x12D\n" +
 	"\x0echallenge_type\x18\a \x01(\x0e2\x1d.lcm.service.v1.ChallengeTypeR\rchallengeType\x12A\n" +
-	"\rprovider_name\x18\b \x01(\tB\x1c\xbaH\x19r\x17\x10\x01\x18d2\x11^[a-zA-Z0-9\\-_]+$R\fproviderName\x12W\n" +
-	"\x0fprovider_config\x18\t \x03(\v2..lcm.service.v1.AcmeIssuer.ProviderConfigEntryR\x0eproviderConfig\x12&\n" +
+	"\rprovider_name\x18\b \x01(\tB\x1c\xbaH\x19r\x17\x10\x01\x18d2\x11^[a-zA-Z0-9\\-_]+$R\fproviderName\x12b\n" +
+	"\x0fprovider_config\x18\t \x03(\v2..lcm.service.v1.AcmeIssuer.ProviderConfigEntryB\tڶ\x1a\x05\xa2\x01\x02\b\x01R\x0eproviderConfig\x12&\n" +
 	"\aeab_kid\x18\n" +
-	" \x01(\tB\b\xbaH\x05r\x03\x18\xff\x01H\x00R\x06eabKid\x88\x01\x01\x12/\n" +
-	"\feab_hmac_key\x18\v \x01(\tB\b\xbaH\x05r\x03\x18\x80\x04H\x01R\n" +
+	" \x01(\tB\b\xbaH\x05r\x03\x18\xff\x01H\x00R\x06eabKid\x88\x01\x01\x125\n" +
+	"\feab_hmac_key\x18\v \x01(\tB\x0e\xbaH\x05r\x03\x18\x80\x04ڶ\x1a\x02z\x00H\x01R\n" +
 	"eabHmacKey\x88\x01\x01\x1aA\n" +
 	"\x13ProviderConfigEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +

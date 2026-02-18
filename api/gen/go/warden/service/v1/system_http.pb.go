@@ -22,6 +22,7 @@ const _ = http.SupportPackageIsVersion1
 
 const OperationWardenSystemServiceCheckVault = "/warden.service.v1.WardenSystemService/CheckVault"
 const OperationWardenSystemServiceGetInfo = "/warden.service.v1.WardenSystemService/GetInfo"
+const OperationWardenSystemServiceGetStats = "/warden.service.v1.WardenSystemService/GetStats"
 const OperationWardenSystemServiceHealth = "/warden.service.v1.WardenSystemService/Health"
 
 type WardenSystemServiceHTTPServer interface {
@@ -29,6 +30,8 @@ type WardenSystemServiceHTTPServer interface {
 	CheckVault(context.Context, *emptypb.Empty) (*CheckVaultResponse, error)
 	// GetInfo Get service info
 	GetInfo(context.Context, *emptypb.Empty) (*GetInfoResponse, error)
+	// GetStats Get statistics for dashboard
+	GetStats(context.Context, *GetStatsRequest) (*GetStatsResponse, error)
 	// Health Health check
 	Health(context.Context, *emptypb.Empty) (*HealthResponse, error)
 }
@@ -38,6 +41,7 @@ func RegisterWardenSystemServiceHTTPServer(s *http.Server, srv WardenSystemServi
 	r.GET("/v1/health", _WardenSystemService_Health0_HTTP_Handler(srv))
 	r.GET("/v1/info", _WardenSystemService_GetInfo0_HTTP_Handler(srv))
 	r.GET("/v1/vault/check", _WardenSystemService_CheckVault0_HTTP_Handler(srv))
+	r.GET("/v1/stats", _WardenSystemService_GetStats0_HTTP_Handler(srv))
 }
 
 func _WardenSystemService_Health0_HTTP_Handler(srv WardenSystemServiceHTTPServer) func(ctx http.Context) error {
@@ -97,11 +101,32 @@ func _WardenSystemService_CheckVault0_HTTP_Handler(srv WardenSystemServiceHTTPSe
 	}
 }
 
+func _WardenSystemService_GetStats0_HTTP_Handler(srv WardenSystemServiceHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in GetStatsRequest
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationWardenSystemServiceGetStats)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.GetStats(ctx, req.(*GetStatsRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*GetStatsResponse)
+		return ctx.Result(200, reply)
+	}
+}
+
 type WardenSystemServiceHTTPClient interface {
 	// CheckVault Check Vault connectivity
 	CheckVault(ctx context.Context, req *emptypb.Empty, opts ...http.CallOption) (rsp *CheckVaultResponse, err error)
 	// GetInfo Get service info
 	GetInfo(ctx context.Context, req *emptypb.Empty, opts ...http.CallOption) (rsp *GetInfoResponse, err error)
+	// GetStats Get statistics for dashboard
+	GetStats(ctx context.Context, req *GetStatsRequest, opts ...http.CallOption) (rsp *GetStatsResponse, err error)
 	// Health Health check
 	Health(ctx context.Context, req *emptypb.Empty, opts ...http.CallOption) (rsp *HealthResponse, err error)
 }
@@ -134,6 +159,20 @@ func (c *WardenSystemServiceHTTPClientImpl) GetInfo(ctx context.Context, in *emp
 	pattern := "/v1/info"
 	path := binding.EncodeURL(pattern, in, true)
 	opts = append(opts, http.Operation(OperationWardenSystemServiceGetInfo))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, nil
+}
+
+// GetStats Get statistics for dashboard
+func (c *WardenSystemServiceHTTPClientImpl) GetStats(ctx context.Context, in *GetStatsRequest, opts ...http.CallOption) (*GetStatsResponse, error) {
+	var out GetStatsResponse
+	pattern := "/v1/stats"
+	path := binding.EncodeURL(pattern, in, true)
+	opts = append(opts, http.Operation(OperationWardenSystemServiceGetStats))
 	opts = append(opts, http.PathTemplate(pattern))
 	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
 	if err != nil {

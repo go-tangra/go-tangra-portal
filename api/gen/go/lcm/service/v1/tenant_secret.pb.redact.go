@@ -26,6 +26,7 @@ var (
 	_ annotations.FieldBehavior
 	_ timestamppb.Timestamp
 	_ emptypb.Empty
+	_ redact.FieldRules
 )
 
 // RegisterRedactedTenantSecretServiceServer wraps the TenantSecretServiceServer with the redacted server and registers the service in GRPC
@@ -146,7 +147,8 @@ func (x *CreateTenantSecretRequest) Redact() string {
 
 	// Safe field: TenantId
 
-	// Safe field: Secret
+	// Redacting field: Secret
+	x.Secret = ``
 
 	// Safe field: Description
 
@@ -256,7 +258,8 @@ func (x *RotateTenantSecretRequest) Redact() string {
 
 	// Safe field: Id
 
-	// Safe field: NewSecret
+	// Redacting field: NewSecret
+	x.NewSecret = ``
 
 	// Safe field: DisableOld
 	return x.String()

@@ -8,6 +8,7 @@ package lcmV1
 
 import (
 	_ "buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go/buf/validate"
+	_ "github.com/menta2k/protoc-gen-redact/v3/redact/v3"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
@@ -1459,16 +1460,16 @@ var File_lcm_service_v1_client_proto protoreflect.FileDescriptor
 
 const file_lcm_service_v1_client_proto_rawDesc = "" +
 	"\n" +
-	"\x1blcm/service/v1/client.proto\x12\x0elcm.service.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\x97\x02\n" +
-	" DownloadClientCertificateRequest\x12l\n" +
+	"\x1blcm/service/v1/client.proto\x12\x0elcm.service.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x16redact/v3/redact.proto\"\x9d\x02\n" +
+	" DownloadClientCertificateRequest\x12r\n" +
 	"\n" +
-	"public_key\x18\x01 \x01(\tBM\xbaHJrH\x10\xc8\x01\x18\x80@2@^-----BEGIN PUBLIC KEY-----[\\s\\S]*-----END PUBLIC KEY-----[\\s]*$R\tpublicKey\x12@\n" +
+	"public_key\x18\x01 \x01(\tBS\xbaHJrH\x10\xc8\x01\x18\x80@2@^-----BEGIN PUBLIC KEY-----[\\s\\S]*-----END PUBLIC KEY-----[\\s]*$ڶ\x1a\x02z\x00R\tpublicKey\x12@\n" +
 	"\n" +
 	"request_id\x18\x02 \x01(\tB!\xbaH\x1er\x1c\x10\x01\x18\x80\x012\x15^[a-fA-F0-9-]{8,128}$R\trequestId\x12C\n" +
-	"\tclient_id\x18\x03 \x01(\tB&\xbaH#r!\x10\x01\x18@2\x1b^[a-zA-Z0-9][a-zA-Z0-9_-]*$R\bclientId\"\x95\x03\n" +
-	"!DownloadClientCertificateResponse\x12~\n" +
-	"\x0fcertificate_pem\x18\x01 \x01(\tBP\xbaHMrK\x10\xc8\x01\x18\x80\x80\x012B^-----BEGIN CERTIFICATE-----[\\s\\S]*-----END CERTIFICATE-----[\\s]*$H\x00R\x0ecertificatePem\x88\x01\x01\x12\x83\x01\n" +
-	"\x12ca_certificate_pem\x18\x02 \x01(\tBP\xbaHMrK\x10\xc8\x01\x18\x80\x80\x012B^-----BEGIN CERTIFICATE-----[\\s\\S]*-----END CERTIFICATE-----[\\s]*$H\x01R\x10caCertificatePem\x88\x01\x01\x12?\n" +
+	"\tclient_id\x18\x03 \x01(\tB&\xbaH#r!\x10\x01\x18@2\x1b^[a-zA-Z0-9][a-zA-Z0-9_-]*$R\bclientId\"\xa2\x03\n" +
+	"!DownloadClientCertificateResponse\x12\x84\x01\n" +
+	"\x0fcertificate_pem\x18\x01 \x01(\tBV\xbaHMrK\x10\xc8\x01\x18\x80\x80\x012B^-----BEGIN CERTIFICATE-----[\\s\\S]*-----END CERTIFICATE-----[\\s]*$ڶ\x1a\x02z\x00H\x00R\x0ecertificatePem\x88\x01\x01\x12\x89\x01\n" +
+	"\x12ca_certificate_pem\x18\x02 \x01(\tBV\xbaHMrK\x10\xc8\x01\x18\x80\x80\x012B^-----BEGIN CERTIFICATE-----[\\s\\S]*-----END CERTIFICATE-----[\\s]*$ڶ\x1a\x02z\x00H\x01R\x10caCertificatePem\x88\x01\x01\x12?\n" +
 	"\x06status\x18\x03 \x01(\x0e2'.lcm.service.v1.ClientCertificateStatusR\x06statusB\x12\n" +
 	"\x10_certificate_pemB\x15\n" +
 	"\x13_ca_certificate_pem\"\xa1\x01\n" +
@@ -1489,13 +1490,13 @@ const file_lcm_service_v1_client_proto_rawDesc = "" +
 	"\b_messageB\x0e\n" +
 	"\f_create_timeB\x0e\n" +
 	"\f_update_timeB\x0e\n" +
-	"\f_revoke_time\"\x99\r\n" +
+	"\f_revoke_time\"\xa7\r\n" +
 	"\x16CreateLcmClientRequest\x12C\n" +
 	"\tclient_id\x18\x01 \x01(\tB&\xbaH#r!\x10\x01\x18@2\x1b^[a-zA-Z0-9][a-zA-Z0-9_-]*$R\bclientId\x12\x87\x01\n" +
-	"\bhostname\x18\x02 \x01(\tBk\xbaHhrf\x10\x01\x18\xfd\x012_^[a-zA-Z0-9]([a-zA-Z0-9\\-]{0,61}[a-zA-Z0-9])?(\\.[a-zA-Z0-9]([a-zA-Z0-9\\-]{0,61}[a-zA-Z0-9])?)*$R\bhostname\x12(\n" +
-	"\rshared_secret\x18\x03 \x01(\tH\x00R\fsharedSecret\x88\x01\x01\x12l\n" +
+	"\bhostname\x18\x02 \x01(\tBk\xbaHhrf\x10\x01\x18\xfd\x012_^[a-zA-Z0-9]([a-zA-Z0-9\\-]{0,61}[a-zA-Z0-9])?(\\.[a-zA-Z0-9]([a-zA-Z0-9\\-]{0,61}[a-zA-Z0-9])?)*$R\bhostname\x120\n" +
+	"\rshared_secret\x18\x03 \x01(\tB\x06ڶ\x1a\x02z\x00H\x00R\fsharedSecret\x88\x01\x01\x12r\n" +
 	"\n" +
-	"public_key\x18\x04 \x01(\tBM\xbaHJrH\x10\xc8\x01\x18\x80@2@^-----BEGIN PUBLIC KEY-----[\\s\\S]*-----END PUBLIC KEY-----[\\s]*$R\tpublicKey\x12\x95\x01\n" +
+	"public_key\x18\x04 \x01(\tBS\xbaHJrH\x10\xc8\x01\x18\x80@2@^-----BEGIN PUBLIC KEY-----[\\s\\S]*-----END PUBLIC KEY-----[\\s]*$ڶ\x1a\x02z\x00R\tpublicKey\x12\x95\x01\n" +
 	"\tdns_names\x18\x05 \x03(\tBx\xbaHu\x92\x01r\x10d\"nrl\x10\x01\x18\xfd\x012e^[a-zA-Z0-9*]([a-zA-Z0-9\\-*]{0,61}[a-zA-Z0-9*])?(\\.[a-zA-Z0-9*]([a-zA-Z0-9\\-*]{0,61}[a-zA-Z0-9*])?)*$R\bdnsNames\x12\xa2\x04\n" +
 	"\fip_addresses\x18\x06 \x03(\tB\xfe\x03\xbaH\xfa\x03\x92\x01\xf6\x03\x102\"\xf1\x03r\xee\x032\xeb\x03^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$|^([0-9a-fA-F]{1,4}:){7}[0-9a-fA-F]{1,4}$|^::1$|^::$|^([0-9a-fA-F]{1,4}:){1,7}:$|^([0-9a-fA-F]{1,4}:){1,6}:[0-9a-fA-F]{1,4}$|^([0-9a-fA-F]{1,4}:){1,5}(:[0-9a-fA-F]{1,4}){1,2}$|^([0-9a-fA-F]{1,4}:){1,4}(:[0-9a-fA-F]{1,4}){1,3}$|^([0-9a-fA-F]{1,4}:){1,3}(:[0-9a-fA-F]{1,4}){1,4}$|^([0-9a-fA-F]{1,4}:){1,2}(:[0-9a-fA-F]{1,4}){1,5}$|^[0-9a-fA-F]{1,4}:((:[0-9a-fA-F]{1,4}){1,6})$|^:((:[0-9a-fA-F]{1,4}){1,7}|:)$R\vipAddresses\x12\x82\x01\n" +
 	"\bmetadata\x182 \x03(\v24.lcm.service.v1.CreateLcmClientRequest.MetadataEntryB0\xbaH-\x9a\x01*\x102\"\x1fr\x1d\x10\x01\x18@2\x17^[a-zA-Z][a-zA-Z0-9_]*$*\x05r\x03\x18\x80\x04R\bmetadata\x12\"\n" +
@@ -1520,14 +1521,14 @@ const file_lcm_service_v1_client_proto_rawDesc = "" +
 	"\v_revoked_byB\r\n" +
 	"\v_created_atB\r\n" +
 	"\v_updated_atB\r\n" +
-	"\v_revoked_at\"\xc7\x02\n" +
+	"\v_revoked_at\"\xce\x02\n" +
 	"\x17CreateLcmClientResponse\x126\n" +
 	"\x06client\x18\x01 \x01(\v2\x19.lcm.service.v1.LcmClientH\x00R\x06client\x88\x01\x01\x12H\n" +
-	"\vcertificate\x18\x02 \x01(\v2!.lcm.service.v1.ClientCertificateH\x01R\vcertificate\x88\x01\x01\x12|\n" +
-	"\x0eca_certificate\x18\x03 \x01(\tBP\xbaHMrK\x10\xc8\x01\x18\x80\x80\x012B^-----BEGIN CERTIFICATE-----[\\s\\S]*-----END CERTIFICATE-----[\\s]*$H\x02R\rcaCertificate\x88\x01\x01B\t\n" +
+	"\vcertificate\x18\x02 \x01(\v2!.lcm.service.v1.ClientCertificateH\x01R\vcertificate\x88\x01\x01\x12\x82\x01\n" +
+	"\x0eca_certificate\x18\x03 \x01(\tBV\xbaHMrK\x10\xc8\x01\x18\x80\x80\x012B^-----BEGIN CERTIFICATE-----[\\s\\S]*-----END CERTIFICATE-----[\\s]*$ڶ\x1a\x02z\x00H\x02R\rcaCertificate\x88\x01\x01B\t\n" +
 	"\a_clientB\x0e\n" +
 	"\f_certificateB\x11\n" +
-	"\x0f_ca_certificate\"\xfa\v\n" +
+	"\x0f_ca_certificate\"\x82\f\n" +
 	"\x11ClientCertificate\x12\x13\n" +
 	"\x02id\x18\x01 \x01(\rH\x00R\x02id\x88\x01\x01\x12$\n" +
 	"\vcommon_name\x18\x02 \x01(\tH\x01R\n" +
@@ -1537,8 +1538,8 @@ const file_lcm_service_v1_client_proto_rawDesc = "" +
 	"\rserial_number\x18\x04 \x01(\tH\x03R\fserialNumber\x88\x01\x01\x12\x1d\n" +
 	"\asubject\x18\x05 \x01(\tH\x04R\asubject\x88\x01\x01\x12 \n" +
 	"\tissuer_dn\x18\x06 \x01(\tH\x05R\bissuerDn\x88\x01\x01\x12%\n" +
-	"\vfingerprint\x18\a \x01(\tH\x06R\vfingerprint\x88\x01\x01\x12,\n" +
-	"\x0fcertificate_pem\x18\b \x01(\tH\aR\x0ecertificatePem\x88\x01\x01\x12\"\n" +
+	"\vfingerprint\x18\a \x01(\tH\x06R\vfingerprint\x88\x01\x01\x124\n" +
+	"\x0fcertificate_pem\x18\b \x01(\tB\x06ڶ\x1a\x02z\x00H\aR\x0ecertificatePem\x88\x01\x01\x12\"\n" +
 	"\n" +
 	"not_before\x18\t \x01(\tH\bR\tnotBefore\x88\x01\x01\x12 \n" +
 	"\tnot_after\x18\n" +
@@ -1646,11 +1647,11 @@ const file_lcm_service_v1_client_proto_rawDesc = "" +
 	"\n" +
 	"_client_idB\x10\n" +
 	"\x0e_status_filterB\x1a\n" +
-	"\x18_include_certificate_pem\"\xaf\x01\n" +
+	"\x18_include_certificate_pem\"\xb7\x01\n" +
 	"\x1eListClientCertificatesResponse\x12C\n" +
-	"\fcertificates\x18\x01 \x03(\v2\x1f.lcm.service.v1.CertificateInfoR\fcertificates\x121\n" +
-	"\x12ca_certificate_pem\x18\x02 \x01(\tH\x00R\x10caCertificatePem\x88\x01\x01B\x15\n" +
-	"\x13_ca_certificate_pem\"\x83\x05\n" +
+	"\fcertificates\x18\x01 \x03(\v2\x1f.lcm.service.v1.CertificateInfoR\fcertificates\x129\n" +
+	"\x12ca_certificate_pem\x18\x02 \x01(\tB\x06ڶ\x1a\x02z\x00H\x00R\x10caCertificatePem\x88\x01\x01B\x15\n" +
+	"\x13_ca_certificate_pem\"\x8b\x05\n" +
 	"\x0fCertificateInfo\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12#\n" +
 	"\rserial_number\x18\x02 \x01(\tR\fserialNumber\x12\x1f\n" +
@@ -1663,9 +1664,9 @@ const file_lcm_service_v1_client_proto_rawDesc = "" +
 	"\x06status\x18\a \x01(\x0e2'.lcm.service.v1.ClientCertificateStatusR\x06status\x127\n" +
 	"\tissued_at\x18\b \x01(\v2\x1a.google.protobuf.TimestampR\bissuedAt\x129\n" +
 	"\n" +
-	"expires_at\x18\t \x01(\v2\x1a.google.protobuf.TimestampR\texpiresAt\x12,\n" +
+	"expires_at\x18\t \x01(\v2\x1a.google.protobuf.TimestampR\texpiresAt\x124\n" +
 	"\x0fcertificate_pem\x18\n" +
-	" \x01(\tH\x00R\x0ecertificatePem\x88\x01\x01\x122\n" +
+	" \x01(\tB\x06ڶ\x1a\x02z\x00H\x00R\x0ecertificatePem\x88\x01\x01\x122\n" +
 	"\x12fingerprint_sha256\x18\v \x01(\tH\x01R\x11fingerprintSha256\x88\x01\x01\x12\x1d\n" +
 	"\n" +
 	"is_renewed\x18\f \x01(\bR\tisRenewed\x129\n" +
@@ -1676,12 +1677,12 @@ const file_lcm_service_v1_client_proto_rawDesc = "" +
 	"\x1fStreamCertificateUpdatesRequest\x12F\n" +
 	"\tclient_id\x18\x01 \x01(\tB$\xbaH!r\x1f\x18@2\x1b^[a-zA-Z0-9][a-zA-Z0-9_-]*$H\x00R\bclientId\x88\x01\x01B\f\n" +
 	"\n" +
-	"_client_id\"\xd1\x02\n" +
+	"_client_id\"\xd9\x02\n" +
 	"\x16CertificateUpdateEvent\x12D\n" +
 	"\n" +
 	"event_type\x18\x01 \x01(\x0e2%.lcm.service.v1.CertificateUpdateTypeR\teventType\x12A\n" +
-	"\vcertificate\x18\x02 \x01(\v2\x1f.lcm.service.v1.CertificateInfoR\vcertificate\x121\n" +
-	"\x12ca_certificate_pem\x18\x03 \x01(\tH\x00R\x10caCertificatePem\x88\x01\x01\x129\n" +
+	"\vcertificate\x18\x02 \x01(\v2\x1f.lcm.service.v1.CertificateInfoR\vcertificate\x129\n" +
+	"\x12ca_certificate_pem\x18\x03 \x01(\tB\x06ڶ\x1a\x02z\x00H\x00R\x10caCertificatePem\x88\x01\x01\x129\n" +
 	"\n" +
 	"event_time\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampR\teventTime\x12\x1d\n" +
 	"\amessage\x18\x05 \x01(\tH\x01R\amessage\x88\x01\x01B\x15\n" +

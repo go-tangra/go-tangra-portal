@@ -24,6 +24,7 @@ var (
 	_ validate.Rule
 	_ annotations.FieldBehavior
 	_ timestamppb.Timestamp
+	_ redact.FieldRules
 )
 
 // RegisterRedactedLcmIssuedCertificateServiceServer wraps the LcmIssuedCertificateServiceServer with the redacted server and registers the service in GRPC
@@ -59,6 +60,17 @@ func (s *redactedLcmIssuedCertificateServiceServer) ListIssuedCertificates(ctx c
 // Unary RPC
 func (s *redactedLcmIssuedCertificateServiceServer) GetIssuedCertificate(ctx context.Context, in *GetIssuedCertificateRequest) (*GetIssuedCertificateResponse, error) {
 	res, err := s.srv.GetIssuedCertificate(ctx, in)
+	if !s.bypass.CheckInternal(ctx) {
+		// Apply redaction to the response
+		redact.Apply(res)
+	}
+	return res, err
+}
+
+// ForceRenewCertificate is the redacted wrapper for the actual LcmIssuedCertificateServiceServer.ForceRenewCertificate method
+// Unary RPC
+func (s *redactedLcmIssuedCertificateServiceServer) ForceRenewCertificate(ctx context.Context, in *ForceRenewCertificateRequest) (*ForceRenewCertificateResponse, error) {
+	res, err := s.srv.ForceRenewCertificate(ctx, in)
 	if !s.bypass.CheckInternal(ctx) {
 		// Apply redaction to the response
 		redact.Apply(res)
@@ -116,11 +128,17 @@ func (x *GetIssuedCertificateResponse) Redact() string {
 
 	// Safe field: Certificate
 
-	// Safe field: CertificatePem
+	// Redacting field: CertificatePem
+	CertificatePemTmp := ``
+	x.CertificatePem = &CertificatePemTmp
 
-	// Safe field: CaCertificatePem
+	// Redacting field: CaCertificatePem
+	CaCertificatePemTmp := ``
+	x.CaCertificatePem = &CaCertificatePemTmp
 
-	// Safe field: PrivateKeyPem
+	// Redacting field: PrivateKeyPem
+	PrivateKeyPemTmp := ``
+	x.PrivateKeyPem = &PrivateKeyPemTmp
 
 	// Safe field: ServerGeneratedKey
 	return x.String()
@@ -159,5 +177,27 @@ func (x *IssuedCertificateInfo) Redact() string {
 	// Safe field: CreatedAt
 
 	// Safe field: UpdatedAt
+	return x.String()
+}
+
+// Redact method implementation for ForceRenewCertificateRequest
+func (x *ForceRenewCertificateRequest) Redact() string {
+	if x == nil {
+		return ""
+	}
+
+	// Safe field: Id
+	return x.String()
+}
+
+// Redact method implementation for ForceRenewCertificateResponse
+func (x *ForceRenewCertificateResponse) Redact() string {
+	if x == nil {
+		return ""
+	}
+
+	// Safe field: RenewalId
+
+	// Safe field: Message
 	return x.String()
 }

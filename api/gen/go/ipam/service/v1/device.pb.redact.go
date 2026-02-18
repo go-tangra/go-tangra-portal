@@ -28,6 +28,7 @@ var (
 	_ timestamppb.Timestamp
 	_ emptypb.Empty
 	_ fieldmaskpb.FieldMask
+	_ redact.FieldRules
 )
 
 // RegisterRedactedDeviceServiceServer wraps the DeviceServiceServer with the redacted server and registers the service in GRPC
@@ -197,7 +198,9 @@ func (x *Device) Redact() string {
 
 	// Safe field: AddressCount
 
-	// Safe field: Contact
+	// Redacting field: Contact
+	ContactTmp := ``
+	x.Contact = &ContactTmp
 
 	// Safe field: Tags
 
@@ -283,7 +286,9 @@ func (x *CreateDeviceRequest) Redact() string {
 
 	// Safe field: OsVersion
 
-	// Safe field: Contact
+	// Redacting field: Contact
+	ContactTmp := ``
+	x.Contact = &ContactTmp
 
 	// Safe field: Tags
 

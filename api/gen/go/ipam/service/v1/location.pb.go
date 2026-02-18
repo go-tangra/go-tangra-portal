@@ -8,6 +8,7 @@ package ipampb
 
 import (
 	_ "buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go/buf/validate"
+	_ "github.com/menta2k/protoc-gen-redact/v3/redact/v3"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
@@ -1297,7 +1298,7 @@ var File_ipam_service_v1_location_proto protoreflect.FileDescriptor
 
 const file_ipam_service_v1_location_proto_rawDesc = "" +
 	"\n" +
-	"\x1eipam/service/v1/location.proto\x12\x0fipam.service.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a google/protobuf/field_mask.proto\"\xd2\v\n" +
+	"\x1eipam/service/v1/location.proto\x12\x0fipam.service.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a google/protobuf/field_mask.proto\x1a\x16redact/v3/redact.proto\"\xea\v\n" +
 	"\bLocation\x12\x13\n" +
 	"\x02id\x18\x01 \x01(\tH\x00R\x02id\x88\x01\x01\x12 \n" +
 	"\ttenant_id\x18\x02 \x01(\rH\x01R\btenantId\x88\x01\x01\x12\x17\n" +
@@ -1316,10 +1317,10 @@ const file_ipam_service_v1_location_proto_rawDesc = "" +
 	"\vpostal_code\x18\r \x01(\tH\fR\n" +
 	"postalCode\x88\x01\x01\x12\x1f\n" +
 	"\blatitude\x18\x0e \x01(\x01H\rR\blatitude\x88\x01\x01\x12!\n" +
-	"\tlongitude\x18\x0f \x01(\x01H\x0eR\tlongitude\x88\x01\x01\x12\x1d\n" +
-	"\acontact\x18\x10 \x01(\tH\x0fR\acontact\x88\x01\x01\x12\x19\n" +
-	"\x05phone\x18\x11 \x01(\tH\x10R\x05phone\x88\x01\x01\x12\x19\n" +
-	"\x05email\x18\x12 \x01(\tH\x11R\x05email\x88\x01\x01\x12$\n" +
+	"\tlongitude\x18\x0f \x01(\x01H\x0eR\tlongitude\x88\x01\x01\x12%\n" +
+	"\acontact\x18\x10 \x01(\tB\x06ڶ\x1a\x02z\x00H\x0fR\acontact\x88\x01\x01\x12!\n" +
+	"\x05phone\x18\x11 \x01(\tB\x06ڶ\x1a\x02z\x00H\x10R\x05phone\x88\x01\x01\x12!\n" +
+	"\x05email\x18\x12 \x01(\tB\x06ڶ\x1a\x02z\x00H\x11R\x05email\x88\x01\x01\x12$\n" +
 	"\vchild_count\x18\x14 \x01(\x05H\x12R\n" +
 	"childCount\x88\x01\x01\x12&\n" +
 	"\fdevice_count\x18\x15 \x01(\x05H\x13R\vdeviceCount\x88\x01\x01\x12&\n" +
@@ -1373,7 +1374,7 @@ const file_ipam_service_v1_location_proto_rawDesc = "" +
 	"\v_created_atB\r\n" +
 	"\v_updated_atB\r\n" +
 	"\v_created_byB\r\n" +
-	"\v_updated_by\"\xd6\a\n" +
+	"\v_updated_by\"\xee\a\n" +
 	"\x15CreateLocationRequest\x12%\n" +
 	"\ttenant_id\x18\x01 \x01(\rB\x03\xe0A\x02H\x00R\btenantId\x88\x01\x01\x12&\n" +
 	"\x04name\x18\x02 \x01(\tB\r\xe0A\x02\xbaH\ar\x05\x10\x01\x18\xff\x01H\x01R\x04name\x88\x01\x01\x12\x17\n" +
@@ -1390,10 +1391,10 @@ const file_ipam_service_v1_location_proto_rawDesc = "" +
 	"R\n" +
 	"postalCode\x88\x01\x01\x12\x1f\n" +
 	"\blatitude\x18\f \x01(\x01H\vR\blatitude\x88\x01\x01\x12!\n" +
-	"\tlongitude\x18\r \x01(\x01H\fR\tlongitude\x88\x01\x01\x12\x1d\n" +
-	"\acontact\x18\x0e \x01(\tH\rR\acontact\x88\x01\x01\x12\x19\n" +
-	"\x05phone\x18\x0f \x01(\tH\x0eR\x05phone\x88\x01\x01\x12\x19\n" +
-	"\x05email\x18\x10 \x01(\tH\x0fR\x05email\x88\x01\x01\x12<\n" +
+	"\tlongitude\x18\r \x01(\x01H\fR\tlongitude\x88\x01\x01\x12%\n" +
+	"\acontact\x18\x0e \x01(\tB\x06ڶ\x1a\x02z\x00H\rR\acontact\x88\x01\x01\x12!\n" +
+	"\x05phone\x18\x0f \x01(\tB\x06ڶ\x1a\x02z\x00H\x0eR\x05phone\x88\x01\x01\x12!\n" +
+	"\x05email\x18\x10 \x01(\tB\x06ڶ\x1a\x02z\x00H\x0fR\x05email\x88\x01\x01\x12<\n" +
 	"\x06status\x18\x11 \x01(\x0e2\x1f.ipam.service.v1.LocationStatusH\x10R\x06status\x88\x01\x01\x12\x17\n" +
 	"\x04tags\x18\x12 \x01(\tH\x11R\x04tags\x88\x01\x01\x12\x1f\n" +
 	"\bmetadata\x18\x13 \x01(\tH\x12R\bmetadata\x88\x01\x01\x12#\n" +

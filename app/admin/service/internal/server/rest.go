@@ -132,6 +132,9 @@ func NewRestServer(
 	// Time Series Statistics Service
 	timeSeriesStatisticsService *service.TimeSeriesStatisticsService,
 
+	// Module Registration Service (for listing registered modules via REST)
+	moduleRegistrationService *service.ModuleRegistrationService,
+
 	// Dynamic Router for module registration
 	dynamicRouter *DynamicRouter,
 
@@ -203,6 +206,9 @@ func NewRestServer(
 	adminV1.RegisterInternalMessageServiceHTTPServer(srv, internalMessageService)
 	adminV1.RegisterInternalMessageCategoryServiceHTTPServer(srv, internalMessageCategoryService)
 	adminV1.RegisterInternalMessageRecipientServiceHTTPServer(srv, internalMessageRecipientService)
+
+	// Module Registration Service (list/get registered modules)
+	adminV1.RegisterModuleRegistrationServiceHTTPServer(srv, moduleRegistrationService)
 
 	if cfg.GetServer().GetRest().GetEnableSwagger() {
 		swaggerUI.RegisterSwaggerUIServerWithOption(

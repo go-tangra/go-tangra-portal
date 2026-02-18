@@ -8,6 +8,7 @@ package lcmV1
 
 import (
 	_ "buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go/buf/validate"
+	_ "github.com/menta2k/protoc-gen-redact/v3/redact/v3"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
@@ -1025,15 +1026,15 @@ var File_lcm_service_v1_certificate_job_proto protoreflect.FileDescriptor
 
 const file_lcm_service_v1_certificate_job_proto_rawDesc = "" +
 	"\n" +
-	"$lcm/service/v1/certificate_job.proto\x12\x0elcm.service.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\x96\a\n" +
+	"$lcm/service/v1/certificate_job.proto\x12\x0elcm.service.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x16redact/v3/redact.proto\"\x9d\a\n" +
 	"\x19RequestCertificateRequest\x12@\n" +
 	"\vissuer_name\x18\x01 \x01(\tB\x1f\xe0A\x02\xbaH\x19r\x17\x10\x01\x18d2\x11^[a-zA-Z0-9\\-_]+$R\n" +
 	"issuerName\x12P\n" +
 	"\vcommon_name\x18\x02 \x01(\tB/\xe0A\x02\xbaH)r'\x10\x01\x18\xfd\x012 ^[a-zA-Z0-9*][a-zA-Z0-9\\-\\.\\*]*$R\n" +
 	"commonName\x12\x95\x01\n" +
 	"\tdns_names\x18\x03 \x03(\tBx\xbaHu\x92\x01r\x10d\"nrl\x10\x01\x18\xfd\x012e^[a-zA-Z0-9*]([a-zA-Z0-9\\-*]{0,61}[a-zA-Z0-9*])?(\\.[a-zA-Z0-9*]([a-zA-Z0-9\\-*]{0,61}[a-zA-Z0-9*])?)*$R\bdnsNames\x121\n" +
-	"\fip_addresses\x18\x04 \x03(\tB\x0e\xbaH\v\x92\x01\b\x102\"\x04r\x02p\x01R\vipAddresses\x12{\n" +
-	"\acsr_pem\x18\x05 \x01(\tB]\xbaHZrX\x18\x80\x80\x012R^-----BEGIN CERTIFICATE REQUEST-----[\\s\\S]*-----END CERTIFICATE REQUEST-----[\\s]*$H\x00R\x06csrPem\x88\x01\x01\x12=\n" +
+	"\fip_addresses\x18\x04 \x03(\tB\x0e\xbaH\v\x92\x01\b\x102\"\x04r\x02p\x01R\vipAddresses\x12\x81\x01\n" +
+	"\acsr_pem\x18\x05 \x01(\tBc\xbaHZrX\x18\x80\x80\x012R^-----BEGIN CERTIFICATE REQUEST-----[\\s\\S]*-----END CERTIFICATE REQUEST-----[\\s]*$ڶ\x1a\x02z\x00H\x00R\x06csrPem\x88\x01\x01\x12=\n" +
 	"\bkey_type\x18\x06 \x01(\tB\x1d\xbaH\x1ar\x18R\x05ecdsaR\x03rsaR\x05ECDSAR\x03RSAH\x01R\akeyType\x88\x01\x01\x12+\n" +
 	"\bkey_size\x18\a \x01(\x05B\v\xbaH\b\x1a\x06\x18\x80 (\x80\x02H\x02R\akeySize\x88\x01\x01\x124\n" +
 	"\rvalidity_days\x18\b \x01(\x05B\n" +
@@ -1074,20 +1075,20 @@ const file_lcm_service_v1_certificate_job_proto_rawDesc = "" +
 	"\x13GetJobResultRequest\x125\n" +
 	"\x06job_id\x18\x01 \x01(\tB\x1e\xe0A\x02\xbaH\x18r\x16\x10\x01\x18$2\x10^[a-fA-F0-9\\-]+$R\x05jobId\x123\n" +
 	"\x13include_private_key\x18\x02 \x01(\bH\x00R\x11includePrivateKey\x88\x01\x01B\x16\n" +
-	"\x14_include_private_key\"\x9f\x06\n" +
+	"\x14_include_private_key\"\xbf\x06\n" +
 	"\x14GetJobResultResponse\x12\x15\n" +
 	"\x06job_id\x18\x01 \x01(\tR\x05jobId\x12<\n" +
-	"\x06status\x18\x02 \x01(\x0e2$.lcm.service.v1.CertificateJobStatusR\x06status\x12,\n" +
-	"\x0fcertificate_pem\x18\x03 \x01(\tH\x00R\x0ecertificatePem\x88\x01\x01\x121\n" +
-	"\x12ca_certificate_pem\x18\x04 \x01(\tH\x01R\x10caCertificatePem\x88\x01\x01\x12+\n" +
-	"\x0fprivate_key_pem\x18\x05 \x01(\tH\x02R\rprivateKeyPem\x88\x01\x01\x12(\n" +
+	"\x06status\x18\x02 \x01(\x0e2$.lcm.service.v1.CertificateJobStatusR\x06status\x124\n" +
+	"\x0fcertificate_pem\x18\x03 \x01(\tB\x06ڶ\x1a\x02z\x00H\x00R\x0ecertificatePem\x88\x01\x01\x129\n" +
+	"\x12ca_certificate_pem\x18\x04 \x01(\tB\x06ڶ\x1a\x02z\x00H\x01R\x10caCertificatePem\x88\x01\x01\x123\n" +
+	"\x0fprivate_key_pem\x18\x05 \x01(\tB\x06ڶ\x1a\x02z\x00H\x02R\rprivateKeyPem\x88\x01\x01\x12(\n" +
 	"\rserial_number\x18\x06 \x01(\tH\x03R\fserialNumber\x88\x01\x01\x12>\n" +
 	"\n" +
 	"expires_at\x18\a \x01(\v2\x1a.google.protobuf.TimestampH\x04R\texpiresAt\x88\x01\x01\x12<\n" +
 	"\tissued_at\x18\b \x01(\v2\x1a.google.protobuf.TimestampH\x05R\bissuedAt\x88\x01\x01\x12(\n" +
-	"\rerror_message\x18\t \x01(\tH\x06R\ferrorMessage\x88\x01\x01\x12\x1c\n" +
+	"\rerror_message\x18\t \x01(\tH\x06R\ferrorMessage\x88\x01\x01\x12$\n" +
 	"\acsr_pem\x18\n" +
-	" \x01(\tH\aR\x06csrPem\x88\x01\x01\x12\x1e\n" +
+	" \x01(\tB\x06ڶ\x1a\x02z\x00H\aR\x06csrPem\x88\x01\x01\x12\x1e\n" +
 	"\bkey_type\x18\v \x01(\tH\bR\akeyType\x88\x01\x01\x12\x1e\n" +
 	"\bkey_size\x18\f \x01(\x05H\tR\akeySize\x88\x01\x01\x125\n" +
 	"\x14server_generated_key\x18\r \x01(\bH\n" +

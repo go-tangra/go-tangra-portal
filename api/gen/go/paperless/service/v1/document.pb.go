@@ -1508,7 +1508,7 @@ var File_paperless_service_v1_document_proto protoreflect.FileDescriptor
 
 const file_paperless_service_v1_document_proto_rawDesc = "" +
 	"\n" +
-	"#paperless/service/v1/document.proto\x12\x14paperless.service.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x16redact/v3/redact.proto\"\xa5\b\n" +
+	"#paperless/service/v1/document.proto\x12\x14paperless.service.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x16redact/v3/redact.proto\"\xb8\b\n" +
 	"\bDocument\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x1b\n" +
 	"\ttenant_id\x18\x02 \x01(\rR\btenantId\x12$\n" +
@@ -1533,9 +1533,9 @@ const file_paperless_service_v1_document_proto_rawDesc = "" +
 	"\n" +
 	"created_by\x18\x11 \x01(\rH\x01R\tcreatedBy\x88\x01\x01\x12\"\n" +
 	"\n" +
-	"updated_by\x18\x12 \x01(\rH\x02R\tupdatedBy\x88\x01\x01\x12!\n" +
-	"\fcontent_text\x18\x13 \x01(\tR\vcontentText\x12d\n" +
-	"\x12extracted_metadata\x18\x14 \x03(\v25.paperless.service.v1.Document.ExtractedMetadataEntryR\x11extractedMetadata\x12+\n" +
+	"updated_by\x18\x12 \x01(\rH\x02R\tupdatedBy\x88\x01\x01\x12)\n" +
+	"\fcontent_text\x18\x13 \x01(\tB\x06ڶ\x1a\x02z\x00R\vcontentText\x12o\n" +
+	"\x12extracted_metadata\x18\x14 \x03(\v25.paperless.service.v1.Document.ExtractedMetadataEntryB\tڶ\x1a\x05\xa2\x01\x02\b\x01R\x11extractedMetadata\x12+\n" +
 	"\x11processing_status\x18\x15 \x01(\tR\x10processingStatus\x1a7\n" +
 	"\tTagsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
@@ -1613,9 +1613,9 @@ const file_paperless_service_v1_document_proto_rawDesc = "" +
 	"\x14MoveDocumentResponse\x12:\n" +
 	"\bdocument\x18\x01 \x01(\v2\x1e.paperless.service.v1.DocumentR\bdocument\"I\n" +
 	"\x17DownloadDocumentRequest\x12.\n" +
-	"\x02id\x18\x01 \x01(\tB\x1e\xe0A\x02\xbaH\x18r\x16\x10\x01\x18$2\x10^[a-fA-F0-9\\-]+$R\x02id\"\x8b\x01\n" +
-	"\x18DownloadDocumentResponse\x12\x18\n" +
-	"\acontent\x18\x01 \x01(\fR\acontent\x12\x1b\n" +
+	"\x02id\x18\x01 \x01(\tB\x1e\xe0A\x02\xbaH\x18r\x16\x10\x01\x18$2\x10^[a-fA-F0-9\\-]+$R\x02id\"\x94\x01\n" +
+	"\x18DownloadDocumentResponse\x12!\n" +
+	"\acontent\x18\x01 \x01(\fB\aڶ\x1a\x03\x82\x01\x00R\acontent\x12\x1b\n" +
 	"\tfile_name\x18\x02 \x01(\tR\bfileName\x12\x1b\n" +
 	"\tmime_type\x18\x03 \x01(\tR\bmimeType\x12\x1b\n" +
 	"\tfile_size\x18\x04 \x01(\x03R\bfileSize\"\x82\x01\n" +
@@ -1623,9 +1623,9 @@ const file_paperless_service_v1_document_proto_rawDesc = "" +
 	"\x02id\x18\x01 \x01(\tB\x1e\xe0A\x02\xbaH\x18r\x16\x10\x01\x18$2\x10^[a-fA-F0-9\\-]+$R\x02id\x12\"\n" +
 	"\n" +
 	"expires_in\x18\x02 \x01(\x05H\x00R\texpiresIn\x88\x01\x01B\r\n" +
-	"\v_expires_in\"m\n" +
-	"\x1eGetDocumentDownloadUrlResponse\x12\x10\n" +
-	"\x03url\x18\x01 \x01(\tR\x03url\x129\n" +
+	"\v_expires_in\"u\n" +
+	"\x1eGetDocumentDownloadUrlResponse\x12\x18\n" +
+	"\x03url\x18\x01 \x01(\tB\x06ڶ\x1a\x02z\x00R\x03url\x129\n" +
 	"\n" +
 	"expires_at\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampR\texpiresAt\"\xac\x04\n" +
 	"\x16SearchDocumentsRequest\x12#\n" +

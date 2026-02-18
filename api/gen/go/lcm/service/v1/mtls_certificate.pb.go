@@ -8,6 +8,7 @@ package lcmV1
 
 import (
 	_ "buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go/buf/validate"
+	_ "github.com/menta2k/protoc-gen-redact/v3/redact/v3"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
@@ -1559,7 +1560,7 @@ var File_lcm_service_v1_mtls_certificate_proto protoreflect.FileDescriptor
 
 const file_lcm_service_v1_mtls_certificate_proto_rawDesc = "" +
 	"\n" +
-	"%lcm/service/v1/mtls_certificate.proto\x12\x0elcm.service.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a google/protobuf/field_mask.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1blcm/service/v1/client.proto\"\xad\x14\n" +
+	"%lcm/service/v1/mtls_certificate.proto\x12\x0elcm.service.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a google/protobuf/field_mask.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x16redact/v3/redact.proto\x1a\x1blcm/service/v1/client.proto\"\xbd\x14\n" +
 	"\x0fMtlsCertificate\x12(\n" +
 	"\rserial_number\x18\x01 \x01(\x03H\x00R\fserialNumber\x88\x01\x01\x12 \n" +
 	"\tclient_id\x18\x02 \x01(\tH\x01R\bclientId\x88\x01\x01\x12$\n" +
@@ -1577,9 +1578,9 @@ const file_lcm_service_v1_mtls_certificate_proto_rawDesc = "" +
 	"\x0fpublic_key_size\x18\n" +
 	" \x01(\x05H\n" +
 	"R\rpublicKeySize\x88\x01\x01\x124\n" +
-	"\x13signature_algorithm\x18\v \x01(\tH\vR\x12signatureAlgorithm\x88\x01\x01\x12,\n" +
-	"\x0fcertificate_pem\x18\f \x01(\tH\fR\x0ecertificatePem\x88\x01\x01\x12)\n" +
-	"\x0epublic_key_pem\x18\r \x01(\tH\rR\fpublicKeyPem\x88\x01\x01\x12\x1b\n" +
+	"\x13signature_algorithm\x18\v \x01(\tH\vR\x12signatureAlgorithm\x88\x01\x01\x124\n" +
+	"\x0fcertificate_pem\x18\f \x01(\tB\x06ڶ\x1a\x02z\x00H\fR\x0ecertificatePem\x88\x01\x01\x121\n" +
+	"\x0epublic_key_pem\x18\r \x01(\tB\x06ڶ\x1a\x02z\x00H\rR\fpublicKeyPem\x88\x01\x01\x12\x1b\n" +
 	"\tdns_names\x18\x0e \x03(\tR\bdnsNames\x12!\n" +
 	"\fip_addresses\x18\x0f \x03(\tR\vipAddresses\x12'\n" +
 	"\x0femail_addresses\x18\x10 \x03(\tR\x0eemailAddresses\x12\x12\n" +
@@ -1703,13 +1704,13 @@ const file_lcm_service_v1_mtls_certificate_proto_rawDesc = "" +
 	"\n" +
 	"_view_mask\"h\n" +
 	"\x1aGetMtlsCertificateResponse\x12J\n" +
-	"\x10mtls_certificate\x18\x01 \x01(\v2\x1f.lcm.service.v1.MtlsCertificateR\x0fmtlsCertificate\"\xf7\b\n" +
+	"\x10mtls_certificate\x18\x01 \x01(\v2\x1f.lcm.service.v1.MtlsCertificateR\x0fmtlsCertificate\"\x84\t\n" +
 	"\x1bIssueMtlsCertificateRequest\x12F\n" +
 	"\tclient_id\x18\x01 \x01(\tB)\xe0A\x02\xbaH#r!\x10\x01\x18@2\x1b^[a-zA-Z0-9][a-zA-Z0-9_-]*$R\bclientId\x12M\n" +
 	"\vcommon_name\x18\x02 \x01(\tB,\xe0A\x02\xbaH&r$\x10\x01\x18\xfd\x012\x1d^[a-zA-Z0-9][a-zA-Z0-9\\-\\.]*$R\n" +
-	"commonName\x12{\n" +
-	"\acsr_pem\x18\x03 \x01(\tB]\xbaHZrX\x18\x80\x80\x012R^-----BEGIN CERTIFICATE REQUEST-----[\\s\\S]*-----END CERTIFICATE REQUEST-----[\\s]*$H\x00R\x06csrPem\x88\x01\x01\x12u\n" +
-	"\x0epublic_key_pem\x18\x04 \x01(\tBJ\xbaHGrE\x18\x80@2@^-----BEGIN PUBLIC KEY-----[\\s\\S]*-----END PUBLIC KEY-----[\\s]*$H\x01R\fpublicKeyPem\x88\x01\x01\x12\x95\x01\n" +
+	"commonName\x12\x81\x01\n" +
+	"\acsr_pem\x18\x03 \x01(\tBc\xbaHZrX\x18\x80\x80\x012R^-----BEGIN CERTIFICATE REQUEST-----[\\s\\S]*-----END CERTIFICATE REQUEST-----[\\s]*$ڶ\x1a\x02z\x00H\x00R\x06csrPem\x88\x01\x01\x12{\n" +
+	"\x0epublic_key_pem\x18\x04 \x01(\tBP\xbaHGrE\x18\x80@2@^-----BEGIN PUBLIC KEY-----[\\s\\S]*-----END PUBLIC KEY-----[\\s]*$ڶ\x1a\x02z\x00H\x01R\fpublicKeyPem\x88\x01\x01\x12\x95\x01\n" +
 	"\tdns_names\x18\x05 \x03(\tBx\xbaHu\x92\x01r\x10d\"nrl\x10\x01\x18\xfd\x012e^[a-zA-Z0-9*]([a-zA-Z0-9\\-*]{0,61}[a-zA-Z0-9*])?(\\.[a-zA-Z0-9*]([a-zA-Z0-9\\-*]{0,61}[a-zA-Z0-9*])?)*$R\bdnsNames\x121\n" +
 	"\fip_addresses\x18\x06 \x03(\tB\x0e\xbaH\v\x92\x01\b\x102\"\x04r\x02p\x01R\vipAddresses\x12@\n" +
 	"\vissuer_name\x18\a \x01(\tB\x1a\xbaH\x17r\x15\x18d2\x11^[a-zA-Z0-9\\-_]*$H\x02R\n" +
@@ -1730,10 +1731,10 @@ const file_lcm_service_v1_mtls_certificate_proto_rawDesc = "" +
 	"\n" +
 	"_cert_typeB\x10\n" +
 	"\x0e_validity_daysB\b\n" +
-	"\x06_notes\"\xb4\x01\n" +
+	"\x06_notes\"\xbc\x01\n" +
 	"\x1cIssueMtlsCertificateResponse\x12J\n" +
-	"\x10mtls_certificate\x18\x01 \x01(\v2\x1f.lcm.service.v1.MtlsCertificateR\x0fmtlsCertificate\x121\n" +
-	"\x12ca_certificate_pem\x18\x02 \x01(\tH\x00R\x10caCertificatePem\x88\x01\x01B\x15\n" +
+	"\x10mtls_certificate\x18\x01 \x01(\v2\x1f.lcm.service.v1.MtlsCertificateR\x0fmtlsCertificate\x129\n" +
+	"\x12ca_certificate_pem\x18\x02 \x01(\tB\x06ڶ\x1a\x02z\x00H\x00R\x10caCertificatePem\x88\x01\x01B\x15\n" +
 	"\x13_ca_certificate_pem\"\xfc\x02\n" +
 	"\x1cUpdateMtlsCertificateRequest\x12(\n" +
 	"\rserial_number\x18\x01 \x01(\x03B\x03\xe0A\x02R\fserialNumber\x12\x88\x01\n" +
@@ -1753,10 +1754,10 @@ const file_lcm_service_v1_mtls_certificate_proto_rawDesc = "" +
 	"\x05notes\x18\x03 \x01(\tB\b\xbaH\x05r\x03\x18\x80\x10H\x00R\x05notes\x88\x01\x01B\b\n" +
 	"\x06_notes\"k\n" +
 	"\x1dRevokeMtlsCertificateResponse\x12J\n" +
-	"\x10mtls_certificate\x18\x01 \x01(\v2\x1f.lcm.service.v1.MtlsCertificateR\x0fmtlsCertificate\"\xcc\x02\n" +
+	"\x10mtls_certificate\x18\x01 \x01(\v2\x1f.lcm.service.v1.MtlsCertificateR\x0fmtlsCertificate\"\xd2\x02\n" +
 	"\x1bRenewMtlsCertificateRequest\x12(\n" +
-	"\rserial_number\x18\x01 \x01(\x03B\x03\xe0A\x02R\fserialNumber\x12u\n" +
-	"\x0epublic_key_pem\x18\x02 \x01(\tBJ\xbaHGrE\x18\x80@2@^-----BEGIN PUBLIC KEY-----[\\s\\S]*-----END PUBLIC KEY-----[\\s]*$H\x00R\fpublicKeyPem\x88\x01\x01\x124\n" +
+	"\rserial_number\x18\x01 \x01(\x03B\x03\xe0A\x02R\fserialNumber\x12{\n" +
+	"\x0epublic_key_pem\x18\x02 \x01(\tBP\xbaHGrE\x18\x80@2@^-----BEGIN PUBLIC KEY-----[\\s\\S]*-----END PUBLIC KEY-----[\\s]*$ڶ\x1a\x02z\x00H\x00R\fpublicKeyPem\x88\x01\x01\x124\n" +
 	"\rvalidity_days\x18\x03 \x01(\x05B\n" +
 	"\xbaH\a\x1a\x05\x18\xb9\x06(\x01H\x01R\fvalidityDays\x88\x01\x01\x12\"\n" +
 	"\n" +
@@ -1774,11 +1775,11 @@ const file_lcm_service_v1_mtls_certificate_proto_rawDesc = "" +
 	"\x1eDownloadMtlsCertificateRequest\x12(\n" +
 	"\rserial_number\x18\x01 \x01(\x03B\x03\xe0A\x02R\fserialNumber\x12(\n" +
 	"\rinclude_chain\x18\x02 \x01(\bH\x00R\fincludeChain\x88\x01\x01B\x10\n" +
-	"\x0e_include_chain\"\xc4\x01\n" +
-	"\x1fDownloadMtlsCertificateResponse\x12'\n" +
-	"\x0fcertificate_pem\x18\x01 \x01(\tR\x0ecertificatePem\x12 \n" +
-	"\tchain_pem\x18\x02 \x01(\tH\x00R\bchainPem\x88\x01\x01\x121\n" +
-	"\x12ca_certificate_pem\x18\x03 \x01(\tH\x01R\x10caCertificatePem\x88\x01\x01B\f\n" +
+	"\x0e_include_chain\"\xdc\x01\n" +
+	"\x1fDownloadMtlsCertificateResponse\x12/\n" +
+	"\x0fcertificate_pem\x18\x01 \x01(\tB\x06ڶ\x1a\x02z\x00R\x0ecertificatePem\x12(\n" +
+	"\tchain_pem\x18\x02 \x01(\tB\x06ڶ\x1a\x02z\x00H\x00R\bchainPem\x88\x01\x01\x129\n" +
+	"\x12ca_certificate_pem\x18\x03 \x01(\tB\x06ڶ\x1a\x02z\x00H\x01R\x10caCertificatePem\x88\x01\x01B\f\n" +
 	"\n" +
 	"_chain_pemB\x15\n" +
 	"\x13_ca_certificate_pem*\xd5\x01\n" +

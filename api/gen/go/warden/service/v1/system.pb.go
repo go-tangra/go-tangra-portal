@@ -324,6 +324,134 @@ func (x *CheckVaultResponse) GetMessage() string {
 	return ""
 }
 
+type GetStatsRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	TenantId      *uint32                `protobuf:"varint,1,opt,name=tenant_id,json=tenantId,proto3,oneof" json:"tenant_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetStatsRequest) Reset() {
+	*x = GetStatsRequest{}
+	mi := &file_warden_service_v1_system_proto_msgTypes[4]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetStatsRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetStatsRequest) ProtoMessage() {}
+
+func (x *GetStatsRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_warden_service_v1_system_proto_msgTypes[4]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetStatsRequest.ProtoReflect.Descriptor instead.
+func (*GetStatsRequest) Descriptor() ([]byte, []int) {
+	return file_warden_service_v1_system_proto_rawDescGZIP(), []int{4}
+}
+
+func (x *GetStatsRequest) GetTenantId() uint32 {
+	if x != nil && x.TenantId != nil {
+		return *x.TenantId
+	}
+	return 0
+}
+
+type GetStatsResponse struct {
+	state                protoimpl.MessageState `protogen:"open.v1"`
+	TotalSecrets         int64                  `protobuf:"varint,1,opt,name=total_secrets,json=totalSecrets,proto3" json:"total_secrets,omitempty"`
+	ActiveSecrets        int64                  `protobuf:"varint,2,opt,name=active_secrets,json=activeSecrets,proto3" json:"active_secrets,omitempty"`
+	ArchivedSecrets      int64                  `protobuf:"varint,3,opt,name=archived_secrets,json=archivedSecrets,proto3" json:"archived_secrets,omitempty"`
+	TotalFolders         int64                  `protobuf:"varint,4,opt,name=total_folders,json=totalFolders,proto3" json:"total_folders,omitempty"`
+	TotalVersions        int64                  `protobuf:"varint,5,opt,name=total_versions,json=totalVersions,proto3" json:"total_versions,omitempty"`
+	AvgVersionsPerSecret float64                `protobuf:"fixed64,6,opt,name=avg_versions_per_secret,json=avgVersionsPerSecret,proto3" json:"avg_versions_per_secret,omitempty"`
+	unknownFields        protoimpl.UnknownFields
+	sizeCache            protoimpl.SizeCache
+}
+
+func (x *GetStatsResponse) Reset() {
+	*x = GetStatsResponse{}
+	mi := &file_warden_service_v1_system_proto_msgTypes[5]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetStatsResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetStatsResponse) ProtoMessage() {}
+
+func (x *GetStatsResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_warden_service_v1_system_proto_msgTypes[5]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetStatsResponse.ProtoReflect.Descriptor instead.
+func (*GetStatsResponse) Descriptor() ([]byte, []int) {
+	return file_warden_service_v1_system_proto_rawDescGZIP(), []int{5}
+}
+
+func (x *GetStatsResponse) GetTotalSecrets() int64 {
+	if x != nil {
+		return x.TotalSecrets
+	}
+	return 0
+}
+
+func (x *GetStatsResponse) GetActiveSecrets() int64 {
+	if x != nil {
+		return x.ActiveSecrets
+	}
+	return 0
+}
+
+func (x *GetStatsResponse) GetArchivedSecrets() int64 {
+	if x != nil {
+		return x.ArchivedSecrets
+	}
+	return 0
+}
+
+func (x *GetStatsResponse) GetTotalFolders() int64 {
+	if x != nil {
+		return x.TotalFolders
+	}
+	return 0
+}
+
+func (x *GetStatsResponse) GetTotalVersions() int64 {
+	if x != nil {
+		return x.TotalVersions
+	}
+	return 0
+}
+
+func (x *GetStatsResponse) GetAvgVersionsPerSecret() float64 {
+	if x != nil {
+		return x.AvgVersionsPerSecret
+	}
+	return 0
+}
+
 var File_warden_service_v1_system_proto protoreflect.FileDescriptor
 
 const file_warden_service_v1_system_proto_rawDesc = "" +
@@ -353,19 +481,31 @@ const file_warden_service_v1_system_proto_rawDesc = "" +
 	"\tconnected\x18\x01 \x01(\bR\tconnected\x12#\n" +
 	"\rvault_version\x18\x02 \x01(\tR\fvaultVersion\x12\x16\n" +
 	"\x06sealed\x18\x03 \x01(\bR\x06sealed\x12\x18\n" +
-	"\amessage\x18\x04 \x01(\tR\amessage*\x81\x01\n" +
+	"\amessage\x18\x04 \x01(\tR\amessage\"A\n" +
+	"\x0fGetStatsRequest\x12 \n" +
+	"\ttenant_id\x18\x01 \x01(\rH\x00R\btenantId\x88\x01\x01B\f\n" +
+	"\n" +
+	"_tenant_id\"\x8c\x02\n" +
+	"\x10GetStatsResponse\x12#\n" +
+	"\rtotal_secrets\x18\x01 \x01(\x03R\ftotalSecrets\x12%\n" +
+	"\x0eactive_secrets\x18\x02 \x01(\x03R\ractiveSecrets\x12)\n" +
+	"\x10archived_secrets\x18\x03 \x01(\x03R\x0farchivedSecrets\x12#\n" +
+	"\rtotal_folders\x18\x04 \x01(\x03R\ftotalFolders\x12%\n" +
+	"\x0etotal_versions\x18\x05 \x01(\x03R\rtotalVersions\x125\n" +
+	"\x17avg_versions_per_secret\x18\x06 \x01(\x01R\x14avgVersionsPerSecret*\x81\x01\n" +
 	"\fHealthStatus\x12\x1d\n" +
 	"\x19HEALTH_STATUS_UNSPECIFIED\x10\x00\x12\x19\n" +
 	"\x15HEALTH_STATUS_HEALTHY\x10\x01\x12\x1a\n" +
 	"\x16HEALTH_STATUS_DEGRADED\x10\x02\x12\x1b\n" +
-	"\x17HEALTH_STATUS_UNHEALTHY\x10\x032\xad\x02\n" +
+	"\x17HEALTH_STATUS_UNHEALTHY\x10\x032\x95\x03\n" +
 	"\x13WardenSystemService\x12W\n" +
 	"\x06Health\x12\x16.google.protobuf.Empty\x1a!.warden.service.v1.HealthResponse\"\x12\x82\xd3\xe4\x93\x02\f\x12\n" +
 	"/v1/health\x12W\n" +
 	"\aGetInfo\x12\x16.google.protobuf.Empty\x1a\".warden.service.v1.GetInfoResponse\"\x10\x82\xd3\xe4\x93\x02\n" +
 	"\x12\b/v1/info\x12d\n" +
 	"\n" +
-	"CheckVault\x12\x16.google.protobuf.Empty\x1a%.warden.service.v1.CheckVaultResponse\"\x17\x82\xd3\xe4\x93\x02\x11\x12\x0f/v1/vault/checkB\xd7\x01\n" +
+	"CheckVault\x12\x16.google.protobuf.Empty\x1a%.warden.service.v1.CheckVaultResponse\"\x17\x82\xd3\xe4\x93\x02\x11\x12\x0f/v1/vault/check\x12f\n" +
+	"\bGetStats\x12\".warden.service.v1.GetStatsRequest\x1a#.warden.service.v1.GetStatsResponse\"\x11\x82\xd3\xe4\x93\x02\v\x12\t/v1/statsB\xd7\x01\n" +
 	"\x15com.warden.service.v1B\vSystemProtoP\x01ZKgithub.com/go-tangra/go-tangra-portal/api/gen/go/warden/service/v1;wardenV1\xa2\x02\x03WSX\xaa\x02\x11Warden.Service.V1\xca\x02\x11Warden\\Service\\V1\xe2\x02\x1dWarden\\Service\\V1\\GPBMetadata\xea\x02\x13Warden::Service::V1b\x06proto3"
 
 var (
@@ -381,29 +521,33 @@ func file_warden_service_v1_system_proto_rawDescGZIP() []byte {
 }
 
 var file_warden_service_v1_system_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_warden_service_v1_system_proto_msgTypes = make([]protoimpl.MessageInfo, 5)
+var file_warden_service_v1_system_proto_msgTypes = make([]protoimpl.MessageInfo, 7)
 var file_warden_service_v1_system_proto_goTypes = []any{
 	(HealthStatus)(0),          // 0: warden.service.v1.HealthStatus
 	(*HealthResponse)(nil),     // 1: warden.service.v1.HealthResponse
 	(*ComponentHealth)(nil),    // 2: warden.service.v1.ComponentHealth
 	(*GetInfoResponse)(nil),    // 3: warden.service.v1.GetInfoResponse
 	(*CheckVaultResponse)(nil), // 4: warden.service.v1.CheckVaultResponse
-	nil,                        // 5: warden.service.v1.HealthResponse.ComponentsEntry
-	(*emptypb.Empty)(nil),      // 6: google.protobuf.Empty
+	(*GetStatsRequest)(nil),    // 5: warden.service.v1.GetStatsRequest
+	(*GetStatsResponse)(nil),   // 6: warden.service.v1.GetStatsResponse
+	nil,                        // 7: warden.service.v1.HealthResponse.ComponentsEntry
+	(*emptypb.Empty)(nil),      // 8: google.protobuf.Empty
 }
 var file_warden_service_v1_system_proto_depIdxs = []int32{
 	0, // 0: warden.service.v1.HealthResponse.status:type_name -> warden.service.v1.HealthStatus
-	5, // 1: warden.service.v1.HealthResponse.components:type_name -> warden.service.v1.HealthResponse.ComponentsEntry
+	7, // 1: warden.service.v1.HealthResponse.components:type_name -> warden.service.v1.HealthResponse.ComponentsEntry
 	0, // 2: warden.service.v1.ComponentHealth.status:type_name -> warden.service.v1.HealthStatus
 	2, // 3: warden.service.v1.HealthResponse.ComponentsEntry.value:type_name -> warden.service.v1.ComponentHealth
-	6, // 4: warden.service.v1.WardenSystemService.Health:input_type -> google.protobuf.Empty
-	6, // 5: warden.service.v1.WardenSystemService.GetInfo:input_type -> google.protobuf.Empty
-	6, // 6: warden.service.v1.WardenSystemService.CheckVault:input_type -> google.protobuf.Empty
-	1, // 7: warden.service.v1.WardenSystemService.Health:output_type -> warden.service.v1.HealthResponse
-	3, // 8: warden.service.v1.WardenSystemService.GetInfo:output_type -> warden.service.v1.GetInfoResponse
-	4, // 9: warden.service.v1.WardenSystemService.CheckVault:output_type -> warden.service.v1.CheckVaultResponse
-	7, // [7:10] is the sub-list for method output_type
-	4, // [4:7] is the sub-list for method input_type
+	8, // 4: warden.service.v1.WardenSystemService.Health:input_type -> google.protobuf.Empty
+	8, // 5: warden.service.v1.WardenSystemService.GetInfo:input_type -> google.protobuf.Empty
+	8, // 6: warden.service.v1.WardenSystemService.CheckVault:input_type -> google.protobuf.Empty
+	5, // 7: warden.service.v1.WardenSystemService.GetStats:input_type -> warden.service.v1.GetStatsRequest
+	1, // 8: warden.service.v1.WardenSystemService.Health:output_type -> warden.service.v1.HealthResponse
+	3, // 9: warden.service.v1.WardenSystemService.GetInfo:output_type -> warden.service.v1.GetInfoResponse
+	4, // 10: warden.service.v1.WardenSystemService.CheckVault:output_type -> warden.service.v1.CheckVaultResponse
+	6, // 11: warden.service.v1.WardenSystemService.GetStats:output_type -> warden.service.v1.GetStatsResponse
+	8, // [8:12] is the sub-list for method output_type
+	4, // [4:8] is the sub-list for method input_type
 	4, // [4:4] is the sub-list for extension type_name
 	4, // [4:4] is the sub-list for extension extendee
 	0, // [0:4] is the sub-list for field type_name
@@ -414,13 +558,14 @@ func file_warden_service_v1_system_proto_init() {
 	if File_warden_service_v1_system_proto != nil {
 		return
 	}
+	file_warden_service_v1_system_proto_msgTypes[4].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_warden_service_v1_system_proto_rawDesc), len(file_warden_service_v1_system_proto_rawDesc)),
 			NumEnums:      1,
-			NumMessages:   5,
+			NumMessages:   7,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

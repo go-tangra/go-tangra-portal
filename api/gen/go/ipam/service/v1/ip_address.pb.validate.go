@@ -2580,3 +2580,367 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = PingAddressResponseValidationError{}
+
+// Validate checks the field values on SuggestAvailableAddressesRequest with
+// the rules defined in the proto definition for this message. If any rules
+// are violated, the first error encountered is returned, or nil if there are
+// no violations.
+func (m *SuggestAvailableAddressesRequest) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on SuggestAvailableAddressesRequest with
+// the rules defined in the proto definition for this message. If any rules
+// are violated, the result is a list of violation errors wrapped in
+// SuggestAvailableAddressesRequestMultiError, or nil if none found.
+func (m *SuggestAvailableAddressesRequest) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *SuggestAvailableAddressesRequest) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for SubnetId
+
+	if m.TenantId != nil {
+		// no validation rules for TenantId
+	}
+
+	if m.Count != nil {
+		// no validation rules for Count
+	}
+
+	if len(errors) > 0 {
+		return SuggestAvailableAddressesRequestMultiError(errors)
+	}
+
+	return nil
+}
+
+// SuggestAvailableAddressesRequestMultiError is an error wrapping multiple
+// validation errors returned by
+// SuggestAvailableAddressesRequest.ValidateAll() if the designated
+// constraints aren't met.
+type SuggestAvailableAddressesRequestMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m SuggestAvailableAddressesRequestMultiError) Error() string {
+	msgs := make([]string, 0, len(m))
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m SuggestAvailableAddressesRequestMultiError) AllErrors() []error { return m }
+
+// SuggestAvailableAddressesRequestValidationError is the validation error
+// returned by SuggestAvailableAddressesRequest.Validate if the designated
+// constraints aren't met.
+type SuggestAvailableAddressesRequestValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e SuggestAvailableAddressesRequestValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e SuggestAvailableAddressesRequestValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e SuggestAvailableAddressesRequestValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e SuggestAvailableAddressesRequestValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e SuggestAvailableAddressesRequestValidationError) ErrorName() string {
+	return "SuggestAvailableAddressesRequestValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e SuggestAvailableAddressesRequestValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sSuggestAvailableAddressesRequest.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = SuggestAvailableAddressesRequestValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = SuggestAvailableAddressesRequestValidationError{}
+
+// Validate checks the field values on SuggestedAddress with the rules defined
+// in the proto definition for this message. If any rules are violated, the
+// first error encountered is returned, or nil if there are no violations.
+func (m *SuggestedAddress) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on SuggestedAddress with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// SuggestedAddressMultiError, or nil if none found.
+func (m *SuggestedAddress) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *SuggestedAddress) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for Address
+
+	// no validation rules for PingFree
+
+	// no validation rules for PortScanFree
+
+	if len(errors) > 0 {
+		return SuggestedAddressMultiError(errors)
+	}
+
+	return nil
+}
+
+// SuggestedAddressMultiError is an error wrapping multiple validation errors
+// returned by SuggestedAddress.ValidateAll() if the designated constraints
+// aren't met.
+type SuggestedAddressMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m SuggestedAddressMultiError) Error() string {
+	msgs := make([]string, 0, len(m))
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m SuggestedAddressMultiError) AllErrors() []error { return m }
+
+// SuggestedAddressValidationError is the validation error returned by
+// SuggestedAddress.Validate if the designated constraints aren't met.
+type SuggestedAddressValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e SuggestedAddressValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e SuggestedAddressValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e SuggestedAddressValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e SuggestedAddressValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e SuggestedAddressValidationError) ErrorName() string { return "SuggestedAddressValidationError" }
+
+// Error satisfies the builtin error interface
+func (e SuggestedAddressValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sSuggestedAddress.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = SuggestedAddressValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = SuggestedAddressValidationError{}
+
+// Validate checks the field values on SuggestAvailableAddressesResponse with
+// the rules defined in the proto definition for this message. If any rules
+// are violated, the first error encountered is returned, or nil if there are
+// no violations.
+func (m *SuggestAvailableAddressesResponse) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on SuggestAvailableAddressesResponse
+// with the rules defined in the proto definition for this message. If any
+// rules are violated, the result is a list of violation errors wrapped in
+// SuggestAvailableAddressesResponseMultiError, or nil if none found.
+func (m *SuggestAvailableAddressesResponse) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *SuggestAvailableAddressesResponse) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	for idx, item := range m.GetAddresses() {
+		_, _ = idx, item
+
+		if all {
+			switch v := interface{}(item).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, SuggestAvailableAddressesResponseValidationError{
+						field:  fmt.Sprintf("Addresses[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, SuggestAvailableAddressesResponseValidationError{
+						field:  fmt.Sprintf("Addresses[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return SuggestAvailableAddressesResponseValidationError{
+					field:  fmt.Sprintf("Addresses[%v]", idx),
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	}
+
+	if m.TotalUnallocated != nil {
+		// no validation rules for TotalUnallocated
+	}
+
+	if len(errors) > 0 {
+		return SuggestAvailableAddressesResponseMultiError(errors)
+	}
+
+	return nil
+}
+
+// SuggestAvailableAddressesResponseMultiError is an error wrapping multiple
+// validation errors returned by
+// SuggestAvailableAddressesResponse.ValidateAll() if the designated
+// constraints aren't met.
+type SuggestAvailableAddressesResponseMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m SuggestAvailableAddressesResponseMultiError) Error() string {
+	msgs := make([]string, 0, len(m))
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m SuggestAvailableAddressesResponseMultiError) AllErrors() []error { return m }
+
+// SuggestAvailableAddressesResponseValidationError is the validation error
+// returned by SuggestAvailableAddressesResponse.Validate if the designated
+// constraints aren't met.
+type SuggestAvailableAddressesResponseValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e SuggestAvailableAddressesResponseValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e SuggestAvailableAddressesResponseValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e SuggestAvailableAddressesResponseValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e SuggestAvailableAddressesResponseValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e SuggestAvailableAddressesResponseValidationError) ErrorName() string {
+	return "SuggestAvailableAddressesResponseValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e SuggestAvailableAddressesResponseValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sSuggestAvailableAddressesResponse.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = SuggestAvailableAddressesResponseValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = SuggestAvailableAddressesResponseValidationError{}

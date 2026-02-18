@@ -199,9 +199,11 @@ func (x *Document) Redact() string {
 
 	// Safe field: UpdatedBy
 
-	// Safe field: ContentText
+	// Redacting field: ContentText
+	x.ContentText = ``
 
-	// Safe field: ExtractedMetadata
+	// Redacting field: ExtractedMetadata
+	x.ExtractedMetadata = map[string]string{}
 
 	// Safe field: ProcessingStatus
 	return x.String()
@@ -376,7 +378,8 @@ func (x *DownloadDocumentResponse) Redact() string {
 		return ""
 	}
 
-	// Safe field: Content
+	// Redacting field: Content
+	x.Content = []byte(``)
 
 	// Safe field: FileName
 
@@ -404,7 +407,8 @@ func (x *GetDocumentDownloadUrlResponse) Redact() string {
 		return ""
 	}
 
-	// Safe field: Url
+	// Redacting field: Url
+	x.Url = ``
 
 	// Safe field: ExpiresAt
 	return x.String()

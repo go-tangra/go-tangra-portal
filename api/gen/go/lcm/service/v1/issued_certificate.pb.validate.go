@@ -768,3 +768,215 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = IssuedCertificateInfoValidationError{}
+
+// Validate checks the field values on ForceRenewCertificateRequest with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *ForceRenewCertificateRequest) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on ForceRenewCertificateRequest with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// ForceRenewCertificateRequestMultiError, or nil if none found.
+func (m *ForceRenewCertificateRequest) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *ForceRenewCertificateRequest) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for Id
+
+	if len(errors) > 0 {
+		return ForceRenewCertificateRequestMultiError(errors)
+	}
+
+	return nil
+}
+
+// ForceRenewCertificateRequestMultiError is an error wrapping multiple
+// validation errors returned by ForceRenewCertificateRequest.ValidateAll() if
+// the designated constraints aren't met.
+type ForceRenewCertificateRequestMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m ForceRenewCertificateRequestMultiError) Error() string {
+	msgs := make([]string, 0, len(m))
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m ForceRenewCertificateRequestMultiError) AllErrors() []error { return m }
+
+// ForceRenewCertificateRequestValidationError is the validation error returned
+// by ForceRenewCertificateRequest.Validate if the designated constraints
+// aren't met.
+type ForceRenewCertificateRequestValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e ForceRenewCertificateRequestValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e ForceRenewCertificateRequestValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e ForceRenewCertificateRequestValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e ForceRenewCertificateRequestValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e ForceRenewCertificateRequestValidationError) ErrorName() string {
+	return "ForceRenewCertificateRequestValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e ForceRenewCertificateRequestValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sForceRenewCertificateRequest.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = ForceRenewCertificateRequestValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = ForceRenewCertificateRequestValidationError{}
+
+// Validate checks the field values on ForceRenewCertificateResponse with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *ForceRenewCertificateResponse) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on ForceRenewCertificateResponse with
+// the rules defined in the proto definition for this message. If any rules
+// are violated, the result is a list of violation errors wrapped in
+// ForceRenewCertificateResponseMultiError, or nil if none found.
+func (m *ForceRenewCertificateResponse) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *ForceRenewCertificateResponse) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for RenewalId
+
+	// no validation rules for Message
+
+	if len(errors) > 0 {
+		return ForceRenewCertificateResponseMultiError(errors)
+	}
+
+	return nil
+}
+
+// ForceRenewCertificateResponseMultiError is an error wrapping multiple
+// validation errors returned by ForceRenewCertificateResponse.ValidateAll()
+// if the designated constraints aren't met.
+type ForceRenewCertificateResponseMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m ForceRenewCertificateResponseMultiError) Error() string {
+	msgs := make([]string, 0, len(m))
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m ForceRenewCertificateResponseMultiError) AllErrors() []error { return m }
+
+// ForceRenewCertificateResponseValidationError is the validation error
+// returned by ForceRenewCertificateResponse.Validate if the designated
+// constraints aren't met.
+type ForceRenewCertificateResponseValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e ForceRenewCertificateResponseValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e ForceRenewCertificateResponseValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e ForceRenewCertificateResponseValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e ForceRenewCertificateResponseValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e ForceRenewCertificateResponseValidationError) ErrorName() string {
+	return "ForceRenewCertificateResponseValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e ForceRenewCertificateResponseValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sForceRenewCertificateResponse.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = ForceRenewCertificateResponseValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = ForceRenewCertificateResponseValidationError{}

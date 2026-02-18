@@ -28,6 +28,7 @@ var (
 	_ timestamppb.Timestamp
 	_ emptypb.Empty
 	_ fieldmaskpb.FieldMask
+	_ redact.FieldRules
 )
 
 // RegisterRedactedIpAddressServiceServer wraps the IpAddressServiceServer with the redacted server and registers the service in GRPC
@@ -147,6 +148,17 @@ func (s *redactedIpAddressServiceServer) PingAddress(ctx context.Context, in *Pi
 	return res, err
 }
 
+// SuggestAvailableAddresses is the redacted wrapper for the actual IpAddressServiceServer.SuggestAvailableAddresses method
+// Unary RPC
+func (s *redactedIpAddressServiceServer) SuggestAvailableAddresses(ctx context.Context, in *SuggestAvailableAddressesRequest) (*SuggestAvailableAddressesResponse, error) {
+	res, err := s.srv.SuggestAvailableAddresses(ctx, in)
+	if !s.bypass.CheckInternal(ctx) {
+		// Apply redaction to the response
+		redact.Apply(res)
+	}
+	return res, err
+}
+
 // Redact method implementation for IpAddress
 func (x *IpAddress) Redact() string {
 	if x == nil {
@@ -181,7 +193,9 @@ func (x *IpAddress) Redact() string {
 
 	// Safe field: DnsName
 
-	// Safe field: Owner
+	// Redacting field: Owner
+	OwnerTmp := ``
+	x.Owner = &OwnerTmp
 
 	// Safe field: LastSeen
 
@@ -237,7 +251,9 @@ func (x *CreateIpAddressRequest) Redact() string {
 
 	// Safe field: DnsName
 
-	// Safe field: Owner
+	// Redacting field: Owner
+	OwnerTmp := ``
+	x.Owner = &OwnerTmp
 
 	// Safe field: Tags
 
@@ -375,7 +391,9 @@ func (x *AllocateNextAddressRequest) Redact() string {
 
 	// Safe field: Status
 
-	// Safe field: Owner
+	// Redacting field: Owner
+	OwnerTmp := ``
+	x.Owner = &OwnerTmp
 
 	// Safe field: SkipAddresses
 
@@ -464,5 +482,47 @@ func (x *PingAddressResponse) Redact() string {
 	// Safe field: LatencyMs
 
 	// Safe field: CheckedAt
+	return x.String()
+}
+
+// Redact method implementation for SuggestAvailableAddressesRequest
+func (x *SuggestAvailableAddressesRequest) Redact() string {
+	if x == nil {
+		return ""
+	}
+
+	// Safe field: TenantId
+
+	// Safe field: SubnetId
+
+	// Safe field: Count
+
+	// Safe field: SkipAddresses
+	return x.String()
+}
+
+// Redact method implementation for SuggestedAddress
+func (x *SuggestedAddress) Redact() string {
+	if x == nil {
+		return ""
+	}
+
+	// Safe field: Address
+
+	// Safe field: PingFree
+
+	// Safe field: PortScanFree
+	return x.String()
+}
+
+// Redact method implementation for SuggestAvailableAddressesResponse
+func (x *SuggestAvailableAddressesResponse) Redact() string {
+	if x == nil {
+		return ""
+	}
+
+	// Safe field: Addresses
+
+	// Safe field: TotalUnallocated
 	return x.String()
 }

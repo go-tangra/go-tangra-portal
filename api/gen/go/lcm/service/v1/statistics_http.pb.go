@@ -31,8 +31,8 @@ type LcmStatisticsServiceHTTPServer interface {
 
 func RegisterLcmStatisticsServiceHTTPServer(s *http.Server, srv LcmStatisticsServiceHTTPServer) {
 	r := s.Route("/")
-	r.GET("/api/v1/lcm/statistics", _LcmStatisticsService_GetStatistics0_HTTP_Handler(srv))
-	r.GET("/api/v1/lcm/statistics/tenant/{tenant_id}", _LcmStatisticsService_GetTenantStatistics0_HTTP_Handler(srv))
+	r.GET("/v1/statistics", _LcmStatisticsService_GetStatistics0_HTTP_Handler(srv))
+	r.GET("/v1/statistics/tenant/{tenant_id}", _LcmStatisticsService_GetTenantStatistics0_HTTP_Handler(srv))
 }
 
 func _LcmStatisticsService_GetStatistics0_HTTP_Handler(srv LcmStatisticsServiceHTTPServer) func(ctx http.Context) error {
@@ -94,7 +94,7 @@ func NewLcmStatisticsServiceHTTPClient(client *http.Client) LcmStatisticsService
 // GetStatistics GetStatistics returns comprehensive statistics about the LCM system
 func (c *LcmStatisticsServiceHTTPClientImpl) GetStatistics(ctx context.Context, in *GetStatisticsRequest, opts ...http.CallOption) (*GetStatisticsResponse, error) {
 	var out GetStatisticsResponse
-	pattern := "/api/v1/lcm/statistics"
+	pattern := "/v1/statistics"
 	path := binding.EncodeURL(pattern, in, true)
 	opts = append(opts, http.Operation(OperationLcmStatisticsServiceGetStatistics))
 	opts = append(opts, http.PathTemplate(pattern))
@@ -108,7 +108,7 @@ func (c *LcmStatisticsServiceHTTPClientImpl) GetStatistics(ctx context.Context, 
 // GetTenantStatistics GetTenantStatistics returns statistics for a specific tenant
 func (c *LcmStatisticsServiceHTTPClientImpl) GetTenantStatistics(ctx context.Context, in *GetTenantStatisticsRequest, opts ...http.CallOption) (*TenantStatistics, error) {
 	var out TenantStatistics
-	pattern := "/api/v1/lcm/statistics/tenant/{tenant_id}"
+	pattern := "/v1/statistics/tenant/{tenant_id}"
 	path := binding.EncodeURL(pattern, in, true)
 	opts = append(opts, http.Operation(OperationLcmStatisticsServiceGetTenantStatistics))
 	opts = append(opts, http.PathTemplate(pattern))

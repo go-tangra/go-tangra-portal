@@ -28,6 +28,7 @@ var (
 	_ timestamppb.Timestamp
 	_ emptypb.Empty
 	_ fieldmaskpb.FieldMask
+	_ redact.FieldRules
 )
 
 // RegisterRedactedLocationServiceServer wraps the LocationServiceServer with the redacted server and registers the service in GRPC
@@ -150,11 +151,17 @@ func (x *Location) Redact() string {
 
 	// Safe field: Longitude
 
-	// Safe field: Contact
+	// Redacting field: Contact
+	ContactTmp := ``
+	x.Contact = &ContactTmp
 
-	// Safe field: Phone
+	// Redacting field: Phone
+	PhoneTmp := ``
+	x.Phone = &PhoneTmp
 
-	// Safe field: Email
+	// Redacting field: Email
+	EmailTmp := ``
+	x.Email = &EmailTmp
 
 	// Safe field: ChildCount
 
@@ -214,11 +221,17 @@ func (x *CreateLocationRequest) Redact() string {
 
 	// Safe field: Longitude
 
-	// Safe field: Contact
+	// Redacting field: Contact
+	ContactTmp := ``
+	x.Contact = &ContactTmp
 
-	// Safe field: Phone
+	// Redacting field: Phone
+	PhoneTmp := ``
+	x.Phone = &PhoneTmp
 
-	// Safe field: Email
+	// Redacting field: Email
+	EmailTmp := ``
+	x.Email = &EmailTmp
 
 	// Safe field: Status
 

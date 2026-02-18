@@ -20,15 +20,16 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	IpAddressService_CreateIpAddress_FullMethodName       = "/ipam.service.v1.IpAddressService/CreateIpAddress"
-	IpAddressService_GetIpAddress_FullMethodName          = "/ipam.service.v1.IpAddressService/GetIpAddress"
-	IpAddressService_ListIpAddresses_FullMethodName       = "/ipam.service.v1.IpAddressService/ListIpAddresses"
-	IpAddressService_UpdateIpAddress_FullMethodName       = "/ipam.service.v1.IpAddressService/UpdateIpAddress"
-	IpAddressService_DeleteIpAddress_FullMethodName       = "/ipam.service.v1.IpAddressService/DeleteIpAddress"
-	IpAddressService_AllocateNextAddress_FullMethodName   = "/ipam.service.v1.IpAddressService/AllocateNextAddress"
-	IpAddressService_BulkAllocateAddresses_FullMethodName = "/ipam.service.v1.IpAddressService/BulkAllocateAddresses"
-	IpAddressService_FindAddress_FullMethodName           = "/ipam.service.v1.IpAddressService/FindAddress"
-	IpAddressService_PingAddress_FullMethodName           = "/ipam.service.v1.IpAddressService/PingAddress"
+	IpAddressService_CreateIpAddress_FullMethodName           = "/ipam.service.v1.IpAddressService/CreateIpAddress"
+	IpAddressService_GetIpAddress_FullMethodName              = "/ipam.service.v1.IpAddressService/GetIpAddress"
+	IpAddressService_ListIpAddresses_FullMethodName           = "/ipam.service.v1.IpAddressService/ListIpAddresses"
+	IpAddressService_UpdateIpAddress_FullMethodName           = "/ipam.service.v1.IpAddressService/UpdateIpAddress"
+	IpAddressService_DeleteIpAddress_FullMethodName           = "/ipam.service.v1.IpAddressService/DeleteIpAddress"
+	IpAddressService_AllocateNextAddress_FullMethodName       = "/ipam.service.v1.IpAddressService/AllocateNextAddress"
+	IpAddressService_BulkAllocateAddresses_FullMethodName     = "/ipam.service.v1.IpAddressService/BulkAllocateAddresses"
+	IpAddressService_FindAddress_FullMethodName               = "/ipam.service.v1.IpAddressService/FindAddress"
+	IpAddressService_PingAddress_FullMethodName               = "/ipam.service.v1.IpAddressService/PingAddress"
+	IpAddressService_SuggestAvailableAddresses_FullMethodName = "/ipam.service.v1.IpAddressService/SuggestAvailableAddresses"
 )
 
 // IpAddressServiceClient is the client API for IpAddressService service.
@@ -55,6 +56,8 @@ type IpAddressServiceClient interface {
 	FindAddress(ctx context.Context, in *FindAddressRequest, opts ...grpc.CallOption) (*FindAddressResponse, error)
 	// Ping an address to check reachability
 	PingAddress(ctx context.Context, in *PingAddressRequest, opts ...grpc.CallOption) (*PingAddressResponse, error)
+	// Suggest available IP addresses in a subnet (verified via ICMP ping + TCP port scan)
+	SuggestAvailableAddresses(ctx context.Context, in *SuggestAvailableAddressesRequest, opts ...grpc.CallOption) (*SuggestAvailableAddressesResponse, error)
 }
 
 type ipAddressServiceClient struct {
@@ -155,6 +158,16 @@ func (c *ipAddressServiceClient) PingAddress(ctx context.Context, in *PingAddres
 	return out, nil
 }
 
+func (c *ipAddressServiceClient) SuggestAvailableAddresses(ctx context.Context, in *SuggestAvailableAddressesRequest, opts ...grpc.CallOption) (*SuggestAvailableAddressesResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(SuggestAvailableAddressesResponse)
+	err := c.cc.Invoke(ctx, IpAddressService_SuggestAvailableAddresses_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // IpAddressServiceServer is the server API for IpAddressService service.
 // All implementations must embed UnimplementedIpAddressServiceServer
 // for forward compatibility.
@@ -179,6 +192,8 @@ type IpAddressServiceServer interface {
 	FindAddress(context.Context, *FindAddressRequest) (*FindAddressResponse, error)
 	// Ping an address to check reachability
 	PingAddress(context.Context, *PingAddressRequest) (*PingAddressResponse, error)
+	// Suggest available IP addresses in a subnet (verified via ICMP ping + TCP port scan)
+	SuggestAvailableAddresses(context.Context, *SuggestAvailableAddressesRequest) (*SuggestAvailableAddressesResponse, error)
 	mustEmbedUnimplementedIpAddressServiceServer()
 }
 
@@ -215,6 +230,9 @@ func (UnimplementedIpAddressServiceServer) FindAddress(context.Context, *FindAdd
 }
 func (UnimplementedIpAddressServiceServer) PingAddress(context.Context, *PingAddressRequest) (*PingAddressResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method PingAddress not implemented")
+}
+func (UnimplementedIpAddressServiceServer) SuggestAvailableAddresses(context.Context, *SuggestAvailableAddressesRequest) (*SuggestAvailableAddressesResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method SuggestAvailableAddresses not implemented")
 }
 func (UnimplementedIpAddressServiceServer) mustEmbedUnimplementedIpAddressServiceServer() {}
 func (UnimplementedIpAddressServiceServer) testEmbeddedByValue()                          {}
@@ -399,6 +417,24 @@ func _IpAddressService_PingAddress_Handler(srv interface{}, ctx context.Context,
 	return interceptor(ctx, in, info, handler)
 }
 
+func _IpAddressService_SuggestAvailableAddresses_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SuggestAvailableAddressesRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(IpAddressServiceServer).SuggestAvailableAddresses(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: IpAddressService_SuggestAvailableAddresses_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(IpAddressServiceServer).SuggestAvailableAddresses(ctx, req.(*SuggestAvailableAddressesRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // IpAddressService_ServiceDesc is the grpc.ServiceDesc for IpAddressService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -441,6 +477,10 @@ var IpAddressService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "PingAddress",
 			Handler:    _IpAddressService_PingAddress_Handler,
+		},
+		{
+			MethodName: "SuggestAvailableAddresses",
+			Handler:    _IpAddressService_SuggestAvailableAddresses_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

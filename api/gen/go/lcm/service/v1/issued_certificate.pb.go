@@ -8,6 +8,7 @@ package lcmV1
 
 import (
 	_ "buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go/buf/validate"
+	_ "github.com/menta2k/protoc-gen-redact/v3/redact/v3"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
@@ -501,11 +502,109 @@ func (x *IssuedCertificateInfo) GetUpdatedAt() *timestamppb.Timestamp {
 	return nil
 }
 
+// Request to force renew an issued certificate
+type ForceRenewCertificateRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ForceRenewCertificateRequest) Reset() {
+	*x = ForceRenewCertificateRequest{}
+	mi := &file_lcm_service_v1_issued_certificate_proto_msgTypes[5]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ForceRenewCertificateRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ForceRenewCertificateRequest) ProtoMessage() {}
+
+func (x *ForceRenewCertificateRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_lcm_service_v1_issued_certificate_proto_msgTypes[5]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ForceRenewCertificateRequest.ProtoReflect.Descriptor instead.
+func (*ForceRenewCertificateRequest) Descriptor() ([]byte, []int) {
+	return file_lcm_service_v1_issued_certificate_proto_rawDescGZIP(), []int{5}
+}
+
+func (x *ForceRenewCertificateRequest) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+// Response for force renewing an issued certificate
+type ForceRenewCertificateResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	RenewalId     string                 `protobuf:"bytes,1,opt,name=renewal_id,json=renewalId,proto3" json:"renewal_id,omitempty"`
+	Message       string                 `protobuf:"bytes,2,opt,name=message,proto3" json:"message,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ForceRenewCertificateResponse) Reset() {
+	*x = ForceRenewCertificateResponse{}
+	mi := &file_lcm_service_v1_issued_certificate_proto_msgTypes[6]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ForceRenewCertificateResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ForceRenewCertificateResponse) ProtoMessage() {}
+
+func (x *ForceRenewCertificateResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_lcm_service_v1_issued_certificate_proto_msgTypes[6]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ForceRenewCertificateResponse.ProtoReflect.Descriptor instead.
+func (*ForceRenewCertificateResponse) Descriptor() ([]byte, []int) {
+	return file_lcm_service_v1_issued_certificate_proto_rawDescGZIP(), []int{6}
+}
+
+func (x *ForceRenewCertificateResponse) GetRenewalId() string {
+	if x != nil {
+		return x.RenewalId
+	}
+	return ""
+}
+
+func (x *ForceRenewCertificateResponse) GetMessage() string {
+	if x != nil {
+		return x.Message
+	}
+	return ""
+}
+
 var File_lcm_service_v1_issued_certificate_proto protoreflect.FileDescriptor
 
 const file_lcm_service_v1_issued_certificate_proto_rawDesc = "" +
 	"\n" +
-	"'lcm/service/v1/issued_certificate.proto\x12\x0elcm.service.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xc2\x02\n" +
+	"'lcm/service/v1/issued_certificate.proto\x12\x0elcm.service.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x16redact/v3/redact.proto\"\xc2\x02\n" +
 	"\x1dListIssuedCertificatesRequest\x12D\n" +
 	"\x06status\x18\x01 \x01(\x0e2'.lcm.service.v1.IssuedCertificateStatusH\x00R\x06status\x88\x01\x01\x12$\n" +
 	"\vissuer_name\x18\x02 \x01(\tH\x01R\n" +
@@ -525,12 +624,12 @@ const file_lcm_service_v1_issued_certificate_proto_rawDesc = "" +
 	"\x1bGetIssuedCertificateRequest\x12.\n" +
 	"\x02id\x18\x01 \x01(\tB\x1e\xe0A\x02\xbaH\x18r\x16\x10\x01\x18$2\x10^[a-fA-F0-9\\-]+$R\x02id\x123\n" +
 	"\x13include_private_key\x18\x02 \x01(\bH\x00R\x11includePrivateKey\x88\x01\x01B\x16\n" +
-	"\x14_include_private_key\"\x84\x03\n" +
+	"\x14_include_private_key\"\x9c\x03\n" +
 	"\x1cGetIssuedCertificateResponse\x12G\n" +
-	"\vcertificate\x18\x01 \x01(\v2%.lcm.service.v1.IssuedCertificateInfoR\vcertificate\x12,\n" +
-	"\x0fcertificate_pem\x18\x02 \x01(\tH\x00R\x0ecertificatePem\x88\x01\x01\x121\n" +
-	"\x12ca_certificate_pem\x18\x03 \x01(\tH\x01R\x10caCertificatePem\x88\x01\x01\x12+\n" +
-	"\x0fprivate_key_pem\x18\x04 \x01(\tH\x02R\rprivateKeyPem\x88\x01\x01\x125\n" +
+	"\vcertificate\x18\x01 \x01(\v2%.lcm.service.v1.IssuedCertificateInfoR\vcertificate\x124\n" +
+	"\x0fcertificate_pem\x18\x02 \x01(\tB\x06ڶ\x1a\x02z\x00H\x00R\x0ecertificatePem\x88\x01\x01\x129\n" +
+	"\x12ca_certificate_pem\x18\x03 \x01(\tB\x06ڶ\x1a\x02z\x00H\x01R\x10caCertificatePem\x88\x01\x01\x123\n" +
+	"\x0fprivate_key_pem\x18\x04 \x01(\tB\x06ڶ\x1a\x02z\x00H\x02R\rprivateKeyPem\x88\x01\x01\x125\n" +
 	"\x14server_generated_key\x18\x05 \x01(\bH\x03R\x12serverGeneratedKey\x88\x01\x01B\x12\n" +
 	"\x10_certificate_pemB\x15\n" +
 	"\x13_ca_certificate_pemB\x12\n" +
@@ -559,7 +658,13 @@ const file_lcm_service_v1_issued_certificate_proto_rawDesc = "" +
 	"\n" +
 	"updated_at\x18\x0e \x01(\v2\x1a.google.protobuf.TimestampR\tupdatedAtB\r\n" +
 	"\v_expires_atB\x10\n" +
-	"\x0e_error_message*\xd6\x02\n" +
+	"\x0e_error_message\"N\n" +
+	"\x1cForceRenewCertificateRequest\x12.\n" +
+	"\x02id\x18\x01 \x01(\tB\x1e\xe0A\x02\xbaH\x18r\x16\x10\x01\x18$2\x10^[a-fA-F0-9\\-]+$R\x02id\"X\n" +
+	"\x1dForceRenewCertificateResponse\x12\x1d\n" +
+	"\n" +
+	"renewal_id\x18\x01 \x01(\tR\trenewalId\x12\x18\n" +
+	"\amessage\x18\x02 \x01(\tR\amessage*\xd6\x02\n" +
 	"\x17IssuedCertificateStatus\x12)\n" +
 	"%ISSUED_CERTIFICATE_STATUS_UNSPECIFIED\x10\x00\x12%\n" +
 	"!ISSUED_CERTIFICATE_STATUS_PENDING\x10\x01\x12(\n" +
@@ -568,10 +673,11 @@ const file_lcm_service_v1_issued_certificate_proto_rawDesc = "" +
 	"!ISSUED_CERTIFICATE_STATUS_EXPIRED\x10\x04\x12%\n" +
 	"!ISSUED_CERTIFICATE_STATUS_REVOKED\x10\x05\x12$\n" +
 	" ISSUED_CERTIFICATE_STATUS_FAILED\x10\x06\x12%\n" +
-	"!ISSUED_CERTIFICATE_STATUS_RENEWED\x10\a2\xd2\x02\n" +
+	"!ISSUED_CERTIFICATE_STATUS_RENEWED\x10\a2\xf8\x03\n" +
 	"\x1bLcmIssuedCertificateService\x12\x98\x01\n" +
 	"\x16ListIssuedCertificates\x12-.lcm.service.v1.ListIssuedCertificatesRequest\x1a..lcm.service.v1.ListIssuedCertificatesResponse\"\x1f\x82\xd3\xe4\x93\x02\x19\x12\x17/v1/issued-certificates\x12\x97\x01\n" +
-	"\x14GetIssuedCertificate\x12+.lcm.service.v1.GetIssuedCertificateRequest\x1a,.lcm.service.v1.GetIssuedCertificateResponse\"$\x82\xd3\xe4\x93\x02\x1e\x12\x1c/v1/issued-certificates/{id}B\xcd\x01\n" +
+	"\x14GetIssuedCertificate\x12+.lcm.service.v1.GetIssuedCertificateRequest\x1a,.lcm.service.v1.GetIssuedCertificateResponse\"$\x82\xd3\xe4\x93\x02\x1e\x12\x1c/v1/issued-certificates/{id}\x12\xa3\x01\n" +
+	"\x15ForceRenewCertificate\x12,.lcm.service.v1.ForceRenewCertificateRequest\x1a-.lcm.service.v1.ForceRenewCertificateResponse\"-\x82\xd3\xe4\x93\x02':\x01*\"\"/v1/issued-certificates/{id}/renewB\xcd\x01\n" +
 	"\x12com.lcm.service.v1B\x16IssuedCertificateProtoP\x01ZEgithub.com/go-tangra/go-tangra-portal/api/gen/go/lcm/service/v1;lcmV1\xa2\x02\x03LSX\xaa\x02\x0eLcm.Service.V1\xca\x02\x0eLcm\\Service\\V1\xe2\x02\x1aLcm\\Service\\V1\\GPBMetadata\xea\x02\x10Lcm::Service::V1b\x06proto3"
 
 var (
@@ -587,7 +693,7 @@ func file_lcm_service_v1_issued_certificate_proto_rawDescGZIP() []byte {
 }
 
 var file_lcm_service_v1_issued_certificate_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_lcm_service_v1_issued_certificate_proto_msgTypes = make([]protoimpl.MessageInfo, 5)
+var file_lcm_service_v1_issued_certificate_proto_msgTypes = make([]protoimpl.MessageInfo, 7)
 var file_lcm_service_v1_issued_certificate_proto_goTypes = []any{
 	(IssuedCertificateStatus)(0),           // 0: lcm.service.v1.IssuedCertificateStatus
 	(*ListIssuedCertificatesRequest)(nil),  // 1: lcm.service.v1.ListIssuedCertificatesRequest
@@ -595,25 +701,29 @@ var file_lcm_service_v1_issued_certificate_proto_goTypes = []any{
 	(*GetIssuedCertificateRequest)(nil),    // 3: lcm.service.v1.GetIssuedCertificateRequest
 	(*GetIssuedCertificateResponse)(nil),   // 4: lcm.service.v1.GetIssuedCertificateResponse
 	(*IssuedCertificateInfo)(nil),          // 5: lcm.service.v1.IssuedCertificateInfo
-	(*timestamppb.Timestamp)(nil),          // 6: google.protobuf.Timestamp
+	(*ForceRenewCertificateRequest)(nil),   // 6: lcm.service.v1.ForceRenewCertificateRequest
+	(*ForceRenewCertificateResponse)(nil),  // 7: lcm.service.v1.ForceRenewCertificateResponse
+	(*timestamppb.Timestamp)(nil),          // 8: google.protobuf.Timestamp
 }
 var file_lcm_service_v1_issued_certificate_proto_depIdxs = []int32{
-	0, // 0: lcm.service.v1.ListIssuedCertificatesRequest.status:type_name -> lcm.service.v1.IssuedCertificateStatus
-	5, // 1: lcm.service.v1.ListIssuedCertificatesResponse.certificates:type_name -> lcm.service.v1.IssuedCertificateInfo
-	5, // 2: lcm.service.v1.GetIssuedCertificateResponse.certificate:type_name -> lcm.service.v1.IssuedCertificateInfo
-	0, // 3: lcm.service.v1.IssuedCertificateInfo.status:type_name -> lcm.service.v1.IssuedCertificateStatus
-	6, // 4: lcm.service.v1.IssuedCertificateInfo.expires_at:type_name -> google.protobuf.Timestamp
-	6, // 5: lcm.service.v1.IssuedCertificateInfo.created_at:type_name -> google.protobuf.Timestamp
-	6, // 6: lcm.service.v1.IssuedCertificateInfo.updated_at:type_name -> google.protobuf.Timestamp
-	1, // 7: lcm.service.v1.LcmIssuedCertificateService.ListIssuedCertificates:input_type -> lcm.service.v1.ListIssuedCertificatesRequest
-	3, // 8: lcm.service.v1.LcmIssuedCertificateService.GetIssuedCertificate:input_type -> lcm.service.v1.GetIssuedCertificateRequest
-	2, // 9: lcm.service.v1.LcmIssuedCertificateService.ListIssuedCertificates:output_type -> lcm.service.v1.ListIssuedCertificatesResponse
-	4, // 10: lcm.service.v1.LcmIssuedCertificateService.GetIssuedCertificate:output_type -> lcm.service.v1.GetIssuedCertificateResponse
-	9, // [9:11] is the sub-list for method output_type
-	7, // [7:9] is the sub-list for method input_type
-	7, // [7:7] is the sub-list for extension type_name
-	7, // [7:7] is the sub-list for extension extendee
-	0, // [0:7] is the sub-list for field type_name
+	0,  // 0: lcm.service.v1.ListIssuedCertificatesRequest.status:type_name -> lcm.service.v1.IssuedCertificateStatus
+	5,  // 1: lcm.service.v1.ListIssuedCertificatesResponse.certificates:type_name -> lcm.service.v1.IssuedCertificateInfo
+	5,  // 2: lcm.service.v1.GetIssuedCertificateResponse.certificate:type_name -> lcm.service.v1.IssuedCertificateInfo
+	0,  // 3: lcm.service.v1.IssuedCertificateInfo.status:type_name -> lcm.service.v1.IssuedCertificateStatus
+	8,  // 4: lcm.service.v1.IssuedCertificateInfo.expires_at:type_name -> google.protobuf.Timestamp
+	8,  // 5: lcm.service.v1.IssuedCertificateInfo.created_at:type_name -> google.protobuf.Timestamp
+	8,  // 6: lcm.service.v1.IssuedCertificateInfo.updated_at:type_name -> google.protobuf.Timestamp
+	1,  // 7: lcm.service.v1.LcmIssuedCertificateService.ListIssuedCertificates:input_type -> lcm.service.v1.ListIssuedCertificatesRequest
+	3,  // 8: lcm.service.v1.LcmIssuedCertificateService.GetIssuedCertificate:input_type -> lcm.service.v1.GetIssuedCertificateRequest
+	6,  // 9: lcm.service.v1.LcmIssuedCertificateService.ForceRenewCertificate:input_type -> lcm.service.v1.ForceRenewCertificateRequest
+	2,  // 10: lcm.service.v1.LcmIssuedCertificateService.ListIssuedCertificates:output_type -> lcm.service.v1.ListIssuedCertificatesResponse
+	4,  // 11: lcm.service.v1.LcmIssuedCertificateService.GetIssuedCertificate:output_type -> lcm.service.v1.GetIssuedCertificateResponse
+	7,  // 12: lcm.service.v1.LcmIssuedCertificateService.ForceRenewCertificate:output_type -> lcm.service.v1.ForceRenewCertificateResponse
+	10, // [10:13] is the sub-list for method output_type
+	7,  // [7:10] is the sub-list for method input_type
+	7,  // [7:7] is the sub-list for extension type_name
+	7,  // [7:7] is the sub-list for extension extendee
+	0,  // [0:7] is the sub-list for field type_name
 }
 
 func init() { file_lcm_service_v1_issued_certificate_proto_init() }
@@ -631,7 +741,7 @@ func file_lcm_service_v1_issued_certificate_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_lcm_service_v1_issued_certificate_proto_rawDesc), len(file_lcm_service_v1_issued_certificate_proto_rawDesc)),
 			NumEnums:      1,
-			NumMessages:   5,
+			NumMessages:   7,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

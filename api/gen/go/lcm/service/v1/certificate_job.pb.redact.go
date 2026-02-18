@@ -26,6 +26,7 @@ var (
 	_ annotations.FieldBehavior
 	_ emptypb.Empty
 	_ timestamppb.Timestamp
+	_ redact.FieldRules
 )
 
 // RegisterRedactedLcmCertificateJobServiceServer wraps the LcmCertificateJobServiceServer with the redacted server and registers the service in GRPC
@@ -126,7 +127,9 @@ func (x *RequestCertificateRequest) Redact() string {
 
 	// Safe field: IpAddresses
 
-	// Safe field: CsrPem
+	// Redacting field: CsrPem
+	CsrPemTmp := ``
+	x.CsrPem = &CsrPemTmp
 
 	// Safe field: KeyType
 
@@ -212,11 +215,17 @@ func (x *GetJobResultResponse) Redact() string {
 
 	// Safe field: Status
 
-	// Safe field: CertificatePem
+	// Redacting field: CertificatePem
+	CertificatePemTmp := ``
+	x.CertificatePem = &CertificatePemTmp
 
-	// Safe field: CaCertificatePem
+	// Redacting field: CaCertificatePem
+	CaCertificatePemTmp := ``
+	x.CaCertificatePem = &CaCertificatePemTmp
 
-	// Safe field: PrivateKeyPem
+	// Redacting field: PrivateKeyPem
+	PrivateKeyPemTmp := ``
+	x.PrivateKeyPem = &PrivateKeyPemTmp
 
 	// Safe field: SerialNumber
 
@@ -226,7 +235,9 @@ func (x *GetJobResultResponse) Redact() string {
 
 	// Safe field: ErrorMessage
 
-	// Safe field: CsrPem
+	// Redacting field: CsrPem
+	CsrPemTmp := ``
+	x.CsrPem = &CsrPemTmp
 
 	// Safe field: KeyType
 

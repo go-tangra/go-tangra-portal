@@ -26,6 +26,7 @@ var (
 	_ annotations.FieldBehavior
 	_ fieldmaskpb.FieldMask
 	_ timestamppb.Timestamp
+	_ redact.FieldRules
 )
 
 // RegisterRedactedLcmMtlsCertificateServiceServer wraps the LcmMtlsCertificateServiceServer with the redacted server and registers the service in GRPC
@@ -164,9 +165,13 @@ func (x *MtlsCertificate) Redact() string {
 
 	// Safe field: SignatureAlgorithm
 
-	// Safe field: CertificatePem
+	// Redacting field: CertificatePem
+	CertificatePemTmp := ``
+	x.CertificatePem = &CertificatePemTmp
 
-	// Safe field: PublicKeyPem
+	// Redacting field: PublicKeyPem
+	PublicKeyPemTmp := ``
+	x.PublicKeyPem = &PublicKeyPemTmp
 
 	// Safe field: DnsNames
 
@@ -294,9 +299,13 @@ func (x *IssueMtlsCertificateRequest) Redact() string {
 
 	// Safe field: CommonName
 
-	// Safe field: CsrPem
+	// Redacting field: CsrPem
+	CsrPemTmp := ``
+	x.CsrPem = &CsrPemTmp
 
-	// Safe field: PublicKeyPem
+	// Redacting field: PublicKeyPem
+	PublicKeyPemTmp := ``
+	x.PublicKeyPem = &PublicKeyPemTmp
 
 	// Safe field: DnsNames
 
@@ -322,7 +331,9 @@ func (x *IssueMtlsCertificateResponse) Redact() string {
 
 	// Safe field: MtlsCertificate
 
-	// Safe field: CaCertificatePem
+	// Redacting field: CaCertificatePem
+	CaCertificatePemTmp := ``
+	x.CaCertificatePem = &CaCertificatePemTmp
 	return x.String()
 }
 
@@ -384,7 +395,9 @@ func (x *RenewMtlsCertificateRequest) Redact() string {
 
 	// Safe field: SerialNumber
 
-	// Safe field: PublicKeyPem
+	// Redacting field: PublicKeyPem
+	PublicKeyPemTmp := ``
+	x.PublicKeyPem = &PublicKeyPemTmp
 
 	// Safe field: ValidityDays
 
@@ -442,10 +455,15 @@ func (x *DownloadMtlsCertificateResponse) Redact() string {
 		return ""
 	}
 
-	// Safe field: CertificatePem
+	// Redacting field: CertificatePem
+	x.CertificatePem = ``
 
-	// Safe field: ChainPem
+	// Redacting field: ChainPem
+	ChainPemTmp := ``
+	x.ChainPem = &ChainPemTmp
 
-	// Safe field: CaCertificatePem
+	// Redacting field: CaCertificatePem
+	CaCertificatePemTmp := ``
+	x.CaCertificatePem = &CaCertificatePemTmp
 	return x.String()
 }

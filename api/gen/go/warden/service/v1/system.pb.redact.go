@@ -73,6 +73,17 @@ func (s *redactedWardenSystemServiceServer) CheckVault(ctx context.Context, in *
 	return res, err
 }
 
+// GetStats is the redacted wrapper for the actual WardenSystemServiceServer.GetStats method
+// Unary RPC
+func (s *redactedWardenSystemServiceServer) GetStats(ctx context.Context, in *GetStatsRequest) (*GetStatsResponse, error) {
+	res, err := s.srv.GetStats(ctx, in)
+	if !s.bypass.CheckInternal(ctx) {
+		// Apply redaction to the response
+		redact.Apply(res)
+	}
+	return res, err
+}
+
 // Redact method implementation for HealthResponse
 func (x *HealthResponse) Redact() string {
 	if x == nil {
@@ -128,5 +139,35 @@ func (x *CheckVaultResponse) Redact() string {
 	// Safe field: Sealed
 
 	// Safe field: Message
+	return x.String()
+}
+
+// Redact method implementation for GetStatsRequest
+func (x *GetStatsRequest) Redact() string {
+	if x == nil {
+		return ""
+	}
+
+	// Safe field: TenantId
+	return x.String()
+}
+
+// Redact method implementation for GetStatsResponse
+func (x *GetStatsResponse) Redact() string {
+	if x == nil {
+		return ""
+	}
+
+	// Safe field: TotalSecrets
+
+	// Safe field: ActiveSecrets
+
+	// Safe field: ArchivedSecrets
+
+	// Safe field: TotalFolders
+
+	// Safe field: TotalVersions
+
+	// Safe field: AvgVersionsPerSecret
 	return x.String()
 }

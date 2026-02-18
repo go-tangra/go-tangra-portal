@@ -24,6 +24,7 @@ var (
 	_ validate.Rule
 	_ emptypb.Empty
 	_ timestamppb.Timestamp
+	_ redact.FieldRules
 )
 
 // RegisterRedactedLcmIssuerServiceServer wraps the LcmIssuerServiceServer with the redacted server and registers the service in GRPC
@@ -165,7 +166,8 @@ func (x *IssuerInfo) Redact() string {
 
 	// Safe field: Description
 
-	// Safe field: Config
+	// Redacting field: Config
+	x.Config = map[string]string{}
 
 	// Safe field: CreateTime
 
@@ -245,11 +247,14 @@ func (x *AcmeIssuer) Redact() string {
 
 	// Safe field: ProviderName
 
-	// Safe field: ProviderConfig
+	// Redacting field: ProviderConfig
+	x.ProviderConfig = map[string]string{}
 
 	// Safe field: EabKid
 
-	// Safe field: EabHmacKey
+	// Redacting field: EabHmacKey
+	EabHmacKeyTmp := ``
+	x.EabHmacKey = &EabHmacKeyTmp
 	return x.String()
 }
 

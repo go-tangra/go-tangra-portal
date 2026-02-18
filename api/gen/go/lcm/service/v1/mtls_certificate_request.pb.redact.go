@@ -26,6 +26,7 @@ var (
 	_ annotations.FieldBehavior
 	_ fieldmaskpb.FieldMask
 	_ timestamppb.Timestamp
+	_ redact.FieldRules
 )
 
 // RegisterRedactedLcmMtlsCertificateRequestServiceServer wraps the LcmMtlsCertificateRequestServiceServer with the redacted server and registers the service in GRPC
@@ -137,9 +138,13 @@ func (x *MtlsCertificateRequest) Redact() string {
 
 	// Safe field: CommonName
 
-	// Safe field: CsrPem
+	// Redacting field: CsrPem
+	CsrPemTmp := ``
+	x.CsrPem = &CsrPemTmp
 
-	// Safe field: PublicKey
+	// Redacting field: PublicKey
+	PublicKeyTmp := ``
+	x.PublicKey = &PublicKeyTmp
 
 	// Safe field: DnsNames
 
@@ -245,9 +250,13 @@ func (x *CreateMtlsCertificateRequestRequest) Redact() string {
 
 	// Safe field: CommonName
 
-	// Safe field: CsrPem
+	// Redacting field: CsrPem
+	CsrPemTmp := ``
+	x.CsrPem = &CsrPemTmp
 
-	// Safe field: PublicKey
+	// Redacting field: PublicKey
+	PublicKeyTmp := ``
+	x.PublicKey = &PublicKeyTmp
 
 	// Safe field: DnsNames
 

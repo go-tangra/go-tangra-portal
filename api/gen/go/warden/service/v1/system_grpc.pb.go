@@ -23,6 +23,7 @@ const (
 	WardenSystemService_Health_FullMethodName     = "/warden.service.v1.WardenSystemService/Health"
 	WardenSystemService_GetInfo_FullMethodName    = "/warden.service.v1.WardenSystemService/GetInfo"
 	WardenSystemService_CheckVault_FullMethodName = "/warden.service.v1.WardenSystemService/CheckVault"
+	WardenSystemService_GetStats_FullMethodName   = "/warden.service.v1.WardenSystemService/GetStats"
 )
 
 // WardenSystemServiceClient is the client API for WardenSystemService service.
@@ -37,6 +38,8 @@ type WardenSystemServiceClient interface {
 	GetInfo(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetInfoResponse, error)
 	// Check Vault connectivity
 	CheckVault(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*CheckVaultResponse, error)
+	// Get statistics for dashboard
+	GetStats(ctx context.Context, in *GetStatsRequest, opts ...grpc.CallOption) (*GetStatsResponse, error)
 }
 
 type wardenSystemServiceClient struct {
@@ -77,6 +80,16 @@ func (c *wardenSystemServiceClient) CheckVault(ctx context.Context, in *emptypb.
 	return out, nil
 }
 
+func (c *wardenSystemServiceClient) GetStats(ctx context.Context, in *GetStatsRequest, opts ...grpc.CallOption) (*GetStatsResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetStatsResponse)
+	err := c.cc.Invoke(ctx, WardenSystemService_GetStats_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // WardenSystemServiceServer is the server API for WardenSystemService service.
 // All implementations must embed UnimplementedWardenSystemServiceServer
 // for forward compatibility.
@@ -89,6 +102,8 @@ type WardenSystemServiceServer interface {
 	GetInfo(context.Context, *emptypb.Empty) (*GetInfoResponse, error)
 	// Check Vault connectivity
 	CheckVault(context.Context, *emptypb.Empty) (*CheckVaultResponse, error)
+	// Get statistics for dashboard
+	GetStats(context.Context, *GetStatsRequest) (*GetStatsResponse, error)
 	mustEmbedUnimplementedWardenSystemServiceServer()
 }
 
@@ -107,6 +122,9 @@ func (UnimplementedWardenSystemServiceServer) GetInfo(context.Context, *emptypb.
 }
 func (UnimplementedWardenSystemServiceServer) CheckVault(context.Context, *emptypb.Empty) (*CheckVaultResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method CheckVault not implemented")
+}
+func (UnimplementedWardenSystemServiceServer) GetStats(context.Context, *GetStatsRequest) (*GetStatsResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method GetStats not implemented")
 }
 func (UnimplementedWardenSystemServiceServer) mustEmbedUnimplementedWardenSystemServiceServer() {}
 func (UnimplementedWardenSystemServiceServer) testEmbeddedByValue()                             {}
@@ -183,6 +201,24 @@ func _WardenSystemService_CheckVault_Handler(srv interface{}, ctx context.Contex
 	return interceptor(ctx, in, info, handler)
 }
 
+func _WardenSystemService_GetStats_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetStatsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(WardenSystemServiceServer).GetStats(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: WardenSystemService_GetStats_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(WardenSystemServiceServer).GetStats(ctx, req.(*GetStatsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // WardenSystemService_ServiceDesc is the grpc.ServiceDesc for WardenSystemService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -201,6 +237,10 @@ var WardenSystemService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "CheckVault",
 			Handler:    _WardenSystemService_CheckVault_Handler,
+		},
+		{
+			MethodName: "GetStats",
+			Handler:    _WardenSystemService_GetStats_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

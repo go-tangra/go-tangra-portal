@@ -506,3 +506,219 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = CheckVaultResponseValidationError{}
+
+// Validate checks the field values on GetStatsRequest with the rules defined
+// in the proto definition for this message. If any rules are violated, the
+// first error encountered is returned, or nil if there are no violations.
+func (m *GetStatsRequest) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on GetStatsRequest with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// GetStatsRequestMultiError, or nil if none found.
+func (m *GetStatsRequest) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *GetStatsRequest) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if m.TenantId != nil {
+		// no validation rules for TenantId
+	}
+
+	if len(errors) > 0 {
+		return GetStatsRequestMultiError(errors)
+	}
+
+	return nil
+}
+
+// GetStatsRequestMultiError is an error wrapping multiple validation errors
+// returned by GetStatsRequest.ValidateAll() if the designated constraints
+// aren't met.
+type GetStatsRequestMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m GetStatsRequestMultiError) Error() string {
+	msgs := make([]string, 0, len(m))
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m GetStatsRequestMultiError) AllErrors() []error { return m }
+
+// GetStatsRequestValidationError is the validation error returned by
+// GetStatsRequest.Validate if the designated constraints aren't met.
+type GetStatsRequestValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e GetStatsRequestValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e GetStatsRequestValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e GetStatsRequestValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e GetStatsRequestValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e GetStatsRequestValidationError) ErrorName() string { return "GetStatsRequestValidationError" }
+
+// Error satisfies the builtin error interface
+func (e GetStatsRequestValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sGetStatsRequest.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = GetStatsRequestValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = GetStatsRequestValidationError{}
+
+// Validate checks the field values on GetStatsResponse with the rules defined
+// in the proto definition for this message. If any rules are violated, the
+// first error encountered is returned, or nil if there are no violations.
+func (m *GetStatsResponse) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on GetStatsResponse with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// GetStatsResponseMultiError, or nil if none found.
+func (m *GetStatsResponse) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *GetStatsResponse) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for TotalSecrets
+
+	// no validation rules for ActiveSecrets
+
+	// no validation rules for ArchivedSecrets
+
+	// no validation rules for TotalFolders
+
+	// no validation rules for TotalVersions
+
+	// no validation rules for AvgVersionsPerSecret
+
+	if len(errors) > 0 {
+		return GetStatsResponseMultiError(errors)
+	}
+
+	return nil
+}
+
+// GetStatsResponseMultiError is an error wrapping multiple validation errors
+// returned by GetStatsResponse.ValidateAll() if the designated constraints
+// aren't met.
+type GetStatsResponseMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m GetStatsResponseMultiError) Error() string {
+	msgs := make([]string, 0, len(m))
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m GetStatsResponseMultiError) AllErrors() []error { return m }
+
+// GetStatsResponseValidationError is the validation error returned by
+// GetStatsResponse.Validate if the designated constraints aren't met.
+type GetStatsResponseValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e GetStatsResponseValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e GetStatsResponseValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e GetStatsResponseValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e GetStatsResponseValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e GetStatsResponseValidationError) ErrorName() string { return "GetStatsResponseValidationError" }
+
+// Error satisfies the builtin error interface
+func (e GetStatsResponseValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sGetStatsResponse.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = GetStatsResponseValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = GetStatsResponseValidationError{}

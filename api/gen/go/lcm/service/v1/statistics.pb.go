@@ -1481,10 +1481,10 @@ const file_lcm_service_v1_statistics_proto_rawDesc = "" +
 	"\aissuers\x18\x04 \x01(\v2 .lcm.service.v1.IssuerStatisticsR\aissuers\x121\n" +
 	"\x04jobs\x18\x05 \x01(\v2\x1d.lcm.service.v1.JobStatisticsR\x04jobs\x12\\\n" +
 	"\x13issued_certificates\x18\x06 \x01(\v2+.lcm.service.v1.IssuedCertificateStatisticsR\x12issuedCertificates\x12V\n" +
-	"\x11mtls_certificates\x18\a \x01(\v2).lcm.service.v1.MtlsCertificateStatisticsR\x10mtlsCertificates2\xad\x02\n" +
-	"\x14LcmStatisticsService\x12|\n" +
-	"\rGetStatistics\x12$.lcm.service.v1.GetStatisticsRequest\x1a%.lcm.service.v1.GetStatisticsResponse\"\x1e\x82\xd3\xe4\x93\x02\x18\x12\x16/api/v1/lcm/statistics\x12\x96\x01\n" +
-	"\x13GetTenantStatistics\x12*.lcm.service.v1.GetTenantStatisticsRequest\x1a .lcm.service.v1.TenantStatistics\"1\x82\xd3\xe4\x93\x02+\x12)/api/v1/lcm/statistics/tenant/{tenant_id}B\xc6\x01\n" +
+	"\x11mtls_certificates\x18\a \x01(\v2).lcm.service.v1.MtlsCertificateStatisticsR\x10mtlsCertificates2\x9d\x02\n" +
+	"\x14LcmStatisticsService\x12t\n" +
+	"\rGetStatistics\x12$.lcm.service.v1.GetStatisticsRequest\x1a%.lcm.service.v1.GetStatisticsResponse\"\x16\x82\xd3\xe4\x93\x02\x10\x12\x0e/v1/statistics\x12\x8e\x01\n" +
+	"\x13GetTenantStatistics\x12*.lcm.service.v1.GetTenantStatisticsRequest\x1a .lcm.service.v1.TenantStatistics\")\x82\xd3\xe4\x93\x02#\x12!/v1/statistics/tenant/{tenant_id}B\xc6\x01\n" +
 	"\x12com.lcm.service.v1B\x0fStatisticsProtoP\x01ZEgithub.com/go-tangra/go-tangra-portal/api/gen/go/lcm/service/v1;lcmV1\xa2\x02\x03LSX\xaa\x02\x0eLcm.Service.V1\xca\x02\x0eLcm\\Service\\V1\xe2\x02\x1aLcm\\Service\\V1\\GPBMetadata\xea\x02\x10Lcm::Service::V1b\x06proto3"
 
 var (

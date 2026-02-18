@@ -8,6 +8,7 @@ package adminpb
 
 import (
 	_ "github.com/menta2k/protoc-gen-redact/v3/redact/v3"
+	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
@@ -770,7 +771,7 @@ var File_admin_service_v1_module_registration_proto protoreflect.FileDescriptor
 
 const file_admin_service_v1_module_registration_proto_rawDesc = "" +
 	"\n" +
-	"*admin/service/v1/module_registration.proto\x12\x10admin.service.v1\x1a\x1bgoogle/protobuf/empty.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x16redact/v3/redact.proto\"\x9b\x03\n" +
+	"*admin/service/v1/module_registration.proto\x12\x10admin.service.v1\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x16redact/v3/redact.proto\"\x9b\x03\n" +
 	"\x15RegisterModuleRequest\x12\x1b\n" +
 	"\tmodule_id\x18\x01 \x01(\tR\bmoduleId\x12\x1f\n" +
 	"\vmodule_name\x18\x02 \x01(\tR\n" +
@@ -838,13 +839,13 @@ const file_admin_service_v1_module_registration_proto_rawDesc = "" +
 	"\x19MODULE_HEALTH_UNSPECIFIED\x10\x00\x12\x19\n" +
 	"\x15MODULE_HEALTH_HEALTHY\x10\x01\x12\x1a\n" +
 	"\x16MODULE_HEALTH_DEGRADED\x10\x02\x12\x1b\n" +
-	"\x17MODULE_HEALTH_UNHEALTHY\x10\x032\xd4\x03\n" +
+	"\x17MODULE_HEALTH_UNHEALTHY\x10\x032\xb1\x04\n" +
 	"\x19ModuleRegistrationService\x12c\n" +
 	"\x0eRegisterModule\x12'.admin.service.v1.RegisterModuleRequest\x1a(.admin.service.v1.RegisterModuleResponse\x12U\n" +
 	"\x10UnregisterModule\x12).admin.service.v1.UnregisterModuleRequest\x1a\x16.google.protobuf.Empty\x12T\n" +
-	"\tHeartbeat\x12\".admin.service.v1.HeartbeatRequest\x1a#.admin.service.v1.HeartbeatResponse\x12Z\n" +
-	"\vListModules\x12$.admin.service.v1.ListModulesRequest\x1a%.admin.service.v1.ListModulesResponse\x12I\n" +
-	"\tGetModule\x12\".admin.service.v1.GetModuleRequest\x1a\x18.admin.service.v1.ModuleB\xdc\x01\n" +
+	"\tHeartbeat\x12\".admin.service.v1.HeartbeatRequest\x1a#.admin.service.v1.HeartbeatResponse\x12\x82\x01\n" +
+	"\vListModules\x12$.admin.service.v1.ListModulesRequest\x1a%.admin.service.v1.ListModulesResponse\"&\x82\xd3\xe4\x93\x02 \x12\x1e/admin/v1/registration/modules\x12}\n" +
+	"\tGetModule\x12\".admin.service.v1.GetModuleRequest\x1a\x18.admin.service.v1.Module\"2\x82\xd3\xe4\x93\x02,\x12*/admin/v1/registration/modules/{module_id}B\xdc\x01\n" +
 	"\x14com.admin.service.v1B\x17ModuleRegistrationProtoP\x01ZIgithub.com/go-tangra/go-tangra-portal/api/gen/go/admin/service/v1;adminpb\xa2\x02\x03ASX\xaa\x02\x10Admin.Service.V1\xca\x02\x10Admin\\Service\\V1\xe2\x02\x1cAdmin\\Service\\V1\\GPBMetadata\xea\x02\x12Admin::Service::V1b\x06proto3"
 
 var (
