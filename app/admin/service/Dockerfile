@@ -17,8 +17,9 @@ WORKDIR /src
 
 # Copy go mod files first for better caching
 COPY go-tangra-portal/go.mod go-tangra-portal/go.sum ./
-# Copy go-tangra-common (needed for replace directive in go.mod)
+# Copy go-tangra-common (local dependency)
 COPY go-tangra-common/ /go-tangra-common/
+RUN go mod edit -replace github.com/go-tangra/go-tangra-common=/go-tangra-common
 RUN go mod download
 
 # Copy the entire source code
