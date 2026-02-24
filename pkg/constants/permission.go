@@ -17,6 +17,11 @@ const (
 	SystemPlatformAdminPermissionCode = SystemPermissionCodePrefix + "platform_admin"
 	// SystemTenantManagerPermissionCode 系统租户管理员权限代码
 	SystemTenantManagerPermissionCode = SystemPermissionCodePrefix + "tenant_manager"
+	// SystemSelfServicePermissionCode 自助服务权限代码（所有认证用户需要的基本API）
+	SystemSelfServicePermissionCode = SystemPermissionCodePrefix + "self_service"
+
+	// ModuleUserRoleCode 模块用户基础角色代码
+	ModuleUserRoleCode = "module.user"
 
 	// SystemPermissionModule 系统权限模块标识
 	SystemPermissionModule = "sys"

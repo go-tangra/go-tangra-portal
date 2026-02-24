@@ -164,6 +164,16 @@ var DefaultPermissions = []*permissionV1.Permission{
 		Code:        trans.Ptr(SystemAuditLogsPermissionCode),
 		Status:      trans.Ptr(permissionV1.Permission_ON),
 	},
+	{
+		//Id:          trans.Ptr(uint32(6)),
+		GroupId:     trans.Ptr(uint32(1)),
+		Name:        trans.Ptr("Self Service"),
+		Description: trans.Ptr("Basic self-service endpoints: profile, navigation, permissions, MFA, modules, inbox"),
+		Code:        trans.Ptr(SystemSelfServicePermissionCode),
+		Status:      trans.Ptr(permissionV1.Permission_ON),
+		// NOTE: ApiIds are resolved dynamically by the SQL migration (add-self-service-permission.sql)
+		// because API IDs depend on the OpenAPI sync order and are not stable across deployments.
+	},
 }
 
 // DefaultRoles 系统初始化默认角色数据
@@ -189,6 +199,17 @@ var DefaultRoles = []*userV1.Role{
 		IsSystem:    trans.Ptr(true),
 		SortOrder:   trans.Ptr(uint32(2)),
 		Permissions: []uint32{1, 3},
+	},
+	{
+		//Id:          trans.Ptr(uint32(3)),
+		Name:        trans.Ptr("Module User"),
+		Code:        trans.Ptr(ModuleUserRoleCode),
+		Status:      trans.Ptr(userV1.Role_ON),
+		Description: trans.Ptr("Base role for module users with self-service access (profile, navigation, MFA, inbox)"),
+		IsProtected: trans.Ptr(true),
+		IsSystem:    trans.Ptr(true),
+		SortOrder:   trans.Ptr(uint32(100)),
+		Permissions: []uint32{1, 6}, // access_backend + self_service
 	},
 }
 
