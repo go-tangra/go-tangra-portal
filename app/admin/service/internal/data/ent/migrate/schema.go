@@ -1371,6 +1371,8 @@ var (
 		{Name: "openapi_spec", Type: field.TypeBytes, Nullable: true, Comment: "OpenAPI 3.0 spec with x-menu extensions"},
 		{Name: "proto_descriptor", Type: field.TypeBytes, Nullable: true, Comment: "Compiled FileDescriptorSet for gRPC transcoding"},
 		{Name: "menus_yaml", Type: field.TypeBytes, Nullable: true, Comment: "Raw menus.yaml bytes for menu recovery on restart"},
+		{Name: "frontend_entry_url", Type: field.TypeString, Nullable: true, Comment: "Module Federation remoteEntry.js URL", Default: ""},
+		{Name: "http_endpoint", Type: field.TypeString, Nullable: true, Comment: "HTTP server endpoint for frontend assets (e.g., 'ipam-service:9401')", Default: ""},
 		{Name: "registration_id", Type: field.TypeString, Nullable: true, Comment: "UUID for this registration instance"},
 		{Name: "registered_at", Type: field.TypeTime, Nullable: true, Comment: "When the module was registered"},
 		{Name: "last_heartbeat", Type: field.TypeTime, Nullable: true, Comment: "Last heartbeat received from module"},
@@ -1403,7 +1405,7 @@ var (
 			{
 				Name:    "idx_sys_modules_last_heartbeat",
 				Unique:  false,
-				Columns: []*schema.Column{SysModulesColumns[19]},
+				Columns: []*schema.Column{SysModulesColumns[21]},
 			},
 			{
 				Name:    "idx_sys_modules_created_at",

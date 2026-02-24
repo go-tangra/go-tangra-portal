@@ -18,16 +18,18 @@ import (
 // RegisteredModule represents a module that has been registered with the gateway.
 // This is the in-memory representation used for routing and management.
 type RegisteredModule struct {
-	ModuleID       string
-	ModuleName     string
-	Version        string
-	Description    string
-	GrpcEndpoint   string
-	Status         adminV1.ModuleStatus
-	Health         adminV1.ModuleHealth
-	RegistrationID string
-	RegisteredAt   time.Time
-	LastHeartbeat  time.Time
+	ModuleID         string
+	ModuleName       string
+	Version          string
+	Description      string
+	GrpcEndpoint     string
+	FrontendEntryURL string
+	HttpEndpoint     string
+	Status           adminV1.ModuleStatus
+	Health           adminV1.ModuleHealth
+	RegistrationID   string
+	RegisteredAt     time.Time
+	LastHeartbeat    time.Time
 
 	// Parsed specs (populated by parser components)
 	OpenapiSpec     []byte
@@ -396,15 +398,17 @@ func (r *ModuleRegistry) MarkStaleModulesUnhealthy(ctx context.Context, timeout 
 // entityToRegistered converts an ent.Module entity to a RegisteredModule.
 func (r *ModuleRegistry) entityToRegistered(entity *ent.Module) *RegisteredModule {
 	mod := &RegisteredModule{
-		ModuleID:     entity.ModuleID,
-		ModuleName:   entity.ModuleName,
-		Version:      entity.Version,
-		GrpcEndpoint: entity.GrpcEndpoint,
-		Status:       adminV1.ModuleStatus(entity.Status),
-		Health:       adminV1.ModuleHealth(entity.Health),
-		MenuCount:    entity.MenuCount,
-		APICount:     entity.APICount,
-		RouteCount:   entity.RouteCount,
+		ModuleID:         entity.ModuleID,
+		ModuleName:       entity.ModuleName,
+		Version:          entity.Version,
+		GrpcEndpoint:     entity.GrpcEndpoint,
+		FrontendEntryURL: entity.FrontendEntryURL,
+		HttpEndpoint:     entity.HTTPEndpoint,
+		Status:           adminV1.ModuleStatus(entity.Status),
+		Health:           adminV1.ModuleHealth(entity.Health),
+		MenuCount:        entity.MenuCount,
+		APICount:         entity.APICount,
+		RouteCount:       entity.RouteCount,
 	}
 
 	if entity.Description != nil {
@@ -439,17 +443,19 @@ func RegisteredModuleToProto(mod *RegisteredModule) *adminV1.Module {
 	}
 
 	protoMod := &adminV1.Module{
-		ModuleId:       mod.ModuleID,
-		ModuleName:     mod.ModuleName,
-		Version:        mod.Version,
-		Description:    mod.Description,
-		GrpcEndpoint:   mod.GrpcEndpoint,
-		Status:         mod.Status,
-		Health:         mod.Health,
-		RegistrationId: mod.RegistrationID,
-		MenuCount:      mod.MenuCount,
-		ApiCount:       mod.APICount,
-		RouteCount:     mod.RouteCount,
+		ModuleId:         mod.ModuleID,
+		ModuleName:       mod.ModuleName,
+		Version:          mod.Version,
+		Description:      mod.Description,
+		GrpcEndpoint:     mod.GrpcEndpoint,
+		FrontendEntryUrl: mod.FrontendEntryURL,
+		HttpEndpoint:     mod.HttpEndpoint,
+		Status:           mod.Status,
+		Health:           mod.Health,
+		RegistrationId:   mod.RegistrationID,
+		MenuCount:        mod.MenuCount,
+		ApiCount:         mod.APICount,
+		RouteCount:       mod.RouteCount,
 	}
 
 	if !mod.RegisteredAt.IsZero() {

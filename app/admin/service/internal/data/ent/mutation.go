@@ -30320,43 +30320,45 @@ func (m *MenuMutation) ResetEdge(name string) error {
 // ModuleMutation represents an operation that mutates the Module nodes in the graph.
 type ModuleMutation struct {
 	config
-	op               Op
-	typ              string
-	id               *uint32
-	created_at       *time.Time
-	updated_at       *time.Time
-	deleted_at       *time.Time
-	created_by       *uint32
-	addcreated_by    *int32
-	updated_by       *uint32
-	addupdated_by    *int32
-	deleted_by       *uint32
-	adddeleted_by    *int32
-	module_id        *string
-	module_name      *string
-	version          *string
-	description      *string
-	grpc_endpoint    *string
-	status           *int32
-	addstatus        *int32
-	health           *int32
-	addhealth        *int32
-	openapi_spec     *[]byte
-	proto_descriptor *[]byte
-	menus_yaml       *[]byte
-	registration_id  *string
-	registered_at    *time.Time
-	last_heartbeat   *time.Time
-	menu_count       *int32
-	addmenu_count    *int32
-	api_count        *int32
-	addapi_count     *int32
-	route_count      *int32
-	addroute_count   *int32
-	clearedFields    map[string]struct{}
-	done             bool
-	oldValue         func(context.Context) (*Module, error)
-	predicates       []predicate.Module
+	op                 Op
+	typ                string
+	id                 *uint32
+	created_at         *time.Time
+	updated_at         *time.Time
+	deleted_at         *time.Time
+	created_by         *uint32
+	addcreated_by      *int32
+	updated_by         *uint32
+	addupdated_by      *int32
+	deleted_by         *uint32
+	adddeleted_by      *int32
+	module_id          *string
+	module_name        *string
+	version            *string
+	description        *string
+	grpc_endpoint      *string
+	status             *int32
+	addstatus          *int32
+	health             *int32
+	addhealth          *int32
+	openapi_spec       *[]byte
+	proto_descriptor   *[]byte
+	menus_yaml         *[]byte
+	frontend_entry_url *string
+	http_endpoint      *string
+	registration_id    *string
+	registered_at      *time.Time
+	last_heartbeat     *time.Time
+	menu_count         *int32
+	addmenu_count      *int32
+	api_count          *int32
+	addapi_count       *int32
+	route_count        *int32
+	addroute_count     *int32
+	clearedFields      map[string]struct{}
+	done               bool
+	oldValue           func(context.Context) (*Module, error)
+	predicates         []predicate.Module
 }
 
 var _ ent.Mutation = (*ModuleMutation)(nil)
@@ -31272,6 +31274,104 @@ func (m *ModuleMutation) ResetMenusYaml() {
 	delete(m.clearedFields, module.FieldMenusYaml)
 }
 
+// SetFrontendEntryURL sets the "frontend_entry_url" field.
+func (m *ModuleMutation) SetFrontendEntryURL(s string) {
+	m.frontend_entry_url = &s
+}
+
+// FrontendEntryURL returns the value of the "frontend_entry_url" field in the mutation.
+func (m *ModuleMutation) FrontendEntryURL() (r string, exists bool) {
+	v := m.frontend_entry_url
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldFrontendEntryURL returns the old "frontend_entry_url" field's value of the Module entity.
+// If the Module object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ModuleMutation) OldFrontendEntryURL(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldFrontendEntryURL is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldFrontendEntryURL requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldFrontendEntryURL: %w", err)
+	}
+	return oldValue.FrontendEntryURL, nil
+}
+
+// ClearFrontendEntryURL clears the value of the "frontend_entry_url" field.
+func (m *ModuleMutation) ClearFrontendEntryURL() {
+	m.frontend_entry_url = nil
+	m.clearedFields[module.FieldFrontendEntryURL] = struct{}{}
+}
+
+// FrontendEntryURLCleared returns if the "frontend_entry_url" field was cleared in this mutation.
+func (m *ModuleMutation) FrontendEntryURLCleared() bool {
+	_, ok := m.clearedFields[module.FieldFrontendEntryURL]
+	return ok
+}
+
+// ResetFrontendEntryURL resets all changes to the "frontend_entry_url" field.
+func (m *ModuleMutation) ResetFrontendEntryURL() {
+	m.frontend_entry_url = nil
+	delete(m.clearedFields, module.FieldFrontendEntryURL)
+}
+
+// SetHTTPEndpoint sets the "http_endpoint" field.
+func (m *ModuleMutation) SetHTTPEndpoint(s string) {
+	m.http_endpoint = &s
+}
+
+// HTTPEndpoint returns the value of the "http_endpoint" field in the mutation.
+func (m *ModuleMutation) HTTPEndpoint() (r string, exists bool) {
+	v := m.http_endpoint
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldHTTPEndpoint returns the old "http_endpoint" field's value of the Module entity.
+// If the Module object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ModuleMutation) OldHTTPEndpoint(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldHTTPEndpoint is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldHTTPEndpoint requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldHTTPEndpoint: %w", err)
+	}
+	return oldValue.HTTPEndpoint, nil
+}
+
+// ClearHTTPEndpoint clears the value of the "http_endpoint" field.
+func (m *ModuleMutation) ClearHTTPEndpoint() {
+	m.http_endpoint = nil
+	m.clearedFields[module.FieldHTTPEndpoint] = struct{}{}
+}
+
+// HTTPEndpointCleared returns if the "http_endpoint" field was cleared in this mutation.
+func (m *ModuleMutation) HTTPEndpointCleared() bool {
+	_, ok := m.clearedFields[module.FieldHTTPEndpoint]
+	return ok
+}
+
+// ResetHTTPEndpoint resets all changes to the "http_endpoint" field.
+func (m *ModuleMutation) ResetHTTPEndpoint() {
+	m.http_endpoint = nil
+	delete(m.clearedFields, module.FieldHTTPEndpoint)
+}
+
 // SetRegistrationID sets the "registration_id" field.
 func (m *ModuleMutation) SetRegistrationID(s string) {
 	m.registration_id = &s
@@ -31621,7 +31721,7 @@ func (m *ModuleMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *ModuleMutation) Fields() []string {
-	fields := make([]string, 0, 22)
+	fields := make([]string, 0, 24)
 	if m.created_at != nil {
 		fields = append(fields, module.FieldCreatedAt)
 	}
@@ -31669,6 +31769,12 @@ func (m *ModuleMutation) Fields() []string {
 	}
 	if m.menus_yaml != nil {
 		fields = append(fields, module.FieldMenusYaml)
+	}
+	if m.frontend_entry_url != nil {
+		fields = append(fields, module.FieldFrontendEntryURL)
+	}
+	if m.http_endpoint != nil {
+		fields = append(fields, module.FieldHTTPEndpoint)
 	}
 	if m.registration_id != nil {
 		fields = append(fields, module.FieldRegistrationID)
@@ -31728,6 +31834,10 @@ func (m *ModuleMutation) Field(name string) (ent.Value, bool) {
 		return m.ProtoDescriptor()
 	case module.FieldMenusYaml:
 		return m.MenusYaml()
+	case module.FieldFrontendEntryURL:
+		return m.FrontendEntryURL()
+	case module.FieldHTTPEndpoint:
+		return m.HTTPEndpoint()
 	case module.FieldRegistrationID:
 		return m.RegistrationID()
 	case module.FieldRegisteredAt:
@@ -31781,6 +31891,10 @@ func (m *ModuleMutation) OldField(ctx context.Context, name string) (ent.Value, 
 		return m.OldProtoDescriptor(ctx)
 	case module.FieldMenusYaml:
 		return m.OldMenusYaml(ctx)
+	case module.FieldFrontendEntryURL:
+		return m.OldFrontendEntryURL(ctx)
+	case module.FieldHTTPEndpoint:
+		return m.OldHTTPEndpoint(ctx)
 	case module.FieldRegistrationID:
 		return m.OldRegistrationID(ctx)
 	case module.FieldRegisteredAt:
@@ -31913,6 +32027,20 @@ func (m *ModuleMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetMenusYaml(v)
+		return nil
+	case module.FieldFrontendEntryURL:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetFrontendEntryURL(v)
+		return nil
+	case module.FieldHTTPEndpoint:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetHTTPEndpoint(v)
 		return nil
 	case module.FieldRegistrationID:
 		v, ok := value.(string)
@@ -32115,6 +32243,12 @@ func (m *ModuleMutation) ClearedFields() []string {
 	if m.FieldCleared(module.FieldMenusYaml) {
 		fields = append(fields, module.FieldMenusYaml)
 	}
+	if m.FieldCleared(module.FieldFrontendEntryURL) {
+		fields = append(fields, module.FieldFrontendEntryURL)
+	}
+	if m.FieldCleared(module.FieldHTTPEndpoint) {
+		fields = append(fields, module.FieldHTTPEndpoint)
+	}
 	if m.FieldCleared(module.FieldRegistrationID) {
 		fields = append(fields, module.FieldRegistrationID)
 	}
@@ -32167,6 +32301,12 @@ func (m *ModuleMutation) ClearField(name string) error {
 		return nil
 	case module.FieldMenusYaml:
 		m.ClearMenusYaml()
+		return nil
+	case module.FieldFrontendEntryURL:
+		m.ClearFrontendEntryURL()
+		return nil
+	case module.FieldHTTPEndpoint:
+		m.ClearHTTPEndpoint()
 		return nil
 	case module.FieldRegistrationID:
 		m.ClearRegistrationID()
@@ -32232,6 +32372,12 @@ func (m *ModuleMutation) ResetField(name string) error {
 		return nil
 	case module.FieldMenusYaml:
 		m.ResetMenusYaml()
+		return nil
+	case module.FieldFrontendEntryURL:
+		m.ResetFrontendEntryURL()
+		return nil
+	case module.FieldHTTPEndpoint:
+		m.ResetHTTPEndpoint()
 		return nil
 	case module.FieldRegistrationID:
 		m.ResetRegistrationID()

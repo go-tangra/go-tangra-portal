@@ -109,6 +109,12 @@ func (r *ModuleRepo) Create(ctx context.Context, req *adminV1.RegisterModuleRequ
 	if req.GetDescription() != "" {
 		builder.SetDescription(req.GetDescription())
 	}
+	if req.GetFrontendEntryUrl() != "" {
+		builder.SetFrontendEntryURL(req.GetFrontendEntryUrl())
+	}
+	if req.GetHttpEndpoint() != "" {
+		builder.SetHTTPEndpoint(req.GetHttpEndpoint())
+	}
 	if len(req.GetOpenapiSpec()) > 0 {
 		builder.SetOpenapiSpec(req.GetOpenapiSpec())
 	}
@@ -150,6 +156,8 @@ func (r *ModuleRepo) Update(ctx context.Context, moduleID string, req *adminV1.R
 	} else {
 		builder.ClearDescription()
 	}
+	builder.SetFrontendEntryURL(req.GetFrontendEntryUrl())
+	builder.SetHTTPEndpoint(req.GetHttpEndpoint())
 	if len(req.GetOpenapiSpec()) > 0 {
 		builder.SetOpenapiSpec(req.GetOpenapiSpec())
 	} else {
@@ -293,15 +301,17 @@ func (r *ModuleRepo) EntityToProto(entity *ent.Module) *adminV1.Module {
 	}
 
 	mod := &adminV1.Module{
-		ModuleId:     entity.ModuleID,
-		ModuleName:   entity.ModuleName,
-		Version:      entity.Version,
-		GrpcEndpoint: entity.GrpcEndpoint,
-		Status:       adminV1.ModuleStatus(entity.Status),
-		Health:       adminV1.ModuleHealth(entity.Health),
-		MenuCount:    entity.MenuCount,
-		ApiCount:     entity.APICount,
-		RouteCount:   entity.RouteCount,
+		ModuleId:         entity.ModuleID,
+		ModuleName:       entity.ModuleName,
+		Version:          entity.Version,
+		GrpcEndpoint:     entity.GrpcEndpoint,
+		FrontendEntryUrl: entity.FrontendEntryURL,
+		HttpEndpoint:     entity.HTTPEndpoint,
+		Status:           adminV1.ModuleStatus(entity.Status),
+		Health:           adminV1.ModuleHealth(entity.Health),
+		MenuCount:        entity.MenuCount,
+		ApiCount:         entity.APICount,
+		RouteCount:       entity.RouteCount,
 	}
 
 	if entity.Description != nil {

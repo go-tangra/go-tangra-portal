@@ -198,6 +198,34 @@ func (_c *ModuleCreate) SetMenusYaml(v []byte) *ModuleCreate {
 	return _c
 }
 
+// SetFrontendEntryURL sets the "frontend_entry_url" field.
+func (_c *ModuleCreate) SetFrontendEntryURL(v string) *ModuleCreate {
+	_c.mutation.SetFrontendEntryURL(v)
+	return _c
+}
+
+// SetNillableFrontendEntryURL sets the "frontend_entry_url" field if the given value is not nil.
+func (_c *ModuleCreate) SetNillableFrontendEntryURL(v *string) *ModuleCreate {
+	if v != nil {
+		_c.SetFrontendEntryURL(*v)
+	}
+	return _c
+}
+
+// SetHTTPEndpoint sets the "http_endpoint" field.
+func (_c *ModuleCreate) SetHTTPEndpoint(v string) *ModuleCreate {
+	_c.mutation.SetHTTPEndpoint(v)
+	return _c
+}
+
+// SetNillableHTTPEndpoint sets the "http_endpoint" field if the given value is not nil.
+func (_c *ModuleCreate) SetNillableHTTPEndpoint(v *string) *ModuleCreate {
+	if v != nil {
+		_c.SetHTTPEndpoint(*v)
+	}
+	return _c
+}
+
 // SetRegistrationID sets the "registration_id" field.
 func (_c *ModuleCreate) SetRegistrationID(v string) *ModuleCreate {
 	_c.mutation.SetRegistrationID(v)
@@ -334,6 +362,14 @@ func (_c *ModuleCreate) defaults() {
 	if _, ok := _c.mutation.Health(); !ok {
 		v := module.DefaultHealth
 		_c.mutation.SetHealth(v)
+	}
+	if _, ok := _c.mutation.FrontendEntryURL(); !ok {
+		v := module.DefaultFrontendEntryURL
+		_c.mutation.SetFrontendEntryURL(v)
+	}
+	if _, ok := _c.mutation.HTTPEndpoint(); !ok {
+		v := module.DefaultHTTPEndpoint
+		_c.mutation.SetHTTPEndpoint(v)
 	}
 	if _, ok := _c.mutation.MenuCount(); !ok {
 		v := module.DefaultMenuCount
@@ -494,6 +530,14 @@ func (_c *ModuleCreate) createSpec() (*Module, *sqlgraph.CreateSpec) {
 	if value, ok := _c.mutation.MenusYaml(); ok {
 		_spec.SetField(module.FieldMenusYaml, field.TypeBytes, value)
 		_node.MenusYaml = &value
+	}
+	if value, ok := _c.mutation.FrontendEntryURL(); ok {
+		_spec.SetField(module.FieldFrontendEntryURL, field.TypeString, value)
+		_node.FrontendEntryURL = value
+	}
+	if value, ok := _c.mutation.HTTPEndpoint(); ok {
+		_spec.SetField(module.FieldHTTPEndpoint, field.TypeString, value)
+		_node.HTTPEndpoint = value
 	}
 	if value, ok := _c.mutation.RegistrationID(); ok {
 		_spec.SetField(module.FieldRegistrationID, field.TypeString, value)
@@ -832,6 +876,42 @@ func (u *ModuleUpsert) UpdateMenusYaml() *ModuleUpsert {
 // ClearMenusYaml clears the value of the "menus_yaml" field.
 func (u *ModuleUpsert) ClearMenusYaml() *ModuleUpsert {
 	u.SetNull(module.FieldMenusYaml)
+	return u
+}
+
+// SetFrontendEntryURL sets the "frontend_entry_url" field.
+func (u *ModuleUpsert) SetFrontendEntryURL(v string) *ModuleUpsert {
+	u.Set(module.FieldFrontendEntryURL, v)
+	return u
+}
+
+// UpdateFrontendEntryURL sets the "frontend_entry_url" field to the value that was provided on create.
+func (u *ModuleUpsert) UpdateFrontendEntryURL() *ModuleUpsert {
+	u.SetExcluded(module.FieldFrontendEntryURL)
+	return u
+}
+
+// ClearFrontendEntryURL clears the value of the "frontend_entry_url" field.
+func (u *ModuleUpsert) ClearFrontendEntryURL() *ModuleUpsert {
+	u.SetNull(module.FieldFrontendEntryURL)
+	return u
+}
+
+// SetHTTPEndpoint sets the "http_endpoint" field.
+func (u *ModuleUpsert) SetHTTPEndpoint(v string) *ModuleUpsert {
+	u.Set(module.FieldHTTPEndpoint, v)
+	return u
+}
+
+// UpdateHTTPEndpoint sets the "http_endpoint" field to the value that was provided on create.
+func (u *ModuleUpsert) UpdateHTTPEndpoint() *ModuleUpsert {
+	u.SetExcluded(module.FieldHTTPEndpoint)
+	return u
+}
+
+// ClearHTTPEndpoint clears the value of the "http_endpoint" field.
+func (u *ModuleUpsert) ClearHTTPEndpoint() *ModuleUpsert {
+	u.SetNull(module.FieldHTTPEndpoint)
 	return u
 }
 
@@ -1299,6 +1379,48 @@ func (u *ModuleUpsertOne) UpdateMenusYaml() *ModuleUpsertOne {
 func (u *ModuleUpsertOne) ClearMenusYaml() *ModuleUpsertOne {
 	return u.Update(func(s *ModuleUpsert) {
 		s.ClearMenusYaml()
+	})
+}
+
+// SetFrontendEntryURL sets the "frontend_entry_url" field.
+func (u *ModuleUpsertOne) SetFrontendEntryURL(v string) *ModuleUpsertOne {
+	return u.Update(func(s *ModuleUpsert) {
+		s.SetFrontendEntryURL(v)
+	})
+}
+
+// UpdateFrontendEntryURL sets the "frontend_entry_url" field to the value that was provided on create.
+func (u *ModuleUpsertOne) UpdateFrontendEntryURL() *ModuleUpsertOne {
+	return u.Update(func(s *ModuleUpsert) {
+		s.UpdateFrontendEntryURL()
+	})
+}
+
+// ClearFrontendEntryURL clears the value of the "frontend_entry_url" field.
+func (u *ModuleUpsertOne) ClearFrontendEntryURL() *ModuleUpsertOne {
+	return u.Update(func(s *ModuleUpsert) {
+		s.ClearFrontendEntryURL()
+	})
+}
+
+// SetHTTPEndpoint sets the "http_endpoint" field.
+func (u *ModuleUpsertOne) SetHTTPEndpoint(v string) *ModuleUpsertOne {
+	return u.Update(func(s *ModuleUpsert) {
+		s.SetHTTPEndpoint(v)
+	})
+}
+
+// UpdateHTTPEndpoint sets the "http_endpoint" field to the value that was provided on create.
+func (u *ModuleUpsertOne) UpdateHTTPEndpoint() *ModuleUpsertOne {
+	return u.Update(func(s *ModuleUpsert) {
+		s.UpdateHTTPEndpoint()
+	})
+}
+
+// ClearHTTPEndpoint clears the value of the "http_endpoint" field.
+func (u *ModuleUpsertOne) ClearHTTPEndpoint() *ModuleUpsertOne {
+	return u.Update(func(s *ModuleUpsert) {
+		s.ClearHTTPEndpoint()
 	})
 }
 
@@ -1950,6 +2072,48 @@ func (u *ModuleUpsertBulk) UpdateMenusYaml() *ModuleUpsertBulk {
 func (u *ModuleUpsertBulk) ClearMenusYaml() *ModuleUpsertBulk {
 	return u.Update(func(s *ModuleUpsert) {
 		s.ClearMenusYaml()
+	})
+}
+
+// SetFrontendEntryURL sets the "frontend_entry_url" field.
+func (u *ModuleUpsertBulk) SetFrontendEntryURL(v string) *ModuleUpsertBulk {
+	return u.Update(func(s *ModuleUpsert) {
+		s.SetFrontendEntryURL(v)
+	})
+}
+
+// UpdateFrontendEntryURL sets the "frontend_entry_url" field to the value that was provided on create.
+func (u *ModuleUpsertBulk) UpdateFrontendEntryURL() *ModuleUpsertBulk {
+	return u.Update(func(s *ModuleUpsert) {
+		s.UpdateFrontendEntryURL()
+	})
+}
+
+// ClearFrontendEntryURL clears the value of the "frontend_entry_url" field.
+func (u *ModuleUpsertBulk) ClearFrontendEntryURL() *ModuleUpsertBulk {
+	return u.Update(func(s *ModuleUpsert) {
+		s.ClearFrontendEntryURL()
+	})
+}
+
+// SetHTTPEndpoint sets the "http_endpoint" field.
+func (u *ModuleUpsertBulk) SetHTTPEndpoint(v string) *ModuleUpsertBulk {
+	return u.Update(func(s *ModuleUpsert) {
+		s.SetHTTPEndpoint(v)
+	})
+}
+
+// UpdateHTTPEndpoint sets the "http_endpoint" field to the value that was provided on create.
+func (u *ModuleUpsertBulk) UpdateHTTPEndpoint() *ModuleUpsertBulk {
+	return u.Update(func(s *ModuleUpsert) {
+		s.UpdateHTTPEndpoint()
+	})
+}
+
+// ClearHTTPEndpoint clears the value of the "http_endpoint" field.
+func (u *ModuleUpsertBulk) ClearHTTPEndpoint() *ModuleUpsertBulk {
+	return u.Update(func(s *ModuleUpsert) {
+		s.ClearHTTPEndpoint()
 	})
 }
 

@@ -434,8 +434,6 @@ github.com/go-playground/form/v4 v4.3.0/go.mod h1:Cpe1iYJKoXb1vILRXEwxpWMGWyQuqp
 github.com/go-sql-driver/mysql v1.9.3 h1:U/N249h2WzJ3Ukj8SowVFjdtZKfu9vlLZxjPXV1aweo=
 github.com/go-sql-driver/mysql v1.9.3/go.mod h1:qn46aNg1333BRMNU69Lq93t8du/dwxI64Gl8i5p1WMU=
 github.com/go-stack/stack v1.8.0/go.mod h1:v0f6uXyyMGvRgIKkXu+yp6POWl0qKG85gN/melR3HDY=
-github.com/go-tangra/go-tangra-common v0.0.1 h1:bPexc1WPYOO1FDg9Y8pEsSbfdFqWAbBgJ8x2rQv7HaQ=
-github.com/go-tangra/go-tangra-common v0.0.1/go.mod h1:cD5rGPzugMwdDBW4sfsue8NCuySqnuMpbtt0y7WXsUE=
 github.com/go-test/deep v1.1.1 h1:0r/53hagsehfO4bzD2Pgr/+RgHqhmf+k1Bpse2cTu1U=
 github.com/go-test/deep v1.1.1/go.mod h1:5C2ZWiW0ErCdrYzpqxLbTX7MG14M9iiw8DgHncVwcsE=
 github.com/go-viper/mapstructure/v2 v2.4.0 h1:EBsztssimR/CONLSZZ04E8qAkxNYq4Qp9LvH92wZUgs=
@@ -916,8 +914,8 @@ github.com/tx7do/go-crud/gorm v0.0.18 h1:BToHTO52/ighuXvdUtHX+pT88/ES0WtjEB8XHce
 github.com/tx7do/go-crud/gorm v0.0.18/go.mod h1:DmD/BUancYBjtprKu8HjYI7iVmWEIEpEAHjqGIfG+KM=
 github.com/tx7do/go-crud/pagination v0.0.11 h1:x0TAzoUs2wUAw//GEHZhzQ69La3RKkgycY6qXmSJ7Xo=
 github.com/tx7do/go-crud/pagination v0.0.11/go.mod h1:NSLa1QzYF5vUhueBsEBBXFxtqYO43jNhxl1DtsHNeLM=
-github.com/tx7do/go-crud/viewer v0.0.5 h1:YuaDaoBXEB1JWD1WjHqbXGBb3aaQ+bx3IWGp/y0BZSg=
-github.com/tx7do/go-crud/viewer v0.0.5/go.mod h1:t5MGistb4OfREu9aMj85eeYJqswnNpFRWgbL4nHTXiY=
+github.com/tx7do/go-crud/viewer v0.0.6 h1:y1DLUwS9JzbLGHiZGq2FlBXl1WLl9CPkeQFHr0bNvcw=
+github.com/tx7do/go-crud/viewer v0.0.6/go.mod h1:t5MGistb4OfREu9aMj85eeYJqswnNpFRWgbL4nHTXiY=
 github.com/tx7do/go-utils v1.1.34 h1:pE37CWljZkuqT1xs3nHsmg1SFXxJVAPXfbhUPXAo3fA=
 github.com/tx7do/go-utils v1.1.34/go.mod h1:h4l7qbtVr1MCDtgue/FGimhdPxwfR9UIL91U3CKnQSk=
 github.com/tx7do/go-utils/copierutil v0.0.6 h1:M4RVOAjup+wOL68h57iDDaB7t1MLJXHYkMHeUTDLqyc=

@@ -67,6 +67,10 @@ func (m *RegisterModuleRequest) validate(all bool) error {
 
 	// no validation rules for GrpcEndpoint
 
+	// no validation rules for FrontendEntryUrl
+
+	// no validation rules for HttpEndpoint
+
 	// no validation rules for OpenapiSpec
 
 	// no validation rules for ProtoDescriptor
@@ -1052,6 +1056,10 @@ func (m *Module) validate(all bool) error {
 	}
 
 	// no validation rules for RegistrationId
+
+	// no validation rules for FrontendEntryUrl
+
+	// no validation rules for HttpEndpoint
 
 	// no validation rules for MenuCount
 

@@ -640,16 +640,24 @@ func init() {
 	moduleDescHealth := moduleFields[6].Descriptor()
 	// module.DefaultHealth holds the default value on creation for the health field.
 	module.DefaultHealth = moduleDescHealth.Default.(int32)
+	// moduleDescFrontendEntryURL is the schema descriptor for frontend_entry_url field.
+	moduleDescFrontendEntryURL := moduleFields[10].Descriptor()
+	// module.DefaultFrontendEntryURL holds the default value on creation for the frontend_entry_url field.
+	module.DefaultFrontendEntryURL = moduleDescFrontendEntryURL.Default.(string)
+	// moduleDescHTTPEndpoint is the schema descriptor for http_endpoint field.
+	moduleDescHTTPEndpoint := moduleFields[11].Descriptor()
+	// module.DefaultHTTPEndpoint holds the default value on creation for the http_endpoint field.
+	module.DefaultHTTPEndpoint = moduleDescHTTPEndpoint.Default.(string)
 	// moduleDescMenuCount is the schema descriptor for menu_count field.
-	moduleDescMenuCount := moduleFields[13].Descriptor()
+	moduleDescMenuCount := moduleFields[15].Descriptor()
 	// module.DefaultMenuCount holds the default value on creation for the menu_count field.
 	module.DefaultMenuCount = moduleDescMenuCount.Default.(int32)
 	// moduleDescAPICount is the schema descriptor for api_count field.
-	moduleDescAPICount := moduleFields[14].Descriptor()
+	moduleDescAPICount := moduleFields[16].Descriptor()
 	// module.DefaultAPICount holds the default value on creation for the api_count field.
 	module.DefaultAPICount = moduleDescAPICount.Default.(int32)
 	// moduleDescRouteCount is the schema descriptor for route_count field.
-	moduleDescRouteCount := moduleFields[15].Descriptor()
+	moduleDescRouteCount := moduleFields[17].Descriptor()
 	// module.DefaultRouteCount holds the default value on creation for the route_count field.
 	module.DefaultRouteCount = moduleDescRouteCount.Default.(int32)
 	// moduleDescID is the schema descriptor for id field.

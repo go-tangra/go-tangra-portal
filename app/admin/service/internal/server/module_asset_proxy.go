@@ -1,0 +1,145 @@
+package server
+
+import (
+	"fmt"
+	"net/http"
+	"net/http/httputil"
+	"net/url"
+	"strings"
+	"sync"
+
+	"github.com/go-kratos/kratos/v2/log"
+	"github.com/tx7do/kratos-bootstrap/bootstrap"
+
+	"github.com/go-tangra/go-tangra-portal/app/admin/service/internal/service"
+)
+
+// ModuleAssetProxy is a reverse proxy that routes /modules/{module_id}/*
+// requests to the corresponding module's HTTP server for frontend assets.
+// It replaces per-module nginx location blocks with a single dynamic proxy.
+type ModuleAssetProxy struct {
+	log      *log.Helper
+	registry *service.ModuleRegistry
+
+	// Cached reverse proxies keyed by module_id
+	proxies sync.Map // module_id -> *httputil.ReverseProxy
+}
+
+// NewModuleAssetProxy creates a new ModuleAssetProxy.
+func NewModuleAssetProxy(ctx *bootstrap.Context, registry *service.ModuleRegistry) *ModuleAssetProxy {
+	p := &ModuleAssetProxy{
+		log:      ctx.NewLoggerHelper("module-asset-proxy/admin-service"),
+		registry: registry,
+	}
+
+	// Subscribe to module events to invalidate proxy cache on unregister/update
+	registry.OnEvent(p.handleModuleEvent)
+
+	return p
+}
+
+// handleModuleEvent handles module lifecycle events.
+func (p *ModuleAssetProxy) handleModuleEvent(event service.ModuleRegistryEvent) {
+	switch event.Type {
+	case service.ModuleEventUnregistered:
+		p.proxies.Delete(event.Module.ModuleID)
+		p.log.Infof("Removed cached proxy for unregistered module: %s", event.Module.ModuleID)
+	case service.ModuleEventRegistered, service.ModuleEventUpdated:
+		// Invalidate cached proxy so it picks up the new endpoint
+		p.proxies.Delete(event.Module.ModuleID)
+	}
+}
+
+// ServeHTTP implements http.Handler.
+// Route format: /modules/{module_id}/{rest_of_path}
+func (p *ModuleAssetProxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	moduleID, assetPath := p.extractModuleFromPath(r.URL.Path)
+	if moduleID == "" {
+		p.writeError(w, http.StatusBadRequest, "missing module ID in path")
+		return
+	}
+
+	// Look up module in registry
+	mod, exists := p.registry.Get(moduleID)
+	if !exists {
+		p.writeError(w, http.StatusNotFound, "module not found: %s", moduleID)
+		return
+	}
+
+	if mod.HttpEndpoint == "" {
+		p.writeError(w, http.StatusBadGateway, "module %s has no HTTP endpoint configured", moduleID)
+		return
+	}
+
+	// Get or create reverse proxy for this module
+	proxy, err := p.getOrCreateProxy(moduleID, mod.HttpEndpoint)
+	if err != nil {
+		p.writeError(w, http.StatusBadGateway, "failed to create proxy for module %s: %v", moduleID, err)
+		return
+	}
+
+	// Set Cache-Control based on asset type
+	if strings.HasSuffix(assetPath, "remoteEntry.js") {
+		w.Header().Set("Cache-Control", "no-cache, no-store, must-revalidate")
+	} else {
+		w.Header().Set("Cache-Control", "public, max-age=31536000, immutable")
+	}
+
+	// Rewrite the request path: strip /modules/{module_id} prefix
+	r.URL.Path = assetPath
+	r.URL.RawPath = ""
+
+	proxy.ServeHTTP(w, r)
+}
+
+// getOrCreateProxy returns a cached proxy or creates a new one.
+func (p *ModuleAssetProxy) getOrCreateProxy(moduleID, httpEndpoint string) (*httputil.ReverseProxy, error) {
+	if val, ok := p.proxies.Load(moduleID); ok {
+		return val.(*httputil.ReverseProxy), nil
+	}
+
+	target, err := url.Parse("http://" + httpEndpoint)
+	if err != nil {
+		return nil, err
+	}
+
+	proxy := httputil.NewSingleHostReverseProxy(target)
+	proxy.ErrorHandler = func(w http.ResponseWriter, r *http.Request, err error) {
+		p.log.Warnf("Proxy error for module %s: %v", moduleID, err)
+		w.WriteHeader(http.StatusBadGateway)
+		_, _ = w.Write([]byte(fmt.Sprintf(`{"code":502,"message":"upstream error for module %s"}`, moduleID)))
+	}
+
+	actual, _ := p.proxies.LoadOrStore(moduleID, proxy)
+	return actual.(*httputil.ReverseProxy), nil
+}
+
+// extractModuleFromPath extracts the module ID and remaining asset path.
+// Input:  /modules/sharing/assets/main.js
+// Output: "sharing", "/assets/main.js"
+func (p *ModuleAssetProxy) extractModuleFromPath(path string) (moduleID, assetPath string) {
+	const prefix = "/modules/"
+	if !strings.HasPrefix(path, prefix) {
+		return "", ""
+	}
+
+	remaining := strings.TrimPrefix(path, prefix)
+	if remaining == "" {
+		return "", ""
+	}
+
+	slashIdx := strings.Index(remaining, "/")
+	if slashIdx == -1 {
+		return remaining, "/"
+	}
+
+	return remaining[:slashIdx], remaining[slashIdx:]
+}
+
+// writeError writes a JSON error response.
+func (p *ModuleAssetProxy) writeError(w http.ResponseWriter, code int, format string, args ...any) {
+	msg := fmt.Sprintf(format, args...)
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(code)
+	_, _ = w.Write([]byte(fmt.Sprintf(`{"code":%d,"message":"%s"}`, code, msg)))
+}

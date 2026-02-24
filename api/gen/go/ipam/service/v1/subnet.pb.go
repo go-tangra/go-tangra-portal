@@ -8,6 +8,7 @@ package ipampb
 
 import (
 	_ "buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go/buf/validate"
+	_ "github.com/menta2k/protoc-gen-redact/v3/redact/v3"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
@@ -128,6 +129,21 @@ type Subnet struct {
 	Tags *string `protobuf:"bytes,21,opt,name=tags,proto3,oneof" json:"tags,omitempty"`
 	// Custom metadata (JSON)
 	Metadata *string `protobuf:"bytes,22,opt,name=metadata,proto3,oneof" json:"metadata,omitempty"`
+	// SNMP Configuration
+	// SNMPv2c community string
+	SnmpCommunity *string `protobuf:"bytes,40,opt,name=snmp_community,json=snmpCommunity,proto3,oneof" json:"snmp_community,omitempty"`
+	// SNMP version: 0=none, 2=v2c, 3=v3
+	SnmpVersion *int32 `protobuf:"varint,41,opt,name=snmp_version,json=snmpVersion,proto3,oneof" json:"snmp_version,omitempty"`
+	// SNMPv3 USM username
+	SnmpUser *string `protobuf:"bytes,42,opt,name=snmp_user,json=snmpUser,proto3,oneof" json:"snmp_user,omitempty"`
+	// SNMPv3 auth password
+	SnmpAuthPassword *string `protobuf:"bytes,43,opt,name=snmp_auth_password,json=snmpAuthPassword,proto3,oneof" json:"snmp_auth_password,omitempty"`
+	// SNMPv3 privacy password
+	SnmpPrivPassword *string `protobuf:"bytes,44,opt,name=snmp_priv_password,json=snmpPrivPassword,proto3,oneof" json:"snmp_priv_password,omitempty"`
+	// SNMPv3 auth protocol (MD5/SHA)
+	SnmpAuthProtocol *string `protobuf:"bytes,45,opt,name=snmp_auth_protocol,json=snmpAuthProtocol,proto3,oneof" json:"snmp_auth_protocol,omitempty"`
+	// SNMPv3 priv protocol (DES/AES)
+	SnmpPrivProtocol *string `protobuf:"bytes,46,opt,name=snmp_priv_protocol,json=snmpPrivProtocol,proto3,oneof" json:"snmp_priv_protocol,omitempty"`
 	// Creation timestamp
 	CreatedAt *timestamppb.Timestamp `protobuf:"bytes,30,opt,name=created_at,json=createdAt,proto3,oneof" json:"created_at,omitempty"`
 	// Last update timestamp
@@ -324,6 +340,55 @@ func (x *Subnet) GetMetadata() string {
 	return ""
 }
 
+func (x *Subnet) GetSnmpCommunity() string {
+	if x != nil && x.SnmpCommunity != nil {
+		return *x.SnmpCommunity
+	}
+	return ""
+}
+
+func (x *Subnet) GetSnmpVersion() int32 {
+	if x != nil && x.SnmpVersion != nil {
+		return *x.SnmpVersion
+	}
+	return 0
+}
+
+func (x *Subnet) GetSnmpUser() string {
+	if x != nil && x.SnmpUser != nil {
+		return *x.SnmpUser
+	}
+	return ""
+}
+
+func (x *Subnet) GetSnmpAuthPassword() string {
+	if x != nil && x.SnmpAuthPassword != nil {
+		return *x.SnmpAuthPassword
+	}
+	return ""
+}
+
+func (x *Subnet) GetSnmpPrivPassword() string {
+	if x != nil && x.SnmpPrivPassword != nil {
+		return *x.SnmpPrivPassword
+	}
+	return ""
+}
+
+func (x *Subnet) GetSnmpAuthProtocol() string {
+	if x != nil && x.SnmpAuthProtocol != nil {
+		return *x.SnmpAuthProtocol
+	}
+	return ""
+}
+
+func (x *Subnet) GetSnmpPrivProtocol() string {
+	if x != nil && x.SnmpPrivProtocol != nil {
+		return *x.SnmpPrivProtocol
+	}
+	return ""
+}
+
 func (x *Subnet) GetCreatedAt() *timestamppb.Timestamp {
 	if x != nil {
 		return x.CreatedAt
@@ -440,6 +505,14 @@ type CreateSubnetRequest struct {
 	Status      *SubnetStatus          `protobuf:"varint,10,opt,name=status,proto3,enum=ipam.service.v1.SubnetStatus,oneof" json:"status,omitempty"`
 	Tags        *string                `protobuf:"bytes,11,opt,name=tags,proto3,oneof" json:"tags,omitempty"`
 	Metadata    *string                `protobuf:"bytes,12,opt,name=metadata,proto3,oneof" json:"metadata,omitempty"`
+	// SNMP Configuration
+	SnmpCommunity    *string `protobuf:"bytes,30,opt,name=snmp_community,json=snmpCommunity,proto3,oneof" json:"snmp_community,omitempty"`
+	SnmpVersion      *int32  `protobuf:"varint,31,opt,name=snmp_version,json=snmpVersion,proto3,oneof" json:"snmp_version,omitempty"`
+	SnmpUser         *string `protobuf:"bytes,32,opt,name=snmp_user,json=snmpUser,proto3,oneof" json:"snmp_user,omitempty"`
+	SnmpAuthPassword *string `protobuf:"bytes,33,opt,name=snmp_auth_password,json=snmpAuthPassword,proto3,oneof" json:"snmp_auth_password,omitempty"`
+	SnmpPrivPassword *string `protobuf:"bytes,34,opt,name=snmp_priv_password,json=snmpPrivPassword,proto3,oneof" json:"snmp_priv_password,omitempty"`
+	SnmpAuthProtocol *string `protobuf:"bytes,35,opt,name=snmp_auth_protocol,json=snmpAuthProtocol,proto3,oneof" json:"snmp_auth_protocol,omitempty"`
+	SnmpPrivProtocol *string `protobuf:"bytes,36,opt,name=snmp_priv_protocol,json=snmpPrivProtocol,proto3,oneof" json:"snmp_priv_protocol,omitempty"`
 	// Auto-scan the subnet for active hosts after creation
 	AutoScan *bool `protobuf:"varint,20,opt,name=auto_scan,json=autoScan,proto3,oneof" json:"auto_scan,omitempty"`
 	// Scan configuration (used when auto_scan is true)
@@ -558,6 +631,55 @@ func (x *CreateSubnetRequest) GetTags() string {
 func (x *CreateSubnetRequest) GetMetadata() string {
 	if x != nil && x.Metadata != nil {
 		return *x.Metadata
+	}
+	return ""
+}
+
+func (x *CreateSubnetRequest) GetSnmpCommunity() string {
+	if x != nil && x.SnmpCommunity != nil {
+		return *x.SnmpCommunity
+	}
+	return ""
+}
+
+func (x *CreateSubnetRequest) GetSnmpVersion() int32 {
+	if x != nil && x.SnmpVersion != nil {
+		return *x.SnmpVersion
+	}
+	return 0
+}
+
+func (x *CreateSubnetRequest) GetSnmpUser() string {
+	if x != nil && x.SnmpUser != nil {
+		return *x.SnmpUser
+	}
+	return ""
+}
+
+func (x *CreateSubnetRequest) GetSnmpAuthPassword() string {
+	if x != nil && x.SnmpAuthPassword != nil {
+		return *x.SnmpAuthPassword
+	}
+	return ""
+}
+
+func (x *CreateSubnetRequest) GetSnmpPrivPassword() string {
+	if x != nil && x.SnmpPrivPassword != nil {
+		return *x.SnmpPrivPassword
+	}
+	return ""
+}
+
+func (x *CreateSubnetRequest) GetSnmpAuthProtocol() string {
+	if x != nil && x.SnmpAuthProtocol != nil {
+		return *x.SnmpAuthProtocol
+	}
+	return ""
+}
+
+func (x *CreateSubnetRequest) GetSnmpPrivProtocol() string {
+	if x != nil && x.SnmpPrivProtocol != nil {
+		return *x.SnmpPrivProtocol
 	}
 	return ""
 }
@@ -1445,8 +1567,7 @@ var File_ipam_service_v1_subnet_proto protoreflect.FileDescriptor
 
 const file_ipam_service_v1_subnet_proto_rawDesc = "" +
 	"\n" +
-	"\x1cipam/service/v1/subnet.proto\x12\x0fipam.service.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a google/protobuf/field_mask.proto\"\xfc\n" +
-	"\n" +
+	"\x1cipam/service/v1/subnet.proto\x12\x0fipam.service.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a google/protobuf/field_mask.proto\x1a\x16redact/v3/redact.proto\"\xdc\x0e\n" +
 	"\x06Subnet\x12\x13\n" +
 	"\x02id\x18\x01 \x01(\tH\x00R\x02id\x88\x01\x01\x12 \n" +
 	"\ttenant_id\x18\x02 \x01(\rH\x01R\btenantId\x88\x01\x01\x12\x17\n" +
@@ -1474,15 +1595,22 @@ const file_ipam_service_v1_subnet_proto_rawDesc = "" +
 	"\x13available_addresses\x18\x13 \x01(\x03H\x12R\x12availableAddresses\x88\x01\x01\x12%\n" +
 	"\vutilization\x18\x14 \x01(\x01H\x13R\vutilization\x88\x01\x01\x12\x17\n" +
 	"\x04tags\x18\x15 \x01(\tH\x14R\x04tags\x88\x01\x01\x12\x1f\n" +
-	"\bmetadata\x18\x16 \x01(\tH\x15R\bmetadata\x88\x01\x01\x12>\n" +
+	"\bmetadata\x18\x16 \x01(\tH\x15R\bmetadata\x88\x01\x01\x12*\n" +
+	"\x0esnmp_community\x18( \x01(\tH\x16R\rsnmpCommunity\x88\x01\x01\x12&\n" +
+	"\fsnmp_version\x18) \x01(\x05H\x17R\vsnmpVersion\x88\x01\x01\x12 \n" +
+	"\tsnmp_user\x18* \x01(\tH\x18R\bsnmpUser\x88\x01\x01\x129\n" +
+	"\x12snmp_auth_password\x18+ \x01(\tB\x06ڶ\x1a\x02z\x00H\x19R\x10snmpAuthPassword\x88\x01\x01\x129\n" +
+	"\x12snmp_priv_password\x18, \x01(\tB\x06ڶ\x1a\x02z\x00H\x1aR\x10snmpPrivPassword\x88\x01\x01\x121\n" +
+	"\x12snmp_auth_protocol\x18- \x01(\tH\x1bR\x10snmpAuthProtocol\x88\x01\x01\x121\n" +
+	"\x12snmp_priv_protocol\x18. \x01(\tH\x1cR\x10snmpPrivProtocol\x88\x01\x01\x12>\n" +
 	"\n" +
-	"created_at\x18\x1e \x01(\v2\x1a.google.protobuf.TimestampH\x16R\tcreatedAt\x88\x01\x01\x12>\n" +
+	"created_at\x18\x1e \x01(\v2\x1a.google.protobuf.TimestampH\x1dR\tcreatedAt\x88\x01\x01\x12>\n" +
 	"\n" +
-	"updated_at\x18\x1f \x01(\v2\x1a.google.protobuf.TimestampH\x17R\tupdatedAt\x88\x01\x01\x12\"\n" +
+	"updated_at\x18\x1f \x01(\v2\x1a.google.protobuf.TimestampH\x1eR\tupdatedAt\x88\x01\x01\x12\"\n" +
 	"\n" +
-	"created_by\x18  \x01(\rH\x18R\tcreatedBy\x88\x01\x01\x12\"\n" +
+	"created_by\x18  \x01(\rH\x1fR\tcreatedBy\x88\x01\x01\x12\"\n" +
 	"\n" +
-	"updated_by\x18! \x01(\rH\x19R\tupdatedBy\x88\x01\x01B\x05\n" +
+	"updated_by\x18! \x01(\rH R\tupdatedBy\x88\x01\x01B\x05\n" +
 	"\x03_idB\f\n" +
 	"\n" +
 	"_tenant_idB\a\n" +
@@ -1508,7 +1636,15 @@ const file_ipam_service_v1_subnet_proto_rawDesc = "" +
 	"\x14_available_addressesB\x0e\n" +
 	"\f_utilizationB\a\n" +
 	"\x05_tagsB\v\n" +
-	"\t_metadataB\r\n" +
+	"\t_metadataB\x11\n" +
+	"\x0f_snmp_communityB\x0f\n" +
+	"\r_snmp_versionB\f\n" +
+	"\n" +
+	"_snmp_userB\x15\n" +
+	"\x13_snmp_auth_passwordB\x15\n" +
+	"\x13_snmp_priv_passwordB\x15\n" +
+	"\x13_snmp_auth_protocolB\x15\n" +
+	"\x13_snmp_priv_protocolB\r\n" +
 	"\v_created_atB\r\n" +
 	"\v_updated_atB\r\n" +
 	"\v_created_byB\r\n" +
@@ -1523,7 +1659,7 @@ const file_ipam_service_v1_subnet_proto_rawDesc = "" +
 	"\v_timeout_msB\x0e\n" +
 	"\f_concurrencyB\x13\n" +
 	"\x11_skip_reverse_dnsB\x12\n" +
-	"\x10_tcp_probe_ports\"\xeb\x05\n" +
+	"\x10_tcp_probe_ports\"\xcb\t\n" +
 	"\x13CreateSubnetRequest\x12%\n" +
 	"\ttenant_id\x18\x01 \x01(\rB\x03\xe0A\x02H\x00R\btenantId\x88\x01\x01\x12&\n" +
 	"\x04name\x18\x02 \x01(\tB\r\xe0A\x02\xbaH\ar\x05\x10\x01\x18\xff\x01H\x01R\x04name\x88\x01\x01\x12#\n" +
@@ -1541,9 +1677,16 @@ const file_ipam_service_v1_subnet_proto_rawDesc = "" +
 	" \x01(\x0e2\x1d.ipam.service.v1.SubnetStatusH\tR\x06status\x88\x01\x01\x12\x17\n" +
 	"\x04tags\x18\v \x01(\tH\n" +
 	"R\x04tags\x88\x01\x01\x12\x1f\n" +
-	"\bmetadata\x18\f \x01(\tH\vR\bmetadata\x88\x01\x01\x12 \n" +
-	"\tauto_scan\x18\x14 \x01(\bH\fR\bautoScan\x88\x01\x01\x12A\n" +
-	"\vscan_config\x18\x15 \x01(\v2\x1b.ipam.service.v1.ScanConfigH\rR\n" +
+	"\bmetadata\x18\f \x01(\tH\vR\bmetadata\x88\x01\x01\x12*\n" +
+	"\x0esnmp_community\x18\x1e \x01(\tH\fR\rsnmpCommunity\x88\x01\x01\x12&\n" +
+	"\fsnmp_version\x18\x1f \x01(\x05H\rR\vsnmpVersion\x88\x01\x01\x12 \n" +
+	"\tsnmp_user\x18  \x01(\tH\x0eR\bsnmpUser\x88\x01\x01\x129\n" +
+	"\x12snmp_auth_password\x18! \x01(\tB\x06ڶ\x1a\x02z\x00H\x0fR\x10snmpAuthPassword\x88\x01\x01\x129\n" +
+	"\x12snmp_priv_password\x18\" \x01(\tB\x06ڶ\x1a\x02z\x00H\x10R\x10snmpPrivPassword\x88\x01\x01\x121\n" +
+	"\x12snmp_auth_protocol\x18# \x01(\tH\x11R\x10snmpAuthProtocol\x88\x01\x01\x121\n" +
+	"\x12snmp_priv_protocol\x18$ \x01(\tH\x12R\x10snmpPrivProtocol\x88\x01\x01\x12 \n" +
+	"\tauto_scan\x18\x14 \x01(\bH\x13R\bautoScan\x88\x01\x01\x12A\n" +
+	"\vscan_config\x18\x15 \x01(\v2\x1b.ipam.service.v1.ScanConfigH\x14R\n" +
 	"scanConfig\x88\x01\x01B\f\n" +
 	"\n" +
 	"_tenant_idB\a\n" +
@@ -1560,7 +1703,15 @@ const file_ipam_service_v1_subnet_proto_rawDesc = "" +
 	"\f_location_idB\t\n" +
 	"\a_statusB\a\n" +
 	"\x05_tagsB\v\n" +
-	"\t_metadataB\f\n" +
+	"\t_metadataB\x11\n" +
+	"\x0f_snmp_communityB\x0f\n" +
+	"\r_snmp_versionB\f\n" +
+	"\n" +
+	"_snmp_userB\x15\n" +
+	"\x13_snmp_auth_passwordB\x15\n" +
+	"\x13_snmp_priv_passwordB\x15\n" +
+	"\x13_snmp_auth_protocolB\x15\n" +
+	"\x13_snmp_priv_protocolB\f\n" +
 	"\n" +
 	"_auto_scanB\x0e\n" +
 	"\f_scan_config\"G\n" +

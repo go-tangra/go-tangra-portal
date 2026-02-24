@@ -30,7 +30,7 @@ require (
 	github.com/tx7do/go-crud/api v0.0.7
 	github.com/tx7do/go-crud/entgo v0.0.38
 	github.com/tx7do/go-crud/gorm v0.0.18
-	github.com/tx7do/go-crud/viewer v0.0.5
+	github.com/tx7do/go-crud/viewer v0.0.6
 	github.com/tx7do/go-utils v1.1.34
 	github.com/tx7do/go-utils/copierutil v0.0.6
 	github.com/tx7do/go-utils/geoip v1.1.8
@@ -289,3 +289,5 @@ require (
 	modernc.org/sqlite v1.44.3 // indirect
 	sigs.k8s.io/yaml v1.6.0 // indirect
 )
+
+replace github.com/go-tangra/go-tangra-common => ../go-tangra-common

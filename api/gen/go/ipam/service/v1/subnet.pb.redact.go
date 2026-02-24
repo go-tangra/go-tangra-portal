@@ -28,6 +28,7 @@ var (
 	_ timestamppb.Timestamp
 	_ emptypb.Empty
 	_ fieldmaskpb.FieldMask
+	_ redact.FieldRules
 )
 
 // RegisterRedactedSubnetServiceServer wraps the SubnetServiceServer with the redacted server and registers the service in GRPC
@@ -186,6 +187,24 @@ func (x *Subnet) Redact() string {
 
 	// Safe field: Metadata
 
+	// Safe field: SnmpCommunity
+
+	// Safe field: SnmpVersion
+
+	// Safe field: SnmpUser
+
+	// Redacting field: SnmpAuthPassword
+	SnmpAuthPasswordTmp := ``
+	x.SnmpAuthPassword = &SnmpAuthPasswordTmp
+
+	// Redacting field: SnmpPrivPassword
+	SnmpPrivPasswordTmp := ``
+	x.SnmpPrivPassword = &SnmpPrivPasswordTmp
+
+	// Safe field: SnmpAuthProtocol
+
+	// Safe field: SnmpPrivProtocol
+
 	// Safe field: CreatedAt
 
 	// Safe field: UpdatedAt
@@ -241,6 +260,24 @@ func (x *CreateSubnetRequest) Redact() string {
 	// Safe field: Tags
 
 	// Safe field: Metadata
+
+	// Safe field: SnmpCommunity
+
+	// Safe field: SnmpVersion
+
+	// Safe field: SnmpUser
+
+	// Redacting field: SnmpAuthPassword
+	SnmpAuthPasswordTmp := ``
+	x.SnmpAuthPassword = &SnmpAuthPasswordTmp
+
+	// Redacting field: SnmpPrivPassword
+	SnmpPrivPasswordTmp := ``
+	x.SnmpPrivPassword = &SnmpPrivPasswordTmp
+
+	// Safe field: SnmpAuthProtocol
+
+	// Safe field: SnmpPrivProtocol
 
 	// Safe field: AutoScan
 

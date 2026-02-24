@@ -138,6 +138,9 @@ func NewRestServer(
 	// Dynamic Router for module registration
 	dynamicRouter *DynamicRouter,
 
+	// Module Asset Proxy for frontend assets
+	moduleAssetProxy *ModuleAssetProxy,
+
 ) (*http.Server, error) {
 	cfg := ctx.GetConfig()
 
@@ -233,6 +236,12 @@ func NewRestServer(
 		// Register catch-all handler for dynamic modules
 		srv.HandlePrefix("/admin/v1/modules/", dynamicRouter)
 		log.Info("Dynamic module router registered at /admin/v1/modules/*")
+	}
+
+	// Register module asset proxy for /modules/* paths (frontend assets)
+	if moduleAssetProxy != nil {
+		srv.HandlePrefix("/modules/", moduleAssetProxy)
+		log.Info("Module asset proxy registered at /modules/*")
 	}
 
 	if authorizer != nil {

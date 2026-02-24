@@ -132,6 +132,10 @@ func (x *IpScanJob) Redact() string {
 
 	// Safe field: TcpProbePorts
 
+	// Safe field: EnableSnmp
+
+	// Safe field: SnmpDiscoveredCount
+
 	// Safe field: StartedAt
 
 	// Safe field: CompletedAt
@@ -155,6 +159,8 @@ func (x *StartScanRequest) Redact() string {
 	// Safe field: SubnetId
 
 	// Safe field: ScanConfig
+
+	// Safe field: EnableSnmp
 	return x.String()
 }
 

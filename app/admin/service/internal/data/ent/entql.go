@@ -604,28 +604,30 @@ var schemaGraph = func() *sqlgraph.Schema {
 		},
 		Type: "Module",
 		Fields: map[string]*sqlgraph.FieldSpec{
-			module.FieldCreatedAt:       {Type: field.TypeTime, Column: module.FieldCreatedAt},
-			module.FieldUpdatedAt:       {Type: field.TypeTime, Column: module.FieldUpdatedAt},
-			module.FieldDeletedAt:       {Type: field.TypeTime, Column: module.FieldDeletedAt},
-			module.FieldCreatedBy:       {Type: field.TypeUint32, Column: module.FieldCreatedBy},
-			module.FieldUpdatedBy:       {Type: field.TypeUint32, Column: module.FieldUpdatedBy},
-			module.FieldDeletedBy:       {Type: field.TypeUint32, Column: module.FieldDeletedBy},
-			module.FieldModuleID:        {Type: field.TypeString, Column: module.FieldModuleID},
-			module.FieldModuleName:      {Type: field.TypeString, Column: module.FieldModuleName},
-			module.FieldVersion:         {Type: field.TypeString, Column: module.FieldVersion},
-			module.FieldDescription:     {Type: field.TypeString, Column: module.FieldDescription},
-			module.FieldGrpcEndpoint:    {Type: field.TypeString, Column: module.FieldGrpcEndpoint},
-			module.FieldStatus:          {Type: field.TypeInt32, Column: module.FieldStatus},
-			module.FieldHealth:          {Type: field.TypeInt32, Column: module.FieldHealth},
-			module.FieldOpenapiSpec:     {Type: field.TypeBytes, Column: module.FieldOpenapiSpec},
-			module.FieldProtoDescriptor: {Type: field.TypeBytes, Column: module.FieldProtoDescriptor},
-			module.FieldMenusYaml:       {Type: field.TypeBytes, Column: module.FieldMenusYaml},
-			module.FieldRegistrationID:  {Type: field.TypeString, Column: module.FieldRegistrationID},
-			module.FieldRegisteredAt:    {Type: field.TypeTime, Column: module.FieldRegisteredAt},
-			module.FieldLastHeartbeat:   {Type: field.TypeTime, Column: module.FieldLastHeartbeat},
-			module.FieldMenuCount:       {Type: field.TypeInt32, Column: module.FieldMenuCount},
-			module.FieldAPICount:        {Type: field.TypeInt32, Column: module.FieldAPICount},
-			module.FieldRouteCount:      {Type: field.TypeInt32, Column: module.FieldRouteCount},
+			module.FieldCreatedAt:        {Type: field.TypeTime, Column: module.FieldCreatedAt},
+			module.FieldUpdatedAt:        {Type: field.TypeTime, Column: module.FieldUpdatedAt},
+			module.FieldDeletedAt:        {Type: field.TypeTime, Column: module.FieldDeletedAt},
+			module.FieldCreatedBy:        {Type: field.TypeUint32, Column: module.FieldCreatedBy},
+			module.FieldUpdatedBy:        {Type: field.TypeUint32, Column: module.FieldUpdatedBy},
+			module.FieldDeletedBy:        {Type: field.TypeUint32, Column: module.FieldDeletedBy},
+			module.FieldModuleID:         {Type: field.TypeString, Column: module.FieldModuleID},
+			module.FieldModuleName:       {Type: field.TypeString, Column: module.FieldModuleName},
+			module.FieldVersion:          {Type: field.TypeString, Column: module.FieldVersion},
+			module.FieldDescription:      {Type: field.TypeString, Column: module.FieldDescription},
+			module.FieldGrpcEndpoint:     {Type: field.TypeString, Column: module.FieldGrpcEndpoint},
+			module.FieldStatus:           {Type: field.TypeInt32, Column: module.FieldStatus},
+			module.FieldHealth:           {Type: field.TypeInt32, Column: module.FieldHealth},
+			module.FieldOpenapiSpec:      {Type: field.TypeBytes, Column: module.FieldOpenapiSpec},
+			module.FieldProtoDescriptor:  {Type: field.TypeBytes, Column: module.FieldProtoDescriptor},
+			module.FieldMenusYaml:        {Type: field.TypeBytes, Column: module.FieldMenusYaml},
+			module.FieldFrontendEntryURL: {Type: field.TypeString, Column: module.FieldFrontendEntryURL},
+			module.FieldHTTPEndpoint:     {Type: field.TypeString, Column: module.FieldHTTPEndpoint},
+			module.FieldRegistrationID:   {Type: field.TypeString, Column: module.FieldRegistrationID},
+			module.FieldRegisteredAt:     {Type: field.TypeTime, Column: module.FieldRegisteredAt},
+			module.FieldLastHeartbeat:    {Type: field.TypeTime, Column: module.FieldLastHeartbeat},
+			module.FieldMenuCount:        {Type: field.TypeInt32, Column: module.FieldMenuCount},
+			module.FieldAPICount:         {Type: field.TypeInt32, Column: module.FieldAPICount},
+			module.FieldRouteCount:       {Type: field.TypeInt32, Column: module.FieldRouteCount},
 		},
 	}
 	graph.Nodes[20] = &sqlgraph.Node{
@@ -3833,6 +3835,16 @@ func (f *ModuleFilter) WhereProtoDescriptor(p entql.BytesP) {
 // WhereMenusYaml applies the entql []byte predicate on the menus_yaml field.
 func (f *ModuleFilter) WhereMenusYaml(p entql.BytesP) {
 	f.Where(p.Field(module.FieldMenusYaml))
+}
+
+// WhereFrontendEntryURL applies the entql string predicate on the frontend_entry_url field.
+func (f *ModuleFilter) WhereFrontendEntryURL(p entql.StringP) {
+	f.Where(p.Field(module.FieldFrontendEntryURL))
+}
+
+// WhereHTTPEndpoint applies the entql string predicate on the http_endpoint field.
+func (f *ModuleFilter) WhereHTTPEndpoint(p entql.StringP) {
+	f.Where(p.Field(module.FieldHTTPEndpoint))
 }
 
 // WhereRegistrationID applies the entql string predicate on the registration_id field.

@@ -144,6 +144,34 @@ func (m *Subnet) validate(all bool) error {
 		// no validation rules for Metadata
 	}
 
+	if m.SnmpCommunity != nil {
+		// no validation rules for SnmpCommunity
+	}
+
+	if m.SnmpVersion != nil {
+		// no validation rules for SnmpVersion
+	}
+
+	if m.SnmpUser != nil {
+		// no validation rules for SnmpUser
+	}
+
+	if m.SnmpAuthPassword != nil {
+		// no validation rules for SnmpAuthPassword
+	}
+
+	if m.SnmpPrivPassword != nil {
+		// no validation rules for SnmpPrivPassword
+	}
+
+	if m.SnmpAuthProtocol != nil {
+		// no validation rules for SnmpAuthProtocol
+	}
+
+	if m.SnmpPrivProtocol != nil {
+		// no validation rules for SnmpPrivProtocol
+	}
+
 	if m.CreatedAt != nil {
 
 		if all {
@@ -478,6 +506,34 @@ func (m *CreateSubnetRequest) validate(all bool) error {
 
 	if m.Metadata != nil {
 		// no validation rules for Metadata
+	}
+
+	if m.SnmpCommunity != nil {
+		// no validation rules for SnmpCommunity
+	}
+
+	if m.SnmpVersion != nil {
+		// no validation rules for SnmpVersion
+	}
+
+	if m.SnmpUser != nil {
+		// no validation rules for SnmpUser
+	}
+
+	if m.SnmpAuthPassword != nil {
+		// no validation rules for SnmpAuthPassword
+	}
+
+	if m.SnmpPrivPassword != nil {
+		// no validation rules for SnmpPrivPassword
+	}
+
+	if m.SnmpAuthProtocol != nil {
+		// no validation rules for SnmpAuthProtocol
+	}
+
+	if m.SnmpPrivProtocol != nil {
+		// no validation rules for SnmpPrivProtocol
 	}
 
 	if m.AutoScan != nil {

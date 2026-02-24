@@ -24,4 +24,5 @@ var ProviderSet = wire.NewSet(
 	server.NewSseServer,
 	server.NewRestMiddleware,
 	server.NewDynamicRouter,
+	server.NewModuleAssetProxy,
 )

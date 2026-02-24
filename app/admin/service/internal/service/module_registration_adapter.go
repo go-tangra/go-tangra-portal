@@ -26,15 +26,17 @@ func NewCommonModuleRegistrationAdapter(delegate *ModuleRegistrationService) *Co
 func (a *CommonModuleRegistrationAdapter) RegisterModule(ctx context.Context, req *commonV1.RegisterModuleRequest) (*commonV1.RegisterModuleResponse, error) {
 	// Convert common request to admin request
 	adminReq := &adminV1.RegisterModuleRequest{
-		ModuleId:        req.GetModuleId(),
-		ModuleName:      req.GetModuleName(),
-		Version:         req.GetVersion(),
-		Description:     req.GetDescription(),
-		GrpcEndpoint:    req.GetGrpcEndpoint(),
-		OpenapiSpec:     req.GetOpenapiSpec(),
-		ProtoDescriptor: req.GetProtoDescriptor(),
-		MenusYaml:       req.GetMenusYaml(),
-		AuthToken:       req.GetAuthToken(),
+		ModuleId:         req.GetModuleId(),
+		ModuleName:       req.GetModuleName(),
+		Version:          req.GetVersion(),
+		Description:      req.GetDescription(),
+		GrpcEndpoint:     req.GetGrpcEndpoint(),
+		FrontendEntryUrl: req.GetFrontendEntryUrl(),
+		HttpEndpoint:     req.GetHttpEndpoint(),
+		OpenapiSpec:      req.GetOpenapiSpec(),
+		ProtoDescriptor:  req.GetProtoDescriptor(),
+		MenusYaml:        req.GetMenusYaml(),
+		AuthToken:        req.GetAuthToken(),
 	}
 
 	// Call the delegate
@@ -195,19 +197,23 @@ func convertModuleToCommon(m *adminV1.Module) *commonV1.Module {
 	if m == nil {
 		return nil
 	}
-	return &commonV1.Module{
-		ModuleId:       m.GetModuleId(),
-		ModuleName:     m.GetModuleName(),
-		Version:        m.GetVersion(),
-		Description:    m.GetDescription(),
-		GrpcEndpoint:   m.GetGrpcEndpoint(),
-		Status:         convertModuleStatus(m.GetStatus()),
-		Health:         convertModuleHealth(m.GetHealth()),
-		RegisteredAt:   m.GetRegisteredAt(),
-		LastHeartbeat:  m.GetLastHeartbeat(),
-		RegistrationId: m.GetRegistrationId(),
-		MenuCount:      m.GetMenuCount(),
-		ApiCount:       m.GetApiCount(),
-		RouteCount:     m.GetRouteCount(),
+	cm := &commonV1.Module{
+		ModuleId:         m.GetModuleId(),
+		ModuleName:       m.GetModuleName(),
+		Version:          m.GetVersion(),
+		Description:      m.GetDescription(),
+		GrpcEndpoint:     m.GetGrpcEndpoint(),
+		FrontendEntryUrl: m.GetFrontendEntryUrl(),
+		HttpEndpoint:     m.GetHttpEndpoint(),
+		Status:           convertModuleStatus(m.GetStatus()),
+		Health:           convertModuleHealth(m.GetHealth()),
+		RegisteredAt:     m.GetRegisteredAt(),
+		LastHeartbeat:    m.GetLastHeartbeat(),
+		RegistrationId:   m.GetRegistrationId(),
+		MenuCount:        m.GetMenuCount(),
+		ApiCount:         m.GetApiCount(),
+		RouteCount:       m.GetRouteCount(),
 	}
+	return cm
 }
+

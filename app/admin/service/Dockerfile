@@ -16,11 +16,13 @@ RUN apk add --no-cache git make
 WORKDIR /src
 
 # Copy go mod files first for better caching
-COPY go.mod go.sum ./
+COPY go-tangra-portal/go.mod go-tangra-portal/go.sum ./
+# Copy go-tangra-common (needed for replace directive in go.mod)
+COPY go-tangra-common/ /go-tangra-common/
 RUN go mod download
 
 # Copy the entire source code
-COPY . .
+COPY go-tangra-portal/ .
 
 # Build the server
 RUN CGO_ENABLED=0 \

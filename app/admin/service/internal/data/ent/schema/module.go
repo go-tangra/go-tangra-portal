@@ -74,6 +74,16 @@ func (Module) Fields() []ent.Field {
 			Optional().
 			Nillable(),
 
+		field.String("frontend_entry_url").
+			Comment("Module Federation remoteEntry.js URL").
+			Optional().
+			Default(""),
+
+		field.String("http_endpoint").
+			Comment("HTTP server endpoint for frontend assets (e.g., 'ipam-service:9401')").
+			Optional().
+			Default(""),
+
 		field.String("registration_id").
 			Comment("UUID for this registration instance").
 			Optional().

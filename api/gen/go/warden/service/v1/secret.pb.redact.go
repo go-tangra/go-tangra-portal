@@ -241,6 +241,20 @@ func (x *SecretVersion) Redact() string {
 	return x.String()
 }
 
+// Redact method implementation for InitialPermissionGrant
+func (x *InitialPermissionGrant) Redact() string {
+	if x == nil {
+		return ""
+	}
+
+	// Safe field: SubjectType
+
+	// Safe field: SubjectId
+
+	// Safe field: Relation
+	return x.String()
+}
+
 // Redact method implementation for CreateSecretRequest
 func (x *CreateSecretRequest) Redact() string {
 	if x == nil {
@@ -263,6 +277,8 @@ func (x *CreateSecretRequest) Redact() string {
 	// Safe field: Metadata
 
 	// Safe field: VersionComment
+
+	// Safe field: InitialPermissions
 	return x.String()
 }
 

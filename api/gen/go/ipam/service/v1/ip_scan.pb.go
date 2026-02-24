@@ -173,6 +173,10 @@ type IpScanJob struct {
 	SkipReverseDns *bool `protobuf:"varint,22,opt,name=skip_reverse_dns,json=skipReverseDns,proto3,oneof" json:"skip_reverse_dns,omitempty"`
 	// Comma-separated list of TCP ports to probe
 	TcpProbePorts *string `protobuf:"bytes,23,opt,name=tcp_probe_ports,json=tcpProbePorts,proto3,oneof" json:"tcp_probe_ports,omitempty"`
+	// Enable SNMP device discovery
+	EnableSnmp *bool `protobuf:"varint,24,opt,name=enable_snmp,json=enableSnmp,proto3,oneof" json:"enable_snmp,omitempty"`
+	// Number of SNMP devices discovered
+	SnmpDiscoveredCount *int64 `protobuf:"varint,25,opt,name=snmp_discovered_count,json=snmpDiscoveredCount,proto3,oneof" json:"snmp_discovered_count,omitempty"`
 	// When the scan started
 	StartedAt *timestamppb.Timestamp `protobuf:"bytes,30,opt,name=started_at,json=startedAt,proto3,oneof" json:"started_at,omitempty"`
 	// When the scan completed
@@ -343,6 +347,20 @@ func (x *IpScanJob) GetTcpProbePorts() string {
 	return ""
 }
 
+func (x *IpScanJob) GetEnableSnmp() bool {
+	if x != nil && x.EnableSnmp != nil {
+		return *x.EnableSnmp
+	}
+	return false
+}
+
+func (x *IpScanJob) GetSnmpDiscoveredCount() int64 {
+	if x != nil && x.SnmpDiscoveredCount != nil {
+		return *x.SnmpDiscoveredCount
+	}
+	return 0
+}
+
 func (x *IpScanJob) GetStartedAt() *timestamppb.Timestamp {
 	if x != nil {
 		return x.StartedAt
@@ -384,7 +402,9 @@ type StartScanRequest struct {
 	TenantId *uint32                `protobuf:"varint,1,opt,name=tenant_id,json=tenantId,proto3,oneof" json:"tenant_id,omitempty"`
 	SubnetId string                 `protobuf:"bytes,2,opt,name=subnet_id,json=subnetId,proto3" json:"subnet_id,omitempty"`
 	// Scan configuration
-	ScanConfig    *ScanConfig `protobuf:"bytes,3,opt,name=scan_config,json=scanConfig,proto3,oneof" json:"scan_config,omitempty"`
+	ScanConfig *ScanConfig `protobuf:"bytes,3,opt,name=scan_config,json=scanConfig,proto3,oneof" json:"scan_config,omitempty"`
+	// Enable SNMP device discovery during scan
+	EnableSnmp    *bool `protobuf:"varint,4,opt,name=enable_snmp,json=enableSnmp,proto3,oneof" json:"enable_snmp,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -438,6 +458,13 @@ func (x *StartScanRequest) GetScanConfig() *ScanConfig {
 		return x.ScanConfig
 	}
 	return nil
+}
+
+func (x *StartScanRequest) GetEnableSnmp() bool {
+	if x != nil && x.EnableSnmp != nil {
+		return *x.EnableSnmp
+	}
+	return false
 }
 
 type StartScanResponse struct {
@@ -797,7 +824,7 @@ var File_ipam_service_v1_ip_scan_proto protoreflect.FileDescriptor
 
 const file_ipam_service_v1_ip_scan_proto_rawDesc = "" +
 	"\n" +
-	"\x1dipam/service/v1/ip_scan.proto\x12\x0fipam.service.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a\x1cipam/service/v1/subnet.proto\"\x8a\v\n" +
+	"\x1dipam/service/v1/ip_scan.proto\x12\x0fipam.service.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a\x1cipam/service/v1/subnet.proto\"\x93\f\n" +
 	"\tIpScanJob\x12\x13\n" +
 	"\x02id\x18\x01 \x01(\tH\x00R\x02id\x88\x01\x01\x12 \n" +
 	"\ttenant_id\x18\x02 \x01(\rH\x01R\btenantId\x88\x01\x01\x12 \n" +
@@ -822,16 +849,19 @@ const file_ipam_service_v1_ip_scan_proto_rawDesc = "" +
 	"timeout_ms\x18\x14 \x01(\x05H\x0eR\ttimeoutMs\x88\x01\x01\x12%\n" +
 	"\vconcurrency\x18\x15 \x01(\x05H\x0fR\vconcurrency\x88\x01\x01\x12-\n" +
 	"\x10skip_reverse_dns\x18\x16 \x01(\bH\x10R\x0eskipReverseDns\x88\x01\x01\x12+\n" +
-	"\x0ftcp_probe_ports\x18\x17 \x01(\tH\x11R\rtcpProbePorts\x88\x01\x01\x12>\n" +
+	"\x0ftcp_probe_ports\x18\x17 \x01(\tH\x11R\rtcpProbePorts\x88\x01\x01\x12$\n" +
+	"\venable_snmp\x18\x18 \x01(\bH\x12R\n" +
+	"enableSnmp\x88\x01\x01\x127\n" +
+	"\x15snmp_discovered_count\x18\x19 \x01(\x03H\x13R\x13snmpDiscoveredCount\x88\x01\x01\x12>\n" +
 	"\n" +
-	"started_at\x18\x1e \x01(\v2\x1a.google.protobuf.TimestampH\x12R\tstartedAt\x88\x01\x01\x12B\n" +
-	"\fcompleted_at\x18\x1f \x01(\v2\x1a.google.protobuf.TimestampH\x13R\vcompletedAt\x88\x01\x01\x12>\n" +
+	"started_at\x18\x1e \x01(\v2\x1a.google.protobuf.TimestampH\x14R\tstartedAt\x88\x01\x01\x12B\n" +
+	"\fcompleted_at\x18\x1f \x01(\v2\x1a.google.protobuf.TimestampH\x15R\vcompletedAt\x88\x01\x01\x12>\n" +
 	"\n" +
-	"created_at\x18  \x01(\v2\x1a.google.protobuf.TimestampH\x14R\tcreatedAt\x88\x01\x01\x12>\n" +
+	"created_at\x18  \x01(\v2\x1a.google.protobuf.TimestampH\x16R\tcreatedAt\x88\x01\x01\x12>\n" +
 	"\n" +
-	"updated_at\x18! \x01(\v2\x1a.google.protobuf.TimestampH\x15R\tupdatedAt\x88\x01\x01\x12\"\n" +
+	"updated_at\x18! \x01(\v2\x1a.google.protobuf.TimestampH\x17R\tupdatedAt\x88\x01\x01\x12\"\n" +
 	"\n" +
-	"created_by\x18\" \x01(\rH\x16R\tcreatedBy\x88\x01\x01B\x05\n" +
+	"created_by\x18\" \x01(\rH\x18R\tcreatedBy\x88\x01\x01B\x05\n" +
 	"\x03_idB\f\n" +
 	"\n" +
 	"_tenant_idB\f\n" +
@@ -852,21 +882,26 @@ const file_ipam_service_v1_ip_scan_proto_rawDesc = "" +
 	"\v_timeout_msB\x0e\n" +
 	"\f_concurrencyB\x13\n" +
 	"\x11_skip_reverse_dnsB\x12\n" +
-	"\x10_tcp_probe_portsB\r\n" +
+	"\x10_tcp_probe_portsB\x0e\n" +
+	"\f_enable_snmpB\x18\n" +
+	"\x16_snmp_discovered_countB\r\n" +
 	"\v_started_atB\x0f\n" +
 	"\r_completed_atB\r\n" +
 	"\v_created_atB\r\n" +
 	"\v_updated_atB\r\n" +
-	"\v_created_by\"\xc3\x01\n" +
+	"\v_created_by\"\xf9\x01\n" +
 	"\x10StartScanRequest\x12%\n" +
 	"\ttenant_id\x18\x01 \x01(\rB\x03\xe0A\x02H\x00R\btenantId\x88\x01\x01\x12'\n" +
 	"\tsubnet_id\x18\x02 \x01(\tB\n" +
 	"\xe0A\x02\xbaH\x04r\x02\x10\x01R\bsubnetId\x12A\n" +
 	"\vscan_config\x18\x03 \x01(\v2\x1b.ipam.service.v1.ScanConfigH\x01R\n" +
-	"scanConfig\x88\x01\x01B\f\n" +
+	"scanConfig\x88\x01\x01\x12$\n" +
+	"\venable_snmp\x18\x04 \x01(\bH\x02R\n" +
+	"enableSnmp\x88\x01\x01B\f\n" +
 	"\n" +
 	"_tenant_idB\x0e\n" +
-	"\f_scan_config\"A\n" +
+	"\f_scan_configB\x0e\n" +
+	"\f_enable_snmp\"A\n" +
 	"\x11StartScanResponse\x12,\n" +
 	"\x03job\x18\x01 \x01(\v2\x1a.ipam.service.v1.IpScanJobR\x03job\"/\n" +
 	"\x11GetScanJobRequest\x12\x1a\n" +

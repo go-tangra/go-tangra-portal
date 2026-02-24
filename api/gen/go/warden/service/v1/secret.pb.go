@@ -330,6 +330,67 @@ func (x *SecretVersion) GetCreatedBy() uint32 {
 	return 0
 }
 
+// Permission grant to apply during secret creation
+type InitialPermissionGrant struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	SubjectType   SubjectType            `protobuf:"varint,1,opt,name=subject_type,json=subjectType,proto3,enum=warden.service.v1.SubjectType" json:"subject_type,omitempty"`
+	SubjectId     string                 `protobuf:"bytes,2,opt,name=subject_id,json=subjectId,proto3" json:"subject_id,omitempty"`
+	Relation      Relation               `protobuf:"varint,3,opt,name=relation,proto3,enum=warden.service.v1.Relation" json:"relation,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *InitialPermissionGrant) Reset() {
+	*x = InitialPermissionGrant{}
+	mi := &file_warden_service_v1_secret_proto_msgTypes[2]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *InitialPermissionGrant) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*InitialPermissionGrant) ProtoMessage() {}
+
+func (x *InitialPermissionGrant) ProtoReflect() protoreflect.Message {
+	mi := &file_warden_service_v1_secret_proto_msgTypes[2]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use InitialPermissionGrant.ProtoReflect.Descriptor instead.
+func (*InitialPermissionGrant) Descriptor() ([]byte, []int) {
+	return file_warden_service_v1_secret_proto_rawDescGZIP(), []int{2}
+}
+
+func (x *InitialPermissionGrant) GetSubjectType() SubjectType {
+	if x != nil {
+		return x.SubjectType
+	}
+	return SubjectType_SUBJECT_TYPE_UNSPECIFIED
+}
+
+func (x *InitialPermissionGrant) GetSubjectId() string {
+	if x != nil {
+		return x.SubjectId
+	}
+	return ""
+}
+
+func (x *InitialPermissionGrant) GetRelation() Relation {
+	if x != nil {
+		return x.Relation
+	}
+	return Relation_RELATION_UNSPECIFIED
+}
+
 // Request to create a secret
 type CreateSecretRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
@@ -349,13 +410,15 @@ type CreateSecretRequest struct {
 	Metadata *structpb.Struct `protobuf:"bytes,7,opt,name=metadata,proto3" json:"metadata,omitempty"`
 	// Initial version comment
 	VersionComment string `protobuf:"bytes,8,opt,name=version_comment,json=versionComment,proto3" json:"version_comment,omitempty"`
-	unknownFields  protoimpl.UnknownFields
-	sizeCache      protoimpl.SizeCache
+	// Permissions to grant on the newly created secret
+	InitialPermissions []*InitialPermissionGrant `protobuf:"bytes,9,rep,name=initial_permissions,json=initialPermissions,proto3" json:"initial_permissions,omitempty"`
+	unknownFields      protoimpl.UnknownFields
+	sizeCache          protoimpl.SizeCache
 }
 
 func (x *CreateSecretRequest) Reset() {
 	*x = CreateSecretRequest{}
-	mi := &file_warden_service_v1_secret_proto_msgTypes[2]
+	mi := &file_warden_service_v1_secret_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -367,7 +430,7 @@ func (x *CreateSecretRequest) String() string {
 func (*CreateSecretRequest) ProtoMessage() {}
 
 func (x *CreateSecretRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_warden_service_v1_secret_proto_msgTypes[2]
+	mi := &file_warden_service_v1_secret_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -380,7 +443,7 @@ func (x *CreateSecretRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateSecretRequest.ProtoReflect.Descriptor instead.
 func (*CreateSecretRequest) Descriptor() ([]byte, []int) {
-	return file_warden_service_v1_secret_proto_rawDescGZIP(), []int{2}
+	return file_warden_service_v1_secret_proto_rawDescGZIP(), []int{3}
 }
 
 func (x *CreateSecretRequest) GetFolderId() string {
@@ -439,6 +502,13 @@ func (x *CreateSecretRequest) GetVersionComment() string {
 	return ""
 }
 
+func (x *CreateSecretRequest) GetInitialPermissions() []*InitialPermissionGrant {
+	if x != nil {
+		return x.InitialPermissions
+	}
+	return nil
+}
+
 type CreateSecretResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Secret        *Secret                `protobuf:"bytes,1,opt,name=secret,proto3" json:"secret,omitempty"`
@@ -448,7 +518,7 @@ type CreateSecretResponse struct {
 
 func (x *CreateSecretResponse) Reset() {
 	*x = CreateSecretResponse{}
-	mi := &file_warden_service_v1_secret_proto_msgTypes[3]
+	mi := &file_warden_service_v1_secret_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -460,7 +530,7 @@ func (x *CreateSecretResponse) String() string {
 func (*CreateSecretResponse) ProtoMessage() {}
 
 func (x *CreateSecretResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_warden_service_v1_secret_proto_msgTypes[3]
+	mi := &file_warden_service_v1_secret_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -473,7 +543,7 @@ func (x *CreateSecretResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateSecretResponse.ProtoReflect.Descriptor instead.
 func (*CreateSecretResponse) Descriptor() ([]byte, []int) {
-	return file_warden_service_v1_secret_proto_rawDescGZIP(), []int{3}
+	return file_warden_service_v1_secret_proto_rawDescGZIP(), []int{4}
 }
 
 func (x *CreateSecretResponse) GetSecret() *Secret {
@@ -493,7 +563,7 @@ type GetSecretRequest struct {
 
 func (x *GetSecretRequest) Reset() {
 	*x = GetSecretRequest{}
-	mi := &file_warden_service_v1_secret_proto_msgTypes[4]
+	mi := &file_warden_service_v1_secret_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -505,7 +575,7 @@ func (x *GetSecretRequest) String() string {
 func (*GetSecretRequest) ProtoMessage() {}
 
 func (x *GetSecretRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_warden_service_v1_secret_proto_msgTypes[4]
+	mi := &file_warden_service_v1_secret_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -518,7 +588,7 @@ func (x *GetSecretRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetSecretRequest.ProtoReflect.Descriptor instead.
 func (*GetSecretRequest) Descriptor() ([]byte, []int) {
-	return file_warden_service_v1_secret_proto_rawDescGZIP(), []int{4}
+	return file_warden_service_v1_secret_proto_rawDescGZIP(), []int{5}
 }
 
 func (x *GetSecretRequest) GetId() string {
@@ -537,7 +607,7 @@ type GetSecretResponse struct {
 
 func (x *GetSecretResponse) Reset() {
 	*x = GetSecretResponse{}
-	mi := &file_warden_service_v1_secret_proto_msgTypes[5]
+	mi := &file_warden_service_v1_secret_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -549,7 +619,7 @@ func (x *GetSecretResponse) String() string {
 func (*GetSecretResponse) ProtoMessage() {}
 
 func (x *GetSecretResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_warden_service_v1_secret_proto_msgTypes[5]
+	mi := &file_warden_service_v1_secret_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -562,7 +632,7 @@ func (x *GetSecretResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetSecretResponse.ProtoReflect.Descriptor instead.
 func (*GetSecretResponse) Descriptor() ([]byte, []int) {
-	return file_warden_service_v1_secret_proto_rawDescGZIP(), []int{5}
+	return file_warden_service_v1_secret_proto_rawDescGZIP(), []int{6}
 }
 
 func (x *GetSecretResponse) GetSecret() *Secret {
@@ -584,7 +654,7 @@ type GetSecretPasswordRequest struct {
 
 func (x *GetSecretPasswordRequest) Reset() {
 	*x = GetSecretPasswordRequest{}
-	mi := &file_warden_service_v1_secret_proto_msgTypes[6]
+	mi := &file_warden_service_v1_secret_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -596,7 +666,7 @@ func (x *GetSecretPasswordRequest) String() string {
 func (*GetSecretPasswordRequest) ProtoMessage() {}
 
 func (x *GetSecretPasswordRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_warden_service_v1_secret_proto_msgTypes[6]
+	mi := &file_warden_service_v1_secret_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -609,7 +679,7 @@ func (x *GetSecretPasswordRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetSecretPasswordRequest.ProtoReflect.Descriptor instead.
 func (*GetSecretPasswordRequest) Descriptor() ([]byte, []int) {
-	return file_warden_service_v1_secret_proto_rawDescGZIP(), []int{6}
+	return file_warden_service_v1_secret_proto_rawDescGZIP(), []int{7}
 }
 
 func (x *GetSecretPasswordRequest) GetId() string {
@@ -636,7 +706,7 @@ type GetSecretPasswordResponse struct {
 
 func (x *GetSecretPasswordResponse) Reset() {
 	*x = GetSecretPasswordResponse{}
-	mi := &file_warden_service_v1_secret_proto_msgTypes[7]
+	mi := &file_warden_service_v1_secret_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -648,7 +718,7 @@ func (x *GetSecretPasswordResponse) String() string {
 func (*GetSecretPasswordResponse) ProtoMessage() {}
 
 func (x *GetSecretPasswordResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_warden_service_v1_secret_proto_msgTypes[7]
+	mi := &file_warden_service_v1_secret_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -661,7 +731,7 @@ func (x *GetSecretPasswordResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetSecretPasswordResponse.ProtoReflect.Descriptor instead.
 func (*GetSecretPasswordResponse) Descriptor() ([]byte, []int) {
-	return file_warden_service_v1_secret_proto_rawDescGZIP(), []int{7}
+	return file_warden_service_v1_secret_proto_rawDescGZIP(), []int{8}
 }
 
 func (x *GetSecretPasswordResponse) GetPassword() string {
@@ -696,7 +766,7 @@ type ListSecretsRequest struct {
 
 func (x *ListSecretsRequest) Reset() {
 	*x = ListSecretsRequest{}
-	mi := &file_warden_service_v1_secret_proto_msgTypes[8]
+	mi := &file_warden_service_v1_secret_proto_msgTypes[9]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -708,7 +778,7 @@ func (x *ListSecretsRequest) String() string {
 func (*ListSecretsRequest) ProtoMessage() {}
 
 func (x *ListSecretsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_warden_service_v1_secret_proto_msgTypes[8]
+	mi := &file_warden_service_v1_secret_proto_msgTypes[9]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -721,7 +791,7 @@ func (x *ListSecretsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListSecretsRequest.ProtoReflect.Descriptor instead.
 func (*ListSecretsRequest) Descriptor() ([]byte, []int) {
-	return file_warden_service_v1_secret_proto_rawDescGZIP(), []int{8}
+	return file_warden_service_v1_secret_proto_rawDescGZIP(), []int{9}
 }
 
 func (x *ListSecretsRequest) GetFolderId() string {
@@ -769,7 +839,7 @@ type ListSecretsResponse struct {
 
 func (x *ListSecretsResponse) Reset() {
 	*x = ListSecretsResponse{}
-	mi := &file_warden_service_v1_secret_proto_msgTypes[9]
+	mi := &file_warden_service_v1_secret_proto_msgTypes[10]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -781,7 +851,7 @@ func (x *ListSecretsResponse) String() string {
 func (*ListSecretsResponse) ProtoMessage() {}
 
 func (x *ListSecretsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_warden_service_v1_secret_proto_msgTypes[9]
+	mi := &file_warden_service_v1_secret_proto_msgTypes[10]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -794,7 +864,7 @@ func (x *ListSecretsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListSecretsResponse.ProtoReflect.Descriptor instead.
 func (*ListSecretsResponse) Descriptor() ([]byte, []int) {
-	return file_warden_service_v1_secret_proto_rawDescGZIP(), []int{9}
+	return file_warden_service_v1_secret_proto_rawDescGZIP(), []int{10}
 }
 
 func (x *ListSecretsResponse) GetSecrets() []*Secret {
@@ -833,7 +903,7 @@ type UpdateSecretRequest struct {
 
 func (x *UpdateSecretRequest) Reset() {
 	*x = UpdateSecretRequest{}
-	mi := &file_warden_service_v1_secret_proto_msgTypes[10]
+	mi := &file_warden_service_v1_secret_proto_msgTypes[11]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -845,7 +915,7 @@ func (x *UpdateSecretRequest) String() string {
 func (*UpdateSecretRequest) ProtoMessage() {}
 
 func (x *UpdateSecretRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_warden_service_v1_secret_proto_msgTypes[10]
+	mi := &file_warden_service_v1_secret_proto_msgTypes[11]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -858,7 +928,7 @@ func (x *UpdateSecretRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdateSecretRequest.ProtoReflect.Descriptor instead.
 func (*UpdateSecretRequest) Descriptor() ([]byte, []int) {
-	return file_warden_service_v1_secret_proto_rawDescGZIP(), []int{10}
+	return file_warden_service_v1_secret_proto_rawDescGZIP(), []int{11}
 }
 
 func (x *UpdateSecretRequest) GetId() string {
@@ -919,7 +989,7 @@ type UpdateSecretResponse struct {
 
 func (x *UpdateSecretResponse) Reset() {
 	*x = UpdateSecretResponse{}
-	mi := &file_warden_service_v1_secret_proto_msgTypes[11]
+	mi := &file_warden_service_v1_secret_proto_msgTypes[12]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -931,7 +1001,7 @@ func (x *UpdateSecretResponse) String() string {
 func (*UpdateSecretResponse) ProtoMessage() {}
 
 func (x *UpdateSecretResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_warden_service_v1_secret_proto_msgTypes[11]
+	mi := &file_warden_service_v1_secret_proto_msgTypes[12]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -944,7 +1014,7 @@ func (x *UpdateSecretResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdateSecretResponse.ProtoReflect.Descriptor instead.
 func (*UpdateSecretResponse) Descriptor() ([]byte, []int) {
-	return file_warden_service_v1_secret_proto_rawDescGZIP(), []int{11}
+	return file_warden_service_v1_secret_proto_rawDescGZIP(), []int{12}
 }
 
 func (x *UpdateSecretResponse) GetSecret() *Secret {
@@ -968,7 +1038,7 @@ type UpdateSecretPasswordRequest struct {
 
 func (x *UpdateSecretPasswordRequest) Reset() {
 	*x = UpdateSecretPasswordRequest{}
-	mi := &file_warden_service_v1_secret_proto_msgTypes[12]
+	mi := &file_warden_service_v1_secret_proto_msgTypes[13]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -980,7 +1050,7 @@ func (x *UpdateSecretPasswordRequest) String() string {
 func (*UpdateSecretPasswordRequest) ProtoMessage() {}
 
 func (x *UpdateSecretPasswordRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_warden_service_v1_secret_proto_msgTypes[12]
+	mi := &file_warden_service_v1_secret_proto_msgTypes[13]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -993,7 +1063,7 @@ func (x *UpdateSecretPasswordRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdateSecretPasswordRequest.ProtoReflect.Descriptor instead.
 func (*UpdateSecretPasswordRequest) Descriptor() ([]byte, []int) {
-	return file_warden_service_v1_secret_proto_rawDescGZIP(), []int{12}
+	return file_warden_service_v1_secret_proto_rawDescGZIP(), []int{13}
 }
 
 func (x *UpdateSecretPasswordRequest) GetId() string {
@@ -1027,7 +1097,7 @@ type UpdateSecretPasswordResponse struct {
 
 func (x *UpdateSecretPasswordResponse) Reset() {
 	*x = UpdateSecretPasswordResponse{}
-	mi := &file_warden_service_v1_secret_proto_msgTypes[13]
+	mi := &file_warden_service_v1_secret_proto_msgTypes[14]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1039,7 +1109,7 @@ func (x *UpdateSecretPasswordResponse) String() string {
 func (*UpdateSecretPasswordResponse) ProtoMessage() {}
 
 func (x *UpdateSecretPasswordResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_warden_service_v1_secret_proto_msgTypes[13]
+	mi := &file_warden_service_v1_secret_proto_msgTypes[14]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1052,7 +1122,7 @@ func (x *UpdateSecretPasswordResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdateSecretPasswordResponse.ProtoReflect.Descriptor instead.
 func (*UpdateSecretPasswordResponse) Descriptor() ([]byte, []int) {
-	return file_warden_service_v1_secret_proto_rawDescGZIP(), []int{13}
+	return file_warden_service_v1_secret_proto_rawDescGZIP(), []int{14}
 }
 
 func (x *UpdateSecretPasswordResponse) GetSecret() *Secret {
@@ -1081,7 +1151,7 @@ type DeleteSecretRequest struct {
 
 func (x *DeleteSecretRequest) Reset() {
 	*x = DeleteSecretRequest{}
-	mi := &file_warden_service_v1_secret_proto_msgTypes[14]
+	mi := &file_warden_service_v1_secret_proto_msgTypes[15]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1093,7 +1163,7 @@ func (x *DeleteSecretRequest) String() string {
 func (*DeleteSecretRequest) ProtoMessage() {}
 
 func (x *DeleteSecretRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_warden_service_v1_secret_proto_msgTypes[14]
+	mi := &file_warden_service_v1_secret_proto_msgTypes[15]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1106,7 +1176,7 @@ func (x *DeleteSecretRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteSecretRequest.ProtoReflect.Descriptor instead.
 func (*DeleteSecretRequest) Descriptor() ([]byte, []int) {
-	return file_warden_service_v1_secret_proto_rawDescGZIP(), []int{14}
+	return file_warden_service_v1_secret_proto_rawDescGZIP(), []int{15}
 }
 
 func (x *DeleteSecretRequest) GetId() string {
@@ -1135,7 +1205,7 @@ type MoveSecretRequest struct {
 
 func (x *MoveSecretRequest) Reset() {
 	*x = MoveSecretRequest{}
-	mi := &file_warden_service_v1_secret_proto_msgTypes[15]
+	mi := &file_warden_service_v1_secret_proto_msgTypes[16]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1147,7 +1217,7 @@ func (x *MoveSecretRequest) String() string {
 func (*MoveSecretRequest) ProtoMessage() {}
 
 func (x *MoveSecretRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_warden_service_v1_secret_proto_msgTypes[15]
+	mi := &file_warden_service_v1_secret_proto_msgTypes[16]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1160,7 +1230,7 @@ func (x *MoveSecretRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use MoveSecretRequest.ProtoReflect.Descriptor instead.
 func (*MoveSecretRequest) Descriptor() ([]byte, []int) {
-	return file_warden_service_v1_secret_proto_rawDescGZIP(), []int{15}
+	return file_warden_service_v1_secret_proto_rawDescGZIP(), []int{16}
 }
 
 func (x *MoveSecretRequest) GetId() string {
@@ -1186,7 +1256,7 @@ type MoveSecretResponse struct {
 
 func (x *MoveSecretResponse) Reset() {
 	*x = MoveSecretResponse{}
-	mi := &file_warden_service_v1_secret_proto_msgTypes[16]
+	mi := &file_warden_service_v1_secret_proto_msgTypes[17]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1198,7 +1268,7 @@ func (x *MoveSecretResponse) String() string {
 func (*MoveSecretResponse) ProtoMessage() {}
 
 func (x *MoveSecretResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_warden_service_v1_secret_proto_msgTypes[16]
+	mi := &file_warden_service_v1_secret_proto_msgTypes[17]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1211,7 +1281,7 @@ func (x *MoveSecretResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use MoveSecretResponse.ProtoReflect.Descriptor instead.
 func (*MoveSecretResponse) Descriptor() ([]byte, []int) {
-	return file_warden_service_v1_secret_proto_rawDescGZIP(), []int{16}
+	return file_warden_service_v1_secret_proto_rawDescGZIP(), []int{17}
 }
 
 func (x *MoveSecretResponse) GetSecret() *Secret {
@@ -1234,7 +1304,7 @@ type ListVersionsRequest struct {
 
 func (x *ListVersionsRequest) Reset() {
 	*x = ListVersionsRequest{}
-	mi := &file_warden_service_v1_secret_proto_msgTypes[17]
+	mi := &file_warden_service_v1_secret_proto_msgTypes[18]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1246,7 +1316,7 @@ func (x *ListVersionsRequest) String() string {
 func (*ListVersionsRequest) ProtoMessage() {}
 
 func (x *ListVersionsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_warden_service_v1_secret_proto_msgTypes[17]
+	mi := &file_warden_service_v1_secret_proto_msgTypes[18]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1259,7 +1329,7 @@ func (x *ListVersionsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListVersionsRequest.ProtoReflect.Descriptor instead.
 func (*ListVersionsRequest) Descriptor() ([]byte, []int) {
-	return file_warden_service_v1_secret_proto_rawDescGZIP(), []int{17}
+	return file_warden_service_v1_secret_proto_rawDescGZIP(), []int{18}
 }
 
 func (x *ListVersionsRequest) GetSecretId() string {
@@ -1293,7 +1363,7 @@ type ListVersionsResponse struct {
 
 func (x *ListVersionsResponse) Reset() {
 	*x = ListVersionsResponse{}
-	mi := &file_warden_service_v1_secret_proto_msgTypes[18]
+	mi := &file_warden_service_v1_secret_proto_msgTypes[19]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1305,7 +1375,7 @@ func (x *ListVersionsResponse) String() string {
 func (*ListVersionsResponse) ProtoMessage() {}
 
 func (x *ListVersionsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_warden_service_v1_secret_proto_msgTypes[18]
+	mi := &file_warden_service_v1_secret_proto_msgTypes[19]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1318,7 +1388,7 @@ func (x *ListVersionsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListVersionsResponse.ProtoReflect.Descriptor instead.
 func (*ListVersionsResponse) Descriptor() ([]byte, []int) {
-	return file_warden_service_v1_secret_proto_rawDescGZIP(), []int{18}
+	return file_warden_service_v1_secret_proto_rawDescGZIP(), []int{19}
 }
 
 func (x *ListVersionsResponse) GetVersions() []*SecretVersion {
@@ -1348,7 +1418,7 @@ type GetVersionRequest struct {
 
 func (x *GetVersionRequest) Reset() {
 	*x = GetVersionRequest{}
-	mi := &file_warden_service_v1_secret_proto_msgTypes[19]
+	mi := &file_warden_service_v1_secret_proto_msgTypes[20]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1360,7 +1430,7 @@ func (x *GetVersionRequest) String() string {
 func (*GetVersionRequest) ProtoMessage() {}
 
 func (x *GetVersionRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_warden_service_v1_secret_proto_msgTypes[19]
+	mi := &file_warden_service_v1_secret_proto_msgTypes[20]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1373,7 +1443,7 @@ func (x *GetVersionRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetVersionRequest.ProtoReflect.Descriptor instead.
 func (*GetVersionRequest) Descriptor() ([]byte, []int) {
-	return file_warden_service_v1_secret_proto_rawDescGZIP(), []int{19}
+	return file_warden_service_v1_secret_proto_rawDescGZIP(), []int{20}
 }
 
 func (x *GetVersionRequest) GetSecretId() string {
@@ -1407,7 +1477,7 @@ type GetVersionResponse struct {
 
 func (x *GetVersionResponse) Reset() {
 	*x = GetVersionResponse{}
-	mi := &file_warden_service_v1_secret_proto_msgTypes[20]
+	mi := &file_warden_service_v1_secret_proto_msgTypes[21]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1419,7 +1489,7 @@ func (x *GetVersionResponse) String() string {
 func (*GetVersionResponse) ProtoMessage() {}
 
 func (x *GetVersionResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_warden_service_v1_secret_proto_msgTypes[20]
+	mi := &file_warden_service_v1_secret_proto_msgTypes[21]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1432,7 +1502,7 @@ func (x *GetVersionResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetVersionResponse.ProtoReflect.Descriptor instead.
 func (*GetVersionResponse) Descriptor() ([]byte, []int) {
-	return file_warden_service_v1_secret_proto_rawDescGZIP(), []int{20}
+	return file_warden_service_v1_secret_proto_rawDescGZIP(), []int{21}
 }
 
 func (x *GetVersionResponse) GetVersion() *SecretVersion {
@@ -1462,7 +1532,7 @@ type RestoreVersionRequest struct {
 
 func (x *RestoreVersionRequest) Reset() {
 	*x = RestoreVersionRequest{}
-	mi := &file_warden_service_v1_secret_proto_msgTypes[21]
+	mi := &file_warden_service_v1_secret_proto_msgTypes[22]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1474,7 +1544,7 @@ func (x *RestoreVersionRequest) String() string {
 func (*RestoreVersionRequest) ProtoMessage() {}
 
 func (x *RestoreVersionRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_warden_service_v1_secret_proto_msgTypes[21]
+	mi := &file_warden_service_v1_secret_proto_msgTypes[22]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1487,7 +1557,7 @@ func (x *RestoreVersionRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RestoreVersionRequest.ProtoReflect.Descriptor instead.
 func (*RestoreVersionRequest) Descriptor() ([]byte, []int) {
-	return file_warden_service_v1_secret_proto_rawDescGZIP(), []int{21}
+	return file_warden_service_v1_secret_proto_rawDescGZIP(), []int{22}
 }
 
 func (x *RestoreVersionRequest) GetSecretId() string {
@@ -1521,7 +1591,7 @@ type RestoreVersionResponse struct {
 
 func (x *RestoreVersionResponse) Reset() {
 	*x = RestoreVersionResponse{}
-	mi := &file_warden_service_v1_secret_proto_msgTypes[22]
+	mi := &file_warden_service_v1_secret_proto_msgTypes[23]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1533,7 +1603,7 @@ func (x *RestoreVersionResponse) String() string {
 func (*RestoreVersionResponse) ProtoMessage() {}
 
 func (x *RestoreVersionResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_warden_service_v1_secret_proto_msgTypes[22]
+	mi := &file_warden_service_v1_secret_proto_msgTypes[23]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1546,7 +1616,7 @@ func (x *RestoreVersionResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RestoreVersionResponse.ProtoReflect.Descriptor instead.
 func (*RestoreVersionResponse) Descriptor() ([]byte, []int) {
-	return file_warden_service_v1_secret_proto_rawDescGZIP(), []int{22}
+	return file_warden_service_v1_secret_proto_rawDescGZIP(), []int{23}
 }
 
 func (x *RestoreVersionResponse) GetSecret() *Secret {
@@ -1583,7 +1653,7 @@ type SearchSecretsRequest struct {
 
 func (x *SearchSecretsRequest) Reset() {
 	*x = SearchSecretsRequest{}
-	mi := &file_warden_service_v1_secret_proto_msgTypes[23]
+	mi := &file_warden_service_v1_secret_proto_msgTypes[24]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1595,7 +1665,7 @@ func (x *SearchSecretsRequest) String() string {
 func (*SearchSecretsRequest) ProtoMessage() {}
 
 func (x *SearchSecretsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_warden_service_v1_secret_proto_msgTypes[23]
+	mi := &file_warden_service_v1_secret_proto_msgTypes[24]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1608,7 +1678,7 @@ func (x *SearchSecretsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SearchSecretsRequest.ProtoReflect.Descriptor instead.
 func (*SearchSecretsRequest) Descriptor() ([]byte, []int) {
-	return file_warden_service_v1_secret_proto_rawDescGZIP(), []int{23}
+	return file_warden_service_v1_secret_proto_rawDescGZIP(), []int{24}
 }
 
 func (x *SearchSecretsRequest) GetQuery() string {
@@ -1663,7 +1733,7 @@ type SearchSecretsResponse struct {
 
 func (x *SearchSecretsResponse) Reset() {
 	*x = SearchSecretsResponse{}
-	mi := &file_warden_service_v1_secret_proto_msgTypes[24]
+	mi := &file_warden_service_v1_secret_proto_msgTypes[25]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1675,7 +1745,7 @@ func (x *SearchSecretsResponse) String() string {
 func (*SearchSecretsResponse) ProtoMessage() {}
 
 func (x *SearchSecretsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_warden_service_v1_secret_proto_msgTypes[24]
+	mi := &file_warden_service_v1_secret_proto_msgTypes[25]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1688,7 +1758,7 @@ func (x *SearchSecretsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SearchSecretsResponse.ProtoReflect.Descriptor instead.
 func (*SearchSecretsResponse) Descriptor() ([]byte, []int) {
-	return file_warden_service_v1_secret_proto_rawDescGZIP(), []int{24}
+	return file_warden_service_v1_secret_proto_rawDescGZIP(), []int{25}
 }
 
 func (x *SearchSecretsResponse) GetSecrets() []*Secret {
@@ -1709,7 +1779,7 @@ var File_warden_service_v1_secret_proto protoreflect.FileDescriptor
 
 const file_warden_service_v1_secret_proto_rawDesc = "" +
 	"\n" +
-	"\x1ewarden/service/v1/secret.proto\x12\x11warden.service.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a\x1cgoogle/protobuf/struct.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x16redact/v3/redact.proto\"\xea\x04\n" +
+	"\x1ewarden/service/v1/secret.proto\x12\x11warden.service.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a\x1cgoogle/protobuf/struct.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x16redact/v3/redact.proto\x1a\"warden/service/v1/permission.proto\"\xea\x04\n" +
 	"\x06Secret\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x1b\n" +
 	"\ttenant_id\x18\x02 \x01(\rR\btenantId\x12 \n" +
@@ -1746,7 +1816,12 @@ const file_warden_service_v1_secret_proto_rawDesc = "" +
 	"createTime\x12\"\n" +
 	"\n" +
 	"created_by\x18\a \x01(\rH\x00R\tcreatedBy\x88\x01\x01B\r\n" +
-	"\v_created_by\"\xb6\x03\n" +
+	"\v_created_by\"\xb3\x01\n" +
+	"\x16InitialPermissionGrant\x12A\n" +
+	"\fsubject_type\x18\x01 \x01(\x0e2\x1e.warden.service.v1.SubjectTypeR\vsubjectType\x12\x1d\n" +
+	"\n" +
+	"subject_id\x18\x02 \x01(\tR\tsubjectId\x127\n" +
+	"\brelation\x18\x03 \x01(\x0e2\x1b.warden.service.v1.RelationR\brelation\"\x92\x04\n" +
 	"\x13CreateSecretRequest\x12;\n" +
 	"\tfolder_id\x18\x01 \x01(\tB\x19\xbaH\x16r\x14\x18$2\x10^[a-fA-F0-9\\-]*$H\x00R\bfolderId\x88\x01\x01\x12C\n" +
 	"\x04name\x18\x02 \x01(\tB/\xe0A\x02\xbaH)r'\x10\x01\x18\xff\x012 ^[a-zA-Z0-9][a-zA-Z0-9\\-_\\.\\s]*$R\x04name\x12$\n" +
@@ -1755,7 +1830,8 @@ const file_warden_service_v1_secret_proto_rawDesc = "" +
 	"\bhost_url\x18\x05 \x01(\tB\b\xbaH\x05r\x03\x18\x80\x10R\ahostUrl\x12*\n" +
 	"\vdescription\x18\x06 \x01(\tB\b\xbaH\x05r\x03\x18\x80 R\vdescription\x123\n" +
 	"\bmetadata\x18\a \x01(\v2\x17.google.protobuf.StructR\bmetadata\x121\n" +
-	"\x0fversion_comment\x18\b \x01(\tB\b\xbaH\x05r\x03\x18\x80\bR\x0eversionCommentB\f\n" +
+	"\x0fversion_comment\x18\b \x01(\tB\b\xbaH\x05r\x03\x18\x80\bR\x0eversionComment\x12Z\n" +
+	"\x13initial_permissions\x18\t \x03(\v2).warden.service.v1.InitialPermissionGrantR\x12initialPermissionsB\f\n" +
 	"\n" +
 	"_folder_id\"I\n" +
 	"\x14CreateSecretResponse\x121\n" +
@@ -1900,90 +1976,96 @@ func file_warden_service_v1_secret_proto_rawDescGZIP() []byte {
 }
 
 var file_warden_service_v1_secret_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_warden_service_v1_secret_proto_msgTypes = make([]protoimpl.MessageInfo, 25)
+var file_warden_service_v1_secret_proto_msgTypes = make([]protoimpl.MessageInfo, 26)
 var file_warden_service_v1_secret_proto_goTypes = []any{
 	(SecretStatus)(0),                    // 0: warden.service.v1.SecretStatus
 	(*Secret)(nil),                       // 1: warden.service.v1.Secret
 	(*SecretVersion)(nil),                // 2: warden.service.v1.SecretVersion
-	(*CreateSecretRequest)(nil),          // 3: warden.service.v1.CreateSecretRequest
-	(*CreateSecretResponse)(nil),         // 4: warden.service.v1.CreateSecretResponse
-	(*GetSecretRequest)(nil),             // 5: warden.service.v1.GetSecretRequest
-	(*GetSecretResponse)(nil),            // 6: warden.service.v1.GetSecretResponse
-	(*GetSecretPasswordRequest)(nil),     // 7: warden.service.v1.GetSecretPasswordRequest
-	(*GetSecretPasswordResponse)(nil),    // 8: warden.service.v1.GetSecretPasswordResponse
-	(*ListSecretsRequest)(nil),           // 9: warden.service.v1.ListSecretsRequest
-	(*ListSecretsResponse)(nil),          // 10: warden.service.v1.ListSecretsResponse
-	(*UpdateSecretRequest)(nil),          // 11: warden.service.v1.UpdateSecretRequest
-	(*UpdateSecretResponse)(nil),         // 12: warden.service.v1.UpdateSecretResponse
-	(*UpdateSecretPasswordRequest)(nil),  // 13: warden.service.v1.UpdateSecretPasswordRequest
-	(*UpdateSecretPasswordResponse)(nil), // 14: warden.service.v1.UpdateSecretPasswordResponse
-	(*DeleteSecretRequest)(nil),          // 15: warden.service.v1.DeleteSecretRequest
-	(*MoveSecretRequest)(nil),            // 16: warden.service.v1.MoveSecretRequest
-	(*MoveSecretResponse)(nil),           // 17: warden.service.v1.MoveSecretResponse
-	(*ListVersionsRequest)(nil),          // 18: warden.service.v1.ListVersionsRequest
-	(*ListVersionsResponse)(nil),         // 19: warden.service.v1.ListVersionsResponse
-	(*GetVersionRequest)(nil),            // 20: warden.service.v1.GetVersionRequest
-	(*GetVersionResponse)(nil),           // 21: warden.service.v1.GetVersionResponse
-	(*RestoreVersionRequest)(nil),        // 22: warden.service.v1.RestoreVersionRequest
-	(*RestoreVersionResponse)(nil),       // 23: warden.service.v1.RestoreVersionResponse
-	(*SearchSecretsRequest)(nil),         // 24: warden.service.v1.SearchSecretsRequest
-	(*SearchSecretsResponse)(nil),        // 25: warden.service.v1.SearchSecretsResponse
-	(*structpb.Struct)(nil),              // 26: google.protobuf.Struct
-	(*timestamppb.Timestamp)(nil),        // 27: google.protobuf.Timestamp
-	(*emptypb.Empty)(nil),                // 28: google.protobuf.Empty
+	(*InitialPermissionGrant)(nil),       // 3: warden.service.v1.InitialPermissionGrant
+	(*CreateSecretRequest)(nil),          // 4: warden.service.v1.CreateSecretRequest
+	(*CreateSecretResponse)(nil),         // 5: warden.service.v1.CreateSecretResponse
+	(*GetSecretRequest)(nil),             // 6: warden.service.v1.GetSecretRequest
+	(*GetSecretResponse)(nil),            // 7: warden.service.v1.GetSecretResponse
+	(*GetSecretPasswordRequest)(nil),     // 8: warden.service.v1.GetSecretPasswordRequest
+	(*GetSecretPasswordResponse)(nil),    // 9: warden.service.v1.GetSecretPasswordResponse
+	(*ListSecretsRequest)(nil),           // 10: warden.service.v1.ListSecretsRequest
+	(*ListSecretsResponse)(nil),          // 11: warden.service.v1.ListSecretsResponse
+	(*UpdateSecretRequest)(nil),          // 12: warden.service.v1.UpdateSecretRequest
+	(*UpdateSecretResponse)(nil),         // 13: warden.service.v1.UpdateSecretResponse
+	(*UpdateSecretPasswordRequest)(nil),  // 14: warden.service.v1.UpdateSecretPasswordRequest
+	(*UpdateSecretPasswordResponse)(nil), // 15: warden.service.v1.UpdateSecretPasswordResponse
+	(*DeleteSecretRequest)(nil),          // 16: warden.service.v1.DeleteSecretRequest
+	(*MoveSecretRequest)(nil),            // 17: warden.service.v1.MoveSecretRequest
+	(*MoveSecretResponse)(nil),           // 18: warden.service.v1.MoveSecretResponse
+	(*ListVersionsRequest)(nil),          // 19: warden.service.v1.ListVersionsRequest
+	(*ListVersionsResponse)(nil),         // 20: warden.service.v1.ListVersionsResponse
+	(*GetVersionRequest)(nil),            // 21: warden.service.v1.GetVersionRequest
+	(*GetVersionResponse)(nil),           // 22: warden.service.v1.GetVersionResponse
+	(*RestoreVersionRequest)(nil),        // 23: warden.service.v1.RestoreVersionRequest
+	(*RestoreVersionResponse)(nil),       // 24: warden.service.v1.RestoreVersionResponse
+	(*SearchSecretsRequest)(nil),         // 25: warden.service.v1.SearchSecretsRequest
+	(*SearchSecretsResponse)(nil),        // 26: warden.service.v1.SearchSecretsResponse
+	(*structpb.Struct)(nil),              // 27: google.protobuf.Struct
+	(*timestamppb.Timestamp)(nil),        // 28: google.protobuf.Timestamp
+	(SubjectType)(0),                     // 29: warden.service.v1.SubjectType
+	(Relation)(0),                        // 30: warden.service.v1.Relation
+	(*emptypb.Empty)(nil),                // 31: google.protobuf.Empty
 }
 var file_warden_service_v1_secret_proto_depIdxs = []int32{
-	26, // 0: warden.service.v1.Secret.metadata:type_name -> google.protobuf.Struct
+	27, // 0: warden.service.v1.Secret.metadata:type_name -> google.protobuf.Struct
 	0,  // 1: warden.service.v1.Secret.status:type_name -> warden.service.v1.SecretStatus
-	27, // 2: warden.service.v1.Secret.create_time:type_name -> google.protobuf.Timestamp
-	27, // 3: warden.service.v1.Secret.update_time:type_name -> google.protobuf.Timestamp
-	27, // 4: warden.service.v1.SecretVersion.create_time:type_name -> google.protobuf.Timestamp
-	26, // 5: warden.service.v1.CreateSecretRequest.metadata:type_name -> google.protobuf.Struct
-	1,  // 6: warden.service.v1.CreateSecretResponse.secret:type_name -> warden.service.v1.Secret
-	1,  // 7: warden.service.v1.GetSecretResponse.secret:type_name -> warden.service.v1.Secret
-	0,  // 8: warden.service.v1.ListSecretsRequest.status:type_name -> warden.service.v1.SecretStatus
-	1,  // 9: warden.service.v1.ListSecretsResponse.secrets:type_name -> warden.service.v1.Secret
-	26, // 10: warden.service.v1.UpdateSecretRequest.metadata:type_name -> google.protobuf.Struct
-	0,  // 11: warden.service.v1.UpdateSecretRequest.status:type_name -> warden.service.v1.SecretStatus
-	1,  // 12: warden.service.v1.UpdateSecretResponse.secret:type_name -> warden.service.v1.Secret
-	1,  // 13: warden.service.v1.UpdateSecretPasswordResponse.secret:type_name -> warden.service.v1.Secret
-	2,  // 14: warden.service.v1.UpdateSecretPasswordResponse.version:type_name -> warden.service.v1.SecretVersion
-	1,  // 15: warden.service.v1.MoveSecretResponse.secret:type_name -> warden.service.v1.Secret
-	2,  // 16: warden.service.v1.ListVersionsResponse.versions:type_name -> warden.service.v1.SecretVersion
-	2,  // 17: warden.service.v1.GetVersionResponse.version:type_name -> warden.service.v1.SecretVersion
-	1,  // 18: warden.service.v1.RestoreVersionResponse.secret:type_name -> warden.service.v1.Secret
-	2,  // 19: warden.service.v1.RestoreVersionResponse.new_version:type_name -> warden.service.v1.SecretVersion
-	0,  // 20: warden.service.v1.SearchSecretsRequest.status:type_name -> warden.service.v1.SecretStatus
-	1,  // 21: warden.service.v1.SearchSecretsResponse.secrets:type_name -> warden.service.v1.Secret
-	3,  // 22: warden.service.v1.WardenSecretService.CreateSecret:input_type -> warden.service.v1.CreateSecretRequest
-	5,  // 23: warden.service.v1.WardenSecretService.GetSecret:input_type -> warden.service.v1.GetSecretRequest
-	7,  // 24: warden.service.v1.WardenSecretService.GetSecretPassword:input_type -> warden.service.v1.GetSecretPasswordRequest
-	9,  // 25: warden.service.v1.WardenSecretService.ListSecrets:input_type -> warden.service.v1.ListSecretsRequest
-	11, // 26: warden.service.v1.WardenSecretService.UpdateSecret:input_type -> warden.service.v1.UpdateSecretRequest
-	13, // 27: warden.service.v1.WardenSecretService.UpdateSecretPassword:input_type -> warden.service.v1.UpdateSecretPasswordRequest
-	15, // 28: warden.service.v1.WardenSecretService.DeleteSecret:input_type -> warden.service.v1.DeleteSecretRequest
-	16, // 29: warden.service.v1.WardenSecretService.MoveSecret:input_type -> warden.service.v1.MoveSecretRequest
-	18, // 30: warden.service.v1.WardenSecretService.ListVersions:input_type -> warden.service.v1.ListVersionsRequest
-	20, // 31: warden.service.v1.WardenSecretService.GetVersion:input_type -> warden.service.v1.GetVersionRequest
-	22, // 32: warden.service.v1.WardenSecretService.RestoreVersion:input_type -> warden.service.v1.RestoreVersionRequest
-	24, // 33: warden.service.v1.WardenSecretService.SearchSecrets:input_type -> warden.service.v1.SearchSecretsRequest
-	4,  // 34: warden.service.v1.WardenSecretService.CreateSecret:output_type -> warden.service.v1.CreateSecretResponse
-	6,  // 35: warden.service.v1.WardenSecretService.GetSecret:output_type -> warden.service.v1.GetSecretResponse
-	8,  // 36: warden.service.v1.WardenSecretService.GetSecretPassword:output_type -> warden.service.v1.GetSecretPasswordResponse
-	10, // 37: warden.service.v1.WardenSecretService.ListSecrets:output_type -> warden.service.v1.ListSecretsResponse
-	12, // 38: warden.service.v1.WardenSecretService.UpdateSecret:output_type -> warden.service.v1.UpdateSecretResponse
-	14, // 39: warden.service.v1.WardenSecretService.UpdateSecretPassword:output_type -> warden.service.v1.UpdateSecretPasswordResponse
-	28, // 40: warden.service.v1.WardenSecretService.DeleteSecret:output_type -> google.protobuf.Empty
-	17, // 41: warden.service.v1.WardenSecretService.MoveSecret:output_type -> warden.service.v1.MoveSecretResponse
-	19, // 42: warden.service.v1.WardenSecretService.ListVersions:output_type -> warden.service.v1.ListVersionsResponse
-	21, // 43: warden.service.v1.WardenSecretService.GetVersion:output_type -> warden.service.v1.GetVersionResponse
-	23, // 44: warden.service.v1.WardenSecretService.RestoreVersion:output_type -> warden.service.v1.RestoreVersionResponse
-	25, // 45: warden.service.v1.WardenSecretService.SearchSecrets:output_type -> warden.service.v1.SearchSecretsResponse
-	34, // [34:46] is the sub-list for method output_type
-	22, // [22:34] is the sub-list for method input_type
-	22, // [22:22] is the sub-list for extension type_name
-	22, // [22:22] is the sub-list for extension extendee
-	0,  // [0:22] is the sub-list for field type_name
+	28, // 2: warden.service.v1.Secret.create_time:type_name -> google.protobuf.Timestamp
+	28, // 3: warden.service.v1.Secret.update_time:type_name -> google.protobuf.Timestamp
+	28, // 4: warden.service.v1.SecretVersion.create_time:type_name -> google.protobuf.Timestamp
+	29, // 5: warden.service.v1.InitialPermissionGrant.subject_type:type_name -> warden.service.v1.SubjectType
+	30, // 6: warden.service.v1.InitialPermissionGrant.relation:type_name -> warden.service.v1.Relation
+	27, // 7: warden.service.v1.CreateSecretRequest.metadata:type_name -> google.protobuf.Struct
+	3,  // 8: warden.service.v1.CreateSecretRequest.initial_permissions:type_name -> warden.service.v1.InitialPermissionGrant
+	1,  // 9: warden.service.v1.CreateSecretResponse.secret:type_name -> warden.service.v1.Secret
+	1,  // 10: warden.service.v1.GetSecretResponse.secret:type_name -> warden.service.v1.Secret
+	0,  // 11: warden.service.v1.ListSecretsRequest.status:type_name -> warden.service.v1.SecretStatus
+	1,  // 12: warden.service.v1.ListSecretsResponse.secrets:type_name -> warden.service.v1.Secret
+	27, // 13: warden.service.v1.UpdateSecretRequest.metadata:type_name -> google.protobuf.Struct
+	0,  // 14: warden.service.v1.UpdateSecretRequest.status:type_name -> warden.service.v1.SecretStatus
+	1,  // 15: warden.service.v1.UpdateSecretResponse.secret:type_name -> warden.service.v1.Secret
+	1,  // 16: warden.service.v1.UpdateSecretPasswordResponse.secret:type_name -> warden.service.v1.Secret
+	2,  // 17: warden.service.v1.UpdateSecretPasswordResponse.version:type_name -> warden.service.v1.SecretVersion
+	1,  // 18: warden.service.v1.MoveSecretResponse.secret:type_name -> warden.service.v1.Secret
+	2,  // 19: warden.service.v1.ListVersionsResponse.versions:type_name -> warden.service.v1.SecretVersion
+	2,  // 20: warden.service.v1.GetVersionResponse.version:type_name -> warden.service.v1.SecretVersion
+	1,  // 21: warden.service.v1.RestoreVersionResponse.secret:type_name -> warden.service.v1.Secret
+	2,  // 22: warden.service.v1.RestoreVersionResponse.new_version:type_name -> warden.service.v1.SecretVersion
+	0,  // 23: warden.service.v1.SearchSecretsRequest.status:type_name -> warden.service.v1.SecretStatus
+	1,  // 24: warden.service.v1.SearchSecretsResponse.secrets:type_name -> warden.service.v1.Secret
+	4,  // 25: warden.service.v1.WardenSecretService.CreateSecret:input_type -> warden.service.v1.CreateSecretRequest
+	6,  // 26: warden.service.v1.WardenSecretService.GetSecret:input_type -> warden.service.v1.GetSecretRequest
+	8,  // 27: warden.service.v1.WardenSecretService.GetSecretPassword:input_type -> warden.service.v1.GetSecretPasswordRequest
+	10, // 28: warden.service.v1.WardenSecretService.ListSecrets:input_type -> warden.service.v1.ListSecretsRequest
+	12, // 29: warden.service.v1.WardenSecretService.UpdateSecret:input_type -> warden.service.v1.UpdateSecretRequest
+	14, // 30: warden.service.v1.WardenSecretService.UpdateSecretPassword:input_type -> warden.service.v1.UpdateSecretPasswordRequest
+	16, // 31: warden.service.v1.WardenSecretService.DeleteSecret:input_type -> warden.service.v1.DeleteSecretRequest
+	17, // 32: warden.service.v1.WardenSecretService.MoveSecret:input_type -> warden.service.v1.MoveSecretRequest
+	19, // 33: warden.service.v1.WardenSecretService.ListVersions:input_type -> warden.service.v1.ListVersionsRequest
+	21, // 34: warden.service.v1.WardenSecretService.GetVersion:input_type -> warden.service.v1.GetVersionRequest
+	23, // 35: warden.service.v1.WardenSecretService.RestoreVersion:input_type -> warden.service.v1.RestoreVersionRequest
+	25, // 36: warden.service.v1.WardenSecretService.SearchSecrets:input_type -> warden.service.v1.SearchSecretsRequest
+	5,  // 37: warden.service.v1.WardenSecretService.CreateSecret:output_type -> warden.service.v1.CreateSecretResponse
+	7,  // 38: warden.service.v1.WardenSecretService.GetSecret:output_type -> warden.service.v1.GetSecretResponse
+	9,  // 39: warden.service.v1.WardenSecretService.GetSecretPassword:output_type -> warden.service.v1.GetSecretPasswordResponse
+	11, // 40: warden.service.v1.WardenSecretService.ListSecrets:output_type -> warden.service.v1.ListSecretsResponse
+	13, // 41: warden.service.v1.WardenSecretService.UpdateSecret:output_type -> warden.service.v1.UpdateSecretResponse
+	15, // 42: warden.service.v1.WardenSecretService.UpdateSecretPassword:output_type -> warden.service.v1.UpdateSecretPasswordResponse
+	31, // 43: warden.service.v1.WardenSecretService.DeleteSecret:output_type -> google.protobuf.Empty
+	18, // 44: warden.service.v1.WardenSecretService.MoveSecret:output_type -> warden.service.v1.MoveSecretResponse
+	20, // 45: warden.service.v1.WardenSecretService.ListVersions:output_type -> warden.service.v1.ListVersionsResponse
+	22, // 46: warden.service.v1.WardenSecretService.GetVersion:output_type -> warden.service.v1.GetVersionResponse
+	24, // 47: warden.service.v1.WardenSecretService.RestoreVersion:output_type -> warden.service.v1.RestoreVersionResponse
+	26, // 48: warden.service.v1.WardenSecretService.SearchSecrets:output_type -> warden.service.v1.SearchSecretsResponse
+	37, // [37:49] is the sub-list for method output_type
+	25, // [25:37] is the sub-list for method input_type
+	25, // [25:25] is the sub-list for extension type_name
+	25, // [25:25] is the sub-list for extension extendee
+	0,  // [0:25] is the sub-list for field type_name
 }
 
 func init() { file_warden_service_v1_secret_proto_init() }
@@ -1991,23 +2073,24 @@ func file_warden_service_v1_secret_proto_init() {
 	if File_warden_service_v1_secret_proto != nil {
 		return
 	}
+	file_warden_service_v1_permission_proto_init()
 	file_warden_service_v1_secret_proto_msgTypes[0].OneofWrappers = []any{}
 	file_warden_service_v1_secret_proto_msgTypes[1].OneofWrappers = []any{}
-	file_warden_service_v1_secret_proto_msgTypes[2].OneofWrappers = []any{}
-	file_warden_service_v1_secret_proto_msgTypes[6].OneofWrappers = []any{}
-	file_warden_service_v1_secret_proto_msgTypes[8].OneofWrappers = []any{}
-	file_warden_service_v1_secret_proto_msgTypes[10].OneofWrappers = []any{}
-	file_warden_service_v1_secret_proto_msgTypes[15].OneofWrappers = []any{}
-	file_warden_service_v1_secret_proto_msgTypes[17].OneofWrappers = []any{}
-	file_warden_service_v1_secret_proto_msgTypes[20].OneofWrappers = []any{}
-	file_warden_service_v1_secret_proto_msgTypes[23].OneofWrappers = []any{}
+	file_warden_service_v1_secret_proto_msgTypes[3].OneofWrappers = []any{}
+	file_warden_service_v1_secret_proto_msgTypes[7].OneofWrappers = []any{}
+	file_warden_service_v1_secret_proto_msgTypes[9].OneofWrappers = []any{}
+	file_warden_service_v1_secret_proto_msgTypes[11].OneofWrappers = []any{}
+	file_warden_service_v1_secret_proto_msgTypes[16].OneofWrappers = []any{}
+	file_warden_service_v1_secret_proto_msgTypes[18].OneofWrappers = []any{}
+	file_warden_service_v1_secret_proto_msgTypes[21].OneofWrappers = []any{}
+	file_warden_service_v1_secret_proto_msgTypes[24].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_warden_service_v1_secret_proto_rawDesc), len(file_warden_service_v1_secret_proto_rawDesc)),
 			NumEnums:      1,
-			NumMessages:   25,
+			NumMessages:   26,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

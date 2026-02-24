@@ -134,6 +134,16 @@ func MenusYaml(v []byte) predicate.Module {
 	return predicate.Module(sql.FieldEQ(FieldMenusYaml, v))
 }
 
+// FrontendEntryURL applies equality check predicate on the "frontend_entry_url" field. It's identical to FrontendEntryURLEQ.
+func FrontendEntryURL(v string) predicate.Module {
+	return predicate.Module(sql.FieldEQ(FieldFrontendEntryURL, v))
+}
+
+// HTTPEndpoint applies equality check predicate on the "http_endpoint" field. It's identical to HTTPEndpointEQ.
+func HTTPEndpoint(v string) predicate.Module {
+	return predicate.Module(sql.FieldEQ(FieldHTTPEndpoint, v))
+}
+
 // RegistrationID applies equality check predicate on the "registration_id" field. It's identical to RegistrationIDEQ.
 func RegistrationID(v string) predicate.Module {
 	return predicate.Module(sql.FieldEQ(FieldRegistrationID, v))
@@ -1027,6 +1037,156 @@ func MenusYamlIsNil() predicate.Module {
 // MenusYamlNotNil applies the NotNil predicate on the "menus_yaml" field.
 func MenusYamlNotNil() predicate.Module {
 	return predicate.Module(sql.FieldNotNull(FieldMenusYaml))
+}
+
+// FrontendEntryURLEQ applies the EQ predicate on the "frontend_entry_url" field.
+func FrontendEntryURLEQ(v string) predicate.Module {
+	return predicate.Module(sql.FieldEQ(FieldFrontendEntryURL, v))
+}
+
+// FrontendEntryURLNEQ applies the NEQ predicate on the "frontend_entry_url" field.
+func FrontendEntryURLNEQ(v string) predicate.Module {
+	return predicate.Module(sql.FieldNEQ(FieldFrontendEntryURL, v))
+}
+
+// FrontendEntryURLIn applies the In predicate on the "frontend_entry_url" field.
+func FrontendEntryURLIn(vs ...string) predicate.Module {
+	return predicate.Module(sql.FieldIn(FieldFrontendEntryURL, vs...))
+}
+
+// FrontendEntryURLNotIn applies the NotIn predicate on the "frontend_entry_url" field.
+func FrontendEntryURLNotIn(vs ...string) predicate.Module {
+	return predicate.Module(sql.FieldNotIn(FieldFrontendEntryURL, vs...))
+}
+
+// FrontendEntryURLGT applies the GT predicate on the "frontend_entry_url" field.
+func FrontendEntryURLGT(v string) predicate.Module {
+	return predicate.Module(sql.FieldGT(FieldFrontendEntryURL, v))
+}
+
+// FrontendEntryURLGTE applies the GTE predicate on the "frontend_entry_url" field.
+func FrontendEntryURLGTE(v string) predicate.Module {
+	return predicate.Module(sql.FieldGTE(FieldFrontendEntryURL, v))
+}
+
+// FrontendEntryURLLT applies the LT predicate on the "frontend_entry_url" field.
+func FrontendEntryURLLT(v string) predicate.Module {
+	return predicate.Module(sql.FieldLT(FieldFrontendEntryURL, v))
+}
+
+// FrontendEntryURLLTE applies the LTE predicate on the "frontend_entry_url" field.
+func FrontendEntryURLLTE(v string) predicate.Module {
+	return predicate.Module(sql.FieldLTE(FieldFrontendEntryURL, v))
+}
+
+// FrontendEntryURLContains applies the Contains predicate on the "frontend_entry_url" field.
+func FrontendEntryURLContains(v string) predicate.Module {
+	return predicate.Module(sql.FieldContains(FieldFrontendEntryURL, v))
+}
+
+// FrontendEntryURLHasPrefix applies the HasPrefix predicate on the "frontend_entry_url" field.
+func FrontendEntryURLHasPrefix(v string) predicate.Module {
+	return predicate.Module(sql.FieldHasPrefix(FieldFrontendEntryURL, v))
+}
+
+// FrontendEntryURLHasSuffix applies the HasSuffix predicate on the "frontend_entry_url" field.
+func FrontendEntryURLHasSuffix(v string) predicate.Module {
+	return predicate.Module(sql.FieldHasSuffix(FieldFrontendEntryURL, v))
+}
+
+// FrontendEntryURLIsNil applies the IsNil predicate on the "frontend_entry_url" field.
+func FrontendEntryURLIsNil() predicate.Module {
+	return predicate.Module(sql.FieldIsNull(FieldFrontendEntryURL))
+}
+
+// FrontendEntryURLNotNil applies the NotNil predicate on the "frontend_entry_url" field.
+func FrontendEntryURLNotNil() predicate.Module {
+	return predicate.Module(sql.FieldNotNull(FieldFrontendEntryURL))
+}
+
+// FrontendEntryURLEqualFold applies the EqualFold predicate on the "frontend_entry_url" field.
+func FrontendEntryURLEqualFold(v string) predicate.Module {
+	return predicate.Module(sql.FieldEqualFold(FieldFrontendEntryURL, v))
+}
+
+// FrontendEntryURLContainsFold applies the ContainsFold predicate on the "frontend_entry_url" field.
+func FrontendEntryURLContainsFold(v string) predicate.Module {
+	return predicate.Module(sql.FieldContainsFold(FieldFrontendEntryURL, v))
+}
+
+// HTTPEndpointEQ applies the EQ predicate on the "http_endpoint" field.
+func HTTPEndpointEQ(v string) predicate.Module {
+	return predicate.Module(sql.FieldEQ(FieldHTTPEndpoint, v))
+}
+
+// HTTPEndpointNEQ applies the NEQ predicate on the "http_endpoint" field.
+func HTTPEndpointNEQ(v string) predicate.Module {
+	return predicate.Module(sql.FieldNEQ(FieldHTTPEndpoint, v))
+}
+
+// HTTPEndpointIn applies the In predicate on the "http_endpoint" field.
+func HTTPEndpointIn(vs ...string) predicate.Module {
+	return predicate.Module(sql.FieldIn(FieldHTTPEndpoint, vs...))
+}
+
+// HTTPEndpointNotIn applies the NotIn predicate on the "http_endpoint" field.
+func HTTPEndpointNotIn(vs ...string) predicate.Module {
+	return predicate.Module(sql.FieldNotIn(FieldHTTPEndpoint, vs...))
+}
+
+// HTTPEndpointGT applies the GT predicate on the "http_endpoint" field.
+func HTTPEndpointGT(v string) predicate.Module {
+	return predicate.Module(sql.FieldGT(FieldHTTPEndpoint, v))
+}
+
+// HTTPEndpointGTE applies the GTE predicate on the "http_endpoint" field.
+func HTTPEndpointGTE(v string) predicate.Module {
+	return predicate.Module(sql.FieldGTE(FieldHTTPEndpoint, v))
+}
+
+// HTTPEndpointLT applies the LT predicate on the "http_endpoint" field.
+func HTTPEndpointLT(v string) predicate.Module {
+	return predicate.Module(sql.FieldLT(FieldHTTPEndpoint, v))
+}
+
+// HTTPEndpointLTE applies the LTE predicate on the "http_endpoint" field.
+func HTTPEndpointLTE(v string) predicate.Module {
+	return predicate.Module(sql.FieldLTE(FieldHTTPEndpoint, v))
+}
+
+// HTTPEndpointContains applies the Contains predicate on the "http_endpoint" field.
+func HTTPEndpointContains(v string) predicate.Module {
+	return predicate.Module(sql.FieldContains(FieldHTTPEndpoint, v))
+}
+
+// HTTPEndpointHasPrefix applies the HasPrefix predicate on the "http_endpoint" field.
+func HTTPEndpointHasPrefix(v string) predicate.Module {
+	return predicate.Module(sql.FieldHasPrefix(FieldHTTPEndpoint, v))
+}
+
+// HTTPEndpointHasSuffix applies the HasSuffix predicate on the "http_endpoint" field.
+func HTTPEndpointHasSuffix(v string) predicate.Module {
+	return predicate.Module(sql.FieldHasSuffix(FieldHTTPEndpoint, v))
+}
+
+// HTTPEndpointIsNil applies the IsNil predicate on the "http_endpoint" field.
+func HTTPEndpointIsNil() predicate.Module {
+	return predicate.Module(sql.FieldIsNull(FieldHTTPEndpoint))
+}
+
+// HTTPEndpointNotNil applies the NotNil predicate on the "http_endpoint" field.
+func HTTPEndpointNotNil() predicate.Module {
+	return predicate.Module(sql.FieldNotNull(FieldHTTPEndpoint))
+}
+
+// HTTPEndpointEqualFold applies the EqualFold predicate on the "http_endpoint" field.
+func HTTPEndpointEqualFold(v string) predicate.Module {
+	return predicate.Module(sql.FieldEqualFold(FieldHTTPEndpoint, v))
+}
+
+// HTTPEndpointContainsFold applies the ContainsFold predicate on the "http_endpoint" field.
+func HTTPEndpointContainsFold(v string) predicate.Module {
+	return predicate.Module(sql.FieldContainsFold(FieldHTTPEndpoint, v))
 }
 
 // RegistrationIDEQ applies the EQ predicate on the "registration_id" field.

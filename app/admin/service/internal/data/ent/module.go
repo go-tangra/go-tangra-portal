@@ -50,6 +50,10 @@ type Module struct {
 	ProtoDescriptor *[]byte `json:"proto_descriptor,omitempty"`
 	// Raw menus.yaml bytes for menu recovery on restart
 	MenusYaml *[]byte `json:"menus_yaml,omitempty"`
+	// Module Federation remoteEntry.js URL
+	FrontendEntryURL string `json:"frontend_entry_url,omitempty"`
+	// HTTP server endpoint for frontend assets (e.g., 'ipam-service:9401')
+	HTTPEndpoint string `json:"http_endpoint,omitempty"`
 	// UUID for this registration instance
 	RegistrationID *string `json:"registration_id,omitempty"`
 	// When the module was registered
@@ -74,7 +78,7 @@ func (*Module) scanValues(columns []string) ([]any, error) {
 			values[i] = new([]byte)
 		case module.FieldID, module.FieldCreatedBy, module.FieldUpdatedBy, module.FieldDeletedBy, module.FieldStatus, module.FieldHealth, module.FieldMenuCount, module.FieldAPICount, module.FieldRouteCount:
 			values[i] = new(sql.NullInt64)
-		case module.FieldModuleID, module.FieldModuleName, module.FieldVersion, module.FieldDescription, module.FieldGrpcEndpoint, module.FieldRegistrationID:
+		case module.FieldModuleID, module.FieldModuleName, module.FieldVersion, module.FieldDescription, module.FieldGrpcEndpoint, module.FieldFrontendEntryURL, module.FieldHTTPEndpoint, module.FieldRegistrationID:
 			values[i] = new(sql.NullString)
 		case module.FieldCreatedAt, module.FieldUpdatedAt, module.FieldDeletedAt, module.FieldRegisteredAt, module.FieldLastHeartbeat:
 			values[i] = new(sql.NullTime)
@@ -201,6 +205,18 @@ func (_m *Module) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field menus_yaml", values[i])
 			} else if value != nil {
 				_m.MenusYaml = value
+			}
+		case module.FieldFrontendEntryURL:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field frontend_entry_url", values[i])
+			} else if value.Valid {
+				_m.FrontendEntryURL = value.String
+			}
+		case module.FieldHTTPEndpoint:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field http_endpoint", values[i])
+			} else if value.Valid {
+				_m.HTTPEndpoint = value.String
 			}
 		case module.FieldRegistrationID:
 			if value, ok := values[i].(*sql.NullString); !ok {
@@ -344,6 +360,12 @@ func (_m *Module) String() string {
 		builder.WriteString("menus_yaml=")
 		builder.WriteString(fmt.Sprintf("%v", *v))
 	}
+	builder.WriteString(", ")
+	builder.WriteString("frontend_entry_url=")
+	builder.WriteString(_m.FrontendEntryURL)
+	builder.WriteString(", ")
+	builder.WriteString("http_endpoint=")
+	builder.WriteString(_m.HTTPEndpoint)
 	builder.WriteString(", ")
 	if v := _m.RegistrationID; v != nil {
 		builder.WriteString("registration_id=")

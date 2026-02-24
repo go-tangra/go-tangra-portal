@@ -43,6 +43,10 @@ const (
 	FieldProtoDescriptor = "proto_descriptor"
 	// FieldMenusYaml holds the string denoting the menus_yaml field in the database.
 	FieldMenusYaml = "menus_yaml"
+	// FieldFrontendEntryURL holds the string denoting the frontend_entry_url field in the database.
+	FieldFrontendEntryURL = "frontend_entry_url"
+	// FieldHTTPEndpoint holds the string denoting the http_endpoint field in the database.
+	FieldHTTPEndpoint = "http_endpoint"
 	// FieldRegistrationID holds the string denoting the registration_id field in the database.
 	FieldRegistrationID = "registration_id"
 	// FieldRegisteredAt holds the string denoting the registered_at field in the database.
@@ -78,6 +82,8 @@ var Columns = []string{
 	FieldOpenapiSpec,
 	FieldProtoDescriptor,
 	FieldMenusYaml,
+	FieldFrontendEntryURL,
+	FieldHTTPEndpoint,
 	FieldRegistrationID,
 	FieldRegisteredAt,
 	FieldLastHeartbeat,
@@ -109,6 +115,10 @@ var (
 	DefaultStatus int32
 	// DefaultHealth holds the default value on creation for the "health" field.
 	DefaultHealth int32
+	// DefaultFrontendEntryURL holds the default value on creation for the "frontend_entry_url" field.
+	DefaultFrontendEntryURL string
+	// DefaultHTTPEndpoint holds the default value on creation for the "http_endpoint" field.
+	DefaultHTTPEndpoint string
 	// DefaultMenuCount holds the default value on creation for the "menu_count" field.
 	DefaultMenuCount int32
 	// DefaultAPICount holds the default value on creation for the "api_count" field.
@@ -190,6 +200,16 @@ func ByStatus(opts ...sql.OrderTermOption) OrderOption {
 // ByHealth orders the results by the health field.
 func ByHealth(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldHealth, opts...).ToFunc()
+}
+
+// ByFrontendEntryURL orders the results by the frontend_entry_url field.
+func ByFrontendEntryURL(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldFrontendEntryURL, opts...).ToFunc()
+}
+
+// ByHTTPEndpoint orders the results by the http_endpoint field.
+func ByHTTPEndpoint(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldHTTPEndpoint, opts...).ToFunc()
 }
 
 // ByRegistrationID orders the results by the registration_id field.

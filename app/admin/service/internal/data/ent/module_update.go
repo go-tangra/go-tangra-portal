@@ -304,6 +304,46 @@ func (_u *ModuleUpdate) ClearMenusYaml() *ModuleUpdate {
 	return _u
 }
 
+// SetFrontendEntryURL sets the "frontend_entry_url" field.
+func (_u *ModuleUpdate) SetFrontendEntryURL(v string) *ModuleUpdate {
+	_u.mutation.SetFrontendEntryURL(v)
+	return _u
+}
+
+// SetNillableFrontendEntryURL sets the "frontend_entry_url" field if the given value is not nil.
+func (_u *ModuleUpdate) SetNillableFrontendEntryURL(v *string) *ModuleUpdate {
+	if v != nil {
+		_u.SetFrontendEntryURL(*v)
+	}
+	return _u
+}
+
+// ClearFrontendEntryURL clears the value of the "frontend_entry_url" field.
+func (_u *ModuleUpdate) ClearFrontendEntryURL() *ModuleUpdate {
+	_u.mutation.ClearFrontendEntryURL()
+	return _u
+}
+
+// SetHTTPEndpoint sets the "http_endpoint" field.
+func (_u *ModuleUpdate) SetHTTPEndpoint(v string) *ModuleUpdate {
+	_u.mutation.SetHTTPEndpoint(v)
+	return _u
+}
+
+// SetNillableHTTPEndpoint sets the "http_endpoint" field if the given value is not nil.
+func (_u *ModuleUpdate) SetNillableHTTPEndpoint(v *string) *ModuleUpdate {
+	if v != nil {
+		_u.SetHTTPEndpoint(*v)
+	}
+	return _u
+}
+
+// ClearHTTPEndpoint clears the value of the "http_endpoint" field.
+func (_u *ModuleUpdate) ClearHTTPEndpoint() *ModuleUpdate {
+	_u.mutation.ClearHTTPEndpoint()
+	return _u
+}
+
 // SetRegistrationID sets the "registration_id" field.
 func (_u *ModuleUpdate) SetRegistrationID(v string) *ModuleUpdate {
 	_u.mutation.SetRegistrationID(v)
@@ -586,6 +626,18 @@ func (_u *ModuleUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	}
 	if _u.mutation.MenusYamlCleared() {
 		_spec.ClearField(module.FieldMenusYaml, field.TypeBytes)
+	}
+	if value, ok := _u.mutation.FrontendEntryURL(); ok {
+		_spec.SetField(module.FieldFrontendEntryURL, field.TypeString, value)
+	}
+	if _u.mutation.FrontendEntryURLCleared() {
+		_spec.ClearField(module.FieldFrontendEntryURL, field.TypeString)
+	}
+	if value, ok := _u.mutation.HTTPEndpoint(); ok {
+		_spec.SetField(module.FieldHTTPEndpoint, field.TypeString, value)
+	}
+	if _u.mutation.HTTPEndpointCleared() {
+		_spec.ClearField(module.FieldHTTPEndpoint, field.TypeString)
 	}
 	if value, ok := _u.mutation.RegistrationID(); ok {
 		_spec.SetField(module.FieldRegistrationID, field.TypeString, value)
@@ -920,6 +972,46 @@ func (_u *ModuleUpdateOne) ClearMenusYaml() *ModuleUpdateOne {
 	return _u
 }
 
+// SetFrontendEntryURL sets the "frontend_entry_url" field.
+func (_u *ModuleUpdateOne) SetFrontendEntryURL(v string) *ModuleUpdateOne {
+	_u.mutation.SetFrontendEntryURL(v)
+	return _u
+}
+
+// SetNillableFrontendEntryURL sets the "frontend_entry_url" field if the given value is not nil.
+func (_u *ModuleUpdateOne) SetNillableFrontendEntryURL(v *string) *ModuleUpdateOne {
+	if v != nil {
+		_u.SetFrontendEntryURL(*v)
+	}
+	return _u
+}
+
+// ClearFrontendEntryURL clears the value of the "frontend_entry_url" field.
+func (_u *ModuleUpdateOne) ClearFrontendEntryURL() *ModuleUpdateOne {
+	_u.mutation.ClearFrontendEntryURL()
+	return _u
+}
+
+// SetHTTPEndpoint sets the "http_endpoint" field.
+func (_u *ModuleUpdateOne) SetHTTPEndpoint(v string) *ModuleUpdateOne {
+	_u.mutation.SetHTTPEndpoint(v)
+	return _u
+}
+
+// SetNillableHTTPEndpoint sets the "http_endpoint" field if the given value is not nil.
+func (_u *ModuleUpdateOne) SetNillableHTTPEndpoint(v *string) *ModuleUpdateOne {
+	if v != nil {
+		_u.SetHTTPEndpoint(*v)
+	}
+	return _u
+}
+
+// ClearHTTPEndpoint clears the value of the "http_endpoint" field.
+func (_u *ModuleUpdateOne) ClearHTTPEndpoint() *ModuleUpdateOne {
+	_u.mutation.ClearHTTPEndpoint()
+	return _u
+}
+
 // SetRegistrationID sets the "registration_id" field.
 func (_u *ModuleUpdateOne) SetRegistrationID(v string) *ModuleUpdateOne {
 	_u.mutation.SetRegistrationID(v)
@@ -1232,6 +1324,18 @@ func (_u *ModuleUpdateOne) sqlSave(ctx context.Context) (_node *Module, err erro
 	}
 	if _u.mutation.MenusYamlCleared() {
 		_spec.ClearField(module.FieldMenusYaml, field.TypeBytes)
+	}
+	if value, ok := _u.mutation.FrontendEntryURL(); ok {
+		_spec.SetField(module.FieldFrontendEntryURL, field.TypeString, value)
+	}
+	if _u.mutation.FrontendEntryURLCleared() {
+		_spec.ClearField(module.FieldFrontendEntryURL, field.TypeString)
+	}
+	if value, ok := _u.mutation.HTTPEndpoint(); ok {
+		_spec.SetField(module.FieldHTTPEndpoint, field.TypeString, value)
+	}
+	if _u.mutation.HTTPEndpointCleared() {
+		_spec.ClearField(module.FieldHTTPEndpoint, field.TypeString)
 	}
 	if value, ok := _u.mutation.RegistrationID(); ok {
 		_spec.SetField(module.FieldRegistrationID, field.TypeString, value)
