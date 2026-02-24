@@ -65,10 +65,12 @@ func NewLcmClients(ctx *bootstrap.Context) (*LcmClients, func(), error) {
 	}
 
 	// Configure keepalive to detect dead connections
+	// Note: gRPC servers enforce a minimum ping interval (default 5 minutes)
+	// Setting Time too low causes ENHANCE_YOUR_CALM errors
 	keepaliveParams := keepalive.ClientParameters{
-		Time:                10 * time.Second, // Send pings every 10 seconds if no activity
-		Timeout:             5 * time.Second,  // Wait 5 seconds for ping ack before considering connection dead
-		PermitWithoutStream: true,             // Send pings even without active streams
+		Time:                5 * time.Minute,  // Send pings every 5 minutes if no activity
+		Timeout:             20 * time.Second, // Wait 20 seconds for ping ack before considering connection dead
+		PermitWithoutStream: false,            // Don't send pings without active streams
 	}
 
 	// Create gRPC connection with TLS and reconnection settings
