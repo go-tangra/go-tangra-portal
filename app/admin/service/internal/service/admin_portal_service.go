@@ -233,7 +233,7 @@ func (s *AdminPortalService) GetNavigation(ctx context.Context, _ *emptypb.Empty
 	routes := s.fillRouteItem(menuList.Items)
 
 	// Get user's permission codes for filtering dynamic menus
-	userPermCodes := s.getUserPermissionCodes(user)
+	userPermCodes := s.getUserPermissionCodes(ctx, user)
 
 	// Append dynamic menus from registered modules
 	dynamicMenus := s.moduleRegistry.GetAllDynamicMenus()
@@ -245,20 +245,19 @@ func (s *AdminPortalService) GetNavigation(ctx context.Context, _ *emptypb.Empty
 	return resp, nil
 }
 
-// getUserPermissionCodes extracts permission codes from user's roles
-func (s *AdminPortalService) getUserPermissionCodes(user *userV1.User) []string {
-	// Map role IDs to permission codes
-	// Role 1 = platform admin, Role 2 = tenant admin template
-	var codes []string
-	for _, roleID := range user.GetRoleIds() {
-		if roleID == 1 {
-			codes = append(codes, "platform:admin")
-		}
-		// Tenant manager roles (derived from template)
-		if roleID >= 2 {
-			codes = append(codes, "tenant:manager")
-		}
+// getUserPermissionCodes looks up the actual role codes from the database for the user's roles
+func (s *AdminPortalService) getUserPermissionCodes(ctx context.Context, user *userV1.User) []string {
+	roleIDs := user.GetRoleIds()
+	if len(roleIDs) == 0 {
+		return nil
 	}
+
+	codes, err := s.roleRepo.ListRoleCodesByRoleIds(ctx, roleIDs)
+	if err != nil {
+		s.log.Errorf("query role codes failed: %s", err.Error())
+		return nil
+	}
+
 	return codes
 }
 
@@ -302,7 +301,11 @@ func (s *AdminPortalService) convertDynamicMenusToRoutes(menus []*ParsedMenu, us
 	return routes
 }
 
-// hasMenuPermission checks if user has permission to see a menu
+// hasMenuPermission checks if user has permission to see a menu.
+// It supports two matching strategies:
+//  1. Exact match: user role code matches a menu authority entry (e.g. "platform:admin")
+//  2. Module prefix match: role code "paperless.operator" grants access to menus
+//     whose ID starts with "paperless" (the part before the first dot in the role code)
 func (s *AdminPortalService) hasMenuPermission(menu *ParsedMenu, userPermCodes []string) bool {
 	if len(menu.Authority) == 0 {
 		// No authority restriction - everyone can see
@@ -311,6 +314,16 @@ func (s *AdminPortalService) hasMenuPermission(menu *ParsedMenu, userPermCodes [
 	for _, required := range menu.Authority {
 		for _, userCode := range userPermCodes {
 			if required == userCode {
+				return true
+			}
+		}
+	}
+	// Convention-based module match: role "{module}.{level}" grants access to
+	// menus whose ID starts with "{module}" (e.g. role "ipam.viewer" → menu "ipam-subnets")
+	for _, userCode := range userPermCodes {
+		if dotIdx := strings.Index(userCode, "."); dotIdx > 0 {
+			modulePrefix := userCode[:dotIdx]
+			if strings.HasPrefix(menu.ID, modulePrefix) {
 				return true
 			}
 		}
