@@ -9,7 +9,7 @@ require (
 	github.com/getkin/kin-openapi v0.133.0
 	github.com/go-kratos/kratos/v2 v2.9.2
 	github.com/go-sql-driver/mysql v1.9.3
-	github.com/go-tangra/go-tangra-common v0.0.1
+	github.com/go-tangra/go-tangra-common v0.5.0
 	github.com/go-webauthn/webauthn v0.15.0
 	github.com/golang-jwt/jwt/v5 v5.3.0
 	github.com/google/gnostic v0.7.1
@@ -289,4 +289,3 @@ require (
 	modernc.org/sqlite v1.44.3 // indirect
 	sigs.k8s.io/yaml v1.6.0 // indirect
 )
-
