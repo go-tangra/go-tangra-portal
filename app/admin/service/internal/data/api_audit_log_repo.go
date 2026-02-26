@@ -2,6 +2,8 @@ package data
 
 import (
 	"context"
+	stdsql "database/sql"
+	"errors"
 	"time"
 
 	"entgo.io/ent/dialect/sql"
@@ -188,7 +190,7 @@ func (r *ApiAuditLogRepo) Create(ctx context.Context, req *auditV1.CreateApiAudi
 		DoNothing().
 		Exec(ctx)
 	if err != nil {
-		if ent.IsConstraintError(err) {
+		if ent.IsConstraintError(err) || errors.Is(err, stdsql.ErrNoRows) {
 			return nil
 		}
 		r.log.Errorf("insert api audit log failed: %s", err.Error())
