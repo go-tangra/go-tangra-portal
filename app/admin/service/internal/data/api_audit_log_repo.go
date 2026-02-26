@@ -183,11 +183,17 @@ func (r *ApiAuditLogRepo) Create(ctx context.Context, req *auditV1.CreateApiAudi
 		SetSignature(req.Data.Signature).
 		SetCreatedAt(time.Now())
 
-	err := builder.Exec(ctx)
+	err := builder.
+		OnConflictColumns("tenant_id", "request_id").
+		DoNothing().
+		Exec(ctx)
 	if err != nil {
+		if ent.IsConstraintError(err) {
+			return nil
+		}
 		r.log.Errorf("insert api audit log failed: %s", err.Error())
 		return adminV1.ErrorInternalServerError("insert api audit log failed")
 	}
 
-	return err
+	return nil
 }

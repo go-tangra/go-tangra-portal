@@ -75,7 +75,7 @@ func bufferRequestBody(r *http.Request) []byte {
 
 // writeAuditLog builds and writes an API audit log entry for a transcoded request.
 func (t *Transcoder) writeAuditLog(
-	ctx context.Context,
+	_ context.Context,
 	r *http.Request,
 	moduleID string,
 	method *MethodInfo,
@@ -126,7 +126,9 @@ func (t *Transcoder) writeAuditLog(
 	apiLog.LogHash = trans.Ptr(auditHashLog(apiLog))
 	apiLog.Signature = auditSignLog(apiLog, t.ecPrivateKey)
 
-	logCtx := appViewer.NewSystemViewerContext(ctx)
+	// Detach from request context to prevent "context canceled" errors
+	// when the HTTP response has already been sent before the DB insert completes.
+	logCtx := appViewer.NewSystemViewerContext(context.Background())
 	if err := t.writeApiLogFunc(logCtx, apiLog); err != nil {
 		t.log.Warnf("Failed to write API audit log for module %s: %v", moduleID, err)
 	}
