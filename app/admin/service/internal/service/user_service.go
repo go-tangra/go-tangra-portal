@@ -367,10 +367,28 @@ func (s *UserService) Update(ctx context.Context, req *userV1.UpdateUserRequest)
 
 	req.Data.UpdatedBy = trans.Ptr(operator.UserId)
 	if req.UpdateMask != nil {
-		// Filter out paths that are not fields on the User proto (e.g. "password")
+		// Filter out paths that are not database columns on sys_users.
+		// These are either handled separately (password, relations) or
+		// are computed/virtual fields from join tables.
+		skipPaths := map[string]bool{
+			"password":       true,
+			"role_ids":       true,
+			"role_id":        true,
+			"roles":          true,
+			"role_names":     true,
+			"org_unit_ids":   true,
+			"org_unit_id":    true,
+			"org_unit_names": true,
+			"org_unit_name":  true,
+			"position_ids":   true,
+			"position_id":    true,
+			"position_names": true,
+			"position_name":  true,
+			"tenant_name":    true,
+		}
 		filtered := make([]string, 0, len(req.UpdateMask.Paths))
 		for _, p := range req.UpdateMask.Paths {
-			if p != "password" {
+			if !skipPaths[p] {
 				filtered = append(filtered, p)
 			}
 		}
