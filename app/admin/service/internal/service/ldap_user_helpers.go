@@ -19,6 +19,9 @@ func computeChangedUserFields(existing *userV1.User, ldap *data.LdapUser) []stri
 	if ldap.Username != "" && ldap.Username != existing.GetUsername() {
 		changed = append(changed, "username")
 	}
+	if ldap.Nickname != "" && ldap.Nickname != existing.GetNickname() {
+		changed = append(changed, "nickname")
+	}
 	if ldap.Realname != "" && ldap.Realname != existing.GetRealname() {
 		changed = append(changed, "realname")
 	}
@@ -37,6 +40,9 @@ func ldapUserToProto(ldap *data.LdapUser) *userV1.User {
 	u := &userV1.User{}
 	if ldap.Username != "" {
 		u.Username = &ldap.Username
+	}
+	if ldap.Nickname != "" {
+		u.Nickname = &ldap.Nickname
 	}
 	if ldap.Realname != "" {
 		u.Realname = &ldap.Realname

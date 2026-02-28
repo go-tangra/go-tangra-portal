@@ -14,6 +14,7 @@ import (
 // LdapUser represents a user fetched from LDAP
 type LdapUser struct {
 	Username string
+	Nickname string
 	Realname string
 	Email    string
 	Mobile   string
@@ -31,6 +32,7 @@ type LdapClient struct {
 	baseDN        string
 	searchFilter  string
 	attrUsername  string
+	attrNickname string
 	attrRealname string
 	attrEmail    string
 	attrMobile   string
@@ -49,6 +51,7 @@ func NewLdapClient(ctx *bootstrap.Context) *LdapClient {
 		baseDN:        ldapEnv("PORTAL_LDAP_BASE_DN", ""),
 		searchFilter:  ldapEnv("PORTAL_LDAP_SEARCH_FILTER", "(objectClass=person)"),
 		attrUsername:  ldapEnv("PORTAL_LDAP_ATTR_USERNAME", "sAMAccountName"),
+		attrNickname: ldapEnv("PORTAL_LDAP_ATTR_NICKNAME", "givenName"),
 		attrRealname: ldapEnv("PORTAL_LDAP_ATTR_REALNAME", "displayName"),
 		attrEmail:    ldapEnv("PORTAL_LDAP_ATTR_EMAIL", "mail"),
 		attrMobile:   ldapEnv("PORTAL_LDAP_ATTR_MOBILE", "mobile"),
@@ -100,6 +103,7 @@ func (c *LdapClient) FetchUsers(_ context.Context) ([]LdapUser, error) {
 	attributes := []string{
 		"dn",
 		c.attrUsername,
+		c.attrNickname,
 		c.attrRealname,
 		c.attrEmail,
 		c.attrMobile,
@@ -127,6 +131,7 @@ func (c *LdapClient) FetchUsers(_ context.Context) ([]LdapUser, error) {
 	for _, entry := range result.Entries {
 		u := LdapUser{
 			Username: entry.GetAttributeValue(c.attrUsername),
+			Nickname: entry.GetAttributeValue(c.attrNickname),
 			Realname: entry.GetAttributeValue(c.attrRealname),
 			Email:    entry.GetAttributeValue(c.attrEmail),
 			Mobile:   entry.GetAttributeValue(c.attrMobile),

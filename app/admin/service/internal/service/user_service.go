@@ -367,7 +367,14 @@ func (s *UserService) Update(ctx context.Context, req *userV1.UpdateUserRequest)
 
 	req.Data.UpdatedBy = trans.Ptr(operator.UserId)
 	if req.UpdateMask != nil {
-		req.UpdateMask.Paths = append(req.UpdateMask.Paths, "updated_by")
+		// Filter out paths that are not fields on the User proto (e.g. "password")
+		filtered := make([]string, 0, len(req.UpdateMask.Paths))
+		for _, p := range req.UpdateMask.Paths {
+			if p != "password" {
+				filtered = append(filtered, p)
+			}
+		}
+		req.UpdateMask.Paths = append(filtered, "updated_by")
 	}
 
 	// 更新用户
@@ -524,6 +531,7 @@ func (s *UserService) LdapSyncExecute(ctx context.Context, req *userV1.LdapSyncE
 			createReq := &userV1.CreateUserRequest{
 				Data: &userV1.User{
 					Username: change.User.Username,
+					Nickname: change.User.Nickname,
 					Realname: change.User.Realname,
 					Email:    change.User.Email,
 					Mobile:   change.User.Mobile,

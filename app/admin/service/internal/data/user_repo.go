@@ -636,19 +636,14 @@ func (r *userRepo) Update(ctx context.Context, req *userV1.UpdateUserRequest) (e
 				SetNillableStatus(r.statusConverter.ToEntity(req.Data.Status)).
 				SetNillableUpdatedBy(req.Data.UpdatedBy).
 				SetUpdatedAt(time.Now())
-
-			if req.Data.RoleIds != nil {
-				var roleIds []int
-				for _, roleId := range req.Data.GetRoleIds() {
-					roleIds = append(roleIds, int(roleId))
-				}
-				//builder.SetRoleIds(roleIds)
-			}
 		},
 		func(s *sql.Selector) {
 			s.Where(sql.EQ(user.FieldID, req.GetId()))
 		},
 	)
+	if err != nil {
+		return err
+	}
 
 	switch constants.DefaultUserTenantRelationType {
 	case constants.UserTenantRelationNone, constants.UserTenantRelationOneToOne:
