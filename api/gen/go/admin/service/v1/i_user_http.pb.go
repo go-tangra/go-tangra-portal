@@ -26,6 +26,8 @@ const OperationUserServiceCreate = "/admin.service.v1.UserService/Create"
 const OperationUserServiceDelete = "/admin.service.v1.UserService/Delete"
 const OperationUserServiceEditUserPassword = "/admin.service.v1.UserService/EditUserPassword"
 const OperationUserServiceGet = "/admin.service.v1.UserService/Get"
+const OperationUserServiceLdapSyncExecute = "/admin.service.v1.UserService/LdapSyncExecute"
+const OperationUserServiceLdapSyncPreview = "/admin.service.v1.UserService/LdapSyncPreview"
 const OperationUserServiceList = "/admin.service.v1.UserService/List"
 const OperationUserServiceUpdate = "/admin.service.v1.UserService/Update"
 const OperationUserServiceUserExists = "/admin.service.v1.UserService/UserExists"
@@ -39,6 +41,10 @@ type UserServiceHTTPServer interface {
 	EditUserPassword(context.Context, *v11.EditUserPasswordRequest) (*emptypb.Empty, error)
 	// Get Get user data
 	Get(context.Context, *v11.GetUserRequest) (*v11.User, error)
+	// LdapSyncExecute Execute LDAP user sync
+	LdapSyncExecute(context.Context, *v11.LdapSyncExecuteRequest) (*v11.LdapSyncExecuteResponse, error)
+	// LdapSyncPreview Preview LDAP user sync changes
+	LdapSyncPreview(context.Context, *v11.LdapSyncPreviewRequest) (*v11.LdapSyncPreviewResponse, error)
 	// List Get user list
 	List(context.Context, *v1.PagingRequest) (*v11.ListUserResponse, error)
 	// Update Update user
@@ -58,6 +64,8 @@ func RegisterUserServiceHTTPServer(s *http.Server, srv UserServiceHTTPServer) {
 	r.DELETE("/admin/v1/users/{id}", _UserService_Delete14_HTTP_Handler(srv))
 	r.GET("/admin/v1/users:exists", _UserService_UserExists0_HTTP_Handler(srv))
 	r.POST("/admin/v1/users/{user_id}/password", _UserService_EditUserPassword0_HTTP_Handler(srv))
+	r.POST("/admin/v1/users/ldap-sync/preview", _UserService_LdapSyncPreview0_HTTP_Handler(srv))
+	r.POST("/admin/v1/users/ldap-sync/execute", _UserService_LdapSyncExecute0_HTTP_Handler(srv))
 }
 
 func _UserService_List19_HTTP_Handler(srv UserServiceHTTPServer) func(ctx http.Context) error {
@@ -258,6 +266,50 @@ func _UserService_EditUserPassword0_HTTP_Handler(srv UserServiceHTTPServer) func
 	}
 }
 
+func _UserService_LdapSyncPreview0_HTTP_Handler(srv UserServiceHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in v11.LdapSyncPreviewRequest
+		if err := ctx.Bind(&in); err != nil {
+			return err
+		}
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationUserServiceLdapSyncPreview)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.LdapSyncPreview(ctx, req.(*v11.LdapSyncPreviewRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*v11.LdapSyncPreviewResponse)
+		return ctx.Result(200, reply)
+	}
+}
+
+func _UserService_LdapSyncExecute0_HTTP_Handler(srv UserServiceHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in v11.LdapSyncExecuteRequest
+		if err := ctx.Bind(&in); err != nil {
+			return err
+		}
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationUserServiceLdapSyncExecute)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.LdapSyncExecute(ctx, req.(*v11.LdapSyncExecuteRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*v11.LdapSyncExecuteResponse)
+		return ctx.Result(200, reply)
+	}
+}
+
 type UserServiceHTTPClient interface {
 	// Create Create user
 	Create(ctx context.Context, req *v11.CreateUserRequest, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
@@ -267,6 +319,10 @@ type UserServiceHTTPClient interface {
 	EditUserPassword(ctx context.Context, req *v11.EditUserPasswordRequest, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 	// Get Get user data
 	Get(ctx context.Context, req *v11.GetUserRequest, opts ...http.CallOption) (rsp *v11.User, err error)
+	// LdapSyncExecute Execute LDAP user sync
+	LdapSyncExecute(ctx context.Context, req *v11.LdapSyncExecuteRequest, opts ...http.CallOption) (rsp *v11.LdapSyncExecuteResponse, err error)
+	// LdapSyncPreview Preview LDAP user sync changes
+	LdapSyncPreview(ctx context.Context, req *v11.LdapSyncPreviewRequest, opts ...http.CallOption) (rsp *v11.LdapSyncPreviewResponse, err error)
 	// List Get user list
 	List(ctx context.Context, req *v1.PagingRequest, opts ...http.CallOption) (rsp *v11.ListUserResponse, err error)
 	// Update Update user
@@ -333,6 +389,34 @@ func (c *UserServiceHTTPClientImpl) Get(ctx context.Context, in *v11.GetUserRequ
 	opts = append(opts, http.Operation(OperationUserServiceGet))
 	opts = append(opts, http.PathTemplate(pattern))
 	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, nil
+}
+
+// LdapSyncExecute Execute LDAP user sync
+func (c *UserServiceHTTPClientImpl) LdapSyncExecute(ctx context.Context, in *v11.LdapSyncExecuteRequest, opts ...http.CallOption) (*v11.LdapSyncExecuteResponse, error) {
+	var out v11.LdapSyncExecuteResponse
+	pattern := "/admin/v1/users/ldap-sync/execute"
+	path := binding.EncodeURL(pattern, in, false)
+	opts = append(opts, http.Operation(OperationUserServiceLdapSyncExecute))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, nil
+}
+
+// LdapSyncPreview Preview LDAP user sync changes
+func (c *UserServiceHTTPClientImpl) LdapSyncPreview(ctx context.Context, in *v11.LdapSyncPreviewRequest, opts ...http.CallOption) (*v11.LdapSyncPreviewResponse, error) {
+	var out v11.LdapSyncPreviewResponse
+	pattern := "/admin/v1/users/ldap-sync/preview"
+	path := binding.EncodeURL(pattern, in, false)
+	opts = append(opts, http.Operation(OperationUserServiceLdapSyncPreview))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
 	if err != nil {
 		return nil, err
 	}

@@ -365,6 +365,53 @@ message ChangePasswordRequest {
   ]; // New password
 }
 
+// LDAP Sync
+
+// LdapSyncPreviewRequest requests a preview of LDAP user sync changes
+message LdapSyncPreviewRequest {
+  optional uint32 tenant_id = 1 [json_name = "tenantId"];
+}
+
+// LdapSyncChange describes a single change from LDAP sync
+message LdapSyncChange {
+  enum Action {
+    ACTION_UNSPECIFIED = 0;
+    ACTION_CREATE = 1;
+    ACTION_UPDATE = 2;
+  }
+
+  Action action = 1 [json_name = "action"];
+  optional User user = 2 [json_name = "user"];
+  repeated string changed_fields = 3 [json_name = "changedFields"];
+  optional uint32 existing_id = 4 [json_name = "existingId"];
+  optional string ldap_dn = 5 [json_name = "ldapDn"];
+}
+
+// LdapSyncPreviewResponse contains the preview of LDAP sync changes
+message LdapSyncPreviewResponse {
+  int32 total_ldap_entries = 1 [json_name = "totalLdapEntries"];
+  int32 new_count = 2 [json_name = "newCount"];
+  int32 update_count = 3 [json_name = "updateCount"];
+  int32 unchanged_count = 4 [json_name = "unchangedCount"];
+  repeated LdapSyncChange changes = 5 [json_name = "changes"];
+  repeated string warnings = 6 [json_name = "warnings"];
+}
+
+// LdapSyncExecuteRequest executes the LDAP user sync
+message LdapSyncExecuteRequest {
+  optional uint32 tenant_id = 1 [json_name = "tenantId"];
+  repeated string selected_dns = 2 [json_name = "selectedDns"];
+}
+
+// LdapSyncExecuteResponse contains the results of LDAP sync execution
+message LdapSyncExecuteResponse {
+  int32 created_count = 1 [json_name = "createdCount"];
+  int32 updated_count = 2 [json_name = "updatedCount"];
+  int32 skipped_count = 3 [json_name = "skippedCount"];
+  int32 error_count = 4 [json_name = "errorCount"];
+  repeated string errors = 5 [json_name = "errors"];
+}
+
 message UploadAvatarRequest {
   oneof source {
     string image_base64 = 1;

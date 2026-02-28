@@ -349,6 +349,84 @@ func (x *ChangePasswordRequest) Redact() string {
 	return x.String()
 }
 
+// Redact method implementation for LdapSyncPreviewRequest
+func (x *LdapSyncPreviewRequest) Redact() string {
+	if x == nil {
+		return ""
+	}
+
+	// Safe field: TenantId
+	return x.String()
+}
+
+// Redact method implementation for LdapSyncChange
+func (x *LdapSyncChange) Redact() string {
+	if x == nil {
+		return ""
+	}
+
+	// Safe field: Action
+
+	// Safe field: User
+
+	// Safe field: ChangedFields
+
+	// Safe field: ExistingId
+
+	// Safe field: LdapDn
+	return x.String()
+}
+
+// Redact method implementation for LdapSyncPreviewResponse
+func (x *LdapSyncPreviewResponse) Redact() string {
+	if x == nil {
+		return ""
+	}
+
+	// Safe field: TotalLdapEntries
+
+	// Safe field: NewCount
+
+	// Safe field: UpdateCount
+
+	// Safe field: UnchangedCount
+
+	// Safe field: Changes
+
+	// Safe field: Warnings
+	return x.String()
+}
+
+// Redact method implementation for LdapSyncExecuteRequest
+func (x *LdapSyncExecuteRequest) Redact() string {
+	if x == nil {
+		return ""
+	}
+
+	// Safe field: TenantId
+
+	// Safe field: SelectedDns
+	return x.String()
+}
+
+// Redact method implementation for LdapSyncExecuteResponse
+func (x *LdapSyncExecuteResponse) Redact() string {
+	if x == nil {
+		return ""
+	}
+
+	// Safe field: CreatedCount
+
+	// Safe field: UpdatedCount
+
+	// Safe field: SkippedCount
+
+	// Safe field: ErrorCount
+
+	// Safe field: Errors
+	return x.String()
+}
+
 // Redact method implementation for UploadAvatarRequest
 func (x *UploadAvatarRequest) Redact() string {
 	if x == nil {

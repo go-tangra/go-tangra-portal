@@ -72,4 +72,20 @@ service UserService {
       body: "*"
     };
   }
+
+  // Preview LDAP user sync changes
+  rpc LdapSyncPreview(user.service.v1.LdapSyncPreviewRequest) returns (user.service.v1.LdapSyncPreviewResponse) {
+    option (google.api.http) = {
+      post: "/admin/v1/users/ldap-sync/preview"
+      body: "*"
+    };
+  }
+
+  // Execute LDAP user sync
+  rpc LdapSyncExecute(user.service.v1.LdapSyncExecuteRequest) returns (user.service.v1.LdapSyncExecuteResponse) {
+    option (google.api.http) = {
+      post: "/admin/v1/users/ldap-sync/execute"
+      body: "*"
+    };
+  }
 }

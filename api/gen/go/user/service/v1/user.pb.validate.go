@@ -1919,6 +1919,615 @@ var _ interface {
 	ErrorName() string
 } = ChangePasswordRequestValidationError{}
 
+// Validate checks the field values on LdapSyncPreviewRequest with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *LdapSyncPreviewRequest) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on LdapSyncPreviewRequest with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// LdapSyncPreviewRequestMultiError, or nil if none found.
+func (m *LdapSyncPreviewRequest) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *LdapSyncPreviewRequest) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if m.TenantId != nil {
+		// no validation rules for TenantId
+	}
+
+	if len(errors) > 0 {
+		return LdapSyncPreviewRequestMultiError(errors)
+	}
+
+	return nil
+}
+
+// LdapSyncPreviewRequestMultiError is an error wrapping multiple validation
+// errors returned by LdapSyncPreviewRequest.ValidateAll() if the designated
+// constraints aren't met.
+type LdapSyncPreviewRequestMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m LdapSyncPreviewRequestMultiError) Error() string {
+	msgs := make([]string, 0, len(m))
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m LdapSyncPreviewRequestMultiError) AllErrors() []error { return m }
+
+// LdapSyncPreviewRequestValidationError is the validation error returned by
+// LdapSyncPreviewRequest.Validate if the designated constraints aren't met.
+type LdapSyncPreviewRequestValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e LdapSyncPreviewRequestValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e LdapSyncPreviewRequestValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e LdapSyncPreviewRequestValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e LdapSyncPreviewRequestValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e LdapSyncPreviewRequestValidationError) ErrorName() string {
+	return "LdapSyncPreviewRequestValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e LdapSyncPreviewRequestValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sLdapSyncPreviewRequest.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = LdapSyncPreviewRequestValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = LdapSyncPreviewRequestValidationError{}
+
+// Validate checks the field values on LdapSyncChange with the rules defined in
+// the proto definition for this message. If any rules are violated, the first
+// error encountered is returned, or nil if there are no violations.
+func (m *LdapSyncChange) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on LdapSyncChange with the rules defined
+// in the proto definition for this message. If any rules are violated, the
+// result is a list of violation errors wrapped in LdapSyncChangeMultiError,
+// or nil if none found.
+func (m *LdapSyncChange) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *LdapSyncChange) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for Action
+
+	if m.User != nil {
+
+		if all {
+			switch v := interface{}(m.GetUser()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, LdapSyncChangeValidationError{
+						field:  "User",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, LdapSyncChangeValidationError{
+						field:  "User",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(m.GetUser()).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return LdapSyncChangeValidationError{
+					field:  "User",
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	}
+
+	if m.ExistingId != nil {
+		// no validation rules for ExistingId
+	}
+
+	if m.LdapDn != nil {
+		// no validation rules for LdapDn
+	}
+
+	if len(errors) > 0 {
+		return LdapSyncChangeMultiError(errors)
+	}
+
+	return nil
+}
+
+// LdapSyncChangeMultiError is an error wrapping multiple validation errors
+// returned by LdapSyncChange.ValidateAll() if the designated constraints
+// aren't met.
+type LdapSyncChangeMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m LdapSyncChangeMultiError) Error() string {
+	msgs := make([]string, 0, len(m))
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m LdapSyncChangeMultiError) AllErrors() []error { return m }
+
+// LdapSyncChangeValidationError is the validation error returned by
+// LdapSyncChange.Validate if the designated constraints aren't met.
+type LdapSyncChangeValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e LdapSyncChangeValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e LdapSyncChangeValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e LdapSyncChangeValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e LdapSyncChangeValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e LdapSyncChangeValidationError) ErrorName() string { return "LdapSyncChangeValidationError" }
+
+// Error satisfies the builtin error interface
+func (e LdapSyncChangeValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sLdapSyncChange.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = LdapSyncChangeValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = LdapSyncChangeValidationError{}
+
+// Validate checks the field values on LdapSyncPreviewResponse with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *LdapSyncPreviewResponse) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on LdapSyncPreviewResponse with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// LdapSyncPreviewResponseMultiError, or nil if none found.
+func (m *LdapSyncPreviewResponse) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *LdapSyncPreviewResponse) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for TotalLdapEntries
+
+	// no validation rules for NewCount
+
+	// no validation rules for UpdateCount
+
+	// no validation rules for UnchangedCount
+
+	for idx, item := range m.GetChanges() {
+		_, _ = idx, item
+
+		if all {
+			switch v := interface{}(item).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, LdapSyncPreviewResponseValidationError{
+						field:  fmt.Sprintf("Changes[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, LdapSyncPreviewResponseValidationError{
+						field:  fmt.Sprintf("Changes[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return LdapSyncPreviewResponseValidationError{
+					field:  fmt.Sprintf("Changes[%v]", idx),
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	}
+
+	if len(errors) > 0 {
+		return LdapSyncPreviewResponseMultiError(errors)
+	}
+
+	return nil
+}
+
+// LdapSyncPreviewResponseMultiError is an error wrapping multiple validation
+// errors returned by LdapSyncPreviewResponse.ValidateAll() if the designated
+// constraints aren't met.
+type LdapSyncPreviewResponseMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m LdapSyncPreviewResponseMultiError) Error() string {
+	msgs := make([]string, 0, len(m))
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m LdapSyncPreviewResponseMultiError) AllErrors() []error { return m }
+
+// LdapSyncPreviewResponseValidationError is the validation error returned by
+// LdapSyncPreviewResponse.Validate if the designated constraints aren't met.
+type LdapSyncPreviewResponseValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e LdapSyncPreviewResponseValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e LdapSyncPreviewResponseValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e LdapSyncPreviewResponseValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e LdapSyncPreviewResponseValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e LdapSyncPreviewResponseValidationError) ErrorName() string {
+	return "LdapSyncPreviewResponseValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e LdapSyncPreviewResponseValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sLdapSyncPreviewResponse.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = LdapSyncPreviewResponseValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = LdapSyncPreviewResponseValidationError{}
+
+// Validate checks the field values on LdapSyncExecuteRequest with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *LdapSyncExecuteRequest) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on LdapSyncExecuteRequest with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// LdapSyncExecuteRequestMultiError, or nil if none found.
+func (m *LdapSyncExecuteRequest) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *LdapSyncExecuteRequest) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if m.TenantId != nil {
+		// no validation rules for TenantId
+	}
+
+	if len(errors) > 0 {
+		return LdapSyncExecuteRequestMultiError(errors)
+	}
+
+	return nil
+}
+
+// LdapSyncExecuteRequestMultiError is an error wrapping multiple validation
+// errors returned by LdapSyncExecuteRequest.ValidateAll() if the designated
+// constraints aren't met.
+type LdapSyncExecuteRequestMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m LdapSyncExecuteRequestMultiError) Error() string {
+	msgs := make([]string, 0, len(m))
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m LdapSyncExecuteRequestMultiError) AllErrors() []error { return m }
+
+// LdapSyncExecuteRequestValidationError is the validation error returned by
+// LdapSyncExecuteRequest.Validate if the designated constraints aren't met.
+type LdapSyncExecuteRequestValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e LdapSyncExecuteRequestValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e LdapSyncExecuteRequestValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e LdapSyncExecuteRequestValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e LdapSyncExecuteRequestValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e LdapSyncExecuteRequestValidationError) ErrorName() string {
+	return "LdapSyncExecuteRequestValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e LdapSyncExecuteRequestValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sLdapSyncExecuteRequest.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = LdapSyncExecuteRequestValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = LdapSyncExecuteRequestValidationError{}
+
+// Validate checks the field values on LdapSyncExecuteResponse with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *LdapSyncExecuteResponse) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on LdapSyncExecuteResponse with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// LdapSyncExecuteResponseMultiError, or nil if none found.
+func (m *LdapSyncExecuteResponse) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *LdapSyncExecuteResponse) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for CreatedCount
+
+	// no validation rules for UpdatedCount
+
+	// no validation rules for SkippedCount
+
+	// no validation rules for ErrorCount
+
+	if len(errors) > 0 {
+		return LdapSyncExecuteResponseMultiError(errors)
+	}
+
+	return nil
+}
+
+// LdapSyncExecuteResponseMultiError is an error wrapping multiple validation
+// errors returned by LdapSyncExecuteResponse.ValidateAll() if the designated
+// constraints aren't met.
+type LdapSyncExecuteResponseMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m LdapSyncExecuteResponseMultiError) Error() string {
+	msgs := make([]string, 0, len(m))
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m LdapSyncExecuteResponseMultiError) AllErrors() []error { return m }
+
+// LdapSyncExecuteResponseValidationError is the validation error returned by
+// LdapSyncExecuteResponse.Validate if the designated constraints aren't met.
+type LdapSyncExecuteResponseValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e LdapSyncExecuteResponseValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e LdapSyncExecuteResponseValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e LdapSyncExecuteResponseValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e LdapSyncExecuteResponseValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e LdapSyncExecuteResponseValidationError) ErrorName() string {
+	return "LdapSyncExecuteResponseValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e LdapSyncExecuteResponseValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sLdapSyncExecuteResponse.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = LdapSyncExecuteResponseValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = LdapSyncExecuteResponseValidationError{}
+
 // Validate checks the field values on UploadAvatarRequest with the rules
 // defined in the proto definition for this message. If any rules are
 // violated, the first error encountered is returned, or nil if there are no violations.

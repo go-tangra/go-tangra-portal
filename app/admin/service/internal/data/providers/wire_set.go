@@ -97,4 +97,7 @@ var ProviderSet = wire.NewSet(
 
 	// Time Series
 	data.NewTimeSeriesRepo,
+
+	// LDAP
+	data.NewLdapClient,
 )

@@ -117,3 +117,25 @@ func (s *redactedUserServiceServer) EditUserPassword(ctx context.Context, in *us
 	}
 	return res, err
 }
+
+// LdapSyncPreview is the redacted wrapper for the actual UserServiceServer.LdapSyncPreview method
+// Unary RPC
+func (s *redactedUserServiceServer) LdapSyncPreview(ctx context.Context, in *userpb.LdapSyncPreviewRequest) (*userpb.LdapSyncPreviewResponse, error) {
+	res, err := s.srv.LdapSyncPreview(ctx, in)
+	if !s.bypass.CheckInternal(ctx) {
+		// Apply redaction to the response
+		redact.Apply(res)
+	}
+	return res, err
+}
+
+// LdapSyncExecute is the redacted wrapper for the actual UserServiceServer.LdapSyncExecute method
+// Unary RPC
+func (s *redactedUserServiceServer) LdapSyncExecute(ctx context.Context, in *userpb.LdapSyncExecuteRequest) (*userpb.LdapSyncExecuteResponse, error) {
+	res, err := s.srv.LdapSyncExecute(ctx, in)
+	if !s.bypass.CheckInternal(ctx) {
+		// Apply redaction to the response
+		redact.Apply(res)
+	}
+	return res, err
+}

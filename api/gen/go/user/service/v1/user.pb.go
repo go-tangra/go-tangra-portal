@@ -137,6 +137,55 @@ func (User_Status) EnumDescriptor() ([]byte, []int) {
 	return file_user_service_v1_user_proto_rawDescGZIP(), []int{0, 1}
 }
 
+type LdapSyncChange_Action int32
+
+const (
+	LdapSyncChange_ACTION_UNSPECIFIED LdapSyncChange_Action = 0
+	LdapSyncChange_ACTION_CREATE      LdapSyncChange_Action = 1
+	LdapSyncChange_ACTION_UPDATE      LdapSyncChange_Action = 2
+)
+
+// Enum value maps for LdapSyncChange_Action.
+var (
+	LdapSyncChange_Action_name = map[int32]string{
+		0: "ACTION_UNSPECIFIED",
+		1: "ACTION_CREATE",
+		2: "ACTION_UPDATE",
+	}
+	LdapSyncChange_Action_value = map[string]int32{
+		"ACTION_UNSPECIFIED": 0,
+		"ACTION_CREATE":      1,
+		"ACTION_UPDATE":      2,
+	}
+)
+
+func (x LdapSyncChange_Action) Enum() *LdapSyncChange_Action {
+	p := new(LdapSyncChange_Action)
+	*p = x
+	return p
+}
+
+func (x LdapSyncChange_Action) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (LdapSyncChange_Action) Descriptor() protoreflect.EnumDescriptor {
+	return file_user_service_v1_user_proto_enumTypes[2].Descriptor()
+}
+
+func (LdapSyncChange_Action) Type() protoreflect.EnumType {
+	return &file_user_service_v1_user_proto_enumTypes[2]
+}
+
+func (x LdapSyncChange_Action) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use LdapSyncChange_Action.Descriptor instead.
+func (LdapSyncChange_Action) EnumDescriptor() ([]byte, []int) {
+	return file_user_service_v1_user_proto_rawDescGZIP(), []int{14, 0}
+}
+
 // User
 type User struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
@@ -1193,6 +1242,343 @@ func (x *ChangePasswordRequest) GetNewPassword() string {
 	return ""
 }
 
+// LdapSyncPreviewRequest requests a preview of LDAP user sync changes
+type LdapSyncPreviewRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	TenantId      *uint32                `protobuf:"varint,1,opt,name=tenant_id,json=tenantId,proto3,oneof" json:"tenant_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *LdapSyncPreviewRequest) Reset() {
+	*x = LdapSyncPreviewRequest{}
+	mi := &file_user_service_v1_user_proto_msgTypes[13]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *LdapSyncPreviewRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*LdapSyncPreviewRequest) ProtoMessage() {}
+
+func (x *LdapSyncPreviewRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_user_service_v1_user_proto_msgTypes[13]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use LdapSyncPreviewRequest.ProtoReflect.Descriptor instead.
+func (*LdapSyncPreviewRequest) Descriptor() ([]byte, []int) {
+	return file_user_service_v1_user_proto_rawDescGZIP(), []int{13}
+}
+
+func (x *LdapSyncPreviewRequest) GetTenantId() uint32 {
+	if x != nil && x.TenantId != nil {
+		return *x.TenantId
+	}
+	return 0
+}
+
+// LdapSyncChange describes a single change from LDAP sync
+type LdapSyncChange struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Action        LdapSyncChange_Action  `protobuf:"varint,1,opt,name=action,proto3,enum=user.service.v1.LdapSyncChange_Action" json:"action,omitempty"`
+	User          *User                  `protobuf:"bytes,2,opt,name=user,proto3,oneof" json:"user,omitempty"`
+	ChangedFields []string               `protobuf:"bytes,3,rep,name=changed_fields,json=changedFields,proto3" json:"changed_fields,omitempty"`
+	ExistingId    *uint32                `protobuf:"varint,4,opt,name=existing_id,json=existingId,proto3,oneof" json:"existing_id,omitempty"`
+	LdapDn        *string                `protobuf:"bytes,5,opt,name=ldap_dn,json=ldapDn,proto3,oneof" json:"ldap_dn,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *LdapSyncChange) Reset() {
+	*x = LdapSyncChange{}
+	mi := &file_user_service_v1_user_proto_msgTypes[14]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *LdapSyncChange) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*LdapSyncChange) ProtoMessage() {}
+
+func (x *LdapSyncChange) ProtoReflect() protoreflect.Message {
+	mi := &file_user_service_v1_user_proto_msgTypes[14]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use LdapSyncChange.ProtoReflect.Descriptor instead.
+func (*LdapSyncChange) Descriptor() ([]byte, []int) {
+	return file_user_service_v1_user_proto_rawDescGZIP(), []int{14}
+}
+
+func (x *LdapSyncChange) GetAction() LdapSyncChange_Action {
+	if x != nil {
+		return x.Action
+	}
+	return LdapSyncChange_ACTION_UNSPECIFIED
+}
+
+func (x *LdapSyncChange) GetUser() *User {
+	if x != nil {
+		return x.User
+	}
+	return nil
+}
+
+func (x *LdapSyncChange) GetChangedFields() []string {
+	if x != nil {
+		return x.ChangedFields
+	}
+	return nil
+}
+
+func (x *LdapSyncChange) GetExistingId() uint32 {
+	if x != nil && x.ExistingId != nil {
+		return *x.ExistingId
+	}
+	return 0
+}
+
+func (x *LdapSyncChange) GetLdapDn() string {
+	if x != nil && x.LdapDn != nil {
+		return *x.LdapDn
+	}
+	return ""
+}
+
+// LdapSyncPreviewResponse contains the preview of LDAP sync changes
+type LdapSyncPreviewResponse struct {
+	state            protoimpl.MessageState `protogen:"open.v1"`
+	TotalLdapEntries int32                  `protobuf:"varint,1,opt,name=total_ldap_entries,json=totalLdapEntries,proto3" json:"total_ldap_entries,omitempty"`
+	NewCount         int32                  `protobuf:"varint,2,opt,name=new_count,json=newCount,proto3" json:"new_count,omitempty"`
+	UpdateCount      int32                  `protobuf:"varint,3,opt,name=update_count,json=updateCount,proto3" json:"update_count,omitempty"`
+	UnchangedCount   int32                  `protobuf:"varint,4,opt,name=unchanged_count,json=unchangedCount,proto3" json:"unchanged_count,omitempty"`
+	Changes          []*LdapSyncChange      `protobuf:"bytes,5,rep,name=changes,proto3" json:"changes,omitempty"`
+	Warnings         []string               `protobuf:"bytes,6,rep,name=warnings,proto3" json:"warnings,omitempty"`
+	unknownFields    protoimpl.UnknownFields
+	sizeCache        protoimpl.SizeCache
+}
+
+func (x *LdapSyncPreviewResponse) Reset() {
+	*x = LdapSyncPreviewResponse{}
+	mi := &file_user_service_v1_user_proto_msgTypes[15]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *LdapSyncPreviewResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*LdapSyncPreviewResponse) ProtoMessage() {}
+
+func (x *LdapSyncPreviewResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_user_service_v1_user_proto_msgTypes[15]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use LdapSyncPreviewResponse.ProtoReflect.Descriptor instead.
+func (*LdapSyncPreviewResponse) Descriptor() ([]byte, []int) {
+	return file_user_service_v1_user_proto_rawDescGZIP(), []int{15}
+}
+
+func (x *LdapSyncPreviewResponse) GetTotalLdapEntries() int32 {
+	if x != nil {
+		return x.TotalLdapEntries
+	}
+	return 0
+}
+
+func (x *LdapSyncPreviewResponse) GetNewCount() int32 {
+	if x != nil {
+		return x.NewCount
+	}
+	return 0
+}
+
+func (x *LdapSyncPreviewResponse) GetUpdateCount() int32 {
+	if x != nil {
+		return x.UpdateCount
+	}
+	return 0
+}
+
+func (x *LdapSyncPreviewResponse) GetUnchangedCount() int32 {
+	if x != nil {
+		return x.UnchangedCount
+	}
+	return 0
+}
+
+func (x *LdapSyncPreviewResponse) GetChanges() []*LdapSyncChange {
+	if x != nil {
+		return x.Changes
+	}
+	return nil
+}
+
+func (x *LdapSyncPreviewResponse) GetWarnings() []string {
+	if x != nil {
+		return x.Warnings
+	}
+	return nil
+}
+
+// LdapSyncExecuteRequest executes the LDAP user sync
+type LdapSyncExecuteRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	TenantId      *uint32                `protobuf:"varint,1,opt,name=tenant_id,json=tenantId,proto3,oneof" json:"tenant_id,omitempty"`
+	SelectedDns   []string               `protobuf:"bytes,2,rep,name=selected_dns,json=selectedDns,proto3" json:"selected_dns,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *LdapSyncExecuteRequest) Reset() {
+	*x = LdapSyncExecuteRequest{}
+	mi := &file_user_service_v1_user_proto_msgTypes[16]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *LdapSyncExecuteRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*LdapSyncExecuteRequest) ProtoMessage() {}
+
+func (x *LdapSyncExecuteRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_user_service_v1_user_proto_msgTypes[16]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use LdapSyncExecuteRequest.ProtoReflect.Descriptor instead.
+func (*LdapSyncExecuteRequest) Descriptor() ([]byte, []int) {
+	return file_user_service_v1_user_proto_rawDescGZIP(), []int{16}
+}
+
+func (x *LdapSyncExecuteRequest) GetTenantId() uint32 {
+	if x != nil && x.TenantId != nil {
+		return *x.TenantId
+	}
+	return 0
+}
+
+func (x *LdapSyncExecuteRequest) GetSelectedDns() []string {
+	if x != nil {
+		return x.SelectedDns
+	}
+	return nil
+}
+
+// LdapSyncExecuteResponse contains the results of LDAP sync execution
+type LdapSyncExecuteResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	CreatedCount  int32                  `protobuf:"varint,1,opt,name=created_count,json=createdCount,proto3" json:"created_count,omitempty"`
+	UpdatedCount  int32                  `protobuf:"varint,2,opt,name=updated_count,json=updatedCount,proto3" json:"updated_count,omitempty"`
+	SkippedCount  int32                  `protobuf:"varint,3,opt,name=skipped_count,json=skippedCount,proto3" json:"skipped_count,omitempty"`
+	ErrorCount    int32                  `protobuf:"varint,4,opt,name=error_count,json=errorCount,proto3" json:"error_count,omitempty"`
+	Errors        []string               `protobuf:"bytes,5,rep,name=errors,proto3" json:"errors,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *LdapSyncExecuteResponse) Reset() {
+	*x = LdapSyncExecuteResponse{}
+	mi := &file_user_service_v1_user_proto_msgTypes[17]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *LdapSyncExecuteResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*LdapSyncExecuteResponse) ProtoMessage() {}
+
+func (x *LdapSyncExecuteResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_user_service_v1_user_proto_msgTypes[17]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use LdapSyncExecuteResponse.ProtoReflect.Descriptor instead.
+func (*LdapSyncExecuteResponse) Descriptor() ([]byte, []int) {
+	return file_user_service_v1_user_proto_rawDescGZIP(), []int{17}
+}
+
+func (x *LdapSyncExecuteResponse) GetCreatedCount() int32 {
+	if x != nil {
+		return x.CreatedCount
+	}
+	return 0
+}
+
+func (x *LdapSyncExecuteResponse) GetUpdatedCount() int32 {
+	if x != nil {
+		return x.UpdatedCount
+	}
+	return 0
+}
+
+func (x *LdapSyncExecuteResponse) GetSkippedCount() int32 {
+	if x != nil {
+		return x.SkippedCount
+	}
+	return 0
+}
+
+func (x *LdapSyncExecuteResponse) GetErrorCount() int32 {
+	if x != nil {
+		return x.ErrorCount
+	}
+	return 0
+}
+
+func (x *LdapSyncExecuteResponse) GetErrors() []string {
+	if x != nil {
+		return x.Errors
+	}
+	return nil
+}
+
 type UploadAvatarRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Types that are valid to be assigned to Source:
@@ -1206,7 +1592,7 @@ type UploadAvatarRequest struct {
 
 func (x *UploadAvatarRequest) Reset() {
 	*x = UploadAvatarRequest{}
-	mi := &file_user_service_v1_user_proto_msgTypes[13]
+	mi := &file_user_service_v1_user_proto_msgTypes[18]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1218,7 +1604,7 @@ func (x *UploadAvatarRequest) String() string {
 func (*UploadAvatarRequest) ProtoMessage() {}
 
 func (x *UploadAvatarRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_user_service_v1_user_proto_msgTypes[13]
+	mi := &file_user_service_v1_user_proto_msgTypes[18]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1231,7 +1617,7 @@ func (x *UploadAvatarRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UploadAvatarRequest.ProtoReflect.Descriptor instead.
 func (*UploadAvatarRequest) Descriptor() ([]byte, []int) {
-	return file_user_service_v1_user_proto_rawDescGZIP(), []int{13}
+	return file_user_service_v1_user_proto_rawDescGZIP(), []int{18}
 }
 
 func (x *UploadAvatarRequest) GetSource() isUploadAvatarRequest_Source {
@@ -1284,7 +1670,7 @@ type UploadAvatarResponse struct {
 
 func (x *UploadAvatarResponse) Reset() {
 	*x = UploadAvatarResponse{}
-	mi := &file_user_service_v1_user_proto_msgTypes[14]
+	mi := &file_user_service_v1_user_proto_msgTypes[19]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1296,7 +1682,7 @@ func (x *UploadAvatarResponse) String() string {
 func (*UploadAvatarResponse) ProtoMessage() {}
 
 func (x *UploadAvatarResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_user_service_v1_user_proto_msgTypes[14]
+	mi := &file_user_service_v1_user_proto_msgTypes[19]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1309,7 +1695,7 @@ func (x *UploadAvatarResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UploadAvatarResponse.ProtoReflect.Descriptor instead.
 func (*UploadAvatarResponse) Descriptor() ([]byte, []int) {
-	return file_user_service_v1_user_proto_rawDescGZIP(), []int{14}
+	return file_user_service_v1_user_proto_rawDescGZIP(), []int{19}
 }
 
 func (x *UploadAvatarResponse) GetUrl() string {
@@ -1332,7 +1718,7 @@ type BindContactRequest struct {
 
 func (x *BindContactRequest) Reset() {
 	*x = BindContactRequest{}
-	mi := &file_user_service_v1_user_proto_msgTypes[15]
+	mi := &file_user_service_v1_user_proto_msgTypes[20]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1344,7 +1730,7 @@ func (x *BindContactRequest) String() string {
 func (*BindContactRequest) ProtoMessage() {}
 
 func (x *BindContactRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_user_service_v1_user_proto_msgTypes[15]
+	mi := &file_user_service_v1_user_proto_msgTypes[20]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1357,7 +1743,7 @@ func (x *BindContactRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use BindContactRequest.ProtoReflect.Descriptor instead.
 func (*BindContactRequest) Descriptor() ([]byte, []int) {
-	return file_user_service_v1_user_proto_rawDescGZIP(), []int{15}
+	return file_user_service_v1_user_proto_rawDescGZIP(), []int{20}
 }
 
 func (x *BindContactRequest) GetContact() isBindContactRequest_Contact {
@@ -1411,7 +1797,7 @@ type BindPhoneRequest struct {
 
 func (x *BindPhoneRequest) Reset() {
 	*x = BindPhoneRequest{}
-	mi := &file_user_service_v1_user_proto_msgTypes[16]
+	mi := &file_user_service_v1_user_proto_msgTypes[21]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1423,7 +1809,7 @@ func (x *BindPhoneRequest) String() string {
 func (*BindPhoneRequest) ProtoMessage() {}
 
 func (x *BindPhoneRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_user_service_v1_user_proto_msgTypes[16]
+	mi := &file_user_service_v1_user_proto_msgTypes[21]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1436,7 +1822,7 @@ func (x *BindPhoneRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use BindPhoneRequest.ProtoReflect.Descriptor instead.
 func (*BindPhoneRequest) Descriptor() ([]byte, []int) {
-	return file_user_service_v1_user_proto_rawDescGZIP(), []int{16}
+	return file_user_service_v1_user_proto_rawDescGZIP(), []int{21}
 }
 
 func (x *BindPhoneRequest) GetPhone() string {
@@ -1463,7 +1849,7 @@ type BindEmailRequest struct {
 
 func (x *BindEmailRequest) Reset() {
 	*x = BindEmailRequest{}
-	mi := &file_user_service_v1_user_proto_msgTypes[17]
+	mi := &file_user_service_v1_user_proto_msgTypes[22]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1475,7 +1861,7 @@ func (x *BindEmailRequest) String() string {
 func (*BindEmailRequest) ProtoMessage() {}
 
 func (x *BindEmailRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_user_service_v1_user_proto_msgTypes[17]
+	mi := &file_user_service_v1_user_proto_msgTypes[22]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1488,7 +1874,7 @@ func (x *BindEmailRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use BindEmailRequest.ProtoReflect.Descriptor instead.
 func (*BindEmailRequest) Descriptor() ([]byte, []int) {
-	return file_user_service_v1_user_proto_rawDescGZIP(), []int{17}
+	return file_user_service_v1_user_proto_rawDescGZIP(), []int{22}
 }
 
 func (x *BindEmailRequest) GetEmail() string {
@@ -1520,7 +1906,7 @@ type VerifyContactRequest struct {
 
 func (x *VerifyContactRequest) Reset() {
 	*x = VerifyContactRequest{}
-	mi := &file_user_service_v1_user_proto_msgTypes[18]
+	mi := &file_user_service_v1_user_proto_msgTypes[23]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1532,7 +1918,7 @@ func (x *VerifyContactRequest) String() string {
 func (*VerifyContactRequest) ProtoMessage() {}
 
 func (x *VerifyContactRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_user_service_v1_user_proto_msgTypes[18]
+	mi := &file_user_service_v1_user_proto_msgTypes[23]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1545,7 +1931,7 @@ func (x *VerifyContactRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use VerifyContactRequest.ProtoReflect.Descriptor instead.
 func (*VerifyContactRequest) Descriptor() ([]byte, []int) {
-	return file_user_service_v1_user_proto_rawDescGZIP(), []int{18}
+	return file_user_service_v1_user_proto_rawDescGZIP(), []int{23}
 }
 
 func (x *VerifyContactRequest) GetContact() isVerifyContactRequest_Contact {
@@ -1607,7 +1993,7 @@ type PhoneVerification struct {
 
 func (x *PhoneVerification) Reset() {
 	*x = PhoneVerification{}
-	mi := &file_user_service_v1_user_proto_msgTypes[19]
+	mi := &file_user_service_v1_user_proto_msgTypes[24]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1619,7 +2005,7 @@ func (x *PhoneVerification) String() string {
 func (*PhoneVerification) ProtoMessage() {}
 
 func (x *PhoneVerification) ProtoReflect() protoreflect.Message {
-	mi := &file_user_service_v1_user_proto_msgTypes[19]
+	mi := &file_user_service_v1_user_proto_msgTypes[24]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1632,7 +2018,7 @@ func (x *PhoneVerification) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use PhoneVerification.ProtoReflect.Descriptor instead.
 func (*PhoneVerification) Descriptor() ([]byte, []int) {
-	return file_user_service_v1_user_proto_rawDescGZIP(), []int{19}
+	return file_user_service_v1_user_proto_rawDescGZIP(), []int{24}
 }
 
 func (x *PhoneVerification) GetPhone() string {
@@ -1660,7 +2046,7 @@ type EmailVerification struct {
 
 func (x *EmailVerification) Reset() {
 	*x = EmailVerification{}
-	mi := &file_user_service_v1_user_proto_msgTypes[20]
+	mi := &file_user_service_v1_user_proto_msgTypes[25]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1672,7 +2058,7 @@ func (x *EmailVerification) String() string {
 func (*EmailVerification) ProtoMessage() {}
 
 func (x *EmailVerification) ProtoReflect() protoreflect.Message {
-	mi := &file_user_service_v1_user_proto_msgTypes[20]
+	mi := &file_user_service_v1_user_proto_msgTypes[25]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1685,7 +2071,7 @@ func (x *EmailVerification) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use EmailVerification.ProtoReflect.Descriptor instead.
 func (*EmailVerification) Descriptor() ([]byte, []int) {
-	return file_user_service_v1_user_proto_rawDescGZIP(), []int{20}
+	return file_user_service_v1_user_proto_rawDescGZIP(), []int{25}
 }
 
 func (x *EmailVerification) GetEmail() string {
@@ -1861,7 +2247,45 @@ const file_user_service_v1_user_proto_rawDesc = "" +
 	"\fnew_password\x18\x02 \x01(\tB\x18\xbaG\x0f\x92\x02\fNew passwordڶ\x1a\x02z\x00R\vnewPassword\"\x91\x01\n" +
 	"\x15ChangePasswordRequest\x12;\n" +
 	"\fold_password\x18\x01 \x01(\tB\x18\xbaG\x0f\x92\x02\fOld passwordڶ\x1a\x02z\x00R\voldPassword\x12;\n" +
-	"\fnew_password\x18\x02 \x01(\tB\x18\xbaG\x0f\x92\x02\fNew passwordڶ\x1a\x02z\x00R\vnewPassword\"c\n" +
+	"\fnew_password\x18\x02 \x01(\tB\x18\xbaG\x0f\x92\x02\fNew passwordڶ\x1a\x02z\x00R\vnewPassword\"H\n" +
+	"\x16LdapSyncPreviewRequest\x12 \n" +
+	"\ttenant_id\x18\x01 \x01(\rH\x00R\btenantId\x88\x01\x01B\f\n" +
+	"\n" +
+	"_tenant_id\"\xd8\x02\n" +
+	"\x0eLdapSyncChange\x12>\n" +
+	"\x06action\x18\x01 \x01(\x0e2&.user.service.v1.LdapSyncChange.ActionR\x06action\x12.\n" +
+	"\x04user\x18\x02 \x01(\v2\x15.user.service.v1.UserH\x00R\x04user\x88\x01\x01\x12%\n" +
+	"\x0echanged_fields\x18\x03 \x03(\tR\rchangedFields\x12$\n" +
+	"\vexisting_id\x18\x04 \x01(\rH\x01R\n" +
+	"existingId\x88\x01\x01\x12\x1c\n" +
+	"\aldap_dn\x18\x05 \x01(\tH\x02R\x06ldapDn\x88\x01\x01\"F\n" +
+	"\x06Action\x12\x16\n" +
+	"\x12ACTION_UNSPECIFIED\x10\x00\x12\x11\n" +
+	"\rACTION_CREATE\x10\x01\x12\x11\n" +
+	"\rACTION_UPDATE\x10\x02B\a\n" +
+	"\x05_userB\x0e\n" +
+	"\f_existing_idB\n" +
+	"\n" +
+	"\b_ldap_dn\"\x87\x02\n" +
+	"\x17LdapSyncPreviewResponse\x12,\n" +
+	"\x12total_ldap_entries\x18\x01 \x01(\x05R\x10totalLdapEntries\x12\x1b\n" +
+	"\tnew_count\x18\x02 \x01(\x05R\bnewCount\x12!\n" +
+	"\fupdate_count\x18\x03 \x01(\x05R\vupdateCount\x12'\n" +
+	"\x0funchanged_count\x18\x04 \x01(\x05R\x0eunchangedCount\x129\n" +
+	"\achanges\x18\x05 \x03(\v2\x1f.user.service.v1.LdapSyncChangeR\achanges\x12\x1a\n" +
+	"\bwarnings\x18\x06 \x03(\tR\bwarnings\"k\n" +
+	"\x16LdapSyncExecuteRequest\x12 \n" +
+	"\ttenant_id\x18\x01 \x01(\rH\x00R\btenantId\x88\x01\x01\x12!\n" +
+	"\fselected_dns\x18\x02 \x03(\tR\vselectedDnsB\f\n" +
+	"\n" +
+	"_tenant_id\"\xc1\x01\n" +
+	"\x17LdapSyncExecuteResponse\x12#\n" +
+	"\rcreated_count\x18\x01 \x01(\x05R\fcreatedCount\x12#\n" +
+	"\rupdated_count\x18\x02 \x01(\x05R\fupdatedCount\x12#\n" +
+	"\rskipped_count\x18\x03 \x01(\x05R\fskippedCount\x12\x1f\n" +
+	"\verror_count\x18\x04 \x01(\x05R\n" +
+	"errorCount\x12\x16\n" +
+	"\x06errors\x18\x05 \x03(\tR\x06errors\"c\n" +
 	"\x13UploadAvatarRequest\x12#\n" +
 	"\fimage_base64\x18\x01 \x01(\tH\x00R\vimageBase64\x12\x1d\n" +
 	"\timage_url\x18\x02 \x01(\tH\x00R\bimageUrlB\b\n" +
@@ -1914,74 +2338,83 @@ func file_user_service_v1_user_proto_rawDescGZIP() []byte {
 	return file_user_service_v1_user_proto_rawDescData
 }
 
-var file_user_service_v1_user_proto_enumTypes = make([]protoimpl.EnumInfo, 2)
-var file_user_service_v1_user_proto_msgTypes = make([]protoimpl.MessageInfo, 21)
+var file_user_service_v1_user_proto_enumTypes = make([]protoimpl.EnumInfo, 3)
+var file_user_service_v1_user_proto_msgTypes = make([]protoimpl.MessageInfo, 26)
 var file_user_service_v1_user_proto_goTypes = []any{
 	(User_Gender)(0),                 // 0: user.service.v1.User.Gender
 	(User_Status)(0),                 // 1: user.service.v1.User.Status
-	(*User)(nil),                     // 2: user.service.v1.User
-	(*ListUserResponse)(nil),         // 3: user.service.v1.ListUserResponse
-	(*GetUserRequest)(nil),           // 4: user.service.v1.GetUserRequest
-	(*CreateUserRequest)(nil),        // 5: user.service.v1.CreateUserRequest
-	(*UpdateUserRequest)(nil),        // 6: user.service.v1.UpdateUserRequest
-	(*DeleteUserRequest)(nil),        // 7: user.service.v1.DeleteUserRequest
-	(*UserExistsRequest)(nil),        // 8: user.service.v1.UserExistsRequest
-	(*UserExistsResponse)(nil),       // 9: user.service.v1.UserExistsResponse
-	(*BatchCreateUsersRequest)(nil),  // 10: user.service.v1.BatchCreateUsersRequest
-	(*BatchCreateUsersResponse)(nil), // 11: user.service.v1.BatchCreateUsersResponse
-	(*GetUsersByIdsRequest)(nil),     // 12: user.service.v1.GetUsersByIdsRequest
-	(*EditUserPasswordRequest)(nil),  // 13: user.service.v1.EditUserPasswordRequest
-	(*ChangePasswordRequest)(nil),    // 14: user.service.v1.ChangePasswordRequest
-	(*UploadAvatarRequest)(nil),      // 15: user.service.v1.UploadAvatarRequest
-	(*UploadAvatarResponse)(nil),     // 16: user.service.v1.UploadAvatarResponse
-	(*BindContactRequest)(nil),       // 17: user.service.v1.BindContactRequest
-	(*BindPhoneRequest)(nil),         // 18: user.service.v1.BindPhoneRequest
-	(*BindEmailRequest)(nil),         // 19: user.service.v1.BindEmailRequest
-	(*VerifyContactRequest)(nil),     // 20: user.service.v1.VerifyContactRequest
-	(*PhoneVerification)(nil),        // 21: user.service.v1.PhoneVerification
-	(*EmailVerification)(nil),        // 22: user.service.v1.EmailVerification
-	(*timestamppb.Timestamp)(nil),    // 23: google.protobuf.Timestamp
-	(*fieldmaskpb.FieldMask)(nil),    // 24: google.protobuf.FieldMask
-	(*v1.PagingRequest)(nil),         // 25: pagination.PagingRequest
-	(*emptypb.Empty)(nil),            // 26: google.protobuf.Empty
+	(LdapSyncChange_Action)(0),       // 2: user.service.v1.LdapSyncChange.Action
+	(*User)(nil),                     // 3: user.service.v1.User
+	(*ListUserResponse)(nil),         // 4: user.service.v1.ListUserResponse
+	(*GetUserRequest)(nil),           // 5: user.service.v1.GetUserRequest
+	(*CreateUserRequest)(nil),        // 6: user.service.v1.CreateUserRequest
+	(*UpdateUserRequest)(nil),        // 7: user.service.v1.UpdateUserRequest
+	(*DeleteUserRequest)(nil),        // 8: user.service.v1.DeleteUserRequest
+	(*UserExistsRequest)(nil),        // 9: user.service.v1.UserExistsRequest
+	(*UserExistsResponse)(nil),       // 10: user.service.v1.UserExistsResponse
+	(*BatchCreateUsersRequest)(nil),  // 11: user.service.v1.BatchCreateUsersRequest
+	(*BatchCreateUsersResponse)(nil), // 12: user.service.v1.BatchCreateUsersResponse
+	(*GetUsersByIdsRequest)(nil),     // 13: user.service.v1.GetUsersByIdsRequest
+	(*EditUserPasswordRequest)(nil),  // 14: user.service.v1.EditUserPasswordRequest
+	(*ChangePasswordRequest)(nil),    // 15: user.service.v1.ChangePasswordRequest
+	(*LdapSyncPreviewRequest)(nil),   // 16: user.service.v1.LdapSyncPreviewRequest
+	(*LdapSyncChange)(nil),           // 17: user.service.v1.LdapSyncChange
+	(*LdapSyncPreviewResponse)(nil),  // 18: user.service.v1.LdapSyncPreviewResponse
+	(*LdapSyncExecuteRequest)(nil),   // 19: user.service.v1.LdapSyncExecuteRequest
+	(*LdapSyncExecuteResponse)(nil),  // 20: user.service.v1.LdapSyncExecuteResponse
+	(*UploadAvatarRequest)(nil),      // 21: user.service.v1.UploadAvatarRequest
+	(*UploadAvatarResponse)(nil),     // 22: user.service.v1.UploadAvatarResponse
+	(*BindContactRequest)(nil),       // 23: user.service.v1.BindContactRequest
+	(*BindPhoneRequest)(nil),         // 24: user.service.v1.BindPhoneRequest
+	(*BindEmailRequest)(nil),         // 25: user.service.v1.BindEmailRequest
+	(*VerifyContactRequest)(nil),     // 26: user.service.v1.VerifyContactRequest
+	(*PhoneVerification)(nil),        // 27: user.service.v1.PhoneVerification
+	(*EmailVerification)(nil),        // 28: user.service.v1.EmailVerification
+	(*timestamppb.Timestamp)(nil),    // 29: google.protobuf.Timestamp
+	(*fieldmaskpb.FieldMask)(nil),    // 30: google.protobuf.FieldMask
+	(*v1.PagingRequest)(nil),         // 31: pagination.PagingRequest
+	(*emptypb.Empty)(nil),            // 32: google.protobuf.Empty
 }
 var file_user_service_v1_user_proto_depIdxs = []int32{
 	0,  // 0: user.service.v1.User.gender:type_name -> user.service.v1.User.Gender
-	23, // 1: user.service.v1.User.last_login_at:type_name -> google.protobuf.Timestamp
+	29, // 1: user.service.v1.User.last_login_at:type_name -> google.protobuf.Timestamp
 	1,  // 2: user.service.v1.User.status:type_name -> user.service.v1.User.Status
-	23, // 3: user.service.v1.User.locked_until:type_name -> google.protobuf.Timestamp
-	23, // 4: user.service.v1.User.created_at:type_name -> google.protobuf.Timestamp
-	23, // 5: user.service.v1.User.updated_at:type_name -> google.protobuf.Timestamp
-	23, // 6: user.service.v1.User.deleted_at:type_name -> google.protobuf.Timestamp
-	2,  // 7: user.service.v1.ListUserResponse.items:type_name -> user.service.v1.User
-	24, // 8: user.service.v1.GetUserRequest.view_mask:type_name -> google.protobuf.FieldMask
-	2,  // 9: user.service.v1.CreateUserRequest.data:type_name -> user.service.v1.User
-	2,  // 10: user.service.v1.UpdateUserRequest.data:type_name -> user.service.v1.User
-	24, // 11: user.service.v1.UpdateUserRequest.update_mask:type_name -> google.protobuf.FieldMask
-	2,  // 12: user.service.v1.BatchCreateUsersRequest.data:type_name -> user.service.v1.User
-	18, // 13: user.service.v1.BindContactRequest.phone:type_name -> user.service.v1.BindPhoneRequest
-	19, // 14: user.service.v1.BindContactRequest.email:type_name -> user.service.v1.BindEmailRequest
-	21, // 15: user.service.v1.VerifyContactRequest.phone:type_name -> user.service.v1.PhoneVerification
-	22, // 16: user.service.v1.VerifyContactRequest.email:type_name -> user.service.v1.EmailVerification
-	25, // 17: user.service.v1.UserService.List:input_type -> pagination.PagingRequest
-	4,  // 18: user.service.v1.UserService.Get:input_type -> user.service.v1.GetUserRequest
-	5,  // 19: user.service.v1.UserService.Create:input_type -> user.service.v1.CreateUserRequest
-	6,  // 20: user.service.v1.UserService.Update:input_type -> user.service.v1.UpdateUserRequest
-	7,  // 21: user.service.v1.UserService.Delete:input_type -> user.service.v1.DeleteUserRequest
-	10, // 22: user.service.v1.UserService.BatchCreate:input_type -> user.service.v1.BatchCreateUsersRequest
-	8,  // 23: user.service.v1.UserService.UserExists:input_type -> user.service.v1.UserExistsRequest
-	3,  // 24: user.service.v1.UserService.List:output_type -> user.service.v1.ListUserResponse
-	2,  // 25: user.service.v1.UserService.Get:output_type -> user.service.v1.User
-	26, // 26: user.service.v1.UserService.Create:output_type -> google.protobuf.Empty
-	26, // 27: user.service.v1.UserService.Update:output_type -> google.protobuf.Empty
-	26, // 28: user.service.v1.UserService.Delete:output_type -> google.protobuf.Empty
-	11, // 29: user.service.v1.UserService.BatchCreate:output_type -> user.service.v1.BatchCreateUsersResponse
-	9,  // 30: user.service.v1.UserService.UserExists:output_type -> user.service.v1.UserExistsResponse
-	24, // [24:31] is the sub-list for method output_type
-	17, // [17:24] is the sub-list for method input_type
-	17, // [17:17] is the sub-list for extension type_name
-	17, // [17:17] is the sub-list for extension extendee
-	0,  // [0:17] is the sub-list for field type_name
+	29, // 3: user.service.v1.User.locked_until:type_name -> google.protobuf.Timestamp
+	29, // 4: user.service.v1.User.created_at:type_name -> google.protobuf.Timestamp
+	29, // 5: user.service.v1.User.updated_at:type_name -> google.protobuf.Timestamp
+	29, // 6: user.service.v1.User.deleted_at:type_name -> google.protobuf.Timestamp
+	3,  // 7: user.service.v1.ListUserResponse.items:type_name -> user.service.v1.User
+	30, // 8: user.service.v1.GetUserRequest.view_mask:type_name -> google.protobuf.FieldMask
+	3,  // 9: user.service.v1.CreateUserRequest.data:type_name -> user.service.v1.User
+	3,  // 10: user.service.v1.UpdateUserRequest.data:type_name -> user.service.v1.User
+	30, // 11: user.service.v1.UpdateUserRequest.update_mask:type_name -> google.protobuf.FieldMask
+	3,  // 12: user.service.v1.BatchCreateUsersRequest.data:type_name -> user.service.v1.User
+	2,  // 13: user.service.v1.LdapSyncChange.action:type_name -> user.service.v1.LdapSyncChange.Action
+	3,  // 14: user.service.v1.LdapSyncChange.user:type_name -> user.service.v1.User
+	17, // 15: user.service.v1.LdapSyncPreviewResponse.changes:type_name -> user.service.v1.LdapSyncChange
+	24, // 16: user.service.v1.BindContactRequest.phone:type_name -> user.service.v1.BindPhoneRequest
+	25, // 17: user.service.v1.BindContactRequest.email:type_name -> user.service.v1.BindEmailRequest
+	27, // 18: user.service.v1.VerifyContactRequest.phone:type_name -> user.service.v1.PhoneVerification
+	28, // 19: user.service.v1.VerifyContactRequest.email:type_name -> user.service.v1.EmailVerification
+	31, // 20: user.service.v1.UserService.List:input_type -> pagination.PagingRequest
+	5,  // 21: user.service.v1.UserService.Get:input_type -> user.service.v1.GetUserRequest
+	6,  // 22: user.service.v1.UserService.Create:input_type -> user.service.v1.CreateUserRequest
+	7,  // 23: user.service.v1.UserService.Update:input_type -> user.service.v1.UpdateUserRequest
+	8,  // 24: user.service.v1.UserService.Delete:input_type -> user.service.v1.DeleteUserRequest
+	11, // 25: user.service.v1.UserService.BatchCreate:input_type -> user.service.v1.BatchCreateUsersRequest
+	9,  // 26: user.service.v1.UserService.UserExists:input_type -> user.service.v1.UserExistsRequest
+	4,  // 27: user.service.v1.UserService.List:output_type -> user.service.v1.ListUserResponse
+	3,  // 28: user.service.v1.UserService.Get:output_type -> user.service.v1.User
+	32, // 29: user.service.v1.UserService.Create:output_type -> google.protobuf.Empty
+	32, // 30: user.service.v1.UserService.Update:output_type -> google.protobuf.Empty
+	32, // 31: user.service.v1.UserService.Delete:output_type -> google.protobuf.Empty
+	12, // 32: user.service.v1.UserService.BatchCreate:output_type -> user.service.v1.BatchCreateUsersResponse
+	10, // 33: user.service.v1.UserService.UserExists:output_type -> user.service.v1.UserExistsResponse
+	27, // [27:34] is the sub-list for method output_type
+	20, // [20:27] is the sub-list for method input_type
+	20, // [20:20] is the sub-list for extension type_name
+	20, // [20:20] is the sub-list for extension extendee
+	0,  // [0:20] is the sub-list for field type_name
 }
 
 func init() { file_user_service_v1_user_proto_init() }
@@ -2004,16 +2437,19 @@ func file_user_service_v1_user_proto_init() {
 		(*UserExistsRequest_Id)(nil),
 		(*UserExistsRequest_Username)(nil),
 	}
-	file_user_service_v1_user_proto_msgTypes[13].OneofWrappers = []any{
+	file_user_service_v1_user_proto_msgTypes[13].OneofWrappers = []any{}
+	file_user_service_v1_user_proto_msgTypes[14].OneofWrappers = []any{}
+	file_user_service_v1_user_proto_msgTypes[16].OneofWrappers = []any{}
+	file_user_service_v1_user_proto_msgTypes[18].OneofWrappers = []any{
 		(*UploadAvatarRequest_ImageBase64)(nil),
 		(*UploadAvatarRequest_ImageUrl)(nil),
 	}
-	file_user_service_v1_user_proto_msgTypes[15].OneofWrappers = []any{
+	file_user_service_v1_user_proto_msgTypes[20].OneofWrappers = []any{
 		(*BindContactRequest_Phone)(nil),
 		(*BindContactRequest_Email)(nil),
 	}
-	file_user_service_v1_user_proto_msgTypes[17].OneofWrappers = []any{}
-	file_user_service_v1_user_proto_msgTypes[18].OneofWrappers = []any{
+	file_user_service_v1_user_proto_msgTypes[22].OneofWrappers = []any{}
+	file_user_service_v1_user_proto_msgTypes[23].OneofWrappers = []any{
 		(*VerifyContactRequest_Phone)(nil),
 		(*VerifyContactRequest_Email)(nil),
 	}
@@ -2022,8 +2458,8 @@ func file_user_service_v1_user_proto_init() {
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_user_service_v1_user_proto_rawDesc), len(file_user_service_v1_user_proto_rawDesc)),
-			NumEnums:      2,
-			NumMessages:   21,
+			NumEnums:      3,
+			NumMessages:   26,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

@@ -29,6 +29,8 @@ const (
 	UserService_Delete_FullMethodName           = "/admin.service.v1.UserService/Delete"
 	UserService_UserExists_FullMethodName       = "/admin.service.v1.UserService/UserExists"
 	UserService_EditUserPassword_FullMethodName = "/admin.service.v1.UserService/EditUserPassword"
+	UserService_LdapSyncPreview_FullMethodName  = "/admin.service.v1.UserService/LdapSyncPreview"
+	UserService_LdapSyncExecute_FullMethodName  = "/admin.service.v1.UserService/LdapSyncExecute"
 )
 
 // UserServiceClient is the client API for UserService service.
@@ -51,6 +53,10 @@ type UserServiceClient interface {
 	UserExists(ctx context.Context, in *v11.UserExistsRequest, opts ...grpc.CallOption) (*v11.UserExistsResponse, error)
 	// Edit user password
 	EditUserPassword(ctx context.Context, in *v11.EditUserPasswordRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	// Preview LDAP user sync changes
+	LdapSyncPreview(ctx context.Context, in *v11.LdapSyncPreviewRequest, opts ...grpc.CallOption) (*v11.LdapSyncPreviewResponse, error)
+	// Execute LDAP user sync
+	LdapSyncExecute(ctx context.Context, in *v11.LdapSyncExecuteRequest, opts ...grpc.CallOption) (*v11.LdapSyncExecuteResponse, error)
 }
 
 type userServiceClient struct {
@@ -131,6 +137,26 @@ func (c *userServiceClient) EditUserPassword(ctx context.Context, in *v11.EditUs
 	return out, nil
 }
 
+func (c *userServiceClient) LdapSyncPreview(ctx context.Context, in *v11.LdapSyncPreviewRequest, opts ...grpc.CallOption) (*v11.LdapSyncPreviewResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(v11.LdapSyncPreviewResponse)
+	err := c.cc.Invoke(ctx, UserService_LdapSyncPreview_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *userServiceClient) LdapSyncExecute(ctx context.Context, in *v11.LdapSyncExecuteRequest, opts ...grpc.CallOption) (*v11.LdapSyncExecuteResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(v11.LdapSyncExecuteResponse)
+	err := c.cc.Invoke(ctx, UserService_LdapSyncExecute_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // UserServiceServer is the server API for UserService service.
 // All implementations must embed UnimplementedUserServiceServer
 // for forward compatibility.
@@ -151,6 +177,10 @@ type UserServiceServer interface {
 	UserExists(context.Context, *v11.UserExistsRequest) (*v11.UserExistsResponse, error)
 	// Edit user password
 	EditUserPassword(context.Context, *v11.EditUserPasswordRequest) (*emptypb.Empty, error)
+	// Preview LDAP user sync changes
+	LdapSyncPreview(context.Context, *v11.LdapSyncPreviewRequest) (*v11.LdapSyncPreviewResponse, error)
+	// Execute LDAP user sync
+	LdapSyncExecute(context.Context, *v11.LdapSyncExecuteRequest) (*v11.LdapSyncExecuteResponse, error)
 	mustEmbedUnimplementedUserServiceServer()
 }
 
@@ -181,6 +211,12 @@ func (UnimplementedUserServiceServer) UserExists(context.Context, *v11.UserExist
 }
 func (UnimplementedUserServiceServer) EditUserPassword(context.Context, *v11.EditUserPasswordRequest) (*emptypb.Empty, error) {
 	return nil, status.Error(codes.Unimplemented, "method EditUserPassword not implemented")
+}
+func (UnimplementedUserServiceServer) LdapSyncPreview(context.Context, *v11.LdapSyncPreviewRequest) (*v11.LdapSyncPreviewResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method LdapSyncPreview not implemented")
+}
+func (UnimplementedUserServiceServer) LdapSyncExecute(context.Context, *v11.LdapSyncExecuteRequest) (*v11.LdapSyncExecuteResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method LdapSyncExecute not implemented")
 }
 func (UnimplementedUserServiceServer) mustEmbedUnimplementedUserServiceServer() {}
 func (UnimplementedUserServiceServer) testEmbeddedByValue()                     {}
@@ -329,6 +365,42 @@ func _UserService_EditUserPassword_Handler(srv interface{}, ctx context.Context,
 	return interceptor(ctx, in, info, handler)
 }
 
+func _UserService_LdapSyncPreview_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(v11.LdapSyncPreviewRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserServiceServer).LdapSyncPreview(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: UserService_LdapSyncPreview_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserServiceServer).LdapSyncPreview(ctx, req.(*v11.LdapSyncPreviewRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _UserService_LdapSyncExecute_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(v11.LdapSyncExecuteRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserServiceServer).LdapSyncExecute(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: UserService_LdapSyncExecute_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserServiceServer).LdapSyncExecute(ctx, req.(*v11.LdapSyncExecuteRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // UserService_ServiceDesc is the grpc.ServiceDesc for UserService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -363,6 +435,14 @@ var UserService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "EditUserPassword",
 			Handler:    _UserService_EditUserPassword_Handler,
+		},
+		{
+			MethodName: "LdapSyncPreview",
+			Handler:    _UserService_LdapSyncPreview_Handler,
+		},
+		{
+			MethodName: "LdapSyncExecute",
+			Handler:    _UserService_LdapSyncExecute_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

@@ -2,12 +2,15 @@ package service
 
 import (
 	"context"
+	"crypto/rand"
+	"fmt"
 
 	"github.com/go-kratos/kratos/v2/log"
 	paginationV1 "github.com/tx7do/go-crud/api/gen/go/pagination/v1"
 	"github.com/tx7do/go-utils/trans"
 	"github.com/tx7do/kratos-bootstrap/bootstrap"
 	"google.golang.org/protobuf/types/known/emptypb"
+	"google.golang.org/protobuf/types/known/fieldmaskpb"
 
 	"github.com/go-tangra/go-tangra-portal/app/admin/service/internal/data"
 
@@ -35,6 +38,8 @@ type UserService struct {
 	tenantRepo   *data.TenantRepo
 
 	membershipRepo *data.MembershipRepo
+
+	ldapClient *data.LdapClient
 }
 
 func NewUserService(
@@ -46,6 +51,7 @@ func NewUserService(
 	orgUnitRepo *data.OrgUnitRepo,
 	tenantRepo *data.TenantRepo,
 	membershipRepo *data.MembershipRepo,
+	ldapClient *data.LdapClient,
 ) *UserService {
 	svc := &UserService{
 		log:                ctx.NewLoggerHelper("user/service/admin-service"),
@@ -56,6 +62,7 @@ func NewUserService(
 		orgUnitRepo:        orgUnitRepo,
 		tenantRepo:         tenantRepo,
 		membershipRepo:     membershipRepo,
+		ldapClient:         ldapClient,
 	}
 
 	svc.init()
@@ -442,6 +449,154 @@ func (s *UserService) EditUserPassword(ctx context.Context, req *userV1.EditUser
 	}
 
 	return &emptypb.Empty{}, nil
+}
+
+// LdapSyncPreview returns a preview of changes that would result from LDAP sync
+func (s *UserService) LdapSyncPreview(ctx context.Context, req *userV1.LdapSyncPreviewRequest) (*userV1.LdapSyncPreviewResponse, error) {
+	if !s.ldapClient.IsConfigured() {
+		return nil, adminV1.ErrorBadRequest("LDAP is not configured")
+	}
+
+	preview, _, err := s.buildUserPreview(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	return preview, nil
+}
+
+// LdapSyncExecute executes the LDAP user sync
+func (s *UserService) LdapSyncExecute(ctx context.Context, req *userV1.LdapSyncExecuteRequest) (*userV1.LdapSyncExecuteResponse, error) {
+	if !s.ldapClient.IsConfigured() {
+		return nil, adminV1.ErrorBadRequest("LDAP is not configured")
+	}
+
+	preview, _, err := s.buildUserPreview(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	// Build selected DN filter if provided
+	selectedDNs := make(map[string]bool)
+	if len(req.GetSelectedDns()) > 0 {
+		for _, dn := range req.GetSelectedDns() {
+			selectedDNs[dn] = true
+		}
+	}
+
+	// Look up the Module User role
+	moduleUserRole, err := s.roleRepo.Get(ctx, &userV1.GetRoleRequest{
+		QueryBy: &userV1.GetRoleRequest_Code{Code: constants.ModuleUserRoleCode},
+	})
+	if err != nil {
+		s.log.Warnf("failed to find module.user role: %v", err)
+	}
+
+	var createdCount, updatedCount, skippedCount, errorCount int32
+	var errors []string
+
+	for _, change := range preview.Changes {
+		// Filter by selected DNs if provided
+		if len(selectedDNs) > 0 && !selectedDNs[change.GetLdapDn()] {
+			skippedCount++
+			continue
+		}
+
+		switch change.Action {
+		case userV1.LdapSyncChange_ACTION_CREATE:
+			// Generate random password
+			randomPassword, pwErr := generateRandomPassword(16)
+			if pwErr != nil {
+				errorCount++
+				errors = append(errors, fmt.Sprintf("failed to generate password for %s: %v", change.User.GetUsername(), pwErr))
+				continue
+			}
+
+			// Prepare role IDs
+			var roleIDs []uint32
+			if moduleUserRole != nil && moduleUserRole.Id != nil {
+				roleIDs = append(roleIDs, moduleUserRole.GetId())
+			}
+
+			status := userV1.User_PENDING
+
+			// Create the user
+			createReq := &userV1.CreateUserRequest{
+				Data: &userV1.User{
+					Username: change.User.Username,
+					Realname: change.User.Realname,
+					Email:    change.User.Email,
+					Mobile:   change.User.Mobile,
+					Status:   &status,
+					RoleIds:  roleIDs,
+				},
+				Password: &randomPassword,
+			}
+
+			newUser, createErr := s.userRepo.Create(ctx, createReq)
+			if createErr != nil {
+				errorCount++
+				errors = append(errors, fmt.Sprintf("failed to create user %s: %v", change.User.GetUsername(), createErr))
+				continue
+			}
+
+			// Create credential
+			if credErr := s.userCredentialRepo.Create(ctx, &authenticationV1.CreateUserCredentialRequest{
+				Data: &authenticationV1.UserCredential{
+					UserId:         newUser.Id,
+					TenantId:       newUser.TenantId,
+					IdentityType:   authenticationV1.UserCredential_USERNAME.Enum(),
+					Identifier:     newUser.Username,
+					CredentialType: authenticationV1.UserCredential_PASSWORD_HASH.Enum(),
+					Credential:     &randomPassword,
+					IsPrimary:      trans.Ptr(true),
+					Status:         authenticationV1.UserCredential_ENABLED.Enum(),
+				},
+			}); credErr != nil {
+				errorCount++
+				errors = append(errors, fmt.Sprintf("user %s created but credential failed: %v", change.User.GetUsername(), credErr))
+				continue
+			}
+
+			createdCount++
+
+		case userV1.LdapSyncChange_ACTION_UPDATE:
+			updateReq := &userV1.UpdateUserRequest{
+				Id:   change.GetExistingId(),
+				Data: change.User,
+				UpdateMask: &fieldmaskpb.FieldMask{
+					Paths: change.ChangedFields,
+				},
+			}
+			if updateErr := s.userRepo.Update(ctx, updateReq); updateErr != nil {
+				errorCount++
+				errors = append(errors, fmt.Sprintf("failed to update user %s: %v", change.User.GetUsername(), updateErr))
+				continue
+			}
+			updatedCount++
+		}
+	}
+
+	return &userV1.LdapSyncExecuteResponse{
+		CreatedCount: createdCount,
+		UpdatedCount: updatedCount,
+		SkippedCount: skippedCount,
+		ErrorCount:   errorCount,
+		Errors:       errors,
+	}, nil
+}
+
+// generateRandomPassword generates a cryptographically random password
+func generateRandomPassword(length int) (string, error) {
+	const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*"
+	b := make([]byte, length)
+	if _, err := rand.Read(b); err != nil {
+		return "", err
+	}
+	for i := range b {
+		b[i] = charset[int(b[i])%len(charset)]
+	}
+	return string(b), nil
 }
 
 // createDefaultUser 创建默认用户，即超级用户
