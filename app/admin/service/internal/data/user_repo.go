@@ -614,6 +614,11 @@ func (r *userRepo) Update(ctx context.Context, req *userV1.UpdateUserRequest) (e
 		}
 	}()
 
+	// Save relation IDs before UpdateOne, which filters req.Data in-place via field mask
+	roleIDs := req.GetData().GetRoleIds()
+	orgUnitIDs := req.GetData().GetOrgUnitIds()
+	positionIDs := req.GetData().GetPositionIds()
+
 	var entitiy *userV1.User
 	builder := tx.User.UpdateOneID(req.GetId())
 	entitiy, err = r.repository.UpdateOne(ctx, builder, req.Data, req.GetUpdateMask(),
@@ -650,18 +655,18 @@ func (r *userRepo) Update(ctx context.Context, req *userV1.UpdateUserRequest) (e
 		if err = r.assignUserRelations(ctx, tx,
 			entitiy.GetTenantId(),
 			req.GetId(),
-			req.GetData().GetRoleIds(),
-			req.GetData().GetOrgUnitIds(),
-			req.GetData().GetPositionIds()); err != nil {
+			roleIDs,
+			orgUnitIDs,
+			positionIDs); err != nil {
 			return err
 		}
 	case constants.UserTenantRelationOneToMany:
 		if err = r.assignMembershipRelations(ctx, tx,
 			entitiy.GetTenantId(),
 			req.GetId(),
-			req.GetData().GetRoleIds(),
-			req.GetData().GetOrgUnitIds(),
-			req.GetData().GetPositionIds()); err != nil {
+			roleIDs,
+			orgUnitIDs,
+			positionIDs); err != nil {
 			return err
 		}
 	}
