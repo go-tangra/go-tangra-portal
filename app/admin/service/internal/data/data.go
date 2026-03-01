@@ -1,6 +1,9 @@
 package data
 
 import (
+	"context"
+
+	"github.com/go-kratos/kratos/v2/log"
 	"github.com/redis/go-redis/v9"
 	"github.com/tx7do/go-utils/password"
 
@@ -78,7 +81,16 @@ func NewUserTokenRepo(ctx *bootstrap.Context, rdb *redis.Client, authenticator a
 }
 
 func NewMinIoClient(ctx *bootstrap.Context) *oss.MinIOClient {
-	return oss.NewMinIoClient(ctx.GetConfig(), ctx.GetLogger())
+	mc := oss.NewMinIoClient(ctx.GetConfig(), ctx.GetLogger())
+
+	// Ensure the images bucket exists and is publicly readable (for avatars, etc.)
+	go func() {
+		if err := mc.EnsureBucketPublicRead(context.Background(), oss.BucketImages); err != nil {
+			log.NewHelper(ctx.GetLogger()).Warnf("failed to init images bucket public-read policy: %v", err)
+		}
+	}()
+
+	return mc
 }
 
 func NewPasswordCrypto() password.Crypto {
