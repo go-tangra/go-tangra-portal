@@ -141,6 +141,9 @@ func NewRestServer(
 	// Module Asset Proxy for frontend assets
 	moduleAssetProxy *ModuleAssetProxy,
 
+	// Storage Proxy for serving objects from S3 (avatars, images)
+	storageProxy *StorageProxy,
+
 ) (*http.Server, error) {
 	cfg := ctx.GetConfig()
 
@@ -242,6 +245,13 @@ func NewRestServer(
 	if moduleAssetProxy != nil {
 		srv.HandlePrefix("/modules/", moduleAssetProxy)
 		log.Info("Module asset proxy registered at /modules/*")
+	}
+
+	// Register storage proxy for /images/* and /files/* (avatars, uploads)
+	if storageProxy != nil {
+		srv.HandlePrefix("/images/", storageProxy)
+		srv.HandlePrefix("/files/", storageProxy)
+		log.Info("Storage proxy registered at /images/* and /files/*")
 	}
 
 	if authorizer != nil {
