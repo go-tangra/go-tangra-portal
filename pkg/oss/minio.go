@@ -81,6 +81,26 @@ func (c *MinIOClient) EnsureBucketExists(ctx context.Context, bucketName string)
 	return nil
 }
 
+// SetBucketPolicyPublicRead sets a public-read policy on the bucket so objects can be accessed anonymously via GET.
+func (c *MinIOClient) SetBucketPolicyPublicRead(ctx context.Context, bucketName string) error {
+	policy := `{"Version":"2012-10-17","Statement":[{"Sid":"PublicRead","Effect":"Allow","Principal":"*","Action":["s3:GetObject"],"Resource":["arn:aws:s3:::` + bucketName + `/*"]}]}`
+	err := c.mc.SetBucketPolicy(ctx, bucketName, policy)
+	if err != nil {
+		c.log.Errorf("Failed to set public-read policy on bucket %s: %v", bucketName, err)
+		return fileV1.ErrorInternalServerError("failed to set bucket policy: %s", bucketName)
+	}
+	c.log.Infof("Set public-read policy on bucket: %s", bucketName)
+	return nil
+}
+
+// EnsureBucketPublicRead ensures the bucket exists and has a public-read policy.
+func (c *MinIOClient) EnsureBucketPublicRead(ctx context.Context, bucketName string) error {
+	if err := c.EnsureBucketExists(ctx, bucketName); err != nil {
+		return err
+	}
+	return c.SetBucketPolicyPublicRead(ctx, bucketName)
+}
+
 // GetUploadPresignedUrl 获取上传地址
 func (c *MinIOClient) GetUploadPresignedUrl(ctx context.Context, req *fileV1.GetUploadPresignedUrlRequest) (*fileV1.GetUploadPresignedUrlResponse, error) {
 	var bucketName string

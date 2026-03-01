@@ -2,6 +2,8 @@ package service
 
 import (
 	"context"
+	"encoding/base64"
+	"strings"
 
 	"github.com/go-kratos/kratos/v2/log"
 	"github.com/tx7do/go-utils/trans"
@@ -16,7 +18,10 @@ import (
 	userV1 "github.com/go-tangra/go-tangra-portal/api/gen/go/user/service/v1"
 
 	"github.com/go-tangra/go-tangra-portal/pkg/middleware/auth"
+	"github.com/go-tangra/go-tangra-portal/pkg/oss"
 )
+
+const maxAvatarSize = 2 * 1024 * 1024 // 2MB
 
 type UserProfileService struct {
 	adminV1.UserProfileServiceHTTPServer
@@ -25,6 +30,7 @@ type UserProfileService struct {
 	userToken          *data.UserTokenCacheRepo
 	roleRepo           *data.RoleRepo
 	userCredentialRepo *data.UserCredentialRepo
+	mc                 *oss.MinIOClient
 
 	log *log.Helper
 }
@@ -35,6 +41,7 @@ func NewUserProfileService(
 	userToken *data.UserTokenCacheRepo,
 	roleRepo *data.RoleRepo,
 	userCredentialRepo *data.UserCredentialRepo,
+	mc *oss.MinIOClient,
 ) *UserProfileService {
 	return &UserProfileService{
 		log:                ctx.NewLoggerHelper("user-profile/service/admin-service"),
@@ -42,6 +49,7 @@ func NewUserProfileService(
 		userToken:          userToken,
 		roleRepo:           roleRepo,
 		userCredentialRepo: userCredentialRepo,
+		mc:                 mc,
 	}
 }
 
@@ -114,6 +122,7 @@ func (s *UserProfileService) DeleteAvatar(ctx context.Context, _ *emptypb.Empty)
 	}
 
 	if err = s.userRepo.Update(ctx, &userV1.UpdateUserRequest{
+		Id: operator.UserId,
 		Data: &userV1.User{
 			Id:     trans.Ptr(operator.UserId),
 			Avatar: trans.Ptr(""),
@@ -140,6 +149,40 @@ func (s *UserProfileService) UploadAvatar(ctx context.Context, req *userV1.Uploa
 	var avatarURL string
 	switch req.GetSource().(type) {
 	case *userV1.UploadAvatarRequest_ImageBase64:
+		raw := req.GetImageBase64()
+		// Strip data URI prefix (e.g. "data:image/png;base64,")
+		if idx := strings.Index(raw, ","); idx >= 0 {
+			raw = raw[idx+1:]
+		}
+
+		decoded, err := base64.StdEncoding.DecodeString(raw)
+		if err != nil {
+			s.log.Errorf("decode base64 avatar failed [%s]", err.Error())
+			return nil, authenticationV1.ErrorBadRequest("invalid base64 data")
+		}
+
+		if len(decoded) > maxAvatarSize {
+			return nil, authenticationV1.ErrorBadRequest("image must be smaller than 2MB")
+		}
+
+		mimeType, ext := oss.DetectFileType(decoded)
+		if !strings.HasPrefix(mimeType, "image/") {
+			return nil, authenticationV1.ErrorBadRequest("only image files are allowed")
+		}
+
+		if err = s.mc.EnsureBucketPublicRead(ctx, oss.BucketImages); err != nil {
+			s.log.Errorf("ensure images bucket public-read failed [%s]", err.Error())
+			return nil, err
+		}
+
+		objectName := oss.GenerateObjectName("avatars", decoded, ext, oss.GenerateFileNameTypeUUID)
+		_, downloadURL, err := s.mc.UploadFile(ctx, oss.BucketImages, objectName, decoded)
+		if err != nil {
+			s.log.Errorf("upload avatar to minio failed [%s]", err.Error())
+			return nil, err
+		}
+		avatarURL = downloadURL
+
 	case *userV1.UploadAvatarRequest_ImageUrl:
 		avatarURL = req.GetImageUrl()
 	default:
@@ -148,6 +191,7 @@ func (s *UserProfileService) UploadAvatar(ctx context.Context, req *userV1.Uploa
 	}
 
 	if err = s.userRepo.Update(ctx, &userV1.UpdateUserRequest{
+		Id: operator.UserId,
 		Data: &userV1.User{
 			Id:     trans.Ptr(operator.UserId),
 			Avatar: trans.Ptr(avatarURL),
@@ -156,7 +200,7 @@ func (s *UserProfileService) UploadAvatar(ctx context.Context, req *userV1.Uploa
 			Paths: []string{"avatar"},
 		},
 	}); err != nil {
-		s.log.Errorf("delete user avatar failed [%s]", err.Error())
+		s.log.Errorf("upload user avatar failed [%s]", err.Error())
 		return nil, err
 	}
 
