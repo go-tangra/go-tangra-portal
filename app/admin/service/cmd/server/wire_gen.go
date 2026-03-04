@@ -179,7 +179,7 @@ func initApp(context *bootstrap.Context) (*kratos.App, func(), error) {
 		return nil, nil, err
 	}
 	commonModuleRegistrationAdapter := service.NewCommonModuleRegistrationAdapter(moduleRegistrationService)
-	grpcServer := server.NewGRPCServer(context, moduleRegistrationService, commonModuleRegistrationAdapter)
+	grpcServer := server.NewGRPCServer(context, moduleRegistrationService, commonModuleRegistrationAdapter, userService)
 	asynqServer, err := server.NewAsynqServer(context, taskService)
 	if err != nil {
 		cleanup6()

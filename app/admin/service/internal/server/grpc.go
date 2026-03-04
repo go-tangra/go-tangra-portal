@@ -33,6 +33,7 @@ func NewGRPCServer(
 	ctx *bootstrap.Context,
 	moduleRegistrationService *service.ModuleRegistrationService,
 	commonModuleRegistrationAdapter *service.CommonModuleRegistrationAdapter,
+	userService *service.UserService,
 ) *grpc.Server {
 	cfg := ctx.GetConfig()
 	logger := ctx.GetLogger()
@@ -64,7 +65,10 @@ func NewGRPCServer(
 	// This allows modules using the common proto to register with the admin service
 	commonV1.RegisterModuleRegistrationServiceServer(srv, commonModuleRegistrationAdapter)
 
-	l.Info("gRPC server configured with ModuleRegistrationService (admin.v1 and common.v1)")
+	// Register the user service so modules can call it via gRPC
+	adminV1.RegisterUserServiceServer(srv, userService)
+
+	l.Info("gRPC server configured with ModuleRegistrationService (admin.v1 and common.v1) and UserService")
 
 	return srv
 }

@@ -26,6 +26,7 @@ import (
 
 type UserService struct {
 	adminV1.UserServiceHTTPServer
+	adminV1.UnimplementedUserServiceServer
 
 	log *log.Helper
 
