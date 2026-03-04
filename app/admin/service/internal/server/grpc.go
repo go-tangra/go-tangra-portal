@@ -1,6 +1,8 @@
 package server
 
 import (
+	"context"
+
 	"github.com/go-kratos/kratos/v2/log"
 	"github.com/go-kratos/kratos/v2/middleware"
 	"github.com/go-kratos/kratos/v2/middleware/recovery"
@@ -9,16 +11,29 @@ import (
 	"github.com/tx7do/kratos-bootstrap/bootstrap"
 
 	"github.com/go-tangra/go-tangra-portal/app/admin/service/internal/service"
+	appViewer "github.com/go-tangra/go-tangra-portal/pkg/entgo/viewer"
 	customLogging "github.com/go-tangra/go-tangra-portal/pkg/middleware/logging"
 
 	adminV1 "github.com/go-tangra/go-tangra-portal/api/gen/go/admin/service/v1"
 	commonV1 "github.com/go-tangra/go-tangra-common/gen/go/common/service/v1"
 )
 
+// systemViewerMiddleware injects a system viewer context for all gRPC requests.
+// The gRPC port is internal (service-to-service only), so all calls get system-level access.
+func systemViewerMiddleware() middleware.Middleware {
+	return func(handler middleware.Handler) middleware.Handler {
+		return func(ctx context.Context, req interface{}) (interface{}, error) {
+			ctx = appViewer.NewSystemViewerContext(ctx)
+			return handler(ctx, req)
+		}
+	}
+}
+
 // NewGRPCMiddleware creates gRPC middleware
 func NewGRPCMiddleware(logger log.Logger) []middleware.Middleware {
 	var ms []middleware.Middleware
 	ms = append(ms, recovery.Recovery())
+	ms = append(ms, systemViewerMiddleware())
 	// Use custom redacted logging middleware that respects protobuf Redact() methods
 	ms = append(ms, customLogging.RedactedServer(logger))
 	return ms
