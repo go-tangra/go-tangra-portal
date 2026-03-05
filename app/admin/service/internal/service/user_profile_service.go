@@ -109,6 +109,7 @@ func (s *UserProfileService) ChangePassword(ctx context.Context, req *userV1.Cha
 		Identifier:    operator.GetUsername(),
 		OldCredential: req.GetOldPassword(),
 		NewCredential: req.GetNewPassword(),
+		NeedDecrypt:   true,
 	})
 	return &emptypb.Empty{}, err
 }
