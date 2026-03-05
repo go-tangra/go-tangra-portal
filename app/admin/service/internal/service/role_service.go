@@ -23,6 +23,7 @@ import (
 
 type RoleService struct {
 	adminV1.RoleServiceHTTPServer
+	adminV1.UnimplementedRoleServiceServer
 
 	log *log.Helper
 

@@ -49,6 +49,7 @@ func NewGRPCServer(
 	moduleRegistrationService *service.ModuleRegistrationService,
 	commonModuleRegistrationAdapter *service.CommonModuleRegistrationAdapter,
 	userService *service.UserService,
+	roleService *service.RoleService,
 ) *grpc.Server {
 	cfg := ctx.GetConfig()
 	logger := ctx.GetLogger()
@@ -83,7 +84,10 @@ func NewGRPCServer(
 	// Register the user service so modules can call it via gRPC
 	adminV1.RegisterUserServiceServer(srv, userService)
 
-	l.Info("gRPC server configured with ModuleRegistrationService (admin.v1 and common.v1) and UserService")
+	// Register the role service so modules can call it via gRPC
+	adminV1.RegisterRoleServiceServer(srv, roleService)
+
+	l.Info("gRPC server configured with ModuleRegistrationService (admin.v1 and common.v1), UserService, and RoleService")
 
 	return srv
 }
