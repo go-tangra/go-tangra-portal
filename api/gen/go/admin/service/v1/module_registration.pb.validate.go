@@ -71,6 +71,8 @@ func (m *RegisterModuleRequest) validate(all bool) error {
 
 	// no validation rules for HttpEndpoint
 
+	// no validation rules for ServerName
+
 	// no validation rules for OpenapiSpec
 
 	// no validation rules for ProtoDescriptor
@@ -1061,6 +1063,8 @@ func (m *Module) validate(all bool) error {
 
 	// no validation rules for HttpEndpoint
 
+	// no validation rules for ServerName
+
 	// no validation rules for MenuCount
 
 	// no validation rules for ApiCount
@@ -1143,3 +1147,217 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = ModuleValidationError{}
+
+// Validate checks the field values on ResolveModuleRequest with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *ResolveModuleRequest) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on ResolveModuleRequest with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// ResolveModuleRequestMultiError, or nil if none found.
+func (m *ResolveModuleRequest) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *ResolveModuleRequest) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for ModuleId
+
+	if len(errors) > 0 {
+		return ResolveModuleRequestMultiError(errors)
+	}
+
+	return nil
+}
+
+// ResolveModuleRequestMultiError is an error wrapping multiple validation
+// errors returned by ResolveModuleRequest.ValidateAll() if the designated
+// constraints aren't met.
+type ResolveModuleRequestMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m ResolveModuleRequestMultiError) Error() string {
+	msgs := make([]string, 0, len(m))
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m ResolveModuleRequestMultiError) AllErrors() []error { return m }
+
+// ResolveModuleRequestValidationError is the validation error returned by
+// ResolveModuleRequest.Validate if the designated constraints aren't met.
+type ResolveModuleRequestValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e ResolveModuleRequestValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e ResolveModuleRequestValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e ResolveModuleRequestValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e ResolveModuleRequestValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e ResolveModuleRequestValidationError) ErrorName() string {
+	return "ResolveModuleRequestValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e ResolveModuleRequestValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sResolveModuleRequest.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = ResolveModuleRequestValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = ResolveModuleRequestValidationError{}
+
+// Validate checks the field values on ResolveModuleResponse with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *ResolveModuleResponse) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on ResolveModuleResponse with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// ResolveModuleResponseMultiError, or nil if none found.
+func (m *ResolveModuleResponse) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *ResolveModuleResponse) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for ModuleId
+
+	// no validation rules for GrpcEndpoint
+
+	// no validation rules for ServerName
+
+	// no validation rules for Health
+
+	if len(errors) > 0 {
+		return ResolveModuleResponseMultiError(errors)
+	}
+
+	return nil
+}
+
+// ResolveModuleResponseMultiError is an error wrapping multiple validation
+// errors returned by ResolveModuleResponse.ValidateAll() if the designated
+// constraints aren't met.
+type ResolveModuleResponseMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m ResolveModuleResponseMultiError) Error() string {
+	msgs := make([]string, 0, len(m))
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m ResolveModuleResponseMultiError) AllErrors() []error { return m }
+
+// ResolveModuleResponseValidationError is the validation error returned by
+// ResolveModuleResponse.Validate if the designated constraints aren't met.
+type ResolveModuleResponseValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e ResolveModuleResponseValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e ResolveModuleResponseValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e ResolveModuleResponseValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e ResolveModuleResponseValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e ResolveModuleResponseValidationError) ErrorName() string {
+	return "ResolveModuleResponseValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e ResolveModuleResponseValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sResolveModuleResponse.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = ResolveModuleResponseValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = ResolveModuleResponseValidationError{}

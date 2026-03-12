@@ -267,6 +267,14 @@ func (m *Device) validate(all bool) error {
 		// no validation rules for UpdatedBy
 	}
 
+	if m.PackageUpdateCount != nil {
+		// no validation rules for PackageUpdateCount
+	}
+
+	if m.SecurityUpdateCount != nil {
+		// no validation rules for SecurityUpdateCount
+	}
+
 	if len(errors) > 0 {
 		return DeviceMultiError(errors)
 	}

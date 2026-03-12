@@ -32,6 +32,7 @@ type AdminPortalService struct {
 
 	menuRepo       *data.MenuRepo
 	roleRepo       *data.RoleRepo
+	permissionRepo *data.PermissionRepo
 	userRepo       data.UserRepo
 	moduleRegistry *ModuleRegistry
 }
@@ -40,6 +41,7 @@ func NewAdminPortalService(
 	ctx *bootstrap.Context,
 	menuRepo *data.MenuRepo,
 	roleRepo *data.RoleRepo,
+	permissionRepo *data.PermissionRepo,
 	userRepo data.UserRepo,
 	moduleRegistry *ModuleRegistry,
 ) *AdminPortalService {
@@ -47,6 +49,7 @@ func NewAdminPortalService(
 		log:            ctx.NewLoggerHelper("admin-portal/service/admin-service"),
 		menuRepo:       menuRepo,
 		roleRepo:       roleRepo,
+		permissionRepo: permissionRepo,
 		userRepo:       userRepo,
 		moduleRegistry: moduleRegistry,
 	}
@@ -124,8 +127,10 @@ func (s *AdminPortalService) GetMyPermissionCode(ctx context.Context, _ *emptypb
 		return nil, adminV1.ErrorInternalServerError("query user failed")
 	}
 
-	// 多角色的菜单
-	roleMenus, err := s.queryMultipleRolesMenusByRoleIds(ctx, user.GetRoleIds())
+	roleIDs := user.GetRoleIds()
+
+	// 1. Get menu authority codes (role codes used for route-level access control)
+	roleMenus, err := s.queryMultipleRolesMenusByRoleIds(ctx, roleIDs)
 	if err != nil {
 		return nil, err
 	}
@@ -155,6 +160,27 @@ func (s *AdminPortalService) GetMyPermissionCode(ctx context.Context, _ *emptypb
 
 		codes = append(codes, menus.Items[menu].GetMeta().GetAuthority()...)
 	}
+
+	// 2. Resolve actual permission codes from the user's roles
+	permissionIDs, err := s.roleRepo.ListPermissionIDsByRoleIDs(ctx, roleIDs)
+	if err != nil {
+		s.log.Errorf("list permission ids by role ids failed [%s]", err.Error())
+		return nil, adminV1.ErrorInternalServerError("list permission ids failed")
+	}
+
+	if len(permissionIDs) > 0 {
+		permissionIDs = slice.Unique(permissionIDs)
+
+		permCodes, err := s.permissionRepo.GetPermissionCodesByIDs(ctx, permissionIDs)
+		if err != nil {
+			s.log.Errorf("get permission codes by ids failed [%s]", err.Error())
+			return nil, adminV1.ErrorInternalServerError("get permission codes failed")
+		}
+
+		codes = append(codes, permCodes...)
+	}
+
+	codes = slice.Unique(codes)
 
 	return &adminV1.ListPermissionCodeResponse{
 		Codes: codes,

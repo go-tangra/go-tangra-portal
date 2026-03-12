@@ -409,29 +409,58 @@ func (t *Transcoder) createConnection(moduleID, endpoint string) (*grpc.ClientCo
 	return conn, nil
 }
 
-// loadModuleTLSCredentials loads TLS credentials for connecting to a specific module
-// Environment variable naming convention: {MODULE}_CA_CERT_PATH, {MODULE}_CLIENT_CERT_PATH, etc.
+// loadModuleTLSCredentials loads TLS credentials for connecting to a specific module.
+// Uses convention-based cert paths first:
+//
+//	CA:     /app/certs/ca/ca.crt
+//	Client: /app/certs/admin/admin.crt  (admin-service uses its own client cert for all modules)
+//	Key:    /app/certs/admin/admin.key
+//
+// Falls back to legacy env vars: {MODULE}_CA_CERT_PATH, {MODULE}_CLIENT_CERT_PATH, etc.
 func (t *Transcoder) loadModuleTLSCredentials(moduleID string) (credentials.TransportCredentials, error) {
-	// Convert module ID to uppercase for environment variable lookup
+	certsDir := os.Getenv("CERTS_DIR")
+	if certsDir == "" {
+		certsDir = "/app/certs"
+	}
+
+	// Try convention-based paths first (shared CA + admin client cert)
+	caCertPath := certsDir + "/ca/ca.crt"
+	clientCertPath := certsDir + "/admin/admin.crt"
+	clientKeyPath := certsDir + "/admin/admin.key"
+	serverName := moduleID + "-service"
+
+	if _, err := os.Stat(caCertPath); err == nil {
+		if _, err := os.Stat(clientCertPath); err == nil {
+			creds, err := t.loadTLSFromPaths(moduleID, caCertPath, clientCertPath, clientKeyPath, serverName)
+			if err == nil {
+				return creds, nil
+			}
+			t.log.Warnf("Convention-based TLS failed for module %s: %v, trying legacy env vars", moduleID, err)
+		}
+	}
+
+	// Fallback to legacy per-module env vars
 	prefix := strings.ToUpper(moduleID)
+	caCertPath = os.Getenv(prefix + "_CA_CERT_PATH")
+	clientCertPath = os.Getenv(prefix + "_CLIENT_CERT_PATH")
+	clientKeyPath = os.Getenv(prefix + "_CLIENT_KEY_PATH")
+	envServerName := os.Getenv(prefix + "_SERVER_NAME")
+	if envServerName != "" {
+		serverName = envServerName
+	}
 
-	// Get certificate paths from environment
-	caCertPath := os.Getenv(prefix + "_CA_CERT_PATH")
-	clientCertPath := os.Getenv(prefix + "_CLIENT_CERT_PATH")
-	clientKeyPath := os.Getenv(prefix + "_CLIENT_KEY_PATH")
-	serverName := os.Getenv(prefix + "_SERVER_NAME")
-
-	// If no CA cert path is configured, TLS is not enabled for this module
 	if caCertPath == "" {
 		return nil, nil
 	}
-
-	// All paths must be configured for mTLS
 	if clientCertPath == "" || clientKeyPath == "" {
 		return nil, fmt.Errorf("incomplete TLS configuration for module %s: CA path set but client cert/key missing", moduleID)
 	}
 
-	// Load CA certificate
+	return t.loadTLSFromPaths(moduleID, caCertPath, clientCertPath, clientKeyPath, serverName)
+}
+
+// loadTLSFromPaths loads mTLS credentials from the given file paths.
+func (t *Transcoder) loadTLSFromPaths(moduleID, caCertPath, clientCertPath, clientKeyPath, serverName string) (credentials.TransportCredentials, error) {
 	caCert, err := os.ReadFile(caCertPath)
 	if err != nil {
 		return nil, fmt.Errorf("failed to read CA cert from %s: %w", caCertPath, err)
@@ -441,18 +470,11 @@ func (t *Transcoder) loadModuleTLSCredentials(moduleID string) (credentials.Tran
 		return nil, fmt.Errorf("failed to parse CA certificate from %s", caCertPath)
 	}
 
-	// Load client certificate and key
 	clientCert, err := tls.LoadX509KeyPair(clientCertPath, clientKeyPath)
 	if err != nil {
 		return nil, fmt.Errorf("failed to load client cert/key from %s, %s: %w", clientCertPath, clientKeyPath, err)
 	}
 
-	// Use server name from env or default to the module service name
-	if serverName == "" {
-		serverName = moduleID + "-service"
-	}
-
-	// Create TLS config
 	tlsConfig := &tls.Config{
 		Certificates: []tls.Certificate{clientCert},
 		RootCAs:      caCertPool,

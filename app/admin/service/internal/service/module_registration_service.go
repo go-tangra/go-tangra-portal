@@ -272,3 +272,36 @@ func (s *ModuleRegistrationService) GetModule(ctx context.Context, req *adminV1.
 
 	return RegisteredModuleToProto(mod), nil
 }
+
+// ResolveModule resolves a module's connection info by module_id.
+// Used by modules that need to call other modules (module-to-module communication).
+func (s *ModuleRegistrationService) ResolveModule(ctx context.Context, req *adminV1.ResolveModuleRequest) (*adminV1.ResolveModuleResponse, error) {
+	if req.GetModuleId() == "" {
+		return nil, adminV1.ErrorBadRequest("module_id is required")
+	}
+
+	mod, found := s.registry.Get(req.GetModuleId())
+	if !found {
+		return nil, adminV1.ErrorModuleNotFound("module not found: %s", req.GetModuleId())
+	}
+
+	// Only return modules that are active and healthy
+	if mod.Status != adminV1.ModuleStatus_MODULE_STATUS_ACTIVE {
+		return nil, adminV1.ErrorModuleNotFound("module %s is not active (status=%s)", req.GetModuleId(), mod.Status.String())
+	}
+	if mod.Health == adminV1.ModuleHealth_MODULE_HEALTH_UNHEALTHY {
+		return nil, adminV1.ErrorModuleNotFound("module %s is unhealthy", req.GetModuleId())
+	}
+
+	serverName := mod.ServerName
+	if serverName == "" {
+		serverName = mod.ModuleID + "-service"
+	}
+
+	return &adminV1.ResolveModuleResponse{
+		ModuleId:     mod.ModuleID,
+		GrpcEndpoint: mod.GrpcEndpoint,
+		ServerName:   serverName,
+		Health:       mod.Health,
+	}, nil
+}

@@ -2,9 +2,6 @@ package data
 
 import (
 	"context"
-	"crypto/tls"
-	"crypto/x509"
-	"fmt"
 	"os"
 	"time"
 
@@ -12,7 +9,6 @@ import (
 	"github.com/tx7do/kratos-bootstrap/bootstrap"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/backoff"
-	"google.golang.org/grpc/credentials"
 	"google.golang.org/grpc/keepalive"
 
 	paperlessV1 "github.com/go-tangra/go-tangra-portal/api/gen/go/paperless/service/v1"
@@ -39,7 +35,7 @@ func NewPaperlessClients(ctx *bootstrap.Context) (*PaperlessClients, func(), err
 	l.Infof("Connecting to Paperless service at: %s", endpoint)
 
 	// Load TLS credentials for mTLS connection to Paperless service
-	creds, err := loadPaperlessClientTLSCredentials(l)
+	creds, err := loadAdminClientTLS("paperless-service", l)
 	if err != nil {
 		l.Warnf("Failed to load TLS credentials, Paperless service will not be available: %v", err)
 		return nil, func() {}, nil // Return nil clients, service will be unavailable
@@ -114,54 +110,3 @@ func (c *PaperlessClients) IsConnected(ctx context.Context) bool {
 	return c.conn.GetState().String() == "READY"
 }
 
-// loadPaperlessClientTLSCredentials loads TLS credentials for connecting to Paperless service
-func loadPaperlessClientTLSCredentials(l *log.Helper) (credentials.TransportCredentials, error) {
-	caCertPath := os.Getenv("PAPERLESS_CA_CERT_PATH")
-	if caCertPath == "" {
-		caCertPath = "./data/ca/ca.crt"
-	}
-	clientCertPath := os.Getenv("PAPERLESS_CLIENT_CERT_PATH")
-	if clientCertPath == "" {
-		clientCertPath = "./data/paperless/paperless.crt"
-	}
-	clientKeyPath := os.Getenv("PAPERLESS_CLIENT_KEY_PATH")
-	if clientKeyPath == "" {
-		clientKeyPath = "./data/paperless/paperless.key"
-	}
-
-	serverName := os.Getenv("PAPERLESS_SERVER_NAME")
-	if serverName == "" {
-		serverName = "paperless-service"
-	}
-
-	// Load CA certificate
-	caCert, err := os.ReadFile(caCertPath)
-	if err != nil {
-		l.Errorf("Failed to read CA cert from %s: %v", caCertPath, err)
-		return nil, err
-	}
-	caCertPool := x509.NewCertPool()
-	if !caCertPool.AppendCertsFromPEM(caCert) {
-		l.Errorf("Failed to parse CA cert from %s", caCertPath)
-		return nil, fmt.Errorf("failed to parse CA certificate")
-	}
-
-	// Load client certificate and key
-	clientCert, err := tls.LoadX509KeyPair(clientCertPath, clientKeyPath)
-	if err != nil {
-		l.Errorf("Failed to load client cert/key from %s, %s: %v", clientCertPath, clientKeyPath, err)
-		return nil, err
-	}
-
-	// Create TLS config
-	tlsConfig := &tls.Config{
-		Certificates: []tls.Certificate{clientCert},
-		RootCAs:      caCertPool,
-		ServerName:   serverName,
-		MinVersion:   tls.VersionTLS12,
-	}
-
-	l.Infof("Loaded TLS credentials: CA=%s, Cert=%s, ServerName=%s", caCertPath, clientCertPath, serverName)
-
-	return credentials.NewTLS(tlsConfig), nil
-}

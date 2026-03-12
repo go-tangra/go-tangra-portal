@@ -47,6 +47,8 @@ const (
 	FieldFrontendEntryURL = "frontend_entry_url"
 	// FieldHTTPEndpoint holds the string denoting the http_endpoint field in the database.
 	FieldHTTPEndpoint = "http_endpoint"
+	// FieldServerName holds the string denoting the server_name field in the database.
+	FieldServerName = "server_name"
 	// FieldRegistrationID holds the string denoting the registration_id field in the database.
 	FieldRegistrationID = "registration_id"
 	// FieldRegisteredAt holds the string denoting the registered_at field in the database.
@@ -84,6 +86,7 @@ var Columns = []string{
 	FieldMenusYaml,
 	FieldFrontendEntryURL,
 	FieldHTTPEndpoint,
+	FieldServerName,
 	FieldRegistrationID,
 	FieldRegisteredAt,
 	FieldLastHeartbeat,
@@ -119,6 +122,8 @@ var (
 	DefaultFrontendEntryURL string
 	// DefaultHTTPEndpoint holds the default value on creation for the "http_endpoint" field.
 	DefaultHTTPEndpoint string
+	// DefaultServerName holds the default value on creation for the "server_name" field.
+	DefaultServerName string
 	// DefaultMenuCount holds the default value on creation for the "menu_count" field.
 	DefaultMenuCount int32
 	// DefaultAPICount holds the default value on creation for the "api_count" field.
@@ -210,6 +215,11 @@ func ByFrontendEntryURL(opts ...sql.OrderTermOption) OrderOption {
 // ByHTTPEndpoint orders the results by the http_endpoint field.
 func ByHTTPEndpoint(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldHTTPEndpoint, opts...).ToFunc()
+}
+
+// ByServerName orders the results by the server_name field.
+func ByServerName(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldServerName, opts...).ToFunc()
 }
 
 // ByRegistrationID orders the results by the registration_id field.

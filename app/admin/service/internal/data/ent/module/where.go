@@ -144,6 +144,11 @@ func HTTPEndpoint(v string) predicate.Module {
 	return predicate.Module(sql.FieldEQ(FieldHTTPEndpoint, v))
 }
 
+// ServerName applies equality check predicate on the "server_name" field. It's identical to ServerNameEQ.
+func ServerName(v string) predicate.Module {
+	return predicate.Module(sql.FieldEQ(FieldServerName, v))
+}
+
 // RegistrationID applies equality check predicate on the "registration_id" field. It's identical to RegistrationIDEQ.
 func RegistrationID(v string) predicate.Module {
 	return predicate.Module(sql.FieldEQ(FieldRegistrationID, v))
@@ -1187,6 +1192,81 @@ func HTTPEndpointEqualFold(v string) predicate.Module {
 // HTTPEndpointContainsFold applies the ContainsFold predicate on the "http_endpoint" field.
 func HTTPEndpointContainsFold(v string) predicate.Module {
 	return predicate.Module(sql.FieldContainsFold(FieldHTTPEndpoint, v))
+}
+
+// ServerNameEQ applies the EQ predicate on the "server_name" field.
+func ServerNameEQ(v string) predicate.Module {
+	return predicate.Module(sql.FieldEQ(FieldServerName, v))
+}
+
+// ServerNameNEQ applies the NEQ predicate on the "server_name" field.
+func ServerNameNEQ(v string) predicate.Module {
+	return predicate.Module(sql.FieldNEQ(FieldServerName, v))
+}
+
+// ServerNameIn applies the In predicate on the "server_name" field.
+func ServerNameIn(vs ...string) predicate.Module {
+	return predicate.Module(sql.FieldIn(FieldServerName, vs...))
+}
+
+// ServerNameNotIn applies the NotIn predicate on the "server_name" field.
+func ServerNameNotIn(vs ...string) predicate.Module {
+	return predicate.Module(sql.FieldNotIn(FieldServerName, vs...))
+}
+
+// ServerNameGT applies the GT predicate on the "server_name" field.
+func ServerNameGT(v string) predicate.Module {
+	return predicate.Module(sql.FieldGT(FieldServerName, v))
+}
+
+// ServerNameGTE applies the GTE predicate on the "server_name" field.
+func ServerNameGTE(v string) predicate.Module {
+	return predicate.Module(sql.FieldGTE(FieldServerName, v))
+}
+
+// ServerNameLT applies the LT predicate on the "server_name" field.
+func ServerNameLT(v string) predicate.Module {
+	return predicate.Module(sql.FieldLT(FieldServerName, v))
+}
+
+// ServerNameLTE applies the LTE predicate on the "server_name" field.
+func ServerNameLTE(v string) predicate.Module {
+	return predicate.Module(sql.FieldLTE(FieldServerName, v))
+}
+
+// ServerNameContains applies the Contains predicate on the "server_name" field.
+func ServerNameContains(v string) predicate.Module {
+	return predicate.Module(sql.FieldContains(FieldServerName, v))
+}
+
+// ServerNameHasPrefix applies the HasPrefix predicate on the "server_name" field.
+func ServerNameHasPrefix(v string) predicate.Module {
+	return predicate.Module(sql.FieldHasPrefix(FieldServerName, v))
+}
+
+// ServerNameHasSuffix applies the HasSuffix predicate on the "server_name" field.
+func ServerNameHasSuffix(v string) predicate.Module {
+	return predicate.Module(sql.FieldHasSuffix(FieldServerName, v))
+}
+
+// ServerNameIsNil applies the IsNil predicate on the "server_name" field.
+func ServerNameIsNil() predicate.Module {
+	return predicate.Module(sql.FieldIsNull(FieldServerName))
+}
+
+// ServerNameNotNil applies the NotNil predicate on the "server_name" field.
+func ServerNameNotNil() predicate.Module {
+	return predicate.Module(sql.FieldNotNull(FieldServerName))
+}
+
+// ServerNameEqualFold applies the EqualFold predicate on the "server_name" field.
+func ServerNameEqualFold(v string) predicate.Module {
+	return predicate.Module(sql.FieldEqualFold(FieldServerName, v))
+}
+
+// ServerNameContainsFold applies the ContainsFold predicate on the "server_name" field.
+func ServerNameContainsFold(v string) predicate.Module {
+	return predicate.Module(sql.FieldContainsFold(FieldServerName, v))
 }
 
 // RegistrationIDEQ applies the EQ predicate on the "registration_id" field.

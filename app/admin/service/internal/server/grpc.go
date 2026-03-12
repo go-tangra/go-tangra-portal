@@ -2,6 +2,7 @@ package server
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/go-kratos/kratos/v2/log"
 	"github.com/go-kratos/kratos/v2/middleware"
@@ -10,6 +11,8 @@ import (
 
 	"github.com/tx7do/kratos-bootstrap/bootstrap"
 
+	commonCert "github.com/go-tangra/go-tangra-common/cert"
+	"github.com/go-tangra/go-tangra-common/middleware/mtls"
 	"github.com/go-tangra/go-tangra-portal/app/admin/service/internal/service"
 	appViewer "github.com/go-tangra/go-tangra-portal/pkg/entgo/viewer"
 	customLogging "github.com/go-tangra/go-tangra-portal/pkg/middleware/logging"
@@ -30,10 +33,21 @@ func systemViewerMiddleware() middleware.Middleware {
 }
 
 // NewGRPCMiddleware creates gRPC middleware
-func NewGRPCMiddleware(logger log.Logger) []middleware.Middleware {
+func NewGRPCMiddleware(logger log.Logger, tlsEnabled bool) []middleware.Middleware {
 	var ms []middleware.Middleware
 	ms = append(ms, recovery.Recovery())
 	ms = append(ms, systemViewerMiddleware())
+
+	if tlsEnabled {
+		ms = append(ms, mtls.MTLSMiddleware(
+			logger,
+			mtls.WithPublicEndpoints(
+				"/grpc.health.v1.Health/Check",
+				"/grpc.health.v1.Health/Watch",
+			),
+		))
+	}
+
 	// Use custom redacted logging middleware that respects protobuf Redact() methods
 	ms = append(ms, customLogging.RedactedServer(logger))
 	return ms
@@ -50,15 +64,39 @@ func NewGRPCServer(
 	commonModuleRegistrationAdapter *service.CommonModuleRegistrationAdapter,
 	userService *service.UserService,
 	roleService *service.RoleService,
-) *grpc.Server {
+) (*grpc.Server, error) {
 	cfg := ctx.GetConfig()
 	logger := ctx.GetLogger()
 
 	l := log.NewHelper(log.With(logger, "module", "server/grpc"))
 
+	tlsEnabled := false
+
+	// Try to initialize CertManager for mTLS
+	certManager, err := commonCert.NewCertManager(ctx, "ADMIN")
+	if err != nil {
+		l.Warnf("CertManager initialization failed: %v, running without mTLS", err)
+	}
+
 	// Create gRPC server options
 	opts := []grpc.ServerOption{
-		grpc.Middleware(NewGRPCMiddleware(logger)...),
+		grpc.Middleware(NewGRPCMiddleware(logger, tlsEnabled)...),
+	}
+
+	// Configure mTLS if certificates are available
+	if certManager != nil && certManager.IsTLSEnabled() {
+		tlsConfig, err := certManager.GetServerTLSConfig()
+		if err != nil {
+			return nil, fmt.Errorf("mTLS required but failed to load TLS config: %w", err)
+		}
+		opts = append(opts, grpc.TLSConfig(tlsConfig))
+		tlsEnabled = true
+		l.Info("gRPC server configured with mTLS")
+
+		// Rebuild middleware with mTLS enabled
+		opts[0] = grpc.Middleware(NewGRPCMiddleware(logger, tlsEnabled)...)
+	} else {
+		l.Warn("TLS not enabled, gRPC server running without mTLS")
 	}
 
 	// Add server configuration from bootstrap config
@@ -89,5 +127,5 @@ func NewGRPCServer(
 
 	l.Info("gRPC server configured with ModuleRegistrationService (admin.v1 and common.v1), UserService, and RoleService")
 
-	return srv
+	return srv, nil
 }

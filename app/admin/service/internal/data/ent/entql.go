@@ -622,6 +622,7 @@ var schemaGraph = func() *sqlgraph.Schema {
 			module.FieldMenusYaml:        {Type: field.TypeBytes, Column: module.FieldMenusYaml},
 			module.FieldFrontendEntryURL: {Type: field.TypeString, Column: module.FieldFrontendEntryURL},
 			module.FieldHTTPEndpoint:     {Type: field.TypeString, Column: module.FieldHTTPEndpoint},
+			module.FieldServerName:       {Type: field.TypeString, Column: module.FieldServerName},
 			module.FieldRegistrationID:   {Type: field.TypeString, Column: module.FieldRegistrationID},
 			module.FieldRegisteredAt:     {Type: field.TypeTime, Column: module.FieldRegisteredAt},
 			module.FieldLastHeartbeat:    {Type: field.TypeTime, Column: module.FieldLastHeartbeat},
@@ -3845,6 +3846,11 @@ func (f *ModuleFilter) WhereFrontendEntryURL(p entql.StringP) {
 // WhereHTTPEndpoint applies the entql string predicate on the http_endpoint field.
 func (f *ModuleFilter) WhereHTTPEndpoint(p entql.StringP) {
 	f.Where(p.Field(module.FieldHTTPEndpoint))
+}
+
+// WhereServerName applies the entql string predicate on the server_name field.
+func (f *ModuleFilter) WhereServerName(p entql.StringP) {
+	f.Where(p.Field(module.FieldServerName))
 }
 
 // WhereRegistrationID applies the entql string predicate on the registration_id field.

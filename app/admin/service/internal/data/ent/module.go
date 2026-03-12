@@ -54,6 +54,8 @@ type Module struct {
 	FrontendEntryURL string `json:"frontend_entry_url,omitempty"`
 	// HTTP server endpoint for frontend assets (e.g., 'ipam-service:9401')
 	HTTPEndpoint string `json:"http_endpoint,omitempty"`
+	// TLS server name for mTLS verification (e.g., 'warden-service')
+	ServerName string `json:"server_name,omitempty"`
 	// UUID for this registration instance
 	RegistrationID *string `json:"registration_id,omitempty"`
 	// When the module was registered
@@ -78,7 +80,7 @@ func (*Module) scanValues(columns []string) ([]any, error) {
 			values[i] = new([]byte)
 		case module.FieldID, module.FieldCreatedBy, module.FieldUpdatedBy, module.FieldDeletedBy, module.FieldStatus, module.FieldHealth, module.FieldMenuCount, module.FieldAPICount, module.FieldRouteCount:
 			values[i] = new(sql.NullInt64)
-		case module.FieldModuleID, module.FieldModuleName, module.FieldVersion, module.FieldDescription, module.FieldGrpcEndpoint, module.FieldFrontendEntryURL, module.FieldHTTPEndpoint, module.FieldRegistrationID:
+		case module.FieldModuleID, module.FieldModuleName, module.FieldVersion, module.FieldDescription, module.FieldGrpcEndpoint, module.FieldFrontendEntryURL, module.FieldHTTPEndpoint, module.FieldServerName, module.FieldRegistrationID:
 			values[i] = new(sql.NullString)
 		case module.FieldCreatedAt, module.FieldUpdatedAt, module.FieldDeletedAt, module.FieldRegisteredAt, module.FieldLastHeartbeat:
 			values[i] = new(sql.NullTime)
@@ -217,6 +219,12 @@ func (_m *Module) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field http_endpoint", values[i])
 			} else if value.Valid {
 				_m.HTTPEndpoint = value.String
+			}
+		case module.FieldServerName:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field server_name", values[i])
+			} else if value.Valid {
+				_m.ServerName = value.String
 			}
 		case module.FieldRegistrationID:
 			if value, ok := values[i].(*sql.NullString); !ok {
@@ -366,6 +374,9 @@ func (_m *Module) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("http_endpoint=")
 	builder.WriteString(_m.HTTPEndpoint)
+	builder.WriteString(", ")
+	builder.WriteString("server_name=")
+	builder.WriteString(_m.ServerName)
 	builder.WriteString(", ")
 	if v := _m.RegistrationID; v != nil {
 		builder.WriteString("registration_id=")

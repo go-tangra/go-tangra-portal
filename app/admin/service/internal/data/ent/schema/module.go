@@ -84,6 +84,11 @@ func (Module) Fields() []ent.Field {
 			Optional().
 			Default(""),
 
+		field.String("server_name").
+			Comment("TLS server name for mTLS verification (e.g., 'warden-service')").
+			Optional().
+			Default(""),
+
 		field.String("registration_id").
 			Comment("UUID for this registration instance").
 			Optional().

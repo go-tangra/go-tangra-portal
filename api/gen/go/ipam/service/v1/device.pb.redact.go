@@ -217,6 +217,10 @@ func (x *Device) Redact() string {
 	// Safe field: CreatedBy
 
 	// Safe field: UpdatedBy
+
+	// Safe field: PackageUpdateCount
+
+	// Safe field: SecurityUpdateCount
 	return x.String()
 }
 

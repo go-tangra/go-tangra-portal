@@ -121,6 +121,42 @@ func ErrorInvalidFormat(format string, args ...interface{}) *errors.Error {
 	return errors.New(400, PaperlessErrorReason_INVALID_FORMAT.String(), fmt.Sprintf(format, args...))
 }
 
+func IsInvalidTemplatePdf(err error) bool {
+	if err == nil {
+		return false
+	}
+	e := errors.FromError(err)
+	return e.Reason == PaperlessErrorReason_INVALID_TEMPLATE_PDF.String() && e.Code == 400
+}
+
+func ErrorInvalidTemplatePdf(format string, args ...interface{}) *errors.Error {
+	return errors.New(400, PaperlessErrorReason_INVALID_TEMPLATE_PDF.String(), fmt.Sprintf(format, args...))
+}
+
+func IsNoPlaceholdersFound(err error) bool {
+	if err == nil {
+		return false
+	}
+	e := errors.FromError(err)
+	return e.Reason == PaperlessErrorReason_NO_PLACEHOLDERS_FOUND.String() && e.Code == 400
+}
+
+func ErrorNoPlaceholdersFound(format string, args ...interface{}) *errors.Error {
+	return errors.New(400, PaperlessErrorReason_NO_PLACEHOLDERS_FOUND.String(), fmt.Sprintf(format, args...))
+}
+
+func IsSigningAlreadyCompleted(err error) bool {
+	if err == nil {
+		return false
+	}
+	e := errors.FromError(err)
+	return e.Reason == PaperlessErrorReason_SIGNING_ALREADY_COMPLETED.String() && e.Code == 400
+}
+
+func ErrorSigningAlreadyCompleted(format string, args ...interface{}) *errors.Error {
+	return errors.New(400, PaperlessErrorReason_SIGNING_ALREADY_COMPLETED.String(), fmt.Sprintf(format, args...))
+}
+
 // 401 - Unauthorized
 func IsUnauthorized(err error) bool {
 	if err == nil {
@@ -247,6 +283,42 @@ func ErrorPermissionNotFound(format string, args ...interface{}) *errors.Error {
 	return errors.New(404, PaperlessErrorReason_PERMISSION_NOT_FOUND.String(), fmt.Sprintf(format, args...))
 }
 
+func IsSigningTemplateNotFound(err error) bool {
+	if err == nil {
+		return false
+	}
+	e := errors.FromError(err)
+	return e.Reason == PaperlessErrorReason_SIGNING_TEMPLATE_NOT_FOUND.String() && e.Code == 404
+}
+
+func ErrorSigningTemplateNotFound(format string, args ...interface{}) *errors.Error {
+	return errors.New(404, PaperlessErrorReason_SIGNING_TEMPLATE_NOT_FOUND.String(), fmt.Sprintf(format, args...))
+}
+
+func IsSigningRequestNotFound(err error) bool {
+	if err == nil {
+		return false
+	}
+	e := errors.FromError(err)
+	return e.Reason == PaperlessErrorReason_SIGNING_REQUEST_NOT_FOUND.String() && e.Code == 404
+}
+
+func ErrorSigningRequestNotFound(format string, args ...interface{}) *errors.Error {
+	return errors.New(404, PaperlessErrorReason_SIGNING_REQUEST_NOT_FOUND.String(), fmt.Sprintf(format, args...))
+}
+
+func IsSigningSessionNotFound(err error) bool {
+	if err == nil {
+		return false
+	}
+	e := errors.FromError(err)
+	return e.Reason == PaperlessErrorReason_SIGNING_SESSION_NOT_FOUND.String() && e.Code == 404
+}
+
+func ErrorSigningSessionNotFound(format string, args ...interface{}) *errors.Error {
+	return errors.New(404, PaperlessErrorReason_SIGNING_SESSION_NOT_FOUND.String(), fmt.Sprintf(format, args...))
+}
+
 // 409 - Conflict
 func IsConflict(err error) bool {
 	if err == nil {
@@ -345,6 +417,20 @@ func IsDatabaseError(err error) bool {
 
 func ErrorDatabaseError(format string, args ...interface{}) *errors.Error {
 	return errors.New(500, PaperlessErrorReason_DATABASE_ERROR.String(), fmt.Sprintf(format, args...))
+}
+
+// 410 - Gone
+func IsSigningSessionExpired(err error) bool {
+	if err == nil {
+		return false
+	}
+	e := errors.FromError(err)
+	return e.Reason == PaperlessErrorReason_SIGNING_SESSION_EXPIRED.String() && e.Code == 410
+}
+
+// 410 - Gone
+func ErrorSigningSessionExpired(format string, args ...interface{}) *errors.Error {
+	return errors.New(410, PaperlessErrorReason_SIGNING_SESSION_EXPIRED.String(), fmt.Sprintf(format, args...))
 }
 
 // 503 - Service Unavailable

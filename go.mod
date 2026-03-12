@@ -8,8 +8,9 @@ require (
 	github.com/envoyproxy/protoc-gen-validate v1.3.0
 	github.com/getkin/kin-openapi v0.133.0
 	github.com/go-kratos/kratos/v2 v2.9.2
+	github.com/go-ldap/ldap/v3 v3.4.12
 	github.com/go-sql-driver/mysql v1.9.3
-	github.com/go-tangra/go-tangra-common v0.5.0
+	github.com/go-tangra/go-tangra-common v1.6.0
 	github.com/go-webauthn/webauthn v0.15.0
 	github.com/golang-jwt/jwt/v5 v5.3.0
 	github.com/google/gnostic v0.7.1
@@ -118,7 +119,6 @@ require (
 	github.com/go-faster/errors v0.7.1 // indirect
 	github.com/go-ini/ini v1.67.0 // indirect
 	github.com/go-kratos/aegis v0.2.0 // indirect
-	github.com/go-ldap/ldap/v3 v3.4.12 // indirect
 	github.com/go-logr/logr v1.4.3 // indirect
 	github.com/go-logr/stdr v1.2.2 // indirect
 	github.com/go-ole/go-ole v1.3.0 // indirect

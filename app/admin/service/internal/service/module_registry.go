@@ -25,6 +25,7 @@ type RegisteredModule struct {
 	GrpcEndpoint     string
 	FrontendEntryURL string
 	HttpEndpoint     string
+	ServerName       string
 	Status           adminV1.ModuleStatus
 	Health           adminV1.ModuleHealth
 	RegistrationID   string
@@ -404,6 +405,7 @@ func (r *ModuleRegistry) entityToRegistered(entity *ent.Module) *RegisteredModul
 		GrpcEndpoint:     entity.GrpcEndpoint,
 		FrontendEntryURL: entity.FrontendEntryURL,
 		HttpEndpoint:     entity.HTTPEndpoint,
+		ServerName:       entity.ServerName,
 		Status:           adminV1.ModuleStatus(entity.Status),
 		Health:           adminV1.ModuleHealth(entity.Health),
 		MenuCount:        entity.MenuCount,
@@ -450,6 +452,7 @@ func RegisteredModuleToProto(mod *RegisteredModule) *adminV1.Module {
 		GrpcEndpoint:     mod.GrpcEndpoint,
 		FrontendEntryUrl: mod.FrontendEntryURL,
 		HttpEndpoint:     mod.HttpEndpoint,
+		ServerName:       mod.ServerName,
 		Status:           mod.Status,
 		Health:           mod.Health,
 		RegistrationId:   mod.RegistrationID,

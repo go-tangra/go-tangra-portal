@@ -139,6 +139,25 @@ func (a *CommonModuleRegistrationAdapter) GetModule(ctx context.Context, req *co
 	}, nil
 }
 
+// ResolveModule adapts the common ResolveModule request.
+func (a *CommonModuleRegistrationAdapter) ResolveModule(ctx context.Context, req *commonV1.ResolveModuleRequest) (*commonV1.ResolveModuleResponse, error) {
+	adminReq := &adminV1.ResolveModuleRequest{
+		ModuleId: req.GetModuleId(),
+	}
+
+	adminResp, err := a.delegate.ResolveModule(ctx, adminReq)
+	if err != nil {
+		return nil, err
+	}
+
+	return &commonV1.ResolveModuleResponse{
+		ModuleId:     adminResp.GetModuleId(),
+		GrpcEndpoint: adminResp.GetGrpcEndpoint(),
+		ServerName:   adminResp.GetServerName(),
+		Health:       convertModuleHealth(adminResp.GetHealth()),
+	}, nil
+}
+
 // Helper functions for type conversions
 
 func convertModuleStatus(status adminV1.ModuleStatus) commonV1.ModuleStatus {

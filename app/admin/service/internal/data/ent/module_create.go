@@ -226,6 +226,20 @@ func (_c *ModuleCreate) SetNillableHTTPEndpoint(v *string) *ModuleCreate {
 	return _c
 }
 
+// SetServerName sets the "server_name" field.
+func (_c *ModuleCreate) SetServerName(v string) *ModuleCreate {
+	_c.mutation.SetServerName(v)
+	return _c
+}
+
+// SetNillableServerName sets the "server_name" field if the given value is not nil.
+func (_c *ModuleCreate) SetNillableServerName(v *string) *ModuleCreate {
+	if v != nil {
+		_c.SetServerName(*v)
+	}
+	return _c
+}
+
 // SetRegistrationID sets the "registration_id" field.
 func (_c *ModuleCreate) SetRegistrationID(v string) *ModuleCreate {
 	_c.mutation.SetRegistrationID(v)
@@ -370,6 +384,10 @@ func (_c *ModuleCreate) defaults() {
 	if _, ok := _c.mutation.HTTPEndpoint(); !ok {
 		v := module.DefaultHTTPEndpoint
 		_c.mutation.SetHTTPEndpoint(v)
+	}
+	if _, ok := _c.mutation.ServerName(); !ok {
+		v := module.DefaultServerName
+		_c.mutation.SetServerName(v)
 	}
 	if _, ok := _c.mutation.MenuCount(); !ok {
 		v := module.DefaultMenuCount
@@ -538,6 +556,10 @@ func (_c *ModuleCreate) createSpec() (*Module, *sqlgraph.CreateSpec) {
 	if value, ok := _c.mutation.HTTPEndpoint(); ok {
 		_spec.SetField(module.FieldHTTPEndpoint, field.TypeString, value)
 		_node.HTTPEndpoint = value
+	}
+	if value, ok := _c.mutation.ServerName(); ok {
+		_spec.SetField(module.FieldServerName, field.TypeString, value)
+		_node.ServerName = value
 	}
 	if value, ok := _c.mutation.RegistrationID(); ok {
 		_spec.SetField(module.FieldRegistrationID, field.TypeString, value)
@@ -912,6 +934,24 @@ func (u *ModuleUpsert) UpdateHTTPEndpoint() *ModuleUpsert {
 // ClearHTTPEndpoint clears the value of the "http_endpoint" field.
 func (u *ModuleUpsert) ClearHTTPEndpoint() *ModuleUpsert {
 	u.SetNull(module.FieldHTTPEndpoint)
+	return u
+}
+
+// SetServerName sets the "server_name" field.
+func (u *ModuleUpsert) SetServerName(v string) *ModuleUpsert {
+	u.Set(module.FieldServerName, v)
+	return u
+}
+
+// UpdateServerName sets the "server_name" field to the value that was provided on create.
+func (u *ModuleUpsert) UpdateServerName() *ModuleUpsert {
+	u.SetExcluded(module.FieldServerName)
+	return u
+}
+
+// ClearServerName clears the value of the "server_name" field.
+func (u *ModuleUpsert) ClearServerName() *ModuleUpsert {
+	u.SetNull(module.FieldServerName)
 	return u
 }
 
@@ -1421,6 +1461,27 @@ func (u *ModuleUpsertOne) UpdateHTTPEndpoint() *ModuleUpsertOne {
 func (u *ModuleUpsertOne) ClearHTTPEndpoint() *ModuleUpsertOne {
 	return u.Update(func(s *ModuleUpsert) {
 		s.ClearHTTPEndpoint()
+	})
+}
+
+// SetServerName sets the "server_name" field.
+func (u *ModuleUpsertOne) SetServerName(v string) *ModuleUpsertOne {
+	return u.Update(func(s *ModuleUpsert) {
+		s.SetServerName(v)
+	})
+}
+
+// UpdateServerName sets the "server_name" field to the value that was provided on create.
+func (u *ModuleUpsertOne) UpdateServerName() *ModuleUpsertOne {
+	return u.Update(func(s *ModuleUpsert) {
+		s.UpdateServerName()
+	})
+}
+
+// ClearServerName clears the value of the "server_name" field.
+func (u *ModuleUpsertOne) ClearServerName() *ModuleUpsertOne {
+	return u.Update(func(s *ModuleUpsert) {
+		s.ClearServerName()
 	})
 }
 
@@ -2114,6 +2175,27 @@ func (u *ModuleUpsertBulk) UpdateHTTPEndpoint() *ModuleUpsertBulk {
 func (u *ModuleUpsertBulk) ClearHTTPEndpoint() *ModuleUpsertBulk {
 	return u.Update(func(s *ModuleUpsert) {
 		s.ClearHTTPEndpoint()
+	})
+}
+
+// SetServerName sets the "server_name" field.
+func (u *ModuleUpsertBulk) SetServerName(v string) *ModuleUpsertBulk {
+	return u.Update(func(s *ModuleUpsert) {
+		s.SetServerName(v)
+	})
+}
+
+// UpdateServerName sets the "server_name" field to the value that was provided on create.
+func (u *ModuleUpsertBulk) UpdateServerName() *ModuleUpsertBulk {
+	return u.Update(func(s *ModuleUpsert) {
+		s.UpdateServerName()
+	})
+}
+
+// ClearServerName clears the value of the "server_name" field.
+func (u *ModuleUpsertBulk) ClearServerName() *ModuleUpsertBulk {
+	return u.Update(func(s *ModuleUpsert) {
+		s.ClearServerName()
 	})
 }
 

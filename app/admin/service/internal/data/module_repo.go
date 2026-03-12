@@ -115,6 +115,12 @@ func (r *ModuleRepo) Create(ctx context.Context, req *adminV1.RegisterModuleRequ
 	if req.GetHttpEndpoint() != "" {
 		builder.SetHTTPEndpoint(req.GetHttpEndpoint())
 	}
+	if req.GetServerName() != "" {
+		builder.SetServerName(req.GetServerName())
+	} else {
+		// Convention: default to "{module_id}-service"
+		builder.SetServerName(req.GetModuleId() + "-service")
+	}
 	if len(req.GetOpenapiSpec()) > 0 {
 		builder.SetOpenapiSpec(req.GetOpenapiSpec())
 	}
@@ -158,6 +164,11 @@ func (r *ModuleRepo) Update(ctx context.Context, moduleID string, req *adminV1.R
 	}
 	builder.SetFrontendEntryURL(req.GetFrontendEntryUrl())
 	builder.SetHTTPEndpoint(req.GetHttpEndpoint())
+	if req.GetServerName() != "" {
+		builder.SetServerName(req.GetServerName())
+	} else {
+		builder.SetServerName(req.GetModuleId() + "-service")
+	}
 	if len(req.GetOpenapiSpec()) > 0 {
 		builder.SetOpenapiSpec(req.GetOpenapiSpec())
 	} else {
@@ -307,6 +318,7 @@ func (r *ModuleRepo) EntityToProto(entity *ent.Module) *adminV1.Module {
 		GrpcEndpoint:     entity.GrpcEndpoint,
 		FrontendEntryUrl: entity.FrontendEntryURL,
 		HttpEndpoint:     entity.HTTPEndpoint,
+		ServerName:       entity.ServerName,
 		Status:           adminV1.ModuleStatus(entity.Status),
 		Health:           adminV1.ModuleHealth(entity.Health),
 		MenuCount:        entity.MenuCount,

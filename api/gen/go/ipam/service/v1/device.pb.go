@@ -234,9 +234,12 @@ type Device struct {
 	// Creator user ID
 	CreatedBy *uint32 `protobuf:"varint,32,opt,name=created_by,json=createdBy,proto3,oneof" json:"created_by,omitempty"`
 	// Last updater user ID
-	UpdatedBy     *uint32 `protobuf:"varint,33,opt,name=updated_by,json=updatedBy,proto3,oneof" json:"updated_by,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	UpdatedBy *uint32 `protobuf:"varint,33,opt,name=updated_by,json=updatedBy,proto3,oneof" json:"updated_by,omitempty"`
+	// Package update counts (populated in list responses)
+	PackageUpdateCount  *int32 `protobuf:"varint,40,opt,name=package_update_count,json=packageUpdateCount,proto3,oneof" json:"package_update_count,omitempty"`
+	SecurityUpdateCount *int32 `protobuf:"varint,41,opt,name=security_update_count,json=securityUpdateCount,proto3,oneof" json:"security_update_count,omitempty"`
+	unknownFields       protoimpl.UnknownFields
+	sizeCache           protoimpl.SizeCache
 }
 
 func (x *Device) Reset() {
@@ -482,6 +485,20 @@ func (x *Device) GetCreatedBy() uint32 {
 func (x *Device) GetUpdatedBy() uint32 {
 	if x != nil && x.UpdatedBy != nil {
 		return *x.UpdatedBy
+	}
+	return 0
+}
+
+func (x *Device) GetPackageUpdateCount() int32 {
+	if x != nil && x.PackageUpdateCount != nil {
+		return *x.PackageUpdateCount
+	}
+	return 0
+}
+
+func (x *Device) GetSecurityUpdateCount() int32 {
+	if x != nil && x.SecurityUpdateCount != nil {
+		return *x.SecurityUpdateCount
 	}
 	return 0
 }
@@ -1662,7 +1679,7 @@ var File_ipam_service_v1_device_proto protoreflect.FileDescriptor
 
 const file_ipam_service_v1_device_proto_rawDesc = "" +
 	"\n" +
-	"\x1cipam/service/v1/device.proto\x12\x0fipam.service.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a google/protobuf/field_mask.proto\x1a\x16redact/v3/redact.proto\"\xaf\r\n" +
+	"\x1cipam/service/v1/device.proto\x12\x0fipam.service.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a google/protobuf/field_mask.proto\x1a\x16redact/v3/redact.proto\"\xd2\x0e\n" +
 	"\x06Device\x12\x13\n" +
 	"\x02id\x18\x01 \x01(\tH\x00R\x02id\x88\x01\x01\x12 \n" +
 	"\ttenant_id\x18\x02 \x01(\rH\x01R\btenantId\x88\x01\x01\x12\x17\n" +
@@ -1704,7 +1721,9 @@ const file_ipam_service_v1_device_proto_rawDesc = "" +
 	"\n" +
 	"created_by\x18  \x01(\rH\x1dR\tcreatedBy\x88\x01\x01\x12\"\n" +
 	"\n" +
-	"updated_by\x18! \x01(\rH\x1eR\tupdatedBy\x88\x01\x01B\x05\n" +
+	"updated_by\x18! \x01(\rH\x1eR\tupdatedBy\x88\x01\x01\x125\n" +
+	"\x14package_update_count\x18( \x01(\x05H\x1fR\x12packageUpdateCount\x88\x01\x01\x127\n" +
+	"\x15security_update_count\x18) \x01(\x05H R\x13securityUpdateCount\x88\x01\x01B\x05\n" +
 	"\x03_idB\f\n" +
 	"\n" +
 	"_tenant_idB\a\n" +
@@ -1741,7 +1760,9 @@ const file_ipam_service_v1_device_proto_rawDesc = "" +
 	"\v_created_atB\r\n" +
 	"\v_updated_atB\r\n" +
 	"\v_created_byB\r\n" +
-	"\v_updated_by\"\xa7\x04\n" +
+	"\v_updated_byB\x17\n" +
+	"\x15_package_update_countB\x18\n" +
+	"\x16_security_update_count\"\xa7\x04\n" +
 	"\x0fDeviceInterface\x12\x13\n" +
 	"\x02id\x18\x01 \x01(\tH\x00R\x02id\x88\x01\x01\x12 \n" +
 	"\tdevice_id\x18\x02 \x01(\tH\x01R\bdeviceId\x88\x01\x01\x12\x17\n" +

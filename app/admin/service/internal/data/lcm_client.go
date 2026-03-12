@@ -2,9 +2,6 @@ package data
 
 import (
 	"context"
-	"crypto/tls"
-	"crypto/x509"
-	"fmt"
 	"os"
 	"time"
 
@@ -12,7 +9,6 @@ import (
 	"github.com/tx7do/kratos-bootstrap/bootstrap"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/backoff"
-	"google.golang.org/grpc/credentials"
 	"google.golang.org/grpc/keepalive"
 
 	lcmV1 "github.com/go-tangra/go-tangra-portal/api/gen/go/lcm/service/v1"
@@ -47,7 +43,7 @@ func NewLcmClients(ctx *bootstrap.Context) (*LcmClients, func(), error) {
 	l.Infof("Connecting to LCM service at: %s", endpoint)
 
 	// Load TLS credentials for mTLS connection to LCM service
-	creds, err := loadLcmClientTLSCredentials(l)
+	creds, err := loadAdminClientTLS("lcm-service", l)
 	if err != nil {
 		l.Warnf("Failed to load TLS credentials, LCM service will not be available: %v", err)
 		return nil, func() {}, nil // Return nil clients, service will be unavailable
@@ -132,50 +128,3 @@ func (c *LcmClients) IsConnected(ctx context.Context) bool {
 	return c.conn.GetState().String() == "READY"
 }
 
-// loadLcmClientTLSCredentials loads TLS credentials for connecting to LCM service
-func loadLcmClientTLSCredentials(l *log.Helper) (credentials.TransportCredentials, error) {
-	// Get certificate paths from environment or use defaults
-	caCertPath := os.Getenv("LCM_CA_CERT_PATH")
-	if caCertPath == "" {
-		caCertPath = "./data/ca/ca.crt"
-	}
-	clientCertPath := os.Getenv("LCM_CLIENT_CERT_PATH")
-	if clientCertPath == "" {
-		clientCertPath = "./data/admin/admin.crt"
-	}
-	clientKeyPath := os.Getenv("LCM_CLIENT_KEY_PATH")
-	if clientKeyPath == "" {
-		clientKeyPath = "./data/admin/admin.key"
-	}
-
-	// Load CA certificate
-	caCert, err := os.ReadFile(caCertPath)
-	if err != nil {
-		l.Errorf("Failed to read CA cert from %s: %v", caCertPath, err)
-		return nil, err
-	}
-	caCertPool := x509.NewCertPool()
-	if !caCertPool.AppendCertsFromPEM(caCert) {
-		l.Errorf("Failed to parse CA cert from %s", caCertPath)
-		return nil, fmt.Errorf("failed to parse CA certificate")
-	}
-
-	// Load client certificate and key
-	clientCert, err := tls.LoadX509KeyPair(clientCertPath, clientKeyPath)
-	if err != nil {
-		l.Errorf("Failed to load client cert/key from %s, %s: %v", clientCertPath, clientKeyPath, err)
-		return nil, err
-	}
-
-	// Create TLS config
-	tlsConfig := &tls.Config{
-		Certificates: []tls.Certificate{clientCert},
-		RootCAs:      caCertPool,
-		ServerName:   "localhost", // Must match a SAN in the server certificate
-		MinVersion:   tls.VersionTLS12,
-	}
-
-	l.Infof("Loaded TLS credentials: CA=%s, Cert=%s", caCertPath, clientCertPath)
-
-	return credentials.NewTLS(tlsConfig), nil
-}

@@ -75,7 +75,7 @@ func initApp(context *bootstrap.Context) (*kratos.App, func(), error) {
 	openAPIParser := service.NewOpenAPIParser(context)
 	menuParser := service.NewMenuParser(context)
 	moduleRegistry := service.NewModuleRegistry(context, moduleRepo, openAPIParser, menuParser)
-	adminPortalService := service.NewAdminPortalService(context, menuRepo, roleRepo, userRepo, moduleRegistry)
+	adminPortalService := service.NewAdminPortalService(context, menuRepo, roleRepo, permissionRepo, userRepo, moduleRegistry)
 	taskRepo := data.NewTaskRepo(context, entClient)
 	taskService := service.NewTaskService(context, taskRepo, userRepo)
 	minIOClient := data.NewMinIoClient(context)
@@ -179,7 +179,16 @@ func initApp(context *bootstrap.Context) (*kratos.App, func(), error) {
 		return nil, nil, err
 	}
 	commonModuleRegistrationAdapter := service.NewCommonModuleRegistrationAdapter(moduleRegistrationService)
-	grpcServer := server.NewGRPCServer(context, moduleRegistrationService, commonModuleRegistrationAdapter, userService, roleService)
+	grpcServer, err := server.NewGRPCServer(context, moduleRegistrationService, commonModuleRegistrationAdapter, userService, roleService)
+	if err != nil {
+		cleanup6()
+		cleanup5()
+		cleanup4()
+		cleanup3()
+		cleanup2()
+		cleanup()
+		return nil, nil, err
+	}
 	asynqServer, err := server.NewAsynqServer(context, taskService)
 	if err != nil {
 		cleanup6()

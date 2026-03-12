@@ -344,6 +344,26 @@ func (_u *ModuleUpdate) ClearHTTPEndpoint() *ModuleUpdate {
 	return _u
 }
 
+// SetServerName sets the "server_name" field.
+func (_u *ModuleUpdate) SetServerName(v string) *ModuleUpdate {
+	_u.mutation.SetServerName(v)
+	return _u
+}
+
+// SetNillableServerName sets the "server_name" field if the given value is not nil.
+func (_u *ModuleUpdate) SetNillableServerName(v *string) *ModuleUpdate {
+	if v != nil {
+		_u.SetServerName(*v)
+	}
+	return _u
+}
+
+// ClearServerName clears the value of the "server_name" field.
+func (_u *ModuleUpdate) ClearServerName() *ModuleUpdate {
+	_u.mutation.ClearServerName()
+	return _u
+}
+
 // SetRegistrationID sets the "registration_id" field.
 func (_u *ModuleUpdate) SetRegistrationID(v string) *ModuleUpdate {
 	_u.mutation.SetRegistrationID(v)
@@ -638,6 +658,12 @@ func (_u *ModuleUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	}
 	if _u.mutation.HTTPEndpointCleared() {
 		_spec.ClearField(module.FieldHTTPEndpoint, field.TypeString)
+	}
+	if value, ok := _u.mutation.ServerName(); ok {
+		_spec.SetField(module.FieldServerName, field.TypeString, value)
+	}
+	if _u.mutation.ServerNameCleared() {
+		_spec.ClearField(module.FieldServerName, field.TypeString)
 	}
 	if value, ok := _u.mutation.RegistrationID(); ok {
 		_spec.SetField(module.FieldRegistrationID, field.TypeString, value)
@@ -1012,6 +1038,26 @@ func (_u *ModuleUpdateOne) ClearHTTPEndpoint() *ModuleUpdateOne {
 	return _u
 }
 
+// SetServerName sets the "server_name" field.
+func (_u *ModuleUpdateOne) SetServerName(v string) *ModuleUpdateOne {
+	_u.mutation.SetServerName(v)
+	return _u
+}
+
+// SetNillableServerName sets the "server_name" field if the given value is not nil.
+func (_u *ModuleUpdateOne) SetNillableServerName(v *string) *ModuleUpdateOne {
+	if v != nil {
+		_u.SetServerName(*v)
+	}
+	return _u
+}
+
+// ClearServerName clears the value of the "server_name" field.
+func (_u *ModuleUpdateOne) ClearServerName() *ModuleUpdateOne {
+	_u.mutation.ClearServerName()
+	return _u
+}
+
 // SetRegistrationID sets the "registration_id" field.
 func (_u *ModuleUpdateOne) SetRegistrationID(v string) *ModuleUpdateOne {
 	_u.mutation.SetRegistrationID(v)
@@ -1336,6 +1382,12 @@ func (_u *ModuleUpdateOne) sqlSave(ctx context.Context) (_node *Module, err erro
 	}
 	if _u.mutation.HTTPEndpointCleared() {
 		_spec.ClearField(module.FieldHTTPEndpoint, field.TypeString)
+	}
+	if value, ok := _u.mutation.ServerName(); ok {
+		_spec.SetField(module.FieldServerName, field.TypeString, value)
+	}
+	if _u.mutation.ServerNameCleared() {
+		_spec.ClearField(module.FieldServerName, field.TypeString)
 	}
 	if value, ok := _u.mutation.RegistrationID(); ok {
 		_spec.SetField(module.FieldRegistrationID, field.TypeString, value)

@@ -442,6 +442,11 @@ func (s *UserService) Delete(ctx context.Context, req *userV1.DeleteUserRequest)
 		return nil, err
 	}
 
+	// 删除用户凭证
+	if delCredErr := s.userCredentialRepo.DeleteByUserId(ctx, req.GetId()); delCredErr != nil {
+		s.log.Warnf("failed to delete credentials for user %d: %s", req.GetId(), delCredErr.Error())
+	}
+
 	// 删除用户
 	err = s.userRepo.Delete(ctx, req)
 

@@ -2,9 +2,6 @@ package data
 
 import (
 	"context"
-	"crypto/tls"
-	"crypto/x509"
-	"fmt"
 	"os"
 	"time"
 
@@ -12,7 +9,6 @@ import (
 	"github.com/tx7do/kratos-bootstrap/bootstrap"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/backoff"
-	"google.golang.org/grpc/credentials"
 	"google.golang.org/grpc/keepalive"
 
 	deployerV1 "github.com/go-tangra/go-tangra-portal/api/gen/go/deployer/service/v1"
@@ -43,7 +39,7 @@ func NewDeployerClients(ctx *bootstrap.Context) (*DeployerClients, func(), error
 	l.Infof("Connecting to Deployer service at: %s", endpoint)
 
 	// Load TLS credentials for mTLS connection to Deployer service
-	creds, err := loadDeployerClientTLSCredentials(l)
+	creds, err := loadAdminClientTLS("deployer-service", l)
 	if err != nil {
 		l.Warnf("Failed to load TLS credentials, Deployer service will not be available: %v", err)
 		return nil, func() {}, nil // Return nil clients, service will be unavailable
@@ -124,57 +120,3 @@ func (c *DeployerClients) IsConnected(ctx context.Context) bool {
 	return c.conn.GetState().String() == "READY"
 }
 
-// loadDeployerClientTLSCredentials loads TLS credentials for connecting to Deployer service
-func loadDeployerClientTLSCredentials(l *log.Helper) (credentials.TransportCredentials, error) {
-	// Get certificate paths from environment or use defaults
-	caCertPath := os.Getenv("DEPLOYER_CA_CERT_PATH")
-	if caCertPath == "" {
-		caCertPath = "./data/ca/ca.crt"
-	}
-	clientCertPath := os.Getenv("DEPLOYER_CLIENT_CERT_PATH")
-	if clientCertPath == "" {
-		clientCertPath = "./data/deployer/deployer.crt"
-	}
-	clientKeyPath := os.Getenv("DEPLOYER_CLIENT_KEY_PATH")
-	if clientKeyPath == "" {
-		clientKeyPath = "./data/deployer/deployer.key"
-	}
-
-	// Get server name for TLS verification - must match a SAN in the server certificate
-	// Default to deployer-service which should be in the server cert's SANs
-	serverName := os.Getenv("DEPLOYER_SERVER_NAME")
-	if serverName == "" {
-		serverName = "deployer-service"
-	}
-
-	// Load CA certificate
-	caCert, err := os.ReadFile(caCertPath)
-	if err != nil {
-		l.Errorf("Failed to read CA cert from %s: %v", caCertPath, err)
-		return nil, err
-	}
-	caCertPool := x509.NewCertPool()
-	if !caCertPool.AppendCertsFromPEM(caCert) {
-		l.Errorf("Failed to parse CA cert from %s", caCertPath)
-		return nil, fmt.Errorf("failed to parse CA certificate")
-	}
-
-	// Load client certificate and key
-	clientCert, err := tls.LoadX509KeyPair(clientCertPath, clientKeyPath)
-	if err != nil {
-		l.Errorf("Failed to load client cert/key from %s, %s: %v", clientCertPath, clientKeyPath, err)
-		return nil, err
-	}
-
-	// Create TLS config
-	tlsConfig := &tls.Config{
-		Certificates: []tls.Certificate{clientCert},
-		RootCAs:      caCertPool,
-		ServerName:   serverName,
-		MinVersion:   tls.VersionTLS12,
-	}
-
-	l.Infof("Loaded TLS credentials: CA=%s, Cert=%s, ServerName=%s", caCertPath, clientCertPath, serverName)
-
-	return credentials.NewTLS(tlsConfig), nil
-}

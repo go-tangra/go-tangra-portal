@@ -30346,6 +30346,7 @@ type ModuleMutation struct {
 	menus_yaml         *[]byte
 	frontend_entry_url *string
 	http_endpoint      *string
+	server_name        *string
 	registration_id    *string
 	registered_at      *time.Time
 	last_heartbeat     *time.Time
@@ -31372,6 +31373,55 @@ func (m *ModuleMutation) ResetHTTPEndpoint() {
 	delete(m.clearedFields, module.FieldHTTPEndpoint)
 }
 
+// SetServerName sets the "server_name" field.
+func (m *ModuleMutation) SetServerName(s string) {
+	m.server_name = &s
+}
+
+// ServerName returns the value of the "server_name" field in the mutation.
+func (m *ModuleMutation) ServerName() (r string, exists bool) {
+	v := m.server_name
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldServerName returns the old "server_name" field's value of the Module entity.
+// If the Module object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ModuleMutation) OldServerName(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldServerName is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldServerName requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldServerName: %w", err)
+	}
+	return oldValue.ServerName, nil
+}
+
+// ClearServerName clears the value of the "server_name" field.
+func (m *ModuleMutation) ClearServerName() {
+	m.server_name = nil
+	m.clearedFields[module.FieldServerName] = struct{}{}
+}
+
+// ServerNameCleared returns if the "server_name" field was cleared in this mutation.
+func (m *ModuleMutation) ServerNameCleared() bool {
+	_, ok := m.clearedFields[module.FieldServerName]
+	return ok
+}
+
+// ResetServerName resets all changes to the "server_name" field.
+func (m *ModuleMutation) ResetServerName() {
+	m.server_name = nil
+	delete(m.clearedFields, module.FieldServerName)
+}
+
 // SetRegistrationID sets the "registration_id" field.
 func (m *ModuleMutation) SetRegistrationID(s string) {
 	m.registration_id = &s
@@ -31721,7 +31771,7 @@ func (m *ModuleMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *ModuleMutation) Fields() []string {
-	fields := make([]string, 0, 24)
+	fields := make([]string, 0, 25)
 	if m.created_at != nil {
 		fields = append(fields, module.FieldCreatedAt)
 	}
@@ -31775,6 +31825,9 @@ func (m *ModuleMutation) Fields() []string {
 	}
 	if m.http_endpoint != nil {
 		fields = append(fields, module.FieldHTTPEndpoint)
+	}
+	if m.server_name != nil {
+		fields = append(fields, module.FieldServerName)
 	}
 	if m.registration_id != nil {
 		fields = append(fields, module.FieldRegistrationID)
@@ -31838,6 +31891,8 @@ func (m *ModuleMutation) Field(name string) (ent.Value, bool) {
 		return m.FrontendEntryURL()
 	case module.FieldHTTPEndpoint:
 		return m.HTTPEndpoint()
+	case module.FieldServerName:
+		return m.ServerName()
 	case module.FieldRegistrationID:
 		return m.RegistrationID()
 	case module.FieldRegisteredAt:
@@ -31895,6 +31950,8 @@ func (m *ModuleMutation) OldField(ctx context.Context, name string) (ent.Value, 
 		return m.OldFrontendEntryURL(ctx)
 	case module.FieldHTTPEndpoint:
 		return m.OldHTTPEndpoint(ctx)
+	case module.FieldServerName:
+		return m.OldServerName(ctx)
 	case module.FieldRegistrationID:
 		return m.OldRegistrationID(ctx)
 	case module.FieldRegisteredAt:
@@ -32041,6 +32098,13 @@ func (m *ModuleMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetHTTPEndpoint(v)
+		return nil
+	case module.FieldServerName:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetServerName(v)
 		return nil
 	case module.FieldRegistrationID:
 		v, ok := value.(string)
@@ -32249,6 +32313,9 @@ func (m *ModuleMutation) ClearedFields() []string {
 	if m.FieldCleared(module.FieldHTTPEndpoint) {
 		fields = append(fields, module.FieldHTTPEndpoint)
 	}
+	if m.FieldCleared(module.FieldServerName) {
+		fields = append(fields, module.FieldServerName)
+	}
 	if m.FieldCleared(module.FieldRegistrationID) {
 		fields = append(fields, module.FieldRegistrationID)
 	}
@@ -32307,6 +32374,9 @@ func (m *ModuleMutation) ClearField(name string) error {
 		return nil
 	case module.FieldHTTPEndpoint:
 		m.ClearHTTPEndpoint()
+		return nil
+	case module.FieldServerName:
+		m.ClearServerName()
 		return nil
 	case module.FieldRegistrationID:
 		m.ClearRegistrationID()
@@ -32378,6 +32448,9 @@ func (m *ModuleMutation) ResetField(name string) error {
 		return nil
 	case module.FieldHTTPEndpoint:
 		m.ResetHTTPEndpoint()
+		return nil
+	case module.FieldServerName:
+		m.ResetServerName()
 		return nil
 	case module.FieldRegistrationID:
 		m.ResetRegistrationID()

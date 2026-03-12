@@ -35,6 +35,9 @@ const (
 	PaperlessErrorReason_CATEGORY_NOT_EMPTY          PaperlessErrorReason = 6
 	PaperlessErrorReason_INVALID_PERMISSION          PaperlessErrorReason = 7
 	PaperlessErrorReason_INVALID_FORMAT              PaperlessErrorReason = 8
+	PaperlessErrorReason_INVALID_TEMPLATE_PDF        PaperlessErrorReason = 9
+	PaperlessErrorReason_NO_PLACEHOLDERS_FOUND       PaperlessErrorReason = 10
+	PaperlessErrorReason_SIGNING_ALREADY_COMPLETED   PaperlessErrorReason = 11
 	// 401 - Unauthorized
 	PaperlessErrorReason_UNAUTHORIZED  PaperlessErrorReason = 100
 	PaperlessErrorReason_INVALID_TOKEN PaperlessErrorReason = 101
@@ -43,11 +46,14 @@ const (
 	PaperlessErrorReason_ACCESS_DENIED            PaperlessErrorReason = 301
 	PaperlessErrorReason_INSUFFICIENT_PERMISSIONS PaperlessErrorReason = 302
 	// 404 - Not Found
-	PaperlessErrorReason_NOT_FOUND            PaperlessErrorReason = 400
-	PaperlessErrorReason_CATEGORY_NOT_FOUND   PaperlessErrorReason = 401
-	PaperlessErrorReason_DOCUMENT_NOT_FOUND   PaperlessErrorReason = 402
-	PaperlessErrorReason_FILE_NOT_FOUND       PaperlessErrorReason = 403
-	PaperlessErrorReason_PERMISSION_NOT_FOUND PaperlessErrorReason = 404
+	PaperlessErrorReason_NOT_FOUND                  PaperlessErrorReason = 400
+	PaperlessErrorReason_CATEGORY_NOT_FOUND         PaperlessErrorReason = 401
+	PaperlessErrorReason_DOCUMENT_NOT_FOUND         PaperlessErrorReason = 402
+	PaperlessErrorReason_FILE_NOT_FOUND             PaperlessErrorReason = 403
+	PaperlessErrorReason_PERMISSION_NOT_FOUND       PaperlessErrorReason = 404
+	PaperlessErrorReason_SIGNING_TEMPLATE_NOT_FOUND PaperlessErrorReason = 405
+	PaperlessErrorReason_SIGNING_REQUEST_NOT_FOUND  PaperlessErrorReason = 406
+	PaperlessErrorReason_SIGNING_SESSION_NOT_FOUND  PaperlessErrorReason = 407
 	// 409 - Conflict
 	PaperlessErrorReason_CONFLICT                  PaperlessErrorReason = 900
 	PaperlessErrorReason_CATEGORY_ALREADY_EXISTS   PaperlessErrorReason = 901
@@ -58,6 +64,8 @@ const (
 	PaperlessErrorReason_STORAGE_CONNECTION_ERROR PaperlessErrorReason = 2001
 	PaperlessErrorReason_STORAGE_OPERATION_ERROR  PaperlessErrorReason = 2002
 	PaperlessErrorReason_DATABASE_ERROR           PaperlessErrorReason = 2003
+	// 410 - Gone
+	PaperlessErrorReason_SIGNING_SESSION_EXPIRED PaperlessErrorReason = 1000
 	// 503 - Service Unavailable
 	PaperlessErrorReason_SERVICE_UNAVAILABLE PaperlessErrorReason = 2300
 	PaperlessErrorReason_STORAGE_UNAVAILABLE PaperlessErrorReason = 2301
@@ -75,6 +83,9 @@ var (
 		6:    "CATEGORY_NOT_EMPTY",
 		7:    "INVALID_PERMISSION",
 		8:    "INVALID_FORMAT",
+		9:    "INVALID_TEMPLATE_PDF",
+		10:   "NO_PLACEHOLDERS_FOUND",
+		11:   "SIGNING_ALREADY_COMPLETED",
 		100:  "UNAUTHORIZED",
 		101:  "INVALID_TOKEN",
 		300:  "FORBIDDEN",
@@ -85,6 +96,9 @@ var (
 		402:  "DOCUMENT_NOT_FOUND",
 		403:  "FILE_NOT_FOUND",
 		404:  "PERMISSION_NOT_FOUND",
+		405:  "SIGNING_TEMPLATE_NOT_FOUND",
+		406:  "SIGNING_REQUEST_NOT_FOUND",
+		407:  "SIGNING_SESSION_NOT_FOUND",
 		900:  "CONFLICT",
 		901:  "CATEGORY_ALREADY_EXISTS",
 		902:  "DOCUMENT_ALREADY_EXISTS",
@@ -93,6 +107,7 @@ var (
 		2001: "STORAGE_CONNECTION_ERROR",
 		2002: "STORAGE_OPERATION_ERROR",
 		2003: "DATABASE_ERROR",
+		1000: "SIGNING_SESSION_EXPIRED",
 		2300: "SERVICE_UNAVAILABLE",
 		2301: "STORAGE_UNAVAILABLE",
 	}
@@ -106,6 +121,9 @@ var (
 		"CATEGORY_NOT_EMPTY":          6,
 		"INVALID_PERMISSION":          7,
 		"INVALID_FORMAT":              8,
+		"INVALID_TEMPLATE_PDF":        9,
+		"NO_PLACEHOLDERS_FOUND":       10,
+		"SIGNING_ALREADY_COMPLETED":   11,
 		"UNAUTHORIZED":                100,
 		"INVALID_TOKEN":               101,
 		"FORBIDDEN":                   300,
@@ -116,6 +134,9 @@ var (
 		"DOCUMENT_NOT_FOUND":          402,
 		"FILE_NOT_FOUND":              403,
 		"PERMISSION_NOT_FOUND":        404,
+		"SIGNING_TEMPLATE_NOT_FOUND":  405,
+		"SIGNING_REQUEST_NOT_FOUND":   406,
+		"SIGNING_SESSION_NOT_FOUND":   407,
 		"CONFLICT":                    900,
 		"CATEGORY_ALREADY_EXISTS":     901,
 		"DOCUMENT_ALREADY_EXISTS":     902,
@@ -124,6 +145,7 @@ var (
 		"STORAGE_CONNECTION_ERROR":    2001,
 		"STORAGE_OPERATION_ERROR":     2002,
 		"DATABASE_ERROR":              2003,
+		"SIGNING_SESSION_EXPIRED":     1000,
 		"SERVICE_UNAVAILABLE":         2300,
 		"STORAGE_UNAVAILABLE":         2301,
 	}
@@ -160,7 +182,7 @@ var File_paperless_service_v1_paperless_error_proto protoreflect.FileDescriptor
 
 const file_paperless_service_v1_paperless_error_proto_rawDesc = "" +
 	"\n" +
-	"*paperless/service/v1/paperless_error.proto\x12\x14paperless.service.v1\x1a\x13errors/errors.proto*\x88\a\n" +
+	"*paperless/service/v1/paperless_error.proto\x12\x14paperless.service.v1\x1a\x13errors/errors.proto*\x85\t\n" +
 	"\x14PaperlessErrorReason\x12\x15\n" +
 	"\vBAD_REQUEST\x10\x00\x1a\x04\xa8E\x90\x03\x12\x1f\n" +
 	"\x15INVALID_CATEGORY_PATH\x10\x01\x1a\x04\xa8E\x90\x03\x12\x1f\n" +
@@ -170,7 +192,11 @@ const file_paperless_service_v1_paperless_error_proto_rawDesc = "" +
 	"\x1bCIRCULAR_CATEGORY_REFERENCE\x10\x05\x1a\x04\xa8E\x90\x03\x12\x1c\n" +
 	"\x12CATEGORY_NOT_EMPTY\x10\x06\x1a\x04\xa8E\x90\x03\x12\x1c\n" +
 	"\x12INVALID_PERMISSION\x10\a\x1a\x04\xa8E\x90\x03\x12\x18\n" +
-	"\x0eINVALID_FORMAT\x10\b\x1a\x04\xa8E\x90\x03\x12\x16\n" +
+	"\x0eINVALID_FORMAT\x10\b\x1a\x04\xa8E\x90\x03\x12\x1e\n" +
+	"\x14INVALID_TEMPLATE_PDF\x10\t\x1a\x04\xa8E\x90\x03\x12\x1f\n" +
+	"\x15NO_PLACEHOLDERS_FOUND\x10\n" +
+	"\x1a\x04\xa8E\x90\x03\x12#\n" +
+	"\x19SIGNING_ALREADY_COMPLETED\x10\v\x1a\x04\xa8E\x90\x03\x12\x16\n" +
 	"\fUNAUTHORIZED\x10d\x1a\x04\xa8E\x91\x03\x12\x17\n" +
 	"\rINVALID_TOKEN\x10e\x1a\x04\xa8E\x91\x03\x12\x14\n" +
 	"\tFORBIDDEN\x10\xac\x02\x1a\x04\xa8E\x93\x03\x12\x18\n" +
@@ -180,7 +206,10 @@ const file_paperless_service_v1_paperless_error_proto_rawDesc = "" +
 	"\x12CATEGORY_NOT_FOUND\x10\x91\x03\x1a\x04\xa8E\x94\x03\x12\x1d\n" +
 	"\x12DOCUMENT_NOT_FOUND\x10\x92\x03\x1a\x04\xa8E\x94\x03\x12\x19\n" +
 	"\x0eFILE_NOT_FOUND\x10\x93\x03\x1a\x04\xa8E\x94\x03\x12\x1f\n" +
-	"\x14PERMISSION_NOT_FOUND\x10\x94\x03\x1a\x04\xa8E\x94\x03\x12\x13\n" +
+	"\x14PERMISSION_NOT_FOUND\x10\x94\x03\x1a\x04\xa8E\x94\x03\x12%\n" +
+	"\x1aSIGNING_TEMPLATE_NOT_FOUND\x10\x95\x03\x1a\x04\xa8E\x94\x03\x12$\n" +
+	"\x19SIGNING_REQUEST_NOT_FOUND\x10\x96\x03\x1a\x04\xa8E\x94\x03\x12$\n" +
+	"\x19SIGNING_SESSION_NOT_FOUND\x10\x97\x03\x1a\x04\xa8E\x94\x03\x12\x13\n" +
 	"\bCONFLICT\x10\x84\a\x1a\x04\xa8E\x99\x03\x12\"\n" +
 	"\x17CATEGORY_ALREADY_EXISTS\x10\x85\a\x1a\x04\xa8E\x99\x03\x12\"\n" +
 	"\x17DOCUMENT_ALREADY_EXISTS\x10\x86\a\x1a\x04\xa8E\x99\x03\x12$\n" +
@@ -188,7 +217,8 @@ const file_paperless_service_v1_paperless_error_proto_rawDesc = "" +
 	"\x15INTERNAL_SERVER_ERROR\x10\xd0\x0f\x1a\x04\xa8E\xf4\x03\x12#\n" +
 	"\x18STORAGE_CONNECTION_ERROR\x10\xd1\x0f\x1a\x04\xa8E\xf4\x03\x12\"\n" +
 	"\x17STORAGE_OPERATION_ERROR\x10\xd2\x0f\x1a\x04\xa8E\xf4\x03\x12\x19\n" +
-	"\x0eDATABASE_ERROR\x10\xd3\x0f\x1a\x04\xa8E\xf4\x03\x12\x1e\n" +
+	"\x0eDATABASE_ERROR\x10\xd3\x0f\x1a\x04\xa8E\xf4\x03\x12\"\n" +
+	"\x17SIGNING_SESSION_EXPIRED\x10\xe8\a\x1a\x04\xa8E\x9a\x03\x12\x1e\n" +
 	"\x13SERVICE_UNAVAILABLE\x10\xfc\x11\x1a\x04\xa8E\xf7\x03\x12\x1e\n" +
 	"\x13STORAGE_UNAVAILABLE\x10\xfd\x11\x1a\x04\xa8E\xf7\x03\x1a\x04\xa0E\xf4\x03B\xf4\x01\n" +
 	"\x18com.paperless.service.v1B\x13PaperlessErrorProtoP\x01ZQgithub.com/go-tangra/go-tangra-portal/api/gen/go/paperless/service/v1;paperlesspb\xa2\x02\x03PSX\xaa\x02\x14Paperless.Service.V1\xca\x02\x14Paperless\\Service\\V1\xe2\x02 Paperless\\Service\\V1\\GPBMetadata\xea\x02\x16Paperless::Service::V1b\x06proto3"
