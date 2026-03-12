@@ -100,4 +100,7 @@ var ProviderSet = wire.NewSet(
 
 	// LDAP
 	data.NewLdapClient,
+
+	// Statistics (Prometheus metrics seeding)
+	data.NewStatisticsRepo,
 )
