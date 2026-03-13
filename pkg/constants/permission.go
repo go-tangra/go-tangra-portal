@@ -45,10 +45,11 @@ var SelfServiceAPIEndpoints = []SelfServiceAPIEndpoint{
 	// User profile
 	{"/admin/v1/me", "GET"},
 	{"/admin/v1/me", "PUT"},
-	{"/admin/v1/me/avatar", "PUT"},
-	{"/admin/v1/me/change-password", "POST"},
+	{"/admin/v1/me/avatar", "POST"},
+	{"/admin/v1/me/avatar", "DELETE"},
+	{"/admin/v1/me/password", "POST"},
+	{"/admin/v1/me/contact", "POST"},
 	{"/admin/v1/me/contact/verify", "POST"},
-	{"/admin/v1/me/contact/confirm", "POST"},
 	// Navigation and permissions
 	{"/admin/v1/routes", "GET"},
 	{"/admin/v1/perm-codes", "GET"},
