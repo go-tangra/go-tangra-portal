@@ -590,6 +590,11 @@ func (r *PermissionRepo) ListApiIDsByPermissionIDs(ctx context.Context, permissi
 	return apiIDs, nil
 }
 
+// AssignApisToPermission assigns API IDs to a permission, using upsert to avoid duplicates.
+func (r *PermissionRepo) AssignApisToPermission(ctx context.Context, permissionID uint32, apiIDs []uint32) error {
+	return r.permissionApiRepo.AssignApis(ctx, permissionID, apiIDs)
+}
+
 // ListMenuIDsByPermissionIDs 列出权限关联的菜单ID列表
 func (r *PermissionRepo) ListMenuIDsByPermissionIDs(ctx context.Context, permissionIDs []uint32) ([]uint32, error) {
 	apiIDs, err := r.permissionMenuRepo.ListMenuIDs(ctx, permissionIDs)

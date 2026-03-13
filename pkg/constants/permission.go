@@ -33,6 +33,41 @@ const (
 	UncategorizedPermissionGroup = "uncategorized"
 )
 
+// SelfServiceAPIEndpoint represents a path/method pair for self-service APIs.
+type SelfServiceAPIEndpoint struct {
+	Path   string
+	Method string
+}
+
+// SelfServiceAPIEndpoints defines the API endpoints that the sys:self_service permission grants.
+// These are the endpoints every authenticated user needs access to.
+var SelfServiceAPIEndpoints = []SelfServiceAPIEndpoint{
+	// User profile
+	{"/admin/v1/me", "GET"},
+	{"/admin/v1/me", "PUT"},
+	{"/admin/v1/me/avatar", "PUT"},
+	{"/admin/v1/me/change-password", "POST"},
+	{"/admin/v1/me/contact/verify", "POST"},
+	{"/admin/v1/me/contact/confirm", "POST"},
+	// Navigation and permissions
+	{"/admin/v1/routes", "GET"},
+	{"/admin/v1/perm-codes", "GET"},
+	{"/admin/v1/initial-context", "GET"},
+	// MFA self-service
+	{"/admin/v1/me/mfa/status", "GET"},
+	{"/admin/v1/me/mfa/methods", "GET"},
+	{"/admin/v1/me/mfa/enroll", "POST"},
+	{"/admin/v1/me/mfa/enroll/confirm", "POST"},
+	{"/admin/v1/me/mfa/disable", "POST"},
+	{"/admin/v1/me/mfa/backup-codes", "GET"},
+	{"/admin/v1/me/mfa/backup-codes", "POST"},
+	{"/admin/v1/me/mfa/devices/{credential_id}", "DELETE"},
+	// Module registration (list registered modules for frontend)
+	{"/admin/v1/registration/modules", "GET"},
+	// Internal messages inbox
+	{"/admin/v1/internal-message/inbox", "GET"},
+}
+
 // ProtectedPermissionCodes 受保护的权限代码列表，禁止删除
 var ProtectedPermissionCodes = []string{
 	SystemAccessBackendPermissionCode,

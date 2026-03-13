@@ -102,6 +102,9 @@ func (s *PermissionService) init() {
 			}
 		}
 	}
+
+	// Ensure self-service APIs are linked on every startup (self-healing)
+	s.ensureSelfServiceApis(ctx)
 }
 
 func (s *PermissionService) initGroupNameSetMap(permissions []*permissionV1.Permission, groupSet *name_set.UserNameSetMap) {
@@ -544,4 +547,40 @@ func (s *PermissionService) createDefaultPermissions(ctx context.Context) error 
 	}
 
 	return nil
+}
+
+// ensureSelfServiceApis resolves self-service API endpoints by path/method and links them
+// to the sys:self_service permission. Runs on every startup to self-heal after API re-syncs.
+func (s *PermissionService) ensureSelfServiceApis(ctx context.Context) {
+	permIDs, err := s.permissionRepo.GetPermissionIDsByCodes(ctx, []string{constants.SystemSelfServicePermissionCode})
+	if err != nil || len(permIDs) == 0 {
+		return
+	}
+	permID := permIDs[0]
+
+	var apiIDs []uint32
+	for _, ep := range constants.SelfServiceAPIEndpoints {
+		apiEntity, err := s.apiRepo.GetAPIByPathAndMethod(ctx, ep.Path, ep.Method)
+		if err != nil {
+			s.log.Warnf("failed to look up self-service API %s %s: %v", ep.Method, ep.Path, err)
+			continue
+		}
+		if apiEntity == nil {
+			continue
+		}
+		apiIDs = append(apiIDs, uint32(apiEntity.ID))
+	}
+
+	if len(apiIDs) == 0 {
+		return
+	}
+
+	if err := s.permissionRepo.AssignApisToPermission(ctx, permID, apiIDs); err != nil {
+		s.log.Errorf("failed to assign self-service APIs to permission: %v", err)
+		return
+	}
+
+	if err := s.authorizer.ResetPolicies(ctx); err != nil {
+		s.log.Errorf("failed to reset policies after self-service API sync: %v", err)
+	}
 }
