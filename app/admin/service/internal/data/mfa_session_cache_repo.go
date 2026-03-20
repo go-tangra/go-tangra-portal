@@ -156,6 +156,7 @@ func (r *MFASessionCacheRepo) GetEnrollmentSession(ctx context.Context, operatio
 }
 
 // GetLoginSession retrieves a login session without consuming it (non-destructive read).
+// Extends the TTL on each read so slow WebAuthn flows (PIN entry, retries) don't expire prematurely.
 func (r *MFASessionCacheRepo) GetLoginSession(ctx context.Context, token string) (*MFALoginSession, error) {
 	key := mfaLoginSessionPrefix + token
 
@@ -166,6 +167,9 @@ func (r *MFASessionCacheRepo) GetLoginSession(ctx context.Context, token string)
 		}
 		return nil, fmt.Errorf("get mfa session: %w", err)
 	}
+
+	// Extend TTL on read — gives the user another full window from this point
+	r.rdb.Expire(ctx, key, mfaLoginSessionTTL)
 
 	var session MFALoginSession
 	if err = json.Unmarshal(data, &session); err != nil {
