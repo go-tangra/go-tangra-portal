@@ -332,10 +332,17 @@ func (s *MFAService) confirmEnrollWebAuthn(ctx context.Context, operator *authen
 		displayName = "Security Key"
 	}
 
+	// Store transports so the browser can find the authenticator during login
+	transports := make([]string, len(credential.Transport))
+	for i, t := range credential.Transport {
+		transports[i] = string(t)
+	}
+
 	credData := &data.WebAuthnCredentialData{
 		ID:              credential.ID,
 		PublicKey:       credential.PublicKey,
 		AttestationType: credential.AttestationType,
+		Transport:       transports,
 		SignCount:       credential.Authenticator.SignCount,
 		CloneWarning:    credential.Authenticator.CloneWarning,
 		AAGUID:          credential.Authenticator.AAGUID[:],

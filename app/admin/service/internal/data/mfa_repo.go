@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/go-kratos/kratos/v2/log"
+	"github.com/go-webauthn/webauthn/protocol"
 	"github.com/go-webauthn/webauthn/webauthn"
 	"github.com/tx7do/go-utils/password"
 	"github.com/tx7do/kratos-bootstrap/bootstrap"
@@ -382,6 +383,10 @@ func (r *MFARepo) ParseWebAuthnCredentials(creds []*ent.UserCredential) ([]webau
 		}
 		if len(data.AAGUID) > 0 {
 			copy(wc.Authenticator.AAGUID[:], data.AAGUID)
+		}
+		// Restore transports so the browser knows how to reach the authenticator
+		for _, t := range data.Transport {
+			wc.Transport = append(wc.Transport, protocol.AuthenticatorTransport(t))
 		}
 
 		result = append(result, wc)
