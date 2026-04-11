@@ -34,7 +34,6 @@ func RegisterMigrateModels() {
 		&models.RoleMenu{},
 		&models.RoleOrg{},
 		&models.RolePosition{},
-		&models.Task{},
 		&models.Tenant{},
 		&models.User{},
 		&models.UserCredential{},

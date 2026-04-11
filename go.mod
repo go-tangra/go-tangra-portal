@@ -16,7 +16,6 @@ require (
 	github.com/google/gnostic v0.7.1
 	github.com/google/uuid v1.6.0
 	github.com/google/wire v0.7.0
-	github.com/hibiken/asynq v0.25.1
 	github.com/jackc/pgx/v5 v5.8.0
 	github.com/jinzhu/copier v0.4.0
 	github.com/jinzhu/inflection v1.0.0
@@ -53,11 +52,8 @@ require (
 	github.com/tx7do/kratos-bootstrap/database/gorm v0.1.3
 	github.com/tx7do/kratos-bootstrap/oss/minio v0.1.1
 	github.com/tx7do/kratos-bootstrap/rpc v0.1.1
-	github.com/tx7do/kratos-bootstrap/transport/asynq v0.0.2
 	github.com/tx7do/kratos-bootstrap/transport/sse v0.0.2
 	github.com/tx7do/kratos-swagger-ui v0.0.1
-	github.com/tx7do/kratos-transport v1.1.18
-	github.com/tx7do/kratos-transport/transport/asynq v1.2.37
 	github.com/tx7do/kratos-transport/transport/sse v1.2.25
 	github.com/yuin/gopher-lua v1.1.1
 	google.golang.org/genproto v0.0.0-20260120221211-b8f7ae30c516
@@ -204,7 +200,6 @@ require (
 	github.com/redis/go-redis/extra/rediscmd/v9 v9.17.2 // indirect
 	github.com/redis/go-redis/extra/redisotel/v9 v9.17.2 // indirect
 	github.com/remyoudompheng/bigfft v0.0.0-20230129092748-24d4a6f8daec // indirect
-	github.com/robfig/cron/v3 v3.0.1 // indirect
 	github.com/rs/xid v1.6.0 // indirect
 	github.com/segmentio/asm v1.2.1 // indirect
 	github.com/segmentio/ksuid v1.0.4 // indirect
@@ -213,7 +208,6 @@ require (
 	github.com/shopspring/decimal v1.4.0 // indirect
 	github.com/sirupsen/logrus v1.9.4 // indirect
 	github.com/sony/sonyflake v1.3.0 // indirect
-	github.com/spf13/cast v1.10.0 // indirect
 	github.com/spf13/cobra v1.10.2 // indirect
 	github.com/spf13/pflag v1.0.10 // indirect
 	github.com/stoewer/go-strcase v1.3.1 // indirect
@@ -230,7 +224,7 @@ require (
 	github.com/tx7do/kratos-bootstrap/logger v0.1.2 // indirect
 	github.com/tx7do/kratos-bootstrap/registry v0.2.2 // indirect
 	github.com/tx7do/kratos-bootstrap/tracer v0.1.3 // indirect
-	github.com/tx7do/kratos-transport/transport/keepalive v1.0.7 // indirect
+	github.com/tx7do/kratos-transport v1.1.18 // indirect
 	github.com/valyala/fastjson v1.6.7 // indirect
 	github.com/vearutop/statigz v1.5.0 // indirect
 	github.com/vektah/gqlparser/v2 v2.5.31 // indirect

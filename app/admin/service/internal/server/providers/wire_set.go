@@ -13,11 +13,13 @@ package providers
 import (
 	"github.com/google/wire"
 
+	"github.com/go-tangra/go-tangra-portal/app/admin/service/internal/metrics"
 	"github.com/go-tangra/go-tangra-portal/app/admin/service/internal/server"
 )
 
 // ProviderSet is the Wire provider set for server layer.
 var ProviderSet = wire.NewSet(
+	metrics.NewCollector,
 	server.NewRestServer,
 	server.NewGRPCServer,
 	server.NewSseServer,

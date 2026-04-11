@@ -7,10 +7,7 @@
 package main
 
 import (
-	gocontext "context"
-
 	"github.com/go-kratos/kratos/v2"
-	"github.com/go-tangra/go-tangra-common/viewer"
 	"github.com/go-tangra/go-tangra-portal/app/admin/service/internal/data"
 	"github.com/go-tangra/go-tangra-portal/app/admin/service/internal/metrics"
 	"github.com/go-tangra/go-tangra-portal/app/admin/service/internal/server"
@@ -79,8 +76,6 @@ func initApp(context *bootstrap.Context) (*kratos.App, func(), error) {
 	menuParser := service.NewMenuParser(context)
 	moduleRegistry := service.NewModuleRegistry(context, moduleRepo, openAPIParser, menuParser)
 	adminPortalService := service.NewAdminPortalService(context, menuRepo, roleRepo, permissionRepo, userRepo, moduleRegistry)
-	taskRepo := data.NewTaskRepo(context, entClient)
-	taskService := service.NewTaskService(context, taskRepo, userRepo)
 	minIOClient := data.NewMinIoClient(context)
 	uEditorService := service.NewUEditorService(context, minIOClient)
 	fileRepo := data.NewFileRepo(context, entClient)
@@ -167,7 +162,7 @@ func initApp(context *bootstrap.Context) (*kratos.App, func(), error) {
 	dynamicRouter := server.NewGatewayDynamicRouter(context, moduleRegistry, authenticator, apiAuditLogRepo)
 	moduleAssetProxy := server.NewModuleAssetProxy(context, moduleRegistry)
 	storageProxy := server.NewStorageProxy(context, minIOClient)
-	httpServer, err := server.NewRestServer(context, v, authorizer, authenticationService, mfaService, loginPolicyService, adminPortalService, taskService, uEditorService, fileService, fileTransferService, dictTypeService, dictEntryService, languageService, tenantService, userService, userProfileService, roleService, positionService, orgUnitService, menuService, apiService, permissionService, permissionGroupService, permissionAuditLogService, policyEvaluationLogService, loginAuditLogService, apiAuditLogService, operationAuditLogService, dataAccessAuditLogService, internalMessageService, internalMessageCategoryService, internalMessageRecipientService, platformStatisticsService, dashboardService, timeSeriesStatisticsService, moduleRegistrationService, dynamicRouter, moduleAssetProxy, storageProxy)
+	httpServer, err := server.NewRestServer(context, v, authorizer, authenticationService, mfaService, loginPolicyService, adminPortalService, uEditorService, fileService, fileTransferService, dictTypeService, dictEntryService, languageService, tenantService, userService, userProfileService, roleService, positionService, orgUnitService, menuService, apiService, permissionService, permissionGroupService, permissionAuditLogService, policyEvaluationLogService, loginAuditLogService, apiAuditLogService, operationAuditLogService, dataAccessAuditLogService, internalMessageService, internalMessageCategoryService, internalMessageRecipientService, platformStatisticsService, dashboardService, timeSeriesStatisticsService, moduleRegistrationService, dynamicRouter, moduleAssetProxy, storageProxy)
 	if err != nil {
 		cleanup6()
 		cleanup5()
@@ -189,25 +184,8 @@ func initApp(context *bootstrap.Context) (*kratos.App, func(), error) {
 		cleanup()
 		return nil, nil, err
 	}
-	asynqServer, err := server.NewAsynqServer(context, taskService)
-	if err != nil {
-		cleanup6()
-		cleanup5()
-		cleanup4()
-		cleanup3()
-		cleanup2()
-		cleanup()
-		return nil, nil, err
-	}
-	statisticsRepo := data.NewStatisticsRepo(context, entClient)
-
-	// Seed Prometheus metrics from database
-	seedCtx := viewer.NewSystemViewerContext(gocontext.Background())
-	collector.Seed(seedCtx, statisticsRepo)
-
-	app := newApp(context, httpServer, grpcServer, asynqServer, sseServer)
+	app := newApp(context, httpServer, grpcServer, sseServer)
 	return app, func() {
-		collector.Stop(gocontext.Background())
 		cleanup6()
 		cleanup5()
 		cleanup4()

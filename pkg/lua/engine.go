@@ -214,8 +214,6 @@ func (e *Engine) registerAPIs(L *lua.LState) {
 	// Register hook API for self-registration
 	api.RegisterHookAPI(L, e, e.logger)
 
-	// Register task API for task handler registration
-	api.RegisterTask(L, e, e.logger)
 
 	// Register utility API (sleep, time, etc.)
 	api.RegisterUtilAPI(L, e.logger)

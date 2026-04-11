@@ -11,8 +11,9 @@ import (
 	"github.com/tx7do/kratos-bootstrap/bootstrap"
 	"google.golang.org/protobuf/types/known/emptypb"
 
+	"entgo.io/ent/privacy"
+
 	"github.com/go-tangra/go-tangra-portal/app/admin/service/internal/data"
-	"github.com/go-tangra/go-tangra-portal/app/admin/service/internal/data/ent/privacy"
 
 	adminV1 "github.com/go-tangra/go-tangra-portal/api/gen/go/admin/service/v1"
 	authenticationV1 "github.com/go-tangra/go-tangra-portal/api/gen/go/authentication/service/v1"

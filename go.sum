@@ -378,8 +378,6 @@ github.com/fortytw2/leaktest v1.3.0 h1:u8491cBMTQ8ft8aeV+adlcytMZylmA5nnwwkRZjI8
 github.com/fortytw2/leaktest v1.3.0/go.mod h1:jDsjWgpAGjm2CA7WthBh/CdZYEPF31XHquHwclZch5g=
 github.com/foxcpp/go-mockdns v1.1.0 h1:jI0rD8M0wuYAxL7r/ynTrCQQq0BVqfB99Vgk7DlmewI=
 github.com/foxcpp/go-mockdns v1.1.0/go.mod h1:IhLeSFGed3mJIAXPH2aiRQB+kqz7oqu8ld2qVbOu7Wk=
-github.com/frankban/quicktest v1.14.6 h1:7Xjx+VpznH+oBnejlPUj8oUpdxnVs4f8XU8WnHkI4W8=
-github.com/frankban/quicktest v1.14.6/go.mod h1:4ptaffx2x8+WTWXmUCuVU6aPUX1/Mz7zb5vbUoiM6w0=
 github.com/fsnotify/fsnotify v1.9.0 h1:2Ml+OJNzbYCTzsxtv8vKSFD9PbJjmhYF14k/jKC7S9k=
 github.com/fsnotify/fsnotify v1.9.0/go.mod h1:8jBTzvmWwFyi3Pb8djgCCO5IBqzKJ/Jwo8TRcHyHii0=
 github.com/fxamacker/cbor/v2 v2.9.0 h1:NpKPmjDBgUfBms6tr6JZkTHtfFGcMKsw3eGcmD/sapM=
@@ -609,8 +607,6 @@ github.com/hashicorp/golang-lru/v2 v2.0.7 h1:a+bsQ5rvGLjzHuww6tVxozPZFVghXaHOwFs
 github.com/hashicorp/golang-lru/v2 v2.0.7/go.mod h1:QeFd9opnmA6QUJc5vARoKUSoFhyfM2/ZepoAG6RGpeM=
 github.com/hashicorp/hcl/v2 v2.24.0 h1:2QJdZ454DSsYGoaE6QheQZjtKZSUs9Nh2izTWiwQxvE=
 github.com/hashicorp/hcl/v2 v2.24.0/go.mod h1:oGoO1FIQYfn/AgyOhlg9qLC6/nOJPX3qGbkZpYAcqfM=
-github.com/hibiken/asynq v0.25.1 h1:phj028N0nm15n8O2ims+IvJ2gz4k2auvermngh9JhTw=
-github.com/hibiken/asynq v0.25.1/go.mod h1:pazWNOLBu0FEynQRBvHA26qdIKRSmfdIfUm4HdsLmXg=
 github.com/ianlancetaylor/demangle v0.0.0-20181102032728-5e5cf60278f6/go.mod h1:aSSvb/t6k1mPoxDqO4vJh6VOCGPwU4O0C2/Eqndh1Sc=
 github.com/ianlancetaylor/demangle v0.0.0-20200824232613-28f6c0f3b639/go.mod h1:aSSvb/t6k1mPoxDqO4vJh6VOCGPwU4O0C2/Eqndh1Sc=
 github.com/inconshreveable/mousetrap v1.1.0 h1:wN+x4NVGpMsO7ErUn/mUI3vEoE6Jt13X2s0bqwp9tc8=
@@ -839,8 +835,6 @@ github.com/redis/go-redis/v9 v9.17.2 h1:P2EGsA4qVIM3Pp+aPocCJ7DguDHhqrXNhVcEp4Vi
 github.com/redis/go-redis/v9 v9.17.2/go.mod h1:u410H11HMLoB+TP67dz8rL9s6QW2j76l0//kSOd3370=
 github.com/remyoudompheng/bigfft v0.0.0-20230129092748-24d4a6f8daec h1:W09IVJc94icq4NjY3clb7Lk8O1qJ8BdBEF8z0ibU0rE=
 github.com/remyoudompheng/bigfft v0.0.0-20230129092748-24d4a6f8daec/go.mod h1:qqbHyh8v60DhA7CoWK5oRCqLrMHRGoxYCSS9EjAz6Eo=
-github.com/robfig/cron/v3 v3.0.1 h1:WdRxkvbJztn8LMz/QEvLN5sBU+xKpSqwwUO1Pjr4qDs=
-github.com/robfig/cron/v3 v3.0.1/go.mod h1:eQICP3HwyT7UooqI/z+Ov+PtYAWygg1TEWWzGIFLtro=
 github.com/rodaine/protogofakeit v0.1.1 h1:ZKouljuRM3A+TArppfBqnH8tGZHOwM/pjvtXe9DaXH8=
 github.com/rodaine/protogofakeit v0.1.1/go.mod h1:pXn/AstBYMaSfc1/RqH3N82pBuxtWgejz1AlYpY1mI0=
 github.com/rogpeppe/fastuuid v1.2.0/go.mod h1:jVj6XXZzXRy/MSR5jhDC/2q6DgLz+nrA6LYCDYWNEvQ=
@@ -878,8 +872,6 @@ github.com/skip2/go-qrcode v0.0.0-20200617195104-da1b6568686e/go.mod h1:XV66xRDq
 github.com/sony/sonyflake v1.3.0 h1:tiB4Dlp0lnmKp/h6BLXA14P8Qi+LYS9+0QRpcrKHvg4=
 github.com/sony/sonyflake v1.3.0/go.mod h1:LORtCywH/cq10ZbyfhKrHYgAUGH7mOBa76enV9txy/Y=
 github.com/spaolacci/murmur3 v0.0.0-20180118202830-f09979ecbc72/go.mod h1:JwIasOWyU6f++ZhiEuf87xNszmSA2myDM2Kzu9HwQUA=
-github.com/spf13/cast v1.10.0 h1:h2x0u2shc1QuLHfxi+cTJvs30+ZAHOGRic8uyGTDWxY=
-github.com/spf13/cast v1.10.0/go.mod h1:jNfB8QC9IA6ZuY2ZjDp0KtFO2LZZlg4S/7bzP6qqeHo=
 github.com/spf13/cobra v1.10.2 h1:DMTTonx5m65Ic0GOoRY2c16WCbHxOOw6xxezuLaBpcU=
 github.com/spf13/cobra v1.10.2/go.mod h1:7C1pvHqHw5A4vrJfjNwvOdzYu0Gml16OCs2GRiTUUS4=
 github.com/spf13/pflag v1.0.9/go.mod h1:McXfInJRrz4CZXVZOBLb0bTZqETkiAhM9Iw0y3An2Bg=
@@ -983,18 +975,12 @@ github.com/tx7do/kratos-bootstrap/rpc v0.1.1 h1:Bjtae7h/fERvmnL+C4VOftWBviQbSzkX
 github.com/tx7do/kratos-bootstrap/rpc v0.1.1/go.mod h1:5pdpUwSDL2B2j+jJIVMxZalwE6qd94MAMm/KOpjtQH0=
 github.com/tx7do/kratos-bootstrap/tracer v0.1.3 h1:3JVbtiyKB0rGOJIFrxC/OnAt88aew2Z5cGqHWe3C/7o=
 github.com/tx7do/kratos-bootstrap/tracer v0.1.3/go.mod h1:sYjqGC8dsIugje+GZ8Ot9tuo1d1/Q61ru5mu71FUSQo=
-github.com/tx7do/kratos-bootstrap/transport/asynq v0.0.2 h1:+S3saIUiUZdECeN63+0CgesenRaBHAhCoQY8XtoINKw=
-github.com/tx7do/kratos-bootstrap/transport/asynq v0.0.2/go.mod h1:dQ/W4T/VROJfD3WGDYsYyHLNUeTNyhHT8bVTdzqiw/s=
 github.com/tx7do/kratos-bootstrap/transport/sse v0.0.2 h1:QJVnNpcpIOIyTi+TVNVmZdN3YyKshodPYVl8SAabrT0=
 github.com/tx7do/kratos-bootstrap/transport/sse v0.0.2/go.mod h1:6HidJ4+69DlJwFeF00MIw4yjtTNo2TC4VyGSHWCH5Lg=
 github.com/tx7do/kratos-swagger-ui v0.0.1 h1:hkTsMJZtHQqvqogrrwYyJn46Xj3e26/M+ro4DQxGv0I=
 github.com/tx7do/kratos-swagger-ui v0.0.1/go.mod h1:aSdTwD5e0/A+vZ1mQVSydRNQgQzT+AVqHzCXg9K+XoI=
 github.com/tx7do/kratos-transport v1.1.18 h1:RuAvrbAtUSWlRUnhZTMfJBECk8YvS27YiI6BJANJxXo=
 github.com/tx7do/kratos-transport v1.1.18/go.mod h1:jOz3NJ5vVrjoY2ZbBK4nCLfFG7zpz3nZDAjBpvVaPpQ=
-github.com/tx7do/kratos-transport/transport/asynq v1.2.37 h1:2Wbjr/xDWVwumHHmDRzK62Y3nGKHnRy1qlWr6Si34UM=
-github.com/tx7do/kratos-transport/transport/asynq v1.2.37/go.mod h1:jiVP5f8DXGlJI9dAuk5za0ALL3ffi9/9BimZdQ0VCMI=
-github.com/tx7do/kratos-transport/transport/keepalive v1.0.7 h1:MqziXw7yqohD0znVN+/nydDZYAdRoJfaarbLrCVc2pA=
-github.com/tx7do/kratos-transport/transport/keepalive v1.0.7/go.mod h1:/b7C81tAyGX+g6iA6rJpMkPTHaMDflIpwmJh+5B5SPU=
 github.com/tx7do/kratos-transport/transport/sse v1.2.25 h1:EUwGtgIDkqWm3nVtMciVSAAnxxhnSrEVhnGyhkcKMwk=
 github.com/tx7do/kratos-transport/transport/sse v1.2.25/go.mod h1:iBe9b6vXTzOh04NxuUTtjMHr9mhNzyMuzqLgDZHuasI=
 github.com/ugorji/go/codec v1.2.7 h1:YPXUKf7fYbp/y8xloBqZOw2qaVggbfwMlI8WM3wZUJ0=

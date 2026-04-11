@@ -45,7 +45,6 @@ import (
 	"github.com/go-tangra/go-tangra-portal/app/admin/service/internal/data/ent/role"
 	"github.com/go-tangra/go-tangra-portal/app/admin/service/internal/data/ent/rolemetadata"
 	"github.com/go-tangra/go-tangra-portal/app/admin/service/internal/data/ent/rolepermission"
-	"github.com/go-tangra/go-tangra-portal/app/admin/service/internal/data/ent/task"
 	"github.com/go-tangra/go-tangra-portal/app/admin/service/internal/data/ent/tenant"
 	"github.com/go-tangra/go-tangra-portal/app/admin/service/internal/data/ent/user"
 	"github.com/go-tangra/go-tangra-portal/app/admin/service/internal/data/ent/usercredential"
@@ -146,7 +145,6 @@ func checkColumn(t, c string) error {
 			role.Table:                     role.ValidColumn,
 			rolemetadata.Table:             rolemetadata.ValidColumn,
 			rolepermission.Table:           rolepermission.ValidColumn,
-			task.Table:                     task.ValidColumn,
 			tenant.Table:                   tenant.ValidColumn,
 			user.Table:                     user.ValidColumn,
 			usercredential.Table:           usercredential.ValidColumn,

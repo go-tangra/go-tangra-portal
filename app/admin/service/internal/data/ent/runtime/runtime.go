@@ -41,7 +41,6 @@ import (
 	"github.com/go-tangra/go-tangra-portal/app/admin/service/internal/data/ent/rolemetadata"
 	"github.com/go-tangra/go-tangra-portal/app/admin/service/internal/data/ent/rolepermission"
 	"github.com/go-tangra/go-tangra-portal/app/admin/service/internal/data/ent/schema"
-	"github.com/go-tangra/go-tangra-portal/app/admin/service/internal/data/ent/task"
 	"github.com/go-tangra/go-tangra-portal/app/admin/service/internal/data/ent/tenant"
 	"github.com/go-tangra/go-tangra-portal/app/admin/service/internal/data/ent/user"
 	"github.com/go-tangra/go-tangra-portal/app/admin/service/internal/data/ent/usercredential"
@@ -1041,34 +1040,6 @@ func init() {
 	rolepermissionDescID := rolepermissionMixinFields0[0].Descriptor()
 	// rolepermission.IDValidator is a validator for the "id" field. It is called by the builders before save.
 	rolepermission.IDValidator = rolepermissionDescID.Validators[0].(func(uint32) error)
-	taskMixin := schema.Task{}.Mixin()
-	task.Policy = privacy.NewPolicies(taskMixin[4], schema.Task{})
-	task.Hooks[0] = func(next ent.Mutator) ent.Mutator {
-		return ent.MutateFunc(func(ctx context.Context, m ent.Mutation) (ent.Value, error) {
-			if err := task.Policy.EvalMutation(ctx, m); err != nil {
-				return nil, err
-			}
-			return next.Mutate(ctx, m)
-		})
-	}
-	taskMixinFields0 := taskMixin[0].Fields()
-	_ = taskMixinFields0
-	taskMixinFields4 := taskMixin[4].Fields()
-	_ = taskMixinFields4
-	taskFields := schema.Task{}.Fields()
-	_ = taskFields
-	// taskDescTenantID is the schema descriptor for tenant_id field.
-	taskDescTenantID := taskMixinFields4[0].Descriptor()
-	// task.DefaultTenantID holds the default value on creation for the tenant_id field.
-	task.DefaultTenantID = taskDescTenantID.Default.(uint32)
-	// taskDescEnable is the schema descriptor for enable field.
-	taskDescEnable := taskFields[5].Descriptor()
-	// task.DefaultEnable holds the default value on creation for the enable field.
-	task.DefaultEnable = taskDescEnable.Default.(bool)
-	// taskDescID is the schema descriptor for id field.
-	taskDescID := taskMixinFields0[0].Descriptor()
-	// task.IDValidator is a validator for the "id" field. It is called by the builders before save.
-	task.IDValidator = taskDescID.Validators[0].(func(uint32) error)
 	tenantMixin := schema.Tenant{}.Mixin()
 	tenantMixinFields0 := tenantMixin[0].Fields()
 	_ = tenantMixinFields0
