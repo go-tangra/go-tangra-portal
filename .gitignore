@@ -4,7 +4,7 @@
 *.dll
 *.so
 *.dylib
-server
+**/bin/server
 **/service/server
 **/cmd/server/server
 
