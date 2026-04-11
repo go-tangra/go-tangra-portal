@@ -15,7 +15,6 @@ import (
 	"github.com/go-tangra/go-tangra-portal/app/admin/service/internal/metrics"
 	"github.com/go-tangra/go-tangra-portal/app/admin/service/internal/server"
 	"github.com/go-tangra/go-tangra-portal/app/admin/service/internal/service"
-	"github.com/go-tangra/go-tangra-portal/app/admin/service/internal/transcoder"
 	"github.com/tx7do/kratos-bootstrap/bootstrap"
 )
 
@@ -165,11 +164,7 @@ func initApp(context *bootstrap.Context) (*kratos.App, func(), error) {
 	roleInjector := service.NewRoleInjector(context, roleRepo, permissionRepo)
 	permissionGroupInjector := service.NewPermissionGroupInjector(context, permissionGroupRepo, permissionRepo)
 	moduleRegistrationService := service.NewModuleRegistrationService(context, moduleRegistry, openAPIParser, menuParser, menuInjector, apiInjector, roleInjector, permissionGroupInjector)
-	descriptorParser := transcoder.NewDescriptorParser(context)
-	requestBuilder := transcoder.NewRequestBuilder(context)
-	responseTransformer := transcoder.NewResponseTransformer(context)
-	transcoderTranscoder := transcoder.NewTranscoder(context, descriptorParser, requestBuilder, responseTransformer)
-	dynamicRouter := server.NewDynamicRouter(context, transcoderTranscoder, moduleRegistry, authenticator, apiAuditLogRepo)
+	dynamicRouter := server.NewGatewayDynamicRouter(context, moduleRegistry, authenticator, apiAuditLogRepo)
 	moduleAssetProxy := server.NewModuleAssetProxy(context, moduleRegistry)
 	storageProxy := server.NewStorageProxy(context, minIOClient)
 	httpServer, err := server.NewRestServer(context, v, authorizer, authenticationService, mfaService, loginPolicyService, adminPortalService, taskService, uEditorService, fileService, fileTransferService, dictTypeService, dictEntryService, languageService, tenantService, userService, userProfileService, roleService, positionService, orgUnitService, menuService, apiService, permissionService, permissionGroupService, permissionAuditLogService, policyEvaluationLogService, loginAuditLogService, apiAuditLogService, operationAuditLogService, dataAccessAuditLogService, internalMessageService, internalMessageCategoryService, internalMessageRecipientService, platformStatisticsService, dashboardService, timeSeriesStatisticsService, moduleRegistrationService, dynamicRouter, moduleAssetProxy, storageProxy)

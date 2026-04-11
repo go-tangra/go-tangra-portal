@@ -22,7 +22,6 @@ import (
 	dataProviders "github.com/go-tangra/go-tangra-portal/app/admin/service/internal/data/providers"
 	serverProviders "github.com/go-tangra/go-tangra-portal/app/admin/service/internal/server/providers"
 	serviceProviders "github.com/go-tangra/go-tangra-portal/app/admin/service/internal/service/providers"
-	transcoderProviders "github.com/go-tangra/go-tangra-portal/app/admin/service/internal/transcoder/providers"
 )
 
 // initApp 初始化 kratos 应用的 Wire provider 入口。
@@ -41,7 +40,6 @@ func initApp(*bootstrap.Context) (*kratos.App, func(), error) {
 			serverProviders.ProviderSet,
 			serviceProviders.ProviderSet,
 			dataProviders.ProviderSet,
-			transcoderProviders.ProviderTranscoderSet,
 			newApp,
 		),
 	)

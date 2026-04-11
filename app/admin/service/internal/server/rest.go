@@ -20,6 +20,8 @@ import (
 	"github.com/tx7do/kratos-bootstrap/bootstrap"
 	"github.com/tx7do/kratos-bootstrap/rpc"
 
+	"github.com/go-tangra/go-tangra-common/gateway"
+
 	"github.com/go-tangra/go-tangra-portal/app/admin/service/cmd/server/assets"
 	"github.com/go-tangra/go-tangra-portal/app/admin/service/internal/data"
 	"github.com/go-tangra/go-tangra-portal/app/admin/service/internal/service"
@@ -90,7 +92,6 @@ func NewRestServer(
 	loginPolicyService *service.LoginPolicyService,
 
 	portalService *service.AdminPortalService,
-	taskService *service.TaskService,
 
 	uEditorService *service.UEditorService,
 	fileService *service.FileService,
@@ -136,7 +137,7 @@ func NewRestServer(
 	moduleRegistrationService *service.ModuleRegistrationService,
 
 	// Dynamic Router for module registration
-	dynamicRouter *DynamicRouter,
+	dynamicRouter *gateway.DynamicRouter,
 
 	// Module Asset Proxy for frontend assets
 	moduleAssetProxy *ModuleAssetProxy,
@@ -166,7 +167,6 @@ func NewRestServer(
 	adminV1.RegisterUserProfileServiceHTTPServer(srv, userProfileService)
 
 	adminV1.RegisterAdminPortalServiceHTTPServer(srv, portalService)
-	adminV1.RegisterTaskServiceHTTPServer(srv, taskService)
 	adminV1.RegisterLoginPolicyServiceHTTPServer(srv, loginPolicyService)
 
 	adminV1.RegisterDictTypeServiceHTTPServer(srv, dictTypeService)

@@ -20,10 +20,9 @@ import (
 var ProviderSet = wire.NewSet(
 	server.NewRestServer,
 	server.NewGRPCServer,
-	server.NewAsynqServer,
 	server.NewSseServer,
 	server.NewRestMiddleware,
-	server.NewDynamicRouter,
+	server.NewGatewayDynamicRouter,
 	server.NewModuleAssetProxy,
 	server.NewStorageProxy,
 )

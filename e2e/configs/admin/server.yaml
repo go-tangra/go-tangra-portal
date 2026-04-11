@@ -34,12 +34,6 @@ server:
         access_token_key_prefix: "uat_"
         refresh_token_key_prefix: "urt_"
 
-  asynq:
-    uri: "redis://:e2e-test-password@redis:6379/1"
-    enable_gracefully_shutdown: true
-    shutdown_timeout: 3s
-    codec: "json"
-
   sse:
     addr: ":7789"
     codec: "json"
