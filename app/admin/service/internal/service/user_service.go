@@ -4,6 +4,8 @@ import (
 	"context"
 	"crypto/rand"
 	"fmt"
+	"net/url"
+	"time"
 
 	"github.com/go-kratos/kratos/v2/log"
 	paginationV1 "github.com/tx7do/go-crud/api/gen/go/pagination/v1"
@@ -41,6 +43,9 @@ type UserService struct {
 	membershipRepo *data.MembershipRepo
 
 	ldapClient *data.LdapClient
+
+	notifHelper   *NotificationHelper
+	publicBaseURL data.PublicBaseURL
 }
 
 func NewUserService(
@@ -53,6 +58,8 @@ func NewUserService(
 	tenantRepo *data.TenantRepo,
 	membershipRepo *data.MembershipRepo,
 	ldapClient *data.LdapClient,
+	notifHelper *NotificationHelper,
+	publicBaseURL data.PublicBaseURL,
 ) *UserService {
 	svc := &UserService{
 		log:                ctx.NewLoggerHelper("user/service/admin-service"),
@@ -64,6 +71,8 @@ func NewUserService(
 		tenantRepo:         tenantRepo,
 		membershipRepo:     membershipRepo,
 		ldapClient:         ldapClient,
+		notifHelper:        notifHelper,
+		publicBaseURL:      publicBaseURL,
 	}
 
 	svc.init()
@@ -366,6 +375,17 @@ func (s *UserService) Update(ctx context.Context, req *userV1.UpdateUserRequest)
 		return nil, err
 	}
 
+	// Capture the target user's prior status so we can detect
+	// PENDING -> NORMAL activation after the update succeeds.
+	var priorStatus *userV1.User_Status
+	if targetID := req.Data.GetId(); targetID != 0 {
+		if prior, getErr := s.userRepo.Get(ctx, &userV1.GetUserRequest{
+			QueryBy: &userV1.GetUserRequest_Id{Id: targetID},
+		}); getErr == nil && prior != nil {
+			priorStatus = prior.Status
+		}
+	}
+
 	req.Data.UpdatedBy = trans.Ptr(operator.UserId)
 	if req.UpdateMask != nil {
 		// Filter out paths that are not database columns on sys_users.
@@ -412,7 +432,79 @@ func (s *UserService) Update(ctx context.Context, req *userV1.UpdateUserRequest)
 		}
 	}
 
+	// Detect PENDING -> NORMAL activation. Fire-and-forget: failures to issue
+	// or send the activation email must not fail the admin's update request.
+	s.maybeDispatchActivationEmail(ctx, req, priorStatus)
+
 	return &emptypb.Empty{}, nil
+}
+
+// maybeDispatchActivationEmail issues a one-time password-set token and sends
+// the activation email when the target user has transitioned from PENDING to
+// NORMAL. It is a no-op in every other case and never returns an error —
+// callers don't need to react to delivery failures.
+func (s *UserService) maybeDispatchActivationEmail(ctx context.Context, req *userV1.UpdateUserRequest, prior *userV1.User_Status) {
+	if prior == nil || *prior != userV1.User_PENDING {
+		return
+	}
+	if req.Data.Status == nil || *req.Data.Status != userV1.User_NORMAL {
+		return
+	}
+	if s.notifHelper == nil {
+		s.log.Warn("User activated from PENDING but notification helper is unavailable; skipping activation email")
+		return
+	}
+
+	userID := req.Data.GetId()
+	username := req.Data.GetUsername()
+	email := req.Data.GetEmail()
+	if userID == 0 || username == "" || email == "" {
+		// Re-fetch authoritative record when the patch didn't include these fields.
+		fresh, err := s.userRepo.Get(ctx, &userV1.GetUserRequest{
+			QueryBy: &userV1.GetUserRequest_Id{Id: userID},
+		})
+		if err != nil || fresh == nil {
+			s.log.Warnf("Cannot send activation email: failed to fetch user %d: %v", userID, err)
+			return
+		}
+		if username == "" {
+			username = fresh.GetUsername()
+		}
+		if email == "" {
+			email = fresh.GetEmail()
+		}
+	}
+	if email == "" {
+		s.log.Warnf("User %d activated but has no email address; skipping activation email", userID)
+		return
+	}
+
+	token, expiresAt, err := s.userCredentialRepo.IssueActivationToken(ctx, userID, username, 24*time.Hour)
+	if err != nil {
+		s.log.Errorf("Failed to issue activation token for user %d: %v", userID, err)
+		return
+	}
+
+	displayName := req.Data.GetRealname()
+	if displayName == "" {
+		displayName = req.Data.GetNickname()
+	}
+	if displayName == "" {
+		displayName = username
+	}
+
+	activateURL := fmt.Sprintf("%s/#/auth/activate?token=%s", string(s.publicBaseURL), url.QueryEscape(token))
+
+	vars := map[string]string{
+		"ProductName": "GoTangra",
+		"FullName":    displayName,
+		"ActivateURL": activateURL,
+		"ExpiresAt":   expiresAt.UTC().Format(time.RFC1123),
+	}
+
+	if err := s.notifHelper.SendUserActivation(ctx, email, vars); err != nil {
+		s.log.Warnf("activation email to %s failed: %v", email, err)
+	}
 }
 
 func (s *UserService) Delete(ctx context.Context, req *userV1.DeleteUserRequest) (*emptypb.Empty, error) {

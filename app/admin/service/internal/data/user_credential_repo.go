@@ -2,7 +2,11 @@ package data
 
 import (
 	"context"
+	"crypto/rand"
+	"crypto/sha256"
 	"encoding/base64"
+	"encoding/hex"
+	"fmt"
 	userV1 "github.com/go-tangra/go-tangra-portal/api/gen/go/user/service/v1"
 	"time"
 
@@ -574,4 +578,138 @@ func (r *UserCredentialRepo) ResetCredential(ctx context.Context, req *authentic
 	}
 
 	return nil
+}
+
+// IssueActivationToken generates a cryptographically-random one-time token,
+// stores its SHA-256 hash + TTL on the user's username credential row, and
+// returns the plaintext. The plaintext is never persisted; it must be embedded
+// in the activation email and shown once.
+//
+// The token is bound to the username credential (identity_type = USERNAME)
+// because that is the credential the user will log in with. If no such row
+// exists yet (e.g. passwordless onboarding), one is created with an empty
+// password hash so the token can be consumed later.
+func (r *UserCredentialRepo) IssueActivationToken(ctx context.Context, userID uint32, username string, ttl time.Duration) (string, time.Time, error) {
+	if userID == 0 || username == "" {
+		return "", time.Time{}, fmt.Errorf("userID and username are required")
+	}
+
+	plaintext, hashed, err := generateActivationToken()
+	if err != nil {
+		return "", time.Time{}, err
+	}
+	expiresAt := time.Now().Add(ttl)
+
+	cred, err := r.entClient.Client().UserCredential.Query().
+		Where(
+			usercredential.IdentityTypeEQ(usercredential.IdentityTypeUsername),
+			usercredential.IdentifierEQ(username),
+		).
+		First(ctx)
+	if err != nil && !ent.IsNotFound(err) {
+		r.log.Errorf("query username credential failed: %s", err.Error())
+		return "", time.Time{}, authenticationV1.ErrorInternalServerError("query credential failed")
+	}
+
+	if cred == nil {
+		_, err = r.entClient.Client().UserCredential.Create().
+			SetUserID(userID).
+			SetIdentityType(usercredential.IdentityTypeUsername).
+			SetIdentifier(username).
+			SetCredentialType(usercredential.CredentialTypePasswordHash).
+			SetStatus(usercredential.StatusUnverified).
+			SetActivateTokenHash(hashed).
+			SetActivateTokenExpiresAt(expiresAt).
+			Save(ctx)
+		if err != nil {
+			r.log.Errorf("create credential for activation failed: %s", err.Error())
+			return "", time.Time{}, authenticationV1.ErrorInternalServerError("create credential failed")
+		}
+		return plaintext, expiresAt, nil
+	}
+
+	err = r.entClient.Client().UserCredential.UpdateOneID(cred.ID).
+		SetActivateTokenHash(hashed).
+		SetActivateTokenExpiresAt(expiresAt).
+		ClearActivateTokenUsedAt().
+		SetUpdatedAt(time.Now()).
+		Exec(ctx)
+	if err != nil {
+		r.log.Errorf("update activation token failed: %s", err.Error())
+		return "", time.Time{}, authenticationV1.ErrorInternalServerError("update activation token failed")
+	}
+
+	return plaintext, expiresAt, nil
+}
+
+// ConsumeActivationToken validates a plaintext activation token and sets a new
+// password on the associated username credential. The caller is responsible
+// for enforcing password strength before calling this method.
+//
+// Returns ErrorNotFound when the token is unknown, and ErrorBadRequest when
+// the token is expired or has already been used.
+func (r *UserCredentialRepo) ConsumeActivationToken(ctx context.Context, plaintext, newPassword string) (uint32, error) {
+	if plaintext == "" || newPassword == "" {
+		return 0, authenticationV1.ErrorBadRequest("token and new_password are required")
+	}
+
+	hashed := hashActivationToken(plaintext)
+	cred, err := r.entClient.Client().UserCredential.Query().
+		Where(usercredential.ActivateTokenHashEQ(hashed)).
+		First(ctx)
+	if err != nil {
+		if ent.IsNotFound(err) {
+			return 0, authenticationV1.ErrorNotFound("invalid or unknown activation token")
+		}
+		r.log.Errorf("query activation token failed: %s", err.Error())
+		return 0, authenticationV1.ErrorInternalServerError("query activation token failed")
+	}
+
+	if cred.ActivateTokenUsedAt != nil {
+		return 0, authenticationV1.ErrorBadRequest("activation token already used")
+	}
+	if cred.ActivateTokenExpiresAt == nil || time.Now().After(*cred.ActivateTokenExpiresAt) {
+		return 0, authenticationV1.ErrorBadRequest("activation token expired")
+	}
+
+	hashedPw, err := r.passwordCrypto.Encrypt(newPassword)
+	if err != nil {
+		r.log.Errorf("hash new password failed: %s", err.Error())
+		return 0, authenticationV1.ErrorInternalServerError("hash password failed")
+	}
+
+	now := time.Now()
+	err = r.entClient.Client().UserCredential.UpdateOneID(cred.ID).
+		SetCredential(hashedPw).
+		SetStatus(usercredential.StatusEnabled).
+		SetActivateTokenUsedAt(now).
+		SetUpdatedAt(now).
+		Exec(ctx)
+	if err != nil {
+		r.log.Errorf("apply activation failed: %s", err.Error())
+		return 0, authenticationV1.ErrorInternalServerError("apply activation failed")
+	}
+
+	if cred.UserID == nil {
+		return 0, nil
+	}
+	return *cred.UserID, nil
+}
+
+// generateActivationToken returns (plaintext, sha256HexHash, error).
+// 32 random bytes -> 43-char base64 URL token.
+func generateActivationToken() (string, string, error) {
+	buf := make([]byte, 32)
+	if _, err := rand.Read(buf); err != nil {
+		return "", "", fmt.Errorf("generate random: %w", err)
+	}
+	plaintext := base64.RawURLEncoding.EncodeToString(buf)
+	return plaintext, hashActivationToken(plaintext), nil
+}
+
+// hashActivationToken hashes a token with SHA-256 and returns hex. SHA-256 is
+// appropriate here (vs. bcrypt) because the plaintext is high-entropy random.
+func hashActivationToken(plaintext string) string {
+	sum := sha256.Sum256([]byte(plaintext))
+	return hex.EncodeToString(sum[:])
 }

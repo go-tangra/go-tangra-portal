@@ -82,6 +82,8 @@ var ProviderSet = wire.NewSet(
 	data.NewDeployerClients,
 	data.NewPaperlessClients,
 	data.NewIpamClients,
+	data.NewNotificationClient,
+	data.NewPublicBaseURL,
 
 	// MFA
 	data.NewMFARepo,

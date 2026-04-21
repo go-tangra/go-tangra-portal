@@ -61,6 +61,7 @@ func NewRestMiddleware(
 		adminV1.OperationAuthenticationServiceLogin,
 		adminV1.OperationMFAServiceStartMFAChallenge,
 		adminV1.OperationMFAServiceVerifyMFAChallenge,
+		adminV1.OperationUserActivationServiceActivateUser,
 		//OperationFileTransferServiceDownloadFile,
 		//OperationFileTransferServicePostUploadFile,
 		//OperationFileTransferServicePutUploadFile,
@@ -89,6 +90,7 @@ func NewRestServer(
 
 	authenticationService *service.AuthenticationService,
 	mfaService *service.MFAService,
+	userActivationService *service.UserActivationService,
 	loginPolicyService *service.LoginPolicyService,
 
 	portalService *service.AdminPortalService,
@@ -163,6 +165,7 @@ func NewRestServer(
 
 	adminV1.RegisterAuthenticationServiceHTTPServer(srv, authenticationService)
 	adminV1.RegisterMFAServiceHTTPServer(srv, mfaService)
+	adminV1.RegisterUserActivationServiceHTTPServer(srv, userActivationService)
 
 	adminV1.RegisterUserProfileServiceHTTPServer(srv, userProfileService)
 

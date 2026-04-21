@@ -1,0 +1,58 @@
+syntax = "proto3";
+
+package admin.service.v1;
+
+import "gnostic/openapi/v3/annotations.proto";
+import "google/api/annotations.proto";
+import "google/api/field_behavior.proto";
+import "google/protobuf/empty.proto";
+import "buf/validate/validate.proto";
+
+// User activation gateway service.
+//
+// Exposes the unauthenticated "set password via activation link" flow used
+// when an administrator moves a user from PENDING to NORMAL. The flow is
+// deliberately public: the activation token is the capability.
+service UserActivationService {
+  // Consume an activation token and set the user's password.
+  //
+  // Returns 400 when the password does not meet the strength policy, the
+  // token is expired, or the token has already been used. Returns 404 when
+  // the token is unknown. The token is single-use; a successful call marks
+  // the credential ENABLED and clears the PENDING activation state.
+  rpc ActivateUser(ActivateUserRequest) returns (ActivateUserResponse) {
+    option (google.api.http) = {
+      post: "/admin/v1/auth/activate"
+      body: "*"
+    };
+    option (gnostic.openapi.v3.operation) = {
+      security: {}
+    };
+  }
+}
+
+message ActivateUserRequest {
+  // One-time activation token delivered via email.
+  string token = 1 [
+    json_name = "token",
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).string = {
+      min_len: 1
+      max_len: 512
+    }
+  ];
+
+  // New password chosen by the user. Must satisfy the portal password policy:
+  // >= 12 chars, with upper, lower, digit and symbol, no whitespace.
+  string new_password = 2 [
+    json_name = "newPassword",
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).string = {
+      min_len: 12
+      max_len: 256
+    }
+  ];
+}
+
+message ActivateUserResponse {
+}
