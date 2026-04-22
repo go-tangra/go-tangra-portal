@@ -70,6 +70,14 @@ USER admin:admin
 # Expose HTTP and gRPC ports
 EXPOSE 8080 9000
 
+# The admin-service imports Kratos directly (github.com/go-kratos/kratos/v2)
+# and indirectly via buf.build-generated SDKs (notification, etc.) which
+# vendor the same errors/errors.proto file through
+# buf.build/gen/go/kratos/apis. protobuf-go panics on a duplicate proto-file
+# registration by default; switching to "warn" lets the binary boot while
+# preserving visibility of any future conflicts in logs.
+ENV GOLANG_PROTOBUF_REGISTRATION_CONFLICT=warn
+
 # Set default command
 CMD ["/app/bin/admin-server", "-c", "/app/configs"]
 
