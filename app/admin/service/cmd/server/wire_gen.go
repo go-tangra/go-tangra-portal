@@ -68,6 +68,7 @@ func initApp(context *bootstrap.Context) (*kratos.App, func(), error) {
 	authenticationService := service.NewAuthenticationService(context, userRepo, userCredentialRepo, roleRepo, tenantRepo, membershipRepo, orgUnitRepo, permissionRepo, userTokenCacheRepo, authenticator, mfaRepo, mfaSessionCacheRepo)
 	webAuthn := data.NewWebAuthn(context)
 	mfaService := service.NewMFAService(context, mfaRepo, mfaSessionCacheRepo, userTokenCacheRepo, webAuthn)
+	userActivationService := service.NewUserActivationService(context, userCredentialRepo)
 	loginPolicyRepo := data.NewLoginPolicyRepo(context, entClient)
 	loginPolicyService := service.NewLoginPolicyService(context, loginPolicyRepo)
 	menuRepo := data.NewMenuRepo(context, entClient)
@@ -92,7 +93,15 @@ func initApp(context *bootstrap.Context) (*kratos.App, func(), error) {
 	tenantService := service.NewTenantService(context, tenantRepo, userRepo, userCredentialRepo, roleRepo, authorizer)
 	positionRepo := data.NewPositionRepo(context, entClient)
 	ldapClient := data.NewLdapClient(context)
-	userService := service.NewUserService(context, userRepo, roleRepo, userCredentialRepo, positionRepo, orgUnitRepo, tenantRepo, membershipRepo, ldapClient)
+	notificationClient, cleanup3, err := data.NewNotificationClient(context)
+	if err != nil {
+		cleanup2()
+		cleanup()
+		return nil, nil, err
+	}
+	notificationHelper := service.NewNotificationHelper(context, notificationClient)
+	publicBaseURL := data.NewPublicBaseURL(context)
+	userService := service.NewUserService(context, userRepo, roleRepo, userCredentialRepo, positionRepo, orgUnitRepo, tenantRepo, membershipRepo, ldapClient, notificationHelper, publicBaseURL)
 	userProfileService := service.NewUserProfileService(context, userRepo, userTokenCacheRepo, roleRepo, userCredentialRepo, minIOClient)
 	roleService := service.NewRoleService(context, authorizer, roleRepo, tenantRepo)
 	positionService := service.NewPositionService(context, positionRepo, orgUnitRepo)
@@ -119,20 +128,14 @@ func initApp(context *bootstrap.Context) (*kratos.App, func(), error) {
 	internalMessageService := service.NewInternalMessageService(context, internalMessageRepo, internalMessageCategoryRepo, internalMessageRecipientRepo, userRepo, sseServer, userTokenCacheRepo)
 	internalMessageCategoryService := service.NewInternalMessageCategoryService(context, internalMessageCategoryRepo)
 	internalMessageRecipientService := service.NewInternalMessageRecipientService(context, internalMessageRepo, internalMessageRecipientRepo)
-	lcmClients, cleanup3, err := data.NewLcmClients(context)
-	if err != nil {
-		cleanup2()
-		cleanup()
-		return nil, nil, err
-	}
-	deployerClients, cleanup4, err := data.NewDeployerClients(context)
+	lcmClients, cleanup4, err := data.NewLcmClients(context)
 	if err != nil {
 		cleanup3()
 		cleanup2()
 		cleanup()
 		return nil, nil, err
 	}
-	paperlessClients, cleanup5, err := data.NewPaperlessClients(context)
+	deployerClients, cleanup5, err := data.NewDeployerClients(context)
 	if err != nil {
 		cleanup4()
 		cleanup3()
@@ -140,8 +143,18 @@ func initApp(context *bootstrap.Context) (*kratos.App, func(), error) {
 		cleanup()
 		return nil, nil, err
 	}
-	ipamClients, cleanup6, err := data.NewIpamClients(context)
+	paperlessClients, cleanup6, err := data.NewPaperlessClients(context)
 	if err != nil {
+		cleanup5()
+		cleanup4()
+		cleanup3()
+		cleanup2()
+		cleanup()
+		return nil, nil, err
+	}
+	ipamClients, cleanup7, err := data.NewIpamClients(context)
+	if err != nil {
+		cleanup6()
 		cleanup5()
 		cleanup4()
 		cleanup3()
@@ -162,8 +175,9 @@ func initApp(context *bootstrap.Context) (*kratos.App, func(), error) {
 	dynamicRouter := server.NewGatewayDynamicRouter(context, moduleRegistry, authenticator, apiAuditLogRepo)
 	moduleAssetProxy := server.NewModuleAssetProxy(context, moduleRegistry)
 	storageProxy := server.NewStorageProxy(context, minIOClient)
-	httpServer, err := server.NewRestServer(context, v, authorizer, authenticationService, mfaService, loginPolicyService, adminPortalService, uEditorService, fileService, fileTransferService, dictTypeService, dictEntryService, languageService, tenantService, userService, userProfileService, roleService, positionService, orgUnitService, menuService, apiService, permissionService, permissionGroupService, permissionAuditLogService, policyEvaluationLogService, loginAuditLogService, apiAuditLogService, operationAuditLogService, dataAccessAuditLogService, internalMessageService, internalMessageCategoryService, internalMessageRecipientService, platformStatisticsService, dashboardService, timeSeriesStatisticsService, moduleRegistrationService, dynamicRouter, moduleAssetProxy, storageProxy)
+	httpServer, err := server.NewRestServer(context, v, authorizer, authenticationService, mfaService, userActivationService, loginPolicyService, adminPortalService, uEditorService, fileService, fileTransferService, dictTypeService, dictEntryService, languageService, tenantService, userService, userProfileService, roleService, positionService, orgUnitService, menuService, apiService, permissionService, permissionGroupService, permissionAuditLogService, policyEvaluationLogService, loginAuditLogService, apiAuditLogService, operationAuditLogService, dataAccessAuditLogService, internalMessageService, internalMessageCategoryService, internalMessageRecipientService, platformStatisticsService, dashboardService, timeSeriesStatisticsService, moduleRegistrationService, dynamicRouter, moduleAssetProxy, storageProxy)
 	if err != nil {
+		cleanup7()
 		cleanup6()
 		cleanup5()
 		cleanup4()
@@ -176,6 +190,7 @@ func initApp(context *bootstrap.Context) (*kratos.App, func(), error) {
 	commonModuleRegistrationAdapter := service.NewCommonModuleRegistrationAdapter(moduleRegistrationService)
 	grpcServer, err := server.NewGRPCServer(context, collector, moduleRegistrationService, commonModuleRegistrationAdapter, userService, roleService)
 	if err != nil {
+		cleanup7()
 		cleanup6()
 		cleanup5()
 		cleanup4()
@@ -186,6 +201,7 @@ func initApp(context *bootstrap.Context) (*kratos.App, func(), error) {
 	}
 	app := newApp(context, httpServer, grpcServer, sseServer)
 	return app, func() {
+		cleanup7()
 		cleanup6()
 		cleanup5()
 		cleanup4()
