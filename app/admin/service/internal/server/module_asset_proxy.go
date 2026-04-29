@@ -78,10 +78,18 @@ func (p *ModuleAssetProxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Set Cache-Control based on asset type
-	if strings.HasSuffix(assetPath, "remoteEntry.js") {
+	// Cache-Control: only override for recognised static-asset paths
+	// (federated remote chunks). Anything else — SSE streams, audio
+	// recordings, JSON APIs served by a module's HTTP server — gets
+	// whatever Cache-Control the upstream sets, or none at all.
+	//
+	// The previous blanket-immutable policy broke SSE: browsers and
+	// some proxies treat `immutable` as "this body never changes" and
+	// terminate / cache the long-lived stream after the first chunk.
+	switch {
+	case strings.HasSuffix(assetPath, "remoteEntry.js"):
 		w.Header().Set("Cache-Control", "no-cache, no-store, must-revalidate")
-	} else {
+	case isCacheableAsset(assetPath):
 		w.Header().Set("Cache-Control", "public, max-age=31536000, immutable")
 	}
 
@@ -90,6 +98,33 @@ func (p *ModuleAssetProxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	r.URL.RawPath = ""
 
 	proxy.ServeHTTP(w, r)
+}
+
+// isCacheableAsset returns true for paths that look like Vite-style
+// fingerprinted bundles (assets/*.js, *.css, *.woff2, etc.) — those are
+// safe to mark immutable. Anything else (SSE, recordings, API calls)
+// must not get long-cache headers.
+func isCacheableAsset(p string) bool {
+	if !strings.HasPrefix(p, "/assets/") {
+		return false
+	}
+	switch {
+	case strings.HasSuffix(p, ".js"),
+		strings.HasSuffix(p, ".css"),
+		strings.HasSuffix(p, ".woff"),
+		strings.HasSuffix(p, ".woff2"),
+		strings.HasSuffix(p, ".ttf"),
+		strings.HasSuffix(p, ".otf"),
+		strings.HasSuffix(p, ".png"),
+		strings.HasSuffix(p, ".jpg"),
+		strings.HasSuffix(p, ".jpeg"),
+		strings.HasSuffix(p, ".webp"),
+		strings.HasSuffix(p, ".svg"),
+		strings.HasSuffix(p, ".gif"),
+		strings.HasSuffix(p, ".ico"):
+		return true
+	}
+	return false
 }
 
 // getOrCreateProxy returns a cached proxy or creates a new one.
