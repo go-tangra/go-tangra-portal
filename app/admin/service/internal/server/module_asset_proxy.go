@@ -2,11 +2,13 @@ package server
 
 import (
 	"fmt"
+	"net"
 	"net/http"
 	"net/http/httputil"
 	"net/url"
 	"strings"
 	"sync"
+	"time"
 
 	"github.com/go-kratos/kratos/v2/log"
 	"github.com/tx7do/kratos-bootstrap/bootstrap"
@@ -139,6 +141,31 @@ func (p *ModuleAssetProxy) getOrCreateProxy(moduleID, httpEndpoint string) (*htt
 	}
 
 	proxy := httputil.NewSingleHostReverseProxy(target)
+
+	// Custom Transport with no per-request deadlines so long-lived
+	// upstream connections (SSE streams, large file downloads via the
+	// recordings endpoint) aren't killed by Go's stdlib defaults
+	// (IdleConnTimeout=90s, etc). DialContext keeps a reasonable
+	// connect timeout so a wedged upstream still fails fast.
+	proxy.Transport = &http.Transport{
+		DialContext: (&net.Dialer{
+			Timeout:   10 * time.Second,
+			KeepAlive: 30 * time.Second,
+		}).DialContext,
+		ForceAttemptHTTP2:     false, // module HTTP servers are HTTP/1.1
+		MaxIdleConns:          16,
+		MaxIdleConnsPerHost:   4,
+		IdleConnTimeout:       0, // never close idle conns from the pool
+		ResponseHeaderTimeout: 0, // never time out waiting for response headers
+		ExpectContinueTimeout: 1 * time.Second,
+	}
+
+	// Force immediate flush after each upstream write. Go 1.19+
+	// auto-detects text/event-stream and sets this internally, but
+	// being explicit hardens against future stdlib changes and covers
+	// other streaming content-types (audio recordings) too.
+	proxy.FlushInterval = -1
+
 	proxy.ErrorHandler = func(w http.ResponseWriter, r *http.Request, err error) {
 		p.log.Warnf("Proxy error for module %s: %v", moduleID, err)
 		w.WriteHeader(http.StatusBadGateway)
