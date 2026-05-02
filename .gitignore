@@ -53,3 +53,6 @@ temp/
 
 # Claude Code
 CLAUDE.md
+
+# Stray top-level binary from accidental local builds.
+/server

@@ -12,7 +12,7 @@ require (
 	github.com/go-kratos/kratos/v2 v2.9.2
 	github.com/go-ldap/ldap/v3 v3.4.12
 	github.com/go-sql-driver/mysql v1.9.3
-	github.com/go-tangra/go-tangra-common v1.16.1
+	github.com/go-tangra/go-tangra-common v1.17.1
 	github.com/go-webauthn/webauthn v0.15.0
 	github.com/golang-jwt/jwt/v5 v5.3.0
 	github.com/google/gnostic v0.7.1
@@ -291,3 +291,6 @@ require (
 	modernc.org/sqlite v1.44.3 // indirect
 	sigs.k8s.io/yaml v1.6.0 // indirect
 )
+
+// Phase 1 of the registration rework: pull cert.Ensure() from the
+// sibling clone of go-tangra-common until a release lands.

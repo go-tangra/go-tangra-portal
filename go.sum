@@ -450,8 +450,8 @@ github.com/go-playground/form/v4 v4.3.0/go.mod h1:Cpe1iYJKoXb1vILRXEwxpWMGWyQuqp
 github.com/go-sql-driver/mysql v1.9.3 h1:U/N249h2WzJ3Ukj8SowVFjdtZKfu9vlLZxjPXV1aweo=
 github.com/go-sql-driver/mysql v1.9.3/go.mod h1:qn46aNg1333BRMNU69Lq93t8du/dwxI64Gl8i5p1WMU=
 github.com/go-stack/stack v1.8.0/go.mod h1:v0f6uXyyMGvRgIKkXu+yp6POWl0qKG85gN/melR3HDY=
-github.com/go-tangra/go-tangra-common v1.16.1 h1:MqApNBHG+QHIA0M8awqJt+gXpPbl/ty7eNP/Ia605gw=
-github.com/go-tangra/go-tangra-common v1.16.1/go.mod h1:3Rr2IK14RJgZsiiD451nmYUxmOWSykDOkSD8CZtnm6Q=
+github.com/go-tangra/go-tangra-common v1.17.1 h1:xWEtA9JHDJdtslDHEcuFq+oLzPhwjvNioivjs0loms0=
+github.com/go-tangra/go-tangra-common v1.17.1/go.mod h1:3Rr2IK14RJgZsiiD451nmYUxmOWSykDOkSD8CZtnm6Q=
 github.com/go-test/deep v1.1.1 h1:0r/53hagsehfO4bzD2Pgr/+RgHqhmf+k1Bpse2cTu1U=
 github.com/go-test/deep v1.1.1/go.mod h1:5C2ZWiW0ErCdrYzpqxLbTX7MG14M9iiw8DgHncVwcsE=
 github.com/go-viper/mapstructure/v2 v2.4.0 h1:EBsztssimR/CONLSZZ04E8qAkxNYq4Qp9LvH92wZUgs=

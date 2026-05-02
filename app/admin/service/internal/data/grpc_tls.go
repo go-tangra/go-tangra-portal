@@ -12,10 +12,11 @@ import (
 )
 
 // loadAdminClientTLS loads mTLS credentials for the admin-service to connect
-// to a target module's gRPC server. It uses convention-based cert paths:
-//   - CA:         {certsDir}/ca/ca.crt
-//   - Client cert: {certsDir}/admin/admin.crt
-//   - Client key:  {certsDir}/admin/admin.key
+// to a target module's gRPC server. It uses the registration-rework layout
+// produced by cert.Ensure() in go-tangra-common:
+//   - CA:          {certsDir}/ca/ca.crt
+//   - Client cert: {certsDir}/client/client.crt
+//   - Client key:  {certsDir}/client/client.key
 //
 // certsDir defaults to /app/certs and can be overridden via the CERTS_DIR env var.
 // serverName should match a SAN in the target module's server certificate
@@ -27,8 +28,8 @@ func loadAdminClientTLS(serverName string, l *log.Helper) (credentials.Transport
 	}
 
 	caCertPath := filepath.Join(certsDir, "ca", "ca.crt")
-	clientCertPath := filepath.Join(certsDir, "admin", "admin.crt")
-	clientKeyPath := filepath.Join(certsDir, "admin", "admin.key")
+	clientCertPath := filepath.Join(certsDir, "client", "client.crt")
+	clientKeyPath := filepath.Join(certsDir, "client", "client.key")
 
 	// Load CA certificate
 	caCert, err := os.ReadFile(caCertPath)

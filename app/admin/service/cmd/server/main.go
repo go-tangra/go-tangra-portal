@@ -2,14 +2,19 @@ package main
 
 import (
 	"context"
+	"fmt"
+	"os"
 
 	"github.com/go-kratos/kratos/v2"
+	"github.com/go-kratos/kratos/v2/log"
 	"github.com/go-kratos/kratos/v2/transport/grpc"
 	"github.com/go-kratos/kratos/v2/transport/http"
 	"github.com/tx7do/kratos-transport/transport/sse"
 
 	conf "github.com/tx7do/kratos-bootstrap/api/gen/go/conf/v1"
 	"github.com/tx7do/kratos-bootstrap/bootstrap"
+
+	commonCert "github.com/go-tangra/go-tangra-common/cert"
 
 	//_ "github.com/tx7do/kratos-bootstrap/config/apollo"
 	//_ "github.com/tx7do/kratos-bootstrap/config/consul"
@@ -57,6 +62,22 @@ func newApp(
 }
 
 func runApp() error {
+	// registration-rework Phase 1 — admin-service self-bootstraps its
+	// mTLS certs against LCM:9101 *before* the wire graph builds the
+	// transcoder. The transcoder loads /app/certs/ca/ca.crt at
+	// construction time; if those files don't exist yet it silently
+	// falls back to insecure outbound connections, which then time out
+	// because every module requires mTLS. Calling Ensure here, ahead
+	// of bootstrap.RunApp, guarantees the files are on disk before any
+	// downstream component (transcoder, mTLS server) initializes.
+	bootLogger := log.NewStdLogger(os.Stdout)
+	if _, err := commonCert.Ensure(context.Background(), commonCert.EnsureConfig{
+		ModuleID: "admin",
+		Logger:   bootLogger,
+	}); err != nil {
+		return fmt.Errorf("cert bootstrap: %w", err)
+	}
+
 	ctx := bootstrap.NewContext(
 		context.Background(),
 		&conf.AppInfo{
