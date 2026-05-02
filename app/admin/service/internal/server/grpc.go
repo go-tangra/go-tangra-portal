@@ -2,7 +2,6 @@ package server
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/go-kratos/kratos/v2/log"
 	"github.com/go-kratos/kratos/v2/middleware"
@@ -11,7 +10,6 @@ import (
 
 	"github.com/tx7do/kratos-bootstrap/bootstrap"
 
-	commonCert "github.com/go-tangra/go-tangra-common/cert"
 	"github.com/go-tangra/go-tangra-common/middleware/mtls"
 	"github.com/go-tangra/go-tangra-portal/app/admin/service/internal/metrics"
 	"github.com/go-tangra/go-tangra-portal/app/admin/service/internal/service"
@@ -73,34 +71,23 @@ func NewGRPCServer(
 
 	l := log.NewHelper(log.With(logger, "module", "server/grpc"))
 
+	// admin-service's inbound :7787 gRPC port is plaintext: every
+	// module dials it with REGISTRATION_INSECURE=1 to send Register /
+	// Heartbeat / Unregister. Adding TLS here breaks that bootstrap
+	// path (modules can't yet have a CA-rooted cert chain to admin
+	// since admin *is* the gateway they're registering with). Inbound
+	// auth happens at the application layer via AuthToken in the RPC
+	// body; outbound admin → module mTLS is what cert.Ensure below is
+	// for. Hardcode tlsEnabled=false; cert.Ensure runs in main() before
+	// the wire graph builds the transcoder, which needs the certs at
+	// construction time.
 	tlsEnabled := false
-
-	// Try to initialize CertManager for mTLS
-	certManager, err := commonCert.NewCertManager(ctx, "ADMIN")
-	if err != nil {
-		l.Warnf("CertManager initialization failed: %v, running without mTLS", err)
-	}
 
 	// Create gRPC server options
 	opts := []grpc.ServerOption{
 		grpc.Middleware(NewGRPCMiddleware(logger, tlsEnabled, collector)...),
 	}
-
-	// Configure mTLS if certificates are available
-	if certManager != nil && certManager.IsTLSEnabled() {
-		tlsConfig, err := certManager.GetServerTLSConfig()
-		if err != nil {
-			return nil, fmt.Errorf("mTLS required but failed to load TLS config: %w", err)
-		}
-		opts = append(opts, grpc.TLSConfig(tlsConfig))
-		tlsEnabled = true
-		l.Info("gRPC server configured with mTLS")
-
-		// Rebuild middleware with mTLS enabled
-		opts[0] = grpc.Middleware(NewGRPCMiddleware(logger, tlsEnabled, collector)...)
-	} else {
-		l.Warn("TLS not enabled, gRPC server running without mTLS")
-	}
+	l.Info("gRPC server :7787 running plaintext (registration channel; module auth via AuthToken in body)")
 
 	// Add server configuration from bootstrap config
 	if cfg.Server != nil && cfg.Server.Grpc != nil {

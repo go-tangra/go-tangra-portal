@@ -56,9 +56,14 @@ COPY --from=builder /src/app/admin/service/configs/ /app/configs/
 # Copy OpenAPI assets if they exist
 COPY --from=builder /src/app/admin/service/cmd/server/assets/ /app/assets/
 
-# Create non-root user
+# Create non-root user. Pre-create /app/certs so a freshly-mounted
+# admin-certs named volume inherits these perms on first start (Docker
+# copies the original directory's content + perms when the mount
+# target was non-empty at image build time). cert.Ensure() needs to
+# write into /app/certs at boot.
 RUN addgroup -g 1000 admin && \
     adduser -D -u 1000 -G admin admin && \
+    mkdir -p /app/certs && \
     chown -R admin:admin /app
 
 # Create data directory
