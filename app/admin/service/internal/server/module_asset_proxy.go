@@ -1,6 +1,7 @@
 package server
 
 import (
+	"context"
 	"fmt"
 	"net"
 	"net/http"
@@ -99,7 +100,20 @@ func (p *ModuleAssetProxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	r.URL.Path = assetPath
 	r.URL.RawPath = ""
 
+	// WebSocket upgrades (e.g. the IPAM IPMI/KVM console) are long-lived. Detach
+	// them from the server's per-request timeout (server.rest.timeout, 10s) so
+	// the upgraded tunnel is not torn down mid-session.
+	if isWebSocketUpgrade(r) {
+		r = r.WithContext(context.WithoutCancel(r.Context()))
+	}
+
 	proxy.ServeHTTP(w, r)
+}
+
+// isWebSocketUpgrade reports whether the request is a WebSocket upgrade.
+func isWebSocketUpgrade(r *http.Request) bool {
+	return strings.EqualFold(r.Header.Get("Upgrade"), "websocket") &&
+		strings.Contains(strings.ToLower(r.Header.Get("Connection")), "upgrade")
 }
 
 // isCacheableAsset returns true for paths that look like Vite-style
