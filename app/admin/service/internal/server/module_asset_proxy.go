@@ -100,10 +100,11 @@ func (p *ModuleAssetProxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	r.URL.Path = assetPath
 	r.URL.RawPath = ""
 
-	// WebSocket upgrades (e.g. the IPAM IPMI/KVM console) are long-lived. Detach
-	// them from the server's per-request timeout (server.rest.timeout, 10s) so
-	// the upgraded tunnel is not torn down mid-session.
-	if isWebSocketUpgrade(r) {
+	// WebSocket upgrades (the IPAM IPMI/KVM console) are long-lived, and the
+	// IPAM /bmc/ IPMI management endpoints (sensor/SEL reads over UDP 623) can
+	// take longer than the server's per-request timeout (server.rest.timeout,
+	// 10s). Detach both from that timeout so they aren't cut off mid-response.
+	if isWebSocketUpgrade(r) || strings.Contains(r.URL.Path, "/bmc/") {
 		r = r.WithContext(context.WithoutCancel(r.Context()))
 	}
 
