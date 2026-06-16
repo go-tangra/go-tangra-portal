@@ -17,6 +17,7 @@ import (
 	customLogging "github.com/go-tangra/go-tangra-portal/pkg/middleware/logging"
 
 	adminV1 "github.com/go-tangra/go-tangra-portal/api/gen/go/admin/service/v1"
+	authenticationV1 "github.com/go-tangra/go-tangra-portal/api/gen/go/authentication/service/v1"
 	commonV1 "github.com/go-tangra/go-tangra-common/gen/go/common/service/v1"
 )
 
@@ -65,6 +66,7 @@ func NewGRPCServer(
 	commonModuleRegistrationAdapter *service.CommonModuleRegistrationAdapter,
 	userService *service.UserService,
 	roleService *service.RoleService,
+	userCredentialService *service.UserCredentialService,
 ) (*grpc.Server, error) {
 	cfg := ctx.GetConfig()
 	logger := ctx.GetLogger()
@@ -115,7 +117,11 @@ func NewGRPCServer(
 	// Register the role service so modules can call it via gRPC
 	adminV1.RegisterRoleServiceServer(srv, roleService)
 
-	l.Info("gRPC server configured with ModuleRegistrationService (admin.v1 and common.v1), UserService, and RoleService")
+	// Register the user credential service so modules (e.g. executor) can verify
+	// a user's password before privileged content updates.
+	authenticationV1.RegisterUserCredentialServiceServer(srv, userCredentialService)
+
+	l.Info("gRPC server configured with ModuleRegistrationService (admin.v1 and common.v1), UserService, RoleService, and UserCredentialService")
 
 	return srv, nil
 }

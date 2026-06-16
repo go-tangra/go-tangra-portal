@@ -188,7 +188,8 @@ func initApp(context *bootstrap.Context) (*kratos.App, func(), error) {
 	}
 	collector := metrics.NewCollector(context)
 	commonModuleRegistrationAdapter := service.NewCommonModuleRegistrationAdapter(moduleRegistrationService)
-	grpcServer, err := server.NewGRPCServer(context, collector, moduleRegistrationService, commonModuleRegistrationAdapter, userService, roleService)
+	userCredentialService := service.NewUserCredentialService(context, userCredentialRepo)
+	grpcServer, err := server.NewGRPCServer(context, collector, moduleRegistrationService, commonModuleRegistrationAdapter, userService, roleService, userCredentialService)
 	if err != nil {
 		cleanup7()
 		cleanup6()
