@@ -2,14 +2,19 @@ package server
 
 import (
 	"context"
+	"os"
 
 	"github.com/go-kratos/kratos/v2/log"
 	"github.com/go-kratos/kratos/v2/middleware"
 	"github.com/go-kratos/kratos/v2/middleware/recovery"
+	"github.com/go-kratos/kratos/v2/transport"
 	"github.com/go-kratos/kratos/v2/transport/grpc"
+	grpccodes "google.golang.org/grpc/codes"
+	grpcstatus "google.golang.org/grpc/status"
 
 	"github.com/tx7do/kratos-bootstrap/bootstrap"
 
+	"github.com/go-tangra/go-tangra-common/grpcx"
 	"github.com/go-tangra/go-tangra-common/middleware/mtls"
 	"github.com/go-tangra/go-tangra-portal/app/admin/service/internal/metrics"
 	"github.com/go-tangra/go-tangra-portal/app/admin/service/internal/service"
@@ -20,6 +25,65 @@ import (
 	authenticationV1 "github.com/go-tangra/go-tangra-portal/api/gen/go/authentication/service/v1"
 	commonV1 "github.com/go-tangra/go-tangra-common/gen/go/common/service/v1"
 )
+
+// moduleSecretPublicOps never require the shared secret (liveness probes).
+var moduleSecretPublicOps = map[string]bool{
+	"/grpc.health.v1.Health/Check": true,
+	"/grpc.health.v1.Health/Watch": true,
+}
+
+// moduleSecretMiddleware authenticates callers of the plaintext :7787 control
+// plane with the shared module-bootstrap secret. That port carries module
+// registration AND the internal user/role/credential RPCs, and is reachable
+// across hosts, so it must not rely on network isolation alone.
+//
+// Mode (env REGISTRATION_SECRET_MODE) controls rollout:
+//
+//	off     - disabled (legacy behaviour)
+//	warn    - log violations but allow (default; safe while modules are
+//	          redeployed with the secret-sending client)
+//	enforce - reject callers that do not present the correct secret
+//
+// The secret comes from MODULE_BOOTSTRAP_SECRET — the same value modules use
+// for LCM cert bootstrap.
+func moduleSecretMiddleware(logger log.Logger) middleware.Middleware {
+	l := log.NewHelper(log.With(logger, "module", "server/module-secret"))
+	secret := grpcx.ModuleBootstrapSecret()
+	mode := os.Getenv("REGISTRATION_SECRET_MODE")
+	if mode == "" {
+		mode = "warn"
+	}
+
+	if mode == "enforce" && secret == "" {
+		// Fail closed rather than silently accept everyone.
+		l.Error("REGISTRATION_SECRET_MODE=enforce but MODULE_BOOTSTRAP_SECRET is empty; all module calls will be rejected")
+	}
+
+	return func(handler middleware.Handler) middleware.Handler {
+		return func(ctx context.Context, req interface{}) (interface{}, error) {
+			if mode == "off" {
+				return handler(ctx, req)
+			}
+			op := ""
+			if tr, ok := transport.FromServerContext(ctx); ok {
+				op = tr.Operation()
+			}
+			if moduleSecretPublicOps[op] {
+				return handler(ctx, req)
+			}
+			if grpcx.ValidateModuleSecret(ctx, secret) {
+				return handler(ctx, req)
+			}
+			if mode == "enforce" {
+				l.Warnf("rejected unauthenticated call to %s on :7787 (missing/invalid module secret)", op)
+				return nil, grpcstatus.Error(grpccodes.Unauthenticated, "module secret required")
+			}
+			// warn mode: record but allow, so a not-yet-updated module keeps working.
+			l.Warnf("call to %s on :7787 lacks a valid module secret (allowed: mode=warn)", op)
+			return handler(ctx, req)
+		}
+	}
+}
 
 // systemViewerMiddleware injects a system viewer context for all gRPC requests.
 // The gRPC port is internal (service-to-service only), so all calls get system-level access.
@@ -37,6 +101,8 @@ func NewGRPCMiddleware(logger log.Logger, tlsEnabled bool, collector *metrics.Co
 	var ms []middleware.Middleware
 	ms = append(ms, recovery.Recovery())
 	ms = append(ms, collector.Middleware())
+	// Authenticate the caller BEFORE granting system-level access below.
+	ms = append(ms, moduleSecretMiddleware(logger))
 	ms = append(ms, systemViewerMiddleware())
 
 	if tlsEnabled {

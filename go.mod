@@ -12,13 +12,13 @@ require (
 	github.com/go-kratos/kratos/v2 v2.9.2
 	github.com/go-ldap/ldap/v3 v3.4.12
 	github.com/go-sql-driver/mysql v1.9.3
-	github.com/go-tangra/go-tangra-common v1.17.1
+	github.com/go-tangra/go-tangra-common v1.20.0
 	github.com/go-webauthn/webauthn v0.15.0
 	github.com/golang-jwt/jwt/v5 v5.3.0
 	github.com/google/gnostic v0.7.1
 	github.com/google/uuid v1.6.0
 	github.com/google/wire v0.7.0
-	github.com/jackc/pgx/v5 v5.8.0
+	github.com/jackc/pgx/v5 v5.10.0
 	github.com/jinzhu/copier v0.4.0
 	github.com/jinzhu/inflection v1.0.0
 	github.com/lib/pq v1.10.9
