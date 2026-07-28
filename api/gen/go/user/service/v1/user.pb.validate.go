@@ -136,6 +136,14 @@ func (m *User) validate(all bool) error {
 		// no validation rules for Remark
 	}
 
+	if m.TimeZone != nil {
+		// no validation rules for TimeZone
+	}
+
+	if m.TimeFormat != nil {
+		// no validation rules for TimeFormat
+	}
+
 	if m.LastLoginAt != nil {
 
 		if all {

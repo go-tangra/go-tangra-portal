@@ -179,6 +179,16 @@ message User {
     (gnostic.openapi.v3.property) = {description: "Remark"}
   ]; // Remark
 
+  optional string time_zone = 32 [
+    json_name = "timeZone",
+    (gnostic.openapi.v3.property) = {description: "IANA timezone for displaying timestamps (empty = auto-detect from browser)"}
+  ]; // Preferred display timezone
+
+  optional string time_format = 33 [
+    json_name = "timeFormat",
+    (gnostic.openapi.v3.property) = {description: "Preferred time display format: \"12h\" or \"24h\" (empty = 24h default)"}
+  ]; // Preferred time display format
+
   optional google.protobuf.Timestamp last_login_at = 50 [
     json_name = "lastLoginAt",
     (gnostic.openapi.v3.property) = {description: "Last login time"}

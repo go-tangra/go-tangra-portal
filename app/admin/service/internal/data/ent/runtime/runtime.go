@@ -1109,6 +1109,18 @@ func init() {
 	userDescDescription := userFields[9].Descriptor()
 	// user.DescriptionValidator is a validator for the "description" field. It is called by the builders before save.
 	user.DescriptionValidator = userDescDescription.Validators[0].(func(string) error)
+	// userDescTimeZone is the schema descriptor for time_zone field.
+	userDescTimeZone := userFields[10].Descriptor()
+	// user.DefaultTimeZone holds the default value on creation for the time_zone field.
+	user.DefaultTimeZone = userDescTimeZone.Default.(string)
+	// user.TimeZoneValidator is a validator for the "time_zone" field. It is called by the builders before save.
+	user.TimeZoneValidator = userDescTimeZone.Validators[0].(func(string) error)
+	// userDescTimeFormat is the schema descriptor for time_format field.
+	userDescTimeFormat := userFields[11].Descriptor()
+	// user.DefaultTimeFormat holds the default value on creation for the time_format field.
+	user.DefaultTimeFormat = userDescTimeFormat.Default.(string)
+	// user.TimeFormatValidator is a validator for the "time_format" field. It is called by the builders before save.
+	user.TimeFormatValidator = userDescTimeFormat.Validators[0].(func(string) error)
 	// userDescID is the schema descriptor for id field.
 	userDescID := userMixinFields0[0].Descriptor()
 	// user.IDValidator is a validator for the "id" field. It is called by the builders before save.
@@ -1261,6 +1273,6 @@ func init() {
 }
 
 const (
-	Version = "v0.14.5"                                         // Version of ent codegen.
-	Sum     = "h1:Rj2WOYJtCkWyFo6a+5wB3EfBRP0rnx1fMk6gGA0UUe4=" // Sum of ent codegen.
+	Version = "v0.14.6"                                         // Version of ent codegen.
+	Sum     = "h1:/f2696BpwuWAEEG6PVGWflg6+Inrpq4pRWuNlWz/Skk=" // Sum of ent codegen.
 )

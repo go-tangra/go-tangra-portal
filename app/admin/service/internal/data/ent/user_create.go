@@ -274,6 +274,34 @@ func (_c *UserCreate) SetNillableDescription(v *string) *UserCreate {
 	return _c
 }
 
+// SetTimeZone sets the "time_zone" field.
+func (_c *UserCreate) SetTimeZone(v string) *UserCreate {
+	_c.mutation.SetTimeZone(v)
+	return _c
+}
+
+// SetNillableTimeZone sets the "time_zone" field if the given value is not nil.
+func (_c *UserCreate) SetNillableTimeZone(v *string) *UserCreate {
+	if v != nil {
+		_c.SetTimeZone(*v)
+	}
+	return _c
+}
+
+// SetTimeFormat sets the "time_format" field.
+func (_c *UserCreate) SetTimeFormat(v string) *UserCreate {
+	_c.mutation.SetTimeFormat(v)
+	return _c
+}
+
+// SetNillableTimeFormat sets the "time_format" field if the given value is not nil.
+func (_c *UserCreate) SetNillableTimeFormat(v *string) *UserCreate {
+	if v != nil {
+		_c.SetTimeFormat(*v)
+	}
+	return _c
+}
+
 // SetGender sets the "gender" field.
 func (_c *UserCreate) SetGender(v user.Gender) *UserCreate {
 	_c.mutation.SetGender(v)
@@ -407,6 +435,14 @@ func (_c *UserCreate) defaults() error {
 		v := user.DefaultRegion
 		_c.mutation.SetRegion(v)
 	}
+	if _, ok := _c.mutation.TimeZone(); !ok {
+		v := user.DefaultTimeZone
+		_c.mutation.SetTimeZone(v)
+	}
+	if _, ok := _c.mutation.TimeFormat(); !ok {
+		v := user.DefaultTimeFormat
+		_c.mutation.SetTimeFormat(v)
+	}
 	if _, ok := _c.mutation.Gender(); !ok {
 		v := user.DefaultGender
 		_c.mutation.SetGender(v)
@@ -443,6 +479,16 @@ func (_c *UserCreate) check() error {
 	if v, ok := _c.mutation.Description(); ok {
 		if err := user.DescriptionValidator(v); err != nil {
 			return &ValidationError{Name: "description", err: fmt.Errorf(`ent: validator failed for field "User.description": %w`, err)}
+		}
+	}
+	if v, ok := _c.mutation.TimeZone(); ok {
+		if err := user.TimeZoneValidator(v); err != nil {
+			return &ValidationError{Name: "time_zone", err: fmt.Errorf(`ent: validator failed for field "User.time_zone": %w`, err)}
+		}
+	}
+	if v, ok := _c.mutation.TimeFormat(); ok {
+		if err := user.TimeFormatValidator(v); err != nil {
+			return &ValidationError{Name: "time_format", err: fmt.Errorf(`ent: validator failed for field "User.time_format": %w`, err)}
 		}
 	}
 	if v, ok := _c.mutation.Gender(); ok {
@@ -564,6 +610,14 @@ func (_c *UserCreate) createSpec() (*User, *sqlgraph.CreateSpec) {
 	if value, ok := _c.mutation.Description(); ok {
 		_spec.SetField(user.FieldDescription, field.TypeString, value)
 		_node.Description = &value
+	}
+	if value, ok := _c.mutation.TimeZone(); ok {
+		_spec.SetField(user.FieldTimeZone, field.TypeString, value)
+		_node.TimeZone = &value
+	}
+	if value, ok := _c.mutation.TimeFormat(); ok {
+		_spec.SetField(user.FieldTimeFormat, field.TypeString, value)
+		_node.TimeFormat = &value
 	}
 	if value, ok := _c.mutation.Gender(); ok {
 		_spec.SetField(user.FieldGender, field.TypeEnum, value)
@@ -922,6 +976,42 @@ func (u *UserUpsert) UpdateDescription() *UserUpsert {
 // ClearDescription clears the value of the "description" field.
 func (u *UserUpsert) ClearDescription() *UserUpsert {
 	u.SetNull(user.FieldDescription)
+	return u
+}
+
+// SetTimeZone sets the "time_zone" field.
+func (u *UserUpsert) SetTimeZone(v string) *UserUpsert {
+	u.Set(user.FieldTimeZone, v)
+	return u
+}
+
+// UpdateTimeZone sets the "time_zone" field to the value that was provided on create.
+func (u *UserUpsert) UpdateTimeZone() *UserUpsert {
+	u.SetExcluded(user.FieldTimeZone)
+	return u
+}
+
+// ClearTimeZone clears the value of the "time_zone" field.
+func (u *UserUpsert) ClearTimeZone() *UserUpsert {
+	u.SetNull(user.FieldTimeZone)
+	return u
+}
+
+// SetTimeFormat sets the "time_format" field.
+func (u *UserUpsert) SetTimeFormat(v string) *UserUpsert {
+	u.Set(user.FieldTimeFormat, v)
+	return u
+}
+
+// UpdateTimeFormat sets the "time_format" field to the value that was provided on create.
+func (u *UserUpsert) UpdateTimeFormat() *UserUpsert {
+	u.SetExcluded(user.FieldTimeFormat)
+	return u
+}
+
+// ClearTimeFormat clears the value of the "time_format" field.
+func (u *UserUpsert) ClearTimeFormat() *UserUpsert {
+	u.SetNull(user.FieldTimeFormat)
 	return u
 }
 
@@ -1405,6 +1495,48 @@ func (u *UserUpsertOne) UpdateDescription() *UserUpsertOne {
 func (u *UserUpsertOne) ClearDescription() *UserUpsertOne {
 	return u.Update(func(s *UserUpsert) {
 		s.ClearDescription()
+	})
+}
+
+// SetTimeZone sets the "time_zone" field.
+func (u *UserUpsertOne) SetTimeZone(v string) *UserUpsertOne {
+	return u.Update(func(s *UserUpsert) {
+		s.SetTimeZone(v)
+	})
+}
+
+// UpdateTimeZone sets the "time_zone" field to the value that was provided on create.
+func (u *UserUpsertOne) UpdateTimeZone() *UserUpsertOne {
+	return u.Update(func(s *UserUpsert) {
+		s.UpdateTimeZone()
+	})
+}
+
+// ClearTimeZone clears the value of the "time_zone" field.
+func (u *UserUpsertOne) ClearTimeZone() *UserUpsertOne {
+	return u.Update(func(s *UserUpsert) {
+		s.ClearTimeZone()
+	})
+}
+
+// SetTimeFormat sets the "time_format" field.
+func (u *UserUpsertOne) SetTimeFormat(v string) *UserUpsertOne {
+	return u.Update(func(s *UserUpsert) {
+		s.SetTimeFormat(v)
+	})
+}
+
+// UpdateTimeFormat sets the "time_format" field to the value that was provided on create.
+func (u *UserUpsertOne) UpdateTimeFormat() *UserUpsertOne {
+	return u.Update(func(s *UserUpsert) {
+		s.UpdateTimeFormat()
+	})
+}
+
+// ClearTimeFormat clears the value of the "time_format" field.
+func (u *UserUpsertOne) ClearTimeFormat() *UserUpsertOne {
+	return u.Update(func(s *UserUpsert) {
+		s.ClearTimeFormat()
 	})
 }
 
@@ -2069,6 +2201,48 @@ func (u *UserUpsertBulk) UpdateDescription() *UserUpsertBulk {
 func (u *UserUpsertBulk) ClearDescription() *UserUpsertBulk {
 	return u.Update(func(s *UserUpsert) {
 		s.ClearDescription()
+	})
+}
+
+// SetTimeZone sets the "time_zone" field.
+func (u *UserUpsertBulk) SetTimeZone(v string) *UserUpsertBulk {
+	return u.Update(func(s *UserUpsert) {
+		s.SetTimeZone(v)
+	})
+}
+
+// UpdateTimeZone sets the "time_zone" field to the value that was provided on create.
+func (u *UserUpsertBulk) UpdateTimeZone() *UserUpsertBulk {
+	return u.Update(func(s *UserUpsert) {
+		s.UpdateTimeZone()
+	})
+}
+
+// ClearTimeZone clears the value of the "time_zone" field.
+func (u *UserUpsertBulk) ClearTimeZone() *UserUpsertBulk {
+	return u.Update(func(s *UserUpsert) {
+		s.ClearTimeZone()
+	})
+}
+
+// SetTimeFormat sets the "time_format" field.
+func (u *UserUpsertBulk) SetTimeFormat(v string) *UserUpsertBulk {
+	return u.Update(func(s *UserUpsert) {
+		s.SetTimeFormat(v)
+	})
+}
+
+// UpdateTimeFormat sets the "time_format" field to the value that was provided on create.
+func (u *UserUpsertBulk) UpdateTimeFormat() *UserUpsertBulk {
+	return u.Update(func(s *UserUpsert) {
+		s.UpdateTimeFormat()
+	})
+}
+
+// ClearTimeFormat clears the value of the "time_format" field.
+func (u *UserUpsertBulk) ClearTimeFormat() *UserUpsertBulk {
+	return u.Update(func(s *UserUpsert) {
+		s.ClearTimeFormat()
 	})
 }
 

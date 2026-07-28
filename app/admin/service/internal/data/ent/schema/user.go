@@ -91,6 +91,20 @@ func (User) Fields() []ent.Field {
 			Optional().
 			Nillable(),
 
+		field.String("time_zone").
+			Comment("时间显示时区(IANA名称, 空=浏览器自动检测)").
+			Default("").
+			MaxLen(64).
+			Optional().
+			Nillable(),
+
+		field.String("time_format").
+			Comment("时间显示格式: 12h 或 24h (空=默认24h)").
+			Default("").
+			MaxLen(8).
+			Optional().
+			Nillable(),
+
 		field.Enum("gender").
 			Comment("性别").
 			NamedValues(

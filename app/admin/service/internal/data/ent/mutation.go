@@ -54777,6 +54777,8 @@ type UserMutation struct {
 	address       *string
 	region        *string
 	description   *string
+	time_zone     *string
+	time_format   *string
 	gender        *user.Gender
 	last_login_at *time.Time
 	last_login_ip *string
@@ -55858,6 +55860,104 @@ func (m *UserMutation) ResetDescription() {
 	delete(m.clearedFields, user.FieldDescription)
 }
 
+// SetTimeZone sets the "time_zone" field.
+func (m *UserMutation) SetTimeZone(s string) {
+	m.time_zone = &s
+}
+
+// TimeZone returns the value of the "time_zone" field in the mutation.
+func (m *UserMutation) TimeZone() (r string, exists bool) {
+	v := m.time_zone
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldTimeZone returns the old "time_zone" field's value of the User entity.
+// If the User object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *UserMutation) OldTimeZone(ctx context.Context) (v *string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldTimeZone is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldTimeZone requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldTimeZone: %w", err)
+	}
+	return oldValue.TimeZone, nil
+}
+
+// ClearTimeZone clears the value of the "time_zone" field.
+func (m *UserMutation) ClearTimeZone() {
+	m.time_zone = nil
+	m.clearedFields[user.FieldTimeZone] = struct{}{}
+}
+
+// TimeZoneCleared returns if the "time_zone" field was cleared in this mutation.
+func (m *UserMutation) TimeZoneCleared() bool {
+	_, ok := m.clearedFields[user.FieldTimeZone]
+	return ok
+}
+
+// ResetTimeZone resets all changes to the "time_zone" field.
+func (m *UserMutation) ResetTimeZone() {
+	m.time_zone = nil
+	delete(m.clearedFields, user.FieldTimeZone)
+}
+
+// SetTimeFormat sets the "time_format" field.
+func (m *UserMutation) SetTimeFormat(s string) {
+	m.time_format = &s
+}
+
+// TimeFormat returns the value of the "time_format" field in the mutation.
+func (m *UserMutation) TimeFormat() (r string, exists bool) {
+	v := m.time_format
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldTimeFormat returns the old "time_format" field's value of the User entity.
+// If the User object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *UserMutation) OldTimeFormat(ctx context.Context) (v *string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldTimeFormat is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldTimeFormat requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldTimeFormat: %w", err)
+	}
+	return oldValue.TimeFormat, nil
+}
+
+// ClearTimeFormat clears the value of the "time_format" field.
+func (m *UserMutation) ClearTimeFormat() {
+	m.time_format = nil
+	m.clearedFields[user.FieldTimeFormat] = struct{}{}
+}
+
+// TimeFormatCleared returns if the "time_format" field was cleared in this mutation.
+func (m *UserMutation) TimeFormatCleared() bool {
+	_, ok := m.clearedFields[user.FieldTimeFormat]
+	return ok
+}
+
+// ResetTimeFormat resets all changes to the "time_format" field.
+func (m *UserMutation) ResetTimeFormat() {
+	m.time_format = nil
+	delete(m.clearedFields, user.FieldTimeFormat)
+}
+
 // SetGender sets the "gender" field.
 func (m *UserMutation) SetGender(u user.Gender) {
 	m.gender = &u
@@ -56137,7 +56237,7 @@ func (m *UserMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *UserMutation) Fields() []string {
-	fields := make([]string, 0, 23)
+	fields := make([]string, 0, 25)
 	if m.created_by != nil {
 		fields = append(fields, user.FieldCreatedBy)
 	}
@@ -56191,6 +56291,12 @@ func (m *UserMutation) Fields() []string {
 	}
 	if m.description != nil {
 		fields = append(fields, user.FieldDescription)
+	}
+	if m.time_zone != nil {
+		fields = append(fields, user.FieldTimeZone)
+	}
+	if m.time_format != nil {
+		fields = append(fields, user.FieldTimeFormat)
 	}
 	if m.gender != nil {
 		fields = append(fields, user.FieldGender)
@@ -56251,6 +56357,10 @@ func (m *UserMutation) Field(name string) (ent.Value, bool) {
 		return m.Region()
 	case user.FieldDescription:
 		return m.Description()
+	case user.FieldTimeZone:
+		return m.TimeZone()
+	case user.FieldTimeFormat:
+		return m.TimeFormat()
 	case user.FieldGender:
 		return m.Gender()
 	case user.FieldLastLoginAt:
@@ -56306,6 +56416,10 @@ func (m *UserMutation) OldField(ctx context.Context, name string) (ent.Value, er
 		return m.OldRegion(ctx)
 	case user.FieldDescription:
 		return m.OldDescription(ctx)
+	case user.FieldTimeZone:
+		return m.OldTimeZone(ctx)
+	case user.FieldTimeFormat:
+		return m.OldTimeFormat(ctx)
 	case user.FieldGender:
 		return m.OldGender(ctx)
 	case user.FieldLastLoginAt:
@@ -56450,6 +56564,20 @@ func (m *UserMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetDescription(v)
+		return nil
+	case user.FieldTimeZone:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetTimeZone(v)
+		return nil
+	case user.FieldTimeFormat:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetTimeFormat(v)
 		return nil
 	case user.FieldGender:
 		v, ok := value.(user.Gender)
@@ -56621,6 +56749,12 @@ func (m *UserMutation) ClearedFields() []string {
 	if m.FieldCleared(user.FieldDescription) {
 		fields = append(fields, user.FieldDescription)
 	}
+	if m.FieldCleared(user.FieldTimeZone) {
+		fields = append(fields, user.FieldTimeZone)
+	}
+	if m.FieldCleared(user.FieldTimeFormat) {
+		fields = append(fields, user.FieldTimeFormat)
+	}
 	if m.FieldCleared(user.FieldGender) {
 		fields = append(fields, user.FieldGender)
 	}
@@ -56704,6 +56838,12 @@ func (m *UserMutation) ClearField(name string) error {
 	case user.FieldDescription:
 		m.ClearDescription()
 		return nil
+	case user.FieldTimeZone:
+		m.ClearTimeZone()
+		return nil
+	case user.FieldTimeFormat:
+		m.ClearTimeFormat()
+		return nil
 	case user.FieldGender:
 		m.ClearGender()
 		return nil
@@ -56780,6 +56920,12 @@ func (m *UserMutation) ResetField(name string) error {
 		return nil
 	case user.FieldDescription:
 		m.ResetDescription()
+		return nil
+	case user.FieldTimeZone:
+		m.ResetTimeZone()
+		return nil
+	case user.FieldTimeFormat:
+		m.ResetTimeFormat()
 		return nil
 	case user.FieldGender:
 		m.ResetGender()

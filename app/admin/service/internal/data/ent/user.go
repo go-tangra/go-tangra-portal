@@ -54,6 +54,10 @@ type User struct {
 	Region *string `json:"region,omitempty"`
 	// 个人说明
 	Description *string `json:"description,omitempty"`
+	// 时间显示时区(IANA名称, 空=浏览器自动检测)
+	TimeZone *string `json:"time_zone,omitempty"`
+	// 时间显示格式: 12h 或 24h (空=默认24h)
+	TimeFormat *string `json:"time_format,omitempty"`
 	// 性别
 	Gender *user.Gender `json:"gender,omitempty"`
 	// 最后一次登录的时间
@@ -74,7 +78,7 @@ func (*User) scanValues(columns []string) ([]any, error) {
 		switch columns[i] {
 		case user.FieldID, user.FieldCreatedBy, user.FieldUpdatedBy, user.FieldDeletedBy, user.FieldTenantID:
 			values[i] = new(sql.NullInt64)
-		case user.FieldRemark, user.FieldUsername, user.FieldNickname, user.FieldRealname, user.FieldEmail, user.FieldMobile, user.FieldTelephone, user.FieldAvatar, user.FieldAddress, user.FieldRegion, user.FieldDescription, user.FieldGender, user.FieldLastLoginIP, user.FieldStatus:
+		case user.FieldRemark, user.FieldUsername, user.FieldNickname, user.FieldRealname, user.FieldEmail, user.FieldMobile, user.FieldTelephone, user.FieldAvatar, user.FieldAddress, user.FieldRegion, user.FieldDescription, user.FieldTimeZone, user.FieldTimeFormat, user.FieldGender, user.FieldLastLoginIP, user.FieldStatus:
 			values[i] = new(sql.NullString)
 		case user.FieldCreatedAt, user.FieldUpdatedAt, user.FieldDeletedAt, user.FieldLastLoginAt, user.FieldLockedUntil:
 			values[i] = new(sql.NullTime)
@@ -224,6 +228,20 @@ func (_m *User) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				_m.Description = new(string)
 				*_m.Description = value.String
+			}
+		case user.FieldTimeZone:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field time_zone", values[i])
+			} else if value.Valid {
+				_m.TimeZone = new(string)
+				*_m.TimeZone = value.String
+			}
+		case user.FieldTimeFormat:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field time_format", values[i])
+			} else if value.Valid {
+				_m.TimeFormat = new(string)
+				*_m.TimeFormat = value.String
 			}
 		case user.FieldGender:
 			if value, ok := values[i].(*sql.NullString); !ok {
@@ -383,6 +401,16 @@ func (_m *User) String() string {
 	builder.WriteString(", ")
 	if v := _m.Description; v != nil {
 		builder.WriteString("description=")
+		builder.WriteString(*v)
+	}
+	builder.WriteString(", ")
+	if v := _m.TimeZone; v != nil {
+		builder.WriteString("time_zone=")
+		builder.WriteString(*v)
+	}
+	builder.WriteString(", ")
+	if v := _m.TimeFormat; v != nil {
+		builder.WriteString("time_format=")
 		builder.WriteString(*v)
 	}
 	builder.WriteString(", ")

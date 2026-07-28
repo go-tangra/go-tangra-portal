@@ -350,6 +350,46 @@ func (_u *UserUpdate) ClearDescription() *UserUpdate {
 	return _u
 }
 
+// SetTimeZone sets the "time_zone" field.
+func (_u *UserUpdate) SetTimeZone(v string) *UserUpdate {
+	_u.mutation.SetTimeZone(v)
+	return _u
+}
+
+// SetNillableTimeZone sets the "time_zone" field if the given value is not nil.
+func (_u *UserUpdate) SetNillableTimeZone(v *string) *UserUpdate {
+	if v != nil {
+		_u.SetTimeZone(*v)
+	}
+	return _u
+}
+
+// ClearTimeZone clears the value of the "time_zone" field.
+func (_u *UserUpdate) ClearTimeZone() *UserUpdate {
+	_u.mutation.ClearTimeZone()
+	return _u
+}
+
+// SetTimeFormat sets the "time_format" field.
+func (_u *UserUpdate) SetTimeFormat(v string) *UserUpdate {
+	_u.mutation.SetTimeFormat(v)
+	return _u
+}
+
+// SetNillableTimeFormat sets the "time_format" field if the given value is not nil.
+func (_u *UserUpdate) SetNillableTimeFormat(v *string) *UserUpdate {
+	if v != nil {
+		_u.SetTimeFormat(*v)
+	}
+	return _u
+}
+
+// ClearTimeFormat clears the value of the "time_format" field.
+func (_u *UserUpdate) ClearTimeFormat() *UserUpdate {
+	_u.mutation.ClearTimeFormat()
+	return _u
+}
+
 // SetGender sets the "gender" field.
 func (_u *UserUpdate) SetGender(v user.Gender) *UserUpdate {
 	_u.mutation.SetGender(v)
@@ -504,6 +544,16 @@ func (_u *UserUpdate) check() error {
 			return &ValidationError{Name: "description", err: fmt.Errorf(`ent: validator failed for field "User.description": %w`, err)}
 		}
 	}
+	if v, ok := _u.mutation.TimeZone(); ok {
+		if err := user.TimeZoneValidator(v); err != nil {
+			return &ValidationError{Name: "time_zone", err: fmt.Errorf(`ent: validator failed for field "User.time_zone": %w`, err)}
+		}
+	}
+	if v, ok := _u.mutation.TimeFormat(); ok {
+		if err := user.TimeFormatValidator(v); err != nil {
+			return &ValidationError{Name: "time_format", err: fmt.Errorf(`ent: validator failed for field "User.time_format": %w`, err)}
+		}
+	}
 	if v, ok := _u.mutation.Gender(); ok {
 		if err := user.GenderValidator(v); err != nil {
 			return &ValidationError{Name: "gender", err: fmt.Errorf(`ent: validator failed for field "User.gender": %w`, err)}
@@ -642,6 +692,18 @@ func (_u *UserUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	}
 	if _u.mutation.DescriptionCleared() {
 		_spec.ClearField(user.FieldDescription, field.TypeString)
+	}
+	if value, ok := _u.mutation.TimeZone(); ok {
+		_spec.SetField(user.FieldTimeZone, field.TypeString, value)
+	}
+	if _u.mutation.TimeZoneCleared() {
+		_spec.ClearField(user.FieldTimeZone, field.TypeString)
+	}
+	if value, ok := _u.mutation.TimeFormat(); ok {
+		_spec.SetField(user.FieldTimeFormat, field.TypeString, value)
+	}
+	if _u.mutation.TimeFormatCleared() {
+		_spec.ClearField(user.FieldTimeFormat, field.TypeString)
 	}
 	if value, ok := _u.mutation.Gender(); ok {
 		_spec.SetField(user.FieldGender, field.TypeEnum, value)
@@ -1016,6 +1078,46 @@ func (_u *UserUpdateOne) ClearDescription() *UserUpdateOne {
 	return _u
 }
 
+// SetTimeZone sets the "time_zone" field.
+func (_u *UserUpdateOne) SetTimeZone(v string) *UserUpdateOne {
+	_u.mutation.SetTimeZone(v)
+	return _u
+}
+
+// SetNillableTimeZone sets the "time_zone" field if the given value is not nil.
+func (_u *UserUpdateOne) SetNillableTimeZone(v *string) *UserUpdateOne {
+	if v != nil {
+		_u.SetTimeZone(*v)
+	}
+	return _u
+}
+
+// ClearTimeZone clears the value of the "time_zone" field.
+func (_u *UserUpdateOne) ClearTimeZone() *UserUpdateOne {
+	_u.mutation.ClearTimeZone()
+	return _u
+}
+
+// SetTimeFormat sets the "time_format" field.
+func (_u *UserUpdateOne) SetTimeFormat(v string) *UserUpdateOne {
+	_u.mutation.SetTimeFormat(v)
+	return _u
+}
+
+// SetNillableTimeFormat sets the "time_format" field if the given value is not nil.
+func (_u *UserUpdateOne) SetNillableTimeFormat(v *string) *UserUpdateOne {
+	if v != nil {
+		_u.SetTimeFormat(*v)
+	}
+	return _u
+}
+
+// ClearTimeFormat clears the value of the "time_format" field.
+func (_u *UserUpdateOne) ClearTimeFormat() *UserUpdateOne {
+	_u.mutation.ClearTimeFormat()
+	return _u
+}
+
 // SetGender sets the "gender" field.
 func (_u *UserUpdateOne) SetGender(v user.Gender) *UserUpdateOne {
 	_u.mutation.SetGender(v)
@@ -1183,6 +1285,16 @@ func (_u *UserUpdateOne) check() error {
 			return &ValidationError{Name: "description", err: fmt.Errorf(`ent: validator failed for field "User.description": %w`, err)}
 		}
 	}
+	if v, ok := _u.mutation.TimeZone(); ok {
+		if err := user.TimeZoneValidator(v); err != nil {
+			return &ValidationError{Name: "time_zone", err: fmt.Errorf(`ent: validator failed for field "User.time_zone": %w`, err)}
+		}
+	}
+	if v, ok := _u.mutation.TimeFormat(); ok {
+		if err := user.TimeFormatValidator(v); err != nil {
+			return &ValidationError{Name: "time_format", err: fmt.Errorf(`ent: validator failed for field "User.time_format": %w`, err)}
+		}
+	}
 	if v, ok := _u.mutation.Gender(); ok {
 		if err := user.GenderValidator(v); err != nil {
 			return &ValidationError{Name: "gender", err: fmt.Errorf(`ent: validator failed for field "User.gender": %w`, err)}
@@ -1338,6 +1450,18 @@ func (_u *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) {
 	}
 	if _u.mutation.DescriptionCleared() {
 		_spec.ClearField(user.FieldDescription, field.TypeString)
+	}
+	if value, ok := _u.mutation.TimeZone(); ok {
+		_spec.SetField(user.FieldTimeZone, field.TypeString, value)
+	}
+	if _u.mutation.TimeZoneCleared() {
+		_spec.ClearField(user.FieldTimeZone, field.TypeString)
+	}
+	if value, ok := _u.mutation.TimeFormat(); ok {
+		_spec.SetField(user.FieldTimeFormat, field.TypeString, value)
+	}
+	if _u.mutation.TimeFormatCleared() {
+		_spec.ClearField(user.FieldTimeFormat, field.TypeString)
 	}
 	if value, ok := _u.mutation.Gender(); ok {
 		_spec.SetField(user.FieldGender, field.TypeEnum, value)

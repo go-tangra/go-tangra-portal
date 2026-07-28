@@ -144,6 +144,16 @@ func Description(v string) predicate.User {
 	return predicate.User(sql.FieldEQ(FieldDescription, v))
 }
 
+// TimeZone applies equality check predicate on the "time_zone" field. It's identical to TimeZoneEQ.
+func TimeZone(v string) predicate.User {
+	return predicate.User(sql.FieldEQ(FieldTimeZone, v))
+}
+
+// TimeFormat applies equality check predicate on the "time_format" field. It's identical to TimeFormatEQ.
+func TimeFormat(v string) predicate.User {
+	return predicate.User(sql.FieldEQ(FieldTimeFormat, v))
+}
+
 // LastLoginAt applies equality check predicate on the "last_login_at" field. It's identical to LastLoginAtEQ.
 func LastLoginAt(v time.Time) predicate.User {
 	return predicate.User(sql.FieldEQ(FieldLastLoginAt, v))
@@ -1332,6 +1342,156 @@ func DescriptionEqualFold(v string) predicate.User {
 // DescriptionContainsFold applies the ContainsFold predicate on the "description" field.
 func DescriptionContainsFold(v string) predicate.User {
 	return predicate.User(sql.FieldContainsFold(FieldDescription, v))
+}
+
+// TimeZoneEQ applies the EQ predicate on the "time_zone" field.
+func TimeZoneEQ(v string) predicate.User {
+	return predicate.User(sql.FieldEQ(FieldTimeZone, v))
+}
+
+// TimeZoneNEQ applies the NEQ predicate on the "time_zone" field.
+func TimeZoneNEQ(v string) predicate.User {
+	return predicate.User(sql.FieldNEQ(FieldTimeZone, v))
+}
+
+// TimeZoneIn applies the In predicate on the "time_zone" field.
+func TimeZoneIn(vs ...string) predicate.User {
+	return predicate.User(sql.FieldIn(FieldTimeZone, vs...))
+}
+
+// TimeZoneNotIn applies the NotIn predicate on the "time_zone" field.
+func TimeZoneNotIn(vs ...string) predicate.User {
+	return predicate.User(sql.FieldNotIn(FieldTimeZone, vs...))
+}
+
+// TimeZoneGT applies the GT predicate on the "time_zone" field.
+func TimeZoneGT(v string) predicate.User {
+	return predicate.User(sql.FieldGT(FieldTimeZone, v))
+}
+
+// TimeZoneGTE applies the GTE predicate on the "time_zone" field.
+func TimeZoneGTE(v string) predicate.User {
+	return predicate.User(sql.FieldGTE(FieldTimeZone, v))
+}
+
+// TimeZoneLT applies the LT predicate on the "time_zone" field.
+func TimeZoneLT(v string) predicate.User {
+	return predicate.User(sql.FieldLT(FieldTimeZone, v))
+}
+
+// TimeZoneLTE applies the LTE predicate on the "time_zone" field.
+func TimeZoneLTE(v string) predicate.User {
+	return predicate.User(sql.FieldLTE(FieldTimeZone, v))
+}
+
+// TimeZoneContains applies the Contains predicate on the "time_zone" field.
+func TimeZoneContains(v string) predicate.User {
+	return predicate.User(sql.FieldContains(FieldTimeZone, v))
+}
+
+// TimeZoneHasPrefix applies the HasPrefix predicate on the "time_zone" field.
+func TimeZoneHasPrefix(v string) predicate.User {
+	return predicate.User(sql.FieldHasPrefix(FieldTimeZone, v))
+}
+
+// TimeZoneHasSuffix applies the HasSuffix predicate on the "time_zone" field.
+func TimeZoneHasSuffix(v string) predicate.User {
+	return predicate.User(sql.FieldHasSuffix(FieldTimeZone, v))
+}
+
+// TimeZoneIsNil applies the IsNil predicate on the "time_zone" field.
+func TimeZoneIsNil() predicate.User {
+	return predicate.User(sql.FieldIsNull(FieldTimeZone))
+}
+
+// TimeZoneNotNil applies the NotNil predicate on the "time_zone" field.
+func TimeZoneNotNil() predicate.User {
+	return predicate.User(sql.FieldNotNull(FieldTimeZone))
+}
+
+// TimeZoneEqualFold applies the EqualFold predicate on the "time_zone" field.
+func TimeZoneEqualFold(v string) predicate.User {
+	return predicate.User(sql.FieldEqualFold(FieldTimeZone, v))
+}
+
+// TimeZoneContainsFold applies the ContainsFold predicate on the "time_zone" field.
+func TimeZoneContainsFold(v string) predicate.User {
+	return predicate.User(sql.FieldContainsFold(FieldTimeZone, v))
+}
+
+// TimeFormatEQ applies the EQ predicate on the "time_format" field.
+func TimeFormatEQ(v string) predicate.User {
+	return predicate.User(sql.FieldEQ(FieldTimeFormat, v))
+}
+
+// TimeFormatNEQ applies the NEQ predicate on the "time_format" field.
+func TimeFormatNEQ(v string) predicate.User {
+	return predicate.User(sql.FieldNEQ(FieldTimeFormat, v))
+}
+
+// TimeFormatIn applies the In predicate on the "time_format" field.
+func TimeFormatIn(vs ...string) predicate.User {
+	return predicate.User(sql.FieldIn(FieldTimeFormat, vs...))
+}
+
+// TimeFormatNotIn applies the NotIn predicate on the "time_format" field.
+func TimeFormatNotIn(vs ...string) predicate.User {
+	return predicate.User(sql.FieldNotIn(FieldTimeFormat, vs...))
+}
+
+// TimeFormatGT applies the GT predicate on the "time_format" field.
+func TimeFormatGT(v string) predicate.User {
+	return predicate.User(sql.FieldGT(FieldTimeFormat, v))
+}
+
+// TimeFormatGTE applies the GTE predicate on the "time_format" field.
+func TimeFormatGTE(v string) predicate.User {
+	return predicate.User(sql.FieldGTE(FieldTimeFormat, v))
+}
+
+// TimeFormatLT applies the LT predicate on the "time_format" field.
+func TimeFormatLT(v string) predicate.User {
+	return predicate.User(sql.FieldLT(FieldTimeFormat, v))
+}
+
+// TimeFormatLTE applies the LTE predicate on the "time_format" field.
+func TimeFormatLTE(v string) predicate.User {
+	return predicate.User(sql.FieldLTE(FieldTimeFormat, v))
+}
+
+// TimeFormatContains applies the Contains predicate on the "time_format" field.
+func TimeFormatContains(v string) predicate.User {
+	return predicate.User(sql.FieldContains(FieldTimeFormat, v))
+}
+
+// TimeFormatHasPrefix applies the HasPrefix predicate on the "time_format" field.
+func TimeFormatHasPrefix(v string) predicate.User {
+	return predicate.User(sql.FieldHasPrefix(FieldTimeFormat, v))
+}
+
+// TimeFormatHasSuffix applies the HasSuffix predicate on the "time_format" field.
+func TimeFormatHasSuffix(v string) predicate.User {
+	return predicate.User(sql.FieldHasSuffix(FieldTimeFormat, v))
+}
+
+// TimeFormatIsNil applies the IsNil predicate on the "time_format" field.
+func TimeFormatIsNil() predicate.User {
+	return predicate.User(sql.FieldIsNull(FieldTimeFormat))
+}
+
+// TimeFormatNotNil applies the NotNil predicate on the "time_format" field.
+func TimeFormatNotNil() predicate.User {
+	return predicate.User(sql.FieldNotNull(FieldTimeFormat))
+}
+
+// TimeFormatEqualFold applies the EqualFold predicate on the "time_format" field.
+func TimeFormatEqualFold(v string) predicate.User {
+	return predicate.User(sql.FieldEqualFold(FieldTimeFormat, v))
+}
+
+// TimeFormatContainsFold applies the ContainsFold predicate on the "time_format" field.
+func TimeFormatContainsFold(v string) predicate.User {
+	return predicate.User(sql.FieldContainsFold(FieldTimeFormat, v))
 }
 
 // GenderEQ applies the EQ predicate on the "gender" field.

@@ -520,6 +520,8 @@ func (r *userRepo) CreateWithTx(ctx context.Context, tx *ent.Tx, data *userV1.Us
 		SetNillableRegion(data.Region).
 		SetNillableAddress(data.Address).
 		SetNillableDescription(data.Description).
+		SetNillableTimeZone(data.TimeZone).
+		SetNillableTimeFormat(data.TimeFormat).
 		SetNillableRemark(data.Remark).
 		SetNillableLastLoginAt(timeutil.TimestamppbToTime(data.LastLoginAt)).
 		SetNillableLockedUntil(timeutil.TimestamppbToTime(data.LockedUntil)).
@@ -633,6 +635,8 @@ func (r *userRepo) Update(ctx context.Context, req *userV1.UpdateUserRequest) (e
 				SetNillableRegion(req.Data.Region).
 				SetNillableAddress(req.Data.Address).
 				SetNillableDescription(req.Data.Description).
+				SetNillableTimeZone(req.Data.TimeZone).
+				SetNillableTimeFormat(req.Data.TimeFormat).
 				SetNillableRemark(req.Data.Remark).
 				SetNillableLastLoginAt(timeutil.TimestamppbToTime(req.Data.LastLoginAt)).
 				SetNillableLockedUntil(timeutil.TimestamppbToTime(req.Data.LockedUntil)).

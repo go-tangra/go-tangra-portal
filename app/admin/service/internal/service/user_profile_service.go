@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/base64"
 	"strings"
+	"time"
 
 	"github.com/go-kratos/kratos/v2/log"
 	"github.com/tx7do/go-utils/trans"
@@ -91,11 +92,40 @@ func (s *UserProfileService) UpdateUser(ctx context.Context, req *userV1.UpdateU
 	req.Id = operator.UserId
 	req.Data.Id = trans.Ptr(operator.UserId)
 
+	if err = validateTimePreferences(req.Data); err != nil {
+		return nil, err
+	}
+
 	if err = s.userRepo.Update(ctx, req); err != nil {
 		return nil, err
 	}
 
 	return &emptypb.Empty{}, nil
+}
+
+// validateTimePreferences validates the optional time-display preference
+// fields (timezone + time format) when present on the update payload. Empty
+// values are allowed and mean "use the default" (auto-detect / 24h).
+func validateTimePreferences(data *userV1.User) error {
+	if data == nil {
+		return nil
+	}
+
+	if tz := data.TimeZone; tz != nil && *tz != "" {
+		if _, err := time.LoadLocation(*tz); err != nil {
+			return authenticationV1.ErrorBadRequest("invalid timezone")
+		}
+	}
+
+	if tf := data.TimeFormat; tf != nil {
+		switch *tf {
+		case "", "12h", "24h":
+		default:
+			return authenticationV1.ErrorBadRequest("invalid time format, expected \"12h\" or \"24h\"")
+		}
+	}
+
+	return nil
 }
 
 func (s *UserProfileService) ChangePassword(ctx context.Context, req *userV1.ChangePasswordRequest) (*emptypb.Empty, error) {

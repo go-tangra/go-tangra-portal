@@ -2450,6 +2450,8 @@ var (
 		{Name: "address", Type: field.TypeString, Nullable: true, Comment: "地址", Default: ""},
 		{Name: "region", Type: field.TypeString, Nullable: true, Comment: "国家地区", Default: ""},
 		{Name: "description", Type: field.TypeString, Nullable: true, Size: 1023, Comment: "个人说明"},
+		{Name: "time_zone", Type: field.TypeString, Nullable: true, Size: 64, Comment: "时间显示时区(IANA名称, 空=浏览器自动检测)", Default: ""},
+		{Name: "time_format", Type: field.TypeString, Nullable: true, Size: 8, Comment: "时间显示格式: 12h 或 24h (空=默认24h)", Default: ""},
 		{Name: "gender", Type: field.TypeEnum, Nullable: true, Comment: "性别", Enums: []string{"SECRET", "MALE", "FEMALE"}, Default: "SECRET"},
 		{Name: "last_login_at", Type: field.TypeTime, Nullable: true, Comment: "最后一次登录的时间"},
 		{Name: "last_login_ip", Type: field.TypeString, Nullable: true, Comment: "最后一次登录的IP"},
@@ -2481,12 +2483,12 @@ var (
 			{
 				Name:    "idx_sys_user_tenant_last_login_at",
 				Unique:  false,
-				Columns: []*schema.Column{SysUsersColumns[8], SysUsersColumns[20]},
+				Columns: []*schema.Column{SysUsersColumns[8], SysUsersColumns[22]},
 			},
 			{
 				Name:    "idx_sys_user_tenant_last_login_ip",
 				Unique:  false,
-				Columns: []*schema.Column{SysUsersColumns[8], SysUsersColumns[21]},
+				Columns: []*schema.Column{SysUsersColumns[8], SysUsersColumns[23]},
 			},
 			{
 				Name:    "idx_sys_user_tenant_created_by",

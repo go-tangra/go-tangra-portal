@@ -216,6 +216,8 @@ type User struct {
 	Region        *string                `protobuf:"bytes,29,opt,name=region,proto3,oneof" json:"region,omitempty"`                                   // Country/Region
 	Description   *string                `protobuf:"bytes,30,opt,name=description,proto3,oneof" json:"description,omitempty"`                         // Personal description
 	Remark        *string                `protobuf:"bytes,31,opt,name=remark,proto3,oneof" json:"remark,omitempty"`                                   // Remark
+	TimeZone      *string                `protobuf:"bytes,32,opt,name=time_zone,json=timeZone,proto3,oneof" json:"time_zone,omitempty"`               // Preferred display timezone
+	TimeFormat    *string                `protobuf:"bytes,33,opt,name=time_format,json=timeFormat,proto3,oneof" json:"time_format,omitempty"`         // Preferred time display format
 	LastLoginAt   *timestamppb.Timestamp `protobuf:"bytes,50,opt,name=last_login_at,json=lastLoginAt,proto3,oneof" json:"last_login_at,omitempty"`    // Last login time
 	LastLoginIp   *string                `protobuf:"bytes,51,opt,name=last_login_ip,json=lastLoginIp,proto3,oneof" json:"last_login_ip,omitempty"`    // Last login IP
 	Status        *User_Status           `protobuf:"varint,52,opt,name=status,proto3,enum=user.service.v1.User_Status,oneof" json:"status,omitempty"` // Status
@@ -445,6 +447,20 @@ func (x *User) GetDescription() string {
 func (x *User) GetRemark() string {
 	if x != nil && x.Remark != nil {
 		return *x.Remark
+	}
+	return ""
+}
+
+func (x *User) GetTimeZone() string {
+	if x != nil && x.TimeZone != nil {
+		return *x.TimeZone
+	}
+	return ""
+}
+
+func (x *User) GetTimeFormat() string {
+	if x != nil && x.TimeFormat != nil {
+		return *x.TimeFormat
 	}
 	return ""
 }
@@ -2092,7 +2108,7 @@ var File_user_service_v1_user_proto protoreflect.FileDescriptor
 
 const file_user_service_v1_user_proto_rawDesc = "" +
 	"\n" +
-	"\x1auser/service/v1/user.proto\x12\x0fuser.service.v1\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a google/protobuf/field_mask.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x16redact/v3/redact.proto\x1a\x1epagination/v1/pagination.proto\"\xff\x15\n" +
+	"\x1auser/service/v1/user.proto\x12\x0fuser.service.v1\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a google/protobuf/field_mask.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x16redact/v3/redact.proto\x1a\x1epagination/v1/pagination.proto\"\x82\x18\n" +
 	"\x04User\x12\"\n" +
 	"\x02id\x18\x01 \x01(\rB\r\xbaG\n" +
 	"\x92\x02\aUser IDH\x00R\x02id\x88\x01\x01\x121\n" +
@@ -2130,25 +2146,28 @@ const file_user_service_v1_user_proto_rawDesc = "" +
 	"\x92\x02\aAddressH\x10R\aaddress\x88\x01\x01\x121\n" +
 	"\x06region\x18\x1d \x01(\tB\x14\xbaG\x11\x92\x02\x0eCountry/RegionH\x11R\x06region\x88\x01\x01\x12A\n" +
 	"\vdescription\x18\x1e \x01(\tB\x1a\xbaG\x17\x92\x02\x14Personal descriptionH\x12R\vdescription\x88\x01\x01\x12)\n" +
-	"\x06remark\x18\x1f \x01(\tB\f\xbaG\t\x92\x02\x06RemarkH\x13R\x06remark\x88\x01\x01\x12Z\n" +
-	"\rlast_login_at\x182 \x01(\v2\x1a.google.protobuf.TimestampB\x15\xbaG\x12\x92\x02\x0fLast login timeH\x14R\vlastLoginAt\x88\x01\x01\x12<\n" +
-	"\rlast_login_ip\x183 \x01(\tB\x13\xbaG\x10\x92\x02\rLast login IPH\x15R\vlastLoginIp\x88\x01\x01\x12G\n" +
-	"\x06status\x184 \x01(\x0e2\x1c.user.service.v1.User.StatusB\f\xbaG\t\x92\x02\x06StatusH\x16R\x06status\x88\x01\x01\x12[\n" +
-	"\flocked_until\x185 \x01(\v2\x1a.google.protobuf.TimestampB\x17\xbaG\x14\x92\x02\x11Locked until timeH\x17R\vlockedUntil\x88\x01\x01\x124\n" +
+	"\x06remark\x18\x1f \x01(\tB\f\xbaG\t\x92\x02\x06RemarkH\x13R\x06remark\x88\x01\x01\x12r\n" +
+	"\ttime_zone\x18  \x01(\tBP\xbaGM\x92\x02JIANA timezone for displaying timestamps (empty = auto-detect from browser)H\x14R\btimeZone\x88\x01\x01\x12o\n" +
+	"\vtime_format\x18! \x01(\tBI\xbaGF\x92\x02CPreferred time display format: \"12h\" or \"24h\" (empty = 24h default)H\x15R\n" +
+	"timeFormat\x88\x01\x01\x12Z\n" +
+	"\rlast_login_at\x182 \x01(\v2\x1a.google.protobuf.TimestampB\x15\xbaG\x12\x92\x02\x0fLast login timeH\x16R\vlastLoginAt\x88\x01\x01\x12<\n" +
+	"\rlast_login_ip\x183 \x01(\tB\x13\xbaG\x10\x92\x02\rLast login IPH\x17R\vlastLoginIp\x88\x01\x01\x12G\n" +
+	"\x06status\x184 \x01(\x0e2\x1c.user.service.v1.User.StatusB\f\xbaG\t\x92\x02\x06StatusH\x18R\x06status\x88\x01\x01\x12[\n" +
+	"\flocked_until\x185 \x01(\v2\x1a.google.protobuf.TimestampB\x17\xbaG\x14\x92\x02\x11Locked until timeH\x19R\vlockedUntil\x88\x01\x01\x124\n" +
 	"\n" +
 	"created_by\x18d \x01(\rB\x10\xbaG\r\x92\x02\n" +
-	"Creator IDH\x18R\tcreatedBy\x88\x01\x01\x124\n" +
+	"Creator IDH\x1aR\tcreatedBy\x88\x01\x01\x124\n" +
 	"\n" +
 	"updated_by\x18e \x01(\rB\x10\xbaG\r\x92\x02\n" +
-	"Updater IDH\x19R\tupdatedBy\x88\x01\x01\x129\n" +
+	"Updater IDH\x1bR\tupdatedBy\x88\x01\x01\x129\n" +
 	"\n" +
-	"deleted_by\x18f \x01(\rB\x15\xbaG\x12\x92\x02\x0fDeleter user IDH\x1aR\tdeletedBy\x88\x01\x01\x12S\n" +
+	"deleted_by\x18f \x01(\rB\x15\xbaG\x12\x92\x02\x0fDeleter user IDH\x1cR\tdeletedBy\x88\x01\x01\x12S\n" +
 	"\n" +
-	"created_at\x18\xc8\x01 \x01(\v2\x1a.google.protobuf.TimestampB\x12\xbaG\x0f\x92\x02\fCreated timeH\x1bR\tcreatedAt\x88\x01\x01\x12S\n" +
+	"created_at\x18\xc8\x01 \x01(\v2\x1a.google.protobuf.TimestampB\x12\xbaG\x0f\x92\x02\fCreated timeH\x1dR\tcreatedAt\x88\x01\x01\x12S\n" +
 	"\n" +
-	"updated_at\x18\xc9\x01 \x01(\v2\x1a.google.protobuf.TimestampB\x12\xbaG\x0f\x92\x02\fUpdated timeH\x1cR\tupdatedAt\x88\x01\x01\x12S\n" +
+	"updated_at\x18\xc9\x01 \x01(\v2\x1a.google.protobuf.TimestampB\x12\xbaG\x0f\x92\x02\fUpdated timeH\x1eR\tupdatedAt\x88\x01\x01\x12S\n" +
 	"\n" +
-	"deleted_at\x18\xca\x01 \x01(\v2\x1a.google.protobuf.TimestampB\x12\xbaG\x0f\x92\x02\fDeleted timeH\x1dR\tdeletedAt\x88\x01\x01\"*\n" +
+	"deleted_at\x18\xca\x01 \x01(\v2\x1a.google.protobuf.TimestampB\x12\xbaG\x0f\x92\x02\fDeleted timeH\x1fR\tdeletedAt\x88\x01\x01\"*\n" +
 	"\x06Gender\x12\n" +
 	"\n" +
 	"\x06SECRET\x10\x00\x12\b\n" +
@@ -2188,7 +2207,10 @@ const file_user_service_v1_user_proto_rawDesc = "" +
 	"\b_addressB\t\n" +
 	"\a_regionB\x0e\n" +
 	"\f_descriptionB\t\n" +
-	"\a_remarkB\x10\n" +
+	"\a_remarkB\f\n" +
+	"\n" +
+	"_time_zoneB\x0e\n" +
+	"\f_time_formatB\x10\n" +
 	"\x0e_last_login_atB\x10\n" +
 	"\x0e_last_login_ipB\t\n" +
 	"\a_statusB\x0f\n" +

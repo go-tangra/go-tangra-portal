@@ -188,6 +188,10 @@ func (x *User) Redact() string {
 
 	// Safe field: Remark
 
+	// Safe field: TimeZone
+
+	// Safe field: TimeFormat
+
 	// Safe field: LastLoginAt
 
 	// Safe field: LastLoginIp

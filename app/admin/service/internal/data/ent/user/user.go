@@ -50,6 +50,10 @@ const (
 	FieldRegion = "region"
 	// FieldDescription holds the string denoting the description field in the database.
 	FieldDescription = "description"
+	// FieldTimeZone holds the string denoting the time_zone field in the database.
+	FieldTimeZone = "time_zone"
+	// FieldTimeFormat holds the string denoting the time_format field in the database.
+	FieldTimeFormat = "time_format"
 	// FieldGender holds the string denoting the gender field in the database.
 	FieldGender = "gender"
 	// FieldLastLoginAt holds the string denoting the last_login_at field in the database.
@@ -85,6 +89,8 @@ var Columns = []string{
 	FieldAddress,
 	FieldRegion,
 	FieldDescription,
+	FieldTimeZone,
+	FieldTimeFormat,
 	FieldGender,
 	FieldLastLoginAt,
 	FieldLastLoginIP,
@@ -130,6 +136,14 @@ var (
 	DefaultRegion string
 	// DescriptionValidator is a validator for the "description" field. It is called by the builders before save.
 	DescriptionValidator func(string) error
+	// DefaultTimeZone holds the default value on creation for the "time_zone" field.
+	DefaultTimeZone string
+	// TimeZoneValidator is a validator for the "time_zone" field. It is called by the builders before save.
+	TimeZoneValidator func(string) error
+	// DefaultTimeFormat holds the default value on creation for the "time_format" field.
+	DefaultTimeFormat string
+	// TimeFormatValidator is a validator for the "time_format" field. It is called by the builders before save.
+	TimeFormatValidator func(string) error
 	// IDValidator is a validator for the "id" field. It is called by the builders before save.
 	IDValidator func(uint32) error
 )
@@ -287,6 +301,16 @@ func ByRegion(opts ...sql.OrderTermOption) OrderOption {
 // ByDescription orders the results by the description field.
 func ByDescription(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldDescription, opts...).ToFunc()
+}
+
+// ByTimeZone orders the results by the time_zone field.
+func ByTimeZone(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldTimeZone, opts...).ToFunc()
+}
+
+// ByTimeFormat orders the results by the time_format field.
+func ByTimeFormat(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldTimeFormat, opts...).ToFunc()
 }
 
 // ByGender orders the results by the gender field.
