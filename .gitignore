@@ -1,0 +1,9 @@
+shell/node_modules/
+shell/dist/
+shell/test-results/
+shell/playwright-report/
+examples/hello-module/ui/node_modules/
+examples/hello-module/ui/dist/
+.artifacts/
+coverage.out
+bin/

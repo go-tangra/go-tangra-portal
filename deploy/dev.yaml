@@ -1,0 +1,28 @@
+# Development configuration for services/gateway (workstation only).
+service_name: gateway
+trust_domain: example.org
+env: dev
+identity:
+  provider: file
+  file: { cert: ../../.dev/ca/gateway.pem, key: ../../.dev/ca/gateway.key, bundle: ../../.dev/ca/ca.pem }
+authz: { source: file, path: deploy/policy.yaml }
+server: { grpc_addr: 127.0.0.1:9643 }
+admin: { addr: 127.0.0.1:9290 }
+discovery:
+  static:
+    auth: ["127.0.0.1:9543"]
+edge:
+  addr: 127.0.0.1:8443
+  allowed_origins: ["https://localhost:8443", "https://127.0.0.1:8443"]
+  rate_limit: { per_second: 200, burst: 400 }
+public_origin: https://localhost:8443
+db:
+  dsn: postgres://gateway_app:dev@127.0.0.1:5432/gateway?sslmode=disable
+  migrate_dsn: postgres://postgres:dev@127.0.0.1:5432/gateway?sslmode=disable
+valkey: { addresses: ["127.0.0.1:6379"], username: gateway, password: dev, allow_plaintext: true }
+auth: { service: auth, issuer: https://localhost:8443, audience: gateway }
+leases: { ttl: 30s, renew: 10s }
+forward: { body_bytes: 1048576, streams_per_client: 32, stream_max: 10m, module_timeout: 30s }
+operators: { roles: [operator] }
+limits:
+  max_request_bytes: 16842752 # warden transfer/backup uploads (16 MiB + slack); avatars need 2162688

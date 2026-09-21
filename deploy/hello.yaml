@@ -1,0 +1,14 @@
+# Development configuration for the hello example module (workstation only).
+service_name: hello
+trust_domain: example.org
+env: dev
+identity:
+  provider: file
+  file: { cert: ../../.dev/ca/hello.pem, key: ../../.dev/ca/hello.key, bundle: ../../.dev/ca/ca.pem }
+authz: { source: file, path: deploy/hello-policy.yaml }
+server: { grpc_addr: 127.0.0.1:9743, http_addr: 127.0.0.1:9744 }
+admin: { addr: 127.0.0.1:9390 }
+discovery:
+  static:
+    gateway: ["127.0.0.1:9643"]
+    auth: ["127.0.0.1:9543"]
