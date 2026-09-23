@@ -1,30 +1,30 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
-import { useTheme } from 'vuetify'
+import { computed } from 'vue'
+import { RouterLink } from 'vue-router'
+import { UiAppShell, UiNavDrawer, UiButton, UiAvatar, UiIcon, useTheme, type NavGroup } from '@freya/ui'
 import { useSession } from '@/stores/session'
 import { navigation } from '@/router'
-import { storeTheme } from '@/theme/materio'
 import { headerSlots, type BootContext } from '@/federation/boot'
 import { ability } from '@/casl/ability'
 import { api } from '@/api/client'
 import { live } from '@/api/live'
-import RemoteBoundary from '@/components/RemoteBoundary.vue'
+import ModuleBoundary from '@/components/ModuleBoundary.vue'
 
 const session = useSession()
-const drawer = ref<boolean | null>(null)
 const headerCtx: BootContext = { ability, session, api, live }
 // Module header components in the order of their first nav entry (contracts/shell-changes.md).
 const headerModules = computed(() => {
   const order = new Map(session.navGroups.map((g, i) => [g.module, i]))
   return [...headerSlots.entries()].sort(([a], [b]) => (order.get(a) ?? 1e9) - (order.get(b) ?? 1e9))
 })
+// One collapsible menu per module (the kit opens the one owning the active route), Home above, operations below.
+const groups = computed<NavGroup[]>(() => [
+  { items: [{ title: 'Home', path: '/', icon: 'mdi-home-outline', exact: true, testId: 'nav-home' }] },
+  ...session.navGroups.map((g) => ({ key: g.module, title: g.title, icon: g.icon, testId: 'nav-group-' + g.module, items: g.entries.map((n) => ({ title: n.title, path: n.path, icon: n.icon || 'mdi-circle-small', testId: 'nav-' + n.module })) })),
+  ...(session.operator ? [{ items: [{ title: 'Gateway operations', path: '/ops', icon: 'mdi-server-network', testId: 'nav-ops' }] }] : []),
+])
 const theme = useTheme()
-const dark = computed(() => theme.current.value.dark)
-function toggleTheme(): void {
-  const next = dark.value ? 'light' : 'dark'
-  theme.change(next)
-  storeTheme(next)
-}
+const dark = computed(() => theme.theme.value === 'freya-dark')
 
 async function signOut(): Promise<void> {
   // The auth module ends the session (the gateway relays the cookie clear);
@@ -35,50 +35,33 @@ async function signOut(): Promise<void> {
 </script>
 
 <template>
-  <!-- Materio layout: full-height menu on the left, a detached top bar and the page inside shared gutters. -->
-  <v-navigation-drawer v-model="drawer" class="freya-drawer" :width="260" :order="0">
-    <router-link to="/" class="freya-brand" aria-label="Freya home">
-      <span class="freya-brand__mark"><v-icon icon="mdi-shield-half-full" size="20" /></span>
-      <span class="freya-brand__text">Freya</span>
-    </router-link>
-    <!-- One menu per module; Vuetify opens the menu owning the active entry. -->
-    <v-list nav density="compact" role="presentation" aria-label="Modules">
-      <v-list-item to="/" exact prepend-icon="mdi-home-outline" title="Home" data-test="nav-home" />
-      <v-list-group v-for="g in session.navGroups" :key="g.module" :value="g.module">
-        <template #activator="{ props, isOpen }">
-          <!-- Vuetify marks the header as an option; as a disclosure button it needs no listbox parent (axe aria-required-parent). -->
-          <v-list-item v-bind="props" role="button" :aria-selected="undefined" :aria-expanded="isOpen" :prepend-icon="g.icon" :title="g.title" :data-test="'nav-group-' + g.module" />
-        </template>
-        <v-list-item v-for="n in g.entries" :key="n.path" :to="n.path" :prepend-icon="n.icon || 'mdi-circle-small'" :title="n.title" :data-test="'nav-' + n.module" />
-      </v-list-group>
-      <v-list-item v-if="session.operator" to="/ops" prepend-icon="mdi-server-network" title="Gateway operations" data-test="nav-ops" />
-    </v-list>
-  </v-navigation-drawer>
-  <v-app-bar class="freya-appbar" flat :height="64" :order="1">
-    <v-app-bar-nav-icon aria-label="Toggle navigation" @click="drawer = !drawer" />
-    <v-spacer />
-    <v-btn :icon="dark ? 'mdi-weather-sunny' : 'mdi-weather-night'" variant="text" :aria-label="dark ? 'Switch to the light theme' : 'Switch to the dark theme'" data-test="theme-toggle" @click="toggleTheme" />
-    <!-- Module header slots (./header): each inside its own boundary so a failing one shows nothing. -->
-    <template v-if="session.signedIn">
-      <RemoteBoundary v-for="[m, c] in headerModules" :key="m" :module="m" silent>
-        <component :is="c" v-bind="headerCtx" :data-test="'header-' + m" />
-      </RemoteBoundary>
+  <UiAppShell title="Freya">
+    <template #brand>
+      <RouterLink to="/" class="inline-flex items-center gap-3" aria-label="Freya home">
+        <span class="rounded-field bg-primary text-primary-content flex size-9 items-center justify-center"><UiIcon name="mdi-shield-half-full" /></span>
+        <span class="flex flex-col">
+          <span class="text-base-content text-lg font-semibold leading-tight">Freya</span>
+          <span class="text-base-content/70 text-xs">Platform</span>
+        </span>
+      </RouterLink>
     </template>
-    <template v-if="session.signedIn">
-      <span class="freya-avatar ml-1 mr-3">
-        <v-avatar size="38" color="primary" data-test="me-avatar">
-          <v-img v-if="session.avatarUrl" :src="session.avatarUrl" :alt="session.displayName || 'Avatar'" cover />
-          <span v-else class="text-body-2 font-weight-medium" aria-hidden="true">{{ session.initials }}</span>
-        </v-avatar>
-        <span class="freya-avatar__status" aria-hidden="true" />
-      </span>
-      <span class="mr-4 text-body-2 font-weight-medium" data-test="me-name">{{ session.displayName || session.userId }}</span>
-      <v-btn variant="text" prepend-icon="mdi-logout" data-test="signout" @click="signOut">Sign out</v-btn>
+    <template #app-bar>
+      <UiButton variant="text" size="sm" icon-only :icon="dark ? 'mdi-weather-sunny' : 'mdi-weather-night'" :label="dark ? 'Switch to the light theme' : 'Switch to the dark theme'" data-test="theme-toggle" @click="theme.toggle()" />
+      <!-- Module header slots (./header): each inside its own boundary so a failing one shows nothing. -->
+      <template v-if="session.signedIn">
+        <ModuleBoundary v-for="[m, c] in headerModules" :key="m" :module="m" silent>
+          <component :is="c" v-bind="headerCtx" :data-test="'header-' + m" />
+        </ModuleBoundary>
+        <div class="ms-2 flex items-center gap-2">
+          <span class="text-base-content hidden text-sm font-medium md:inline" data-test="me-name">{{ session.displayName || session.userId }}</span>
+          <span data-test="me-avatar"><UiAvatar :name="session.displayName || session.userId" :src="session.avatarUrl || undefined" size="sm" /></span>
+          <UiButton variant="text" size="sm" icon-only icon="mdi-logout" label="Sign out" data-test="signout" @click="signOut" />
+        </div>
+      </template>
     </template>
-  </v-app-bar>
-  <v-main>
-    <v-container fluid class="freya-page">
-      <slot />
-    </v-container>
-  </v-main>
+    <template #nav="{ close }">
+      <UiNavDrawer :groups="groups" @navigate="close" />
+    </template>
+    <slot />
+  </UiAppShell>
 </template>

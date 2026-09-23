@@ -4,10 +4,6 @@ import { createPinia, setActivePinia } from 'pinia'
 import { flushPromises, mount } from '@vue/test-utils'
 import { createRouter, createMemoryHistory } from 'vue-router'
 import { defineComponent, h, nextTick } from 'vue'
-import { createVuetify } from 'vuetify'
-import { VApp } from 'vuetify/components'
-import * as components from 'vuetify/components'
-import * as directives from 'vuetify/directives'
 
 const { loadRemote } = vi.hoisted(() => ({ loadRemote: vi.fn() }))
 vi.mock('@module-federation/enhanced/runtime', () => ({ init: vi.fn(() => ({})), registerRemotes: vi.fn(), loadRemote }))
@@ -18,9 +14,7 @@ import { useSession } from '@/stores/session'
 
 function mountLayout() {
   const router = createRouter({ history: createMemoryHistory(), routes: [{ path: '/', component: { template: '<p>home</p>' } }] })
-  // The layout needs Vuetify's application frame (v-app) as an ancestor.
-  const Host = defineComponent({ render: () => h(VApp, () => h(Default)) })
-  const w = mount(Host, { global: { plugins: [createVuetify({ components, directives }), router], stubs: { RouterView: true }, config: { errorHandler: () => undefined } } })
+  const w = mount(Default, { global: { plugins: [router], stubs: { RouterView: true }, config: { errorHandler: () => undefined } } })
   return { router, w }
 }
 
@@ -56,7 +50,7 @@ describe('module header slot (./header)', () => {
     expect((seen[0] as { session: { userId: string } }).session.userId).toBe('u1')
     expect((seen[0] as { api: unknown }).api).toBeTruthy()
     // Bar order: theme toggle, then module slots, then the avatar.
-    const bar = w.find('.freya-appbar')
+    const bar = w.find('header')
     const html = bar.html()
     expect(html.indexOf('theme-toggle')).toBeLessThan(html.indexOf('header-notification'))
     expect(html.indexOf('header-notification')).toBeLessThan(html.indexOf('me-avatar'))

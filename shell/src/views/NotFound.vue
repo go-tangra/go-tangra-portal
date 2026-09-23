@@ -1,6 +1,10 @@
+<script setup lang="ts">
+import { UiCard } from '@freya/ui'
+</script>
+
 <template>
-  <v-card class="pa-6 text-center" role="alert">
-    <h1 class="text-h5 mb-2">Page not found</h1>
-    <v-btn variant="text" to="/" data-test="home">Back to home</v-btn>
-  </v-card>
+  <UiCard role="alert" class="mx-auto max-w-lg text-center">
+    <h1 class="mb-2 text-xl font-semibold">Page not found</h1>
+    <RouterLink to="/" class="btn btn-text" data-test="home">Back to home</RouterLink>
+  </UiCard>
 </template>

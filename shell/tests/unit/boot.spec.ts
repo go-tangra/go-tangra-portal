@@ -3,13 +3,12 @@ import { createPinia, setActivePinia } from 'pinia'
 import { mount } from '@vue/test-utils'
 import { createRouter, createMemoryHistory } from 'vue-router'
 import { defineComponent, h, nextTick } from 'vue'
-import { createVuetify } from 'vuetify'
 
 const { loadRemote } = vi.hoisted(() => ({ loadRemote: vi.fn() }))
 vi.mock('@module-federation/enhanced/runtime', () => ({ init: vi.fn(() => ({})), registerRemotes: vi.fn(), loadRemote }))
 
 import { composeModules, failedModules, mountModule, unmountModule, wrapRoute } from '@/federation/boot'
-import RemoteBoundary from '@/components/RemoteBoundary.vue'
+import ModuleBoundary from '@/components/ModuleBoundary.vue'
 import { useSession } from '@/stores/session'
 
 describe('module composition', () => {
@@ -59,11 +58,14 @@ describe('module composition', () => {
 
   it('renders the error card only for the failing module with a retry', async () => {
     const Boom = defineComponent({ setup() { throw new Error('render failed') } })
-    const w = mount(RemoteBoundary, { props: { module: 'orders' }, slots: { default: () => h(Boom) }, global: { plugins: [createVuetify()], config: { errorHandler: () => undefined } } })
+    const w = mount(ModuleBoundary, { props: { module: 'orders' }, slots: { default: () => h(Boom) }, global: { config: { errorHandler: () => undefined } } })
     await nextTick()
     await nextTick()
     expect(w.find('[data-test="module-error"]').exists()).toBe(true)
-    expect(w.text()).toContain('orders module is unavailable')
+    expect(w.text()).toContain('orders module could not be loaded')
+    await w.find('[data-test="module-error"] button').trigger('click')
+    await nextTick()
+    expect(w.find('[data-test="module-error"]').exists()).toBe(true) // the remote throws again on retry
     const wrapped = wrapRoute({ path: '/x', component: { template: '<p>x</p>' }, children: [{ path: 'y', component: { template: '<p>y</p>' } }] }, 'orders')
     expect(wrapped.meta?.module).toBe('orders')
     expect(wrapped.children?.[0]?.meta?.module).toBe('orders')

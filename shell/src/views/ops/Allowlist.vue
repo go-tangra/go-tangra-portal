@@ -1,8 +1,11 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
+import { UiPage, UiAlert, UiCard, UiForm, UiInput, UiButton, UiDataTable, type Column } from '@freya/ui'
+import { useZodForm } from '@freya/ui/forms'
 import { api, ApiError } from '@/api/client'
+import { allowEntrySchema } from '@/schemas/ops'
 
-export interface AllowEntry {
+export interface AllowEntry extends Record<string, unknown> {
   id: string
   spiffe_id: string
   prefixes: string[]
@@ -14,9 +17,6 @@ export interface AllowEntry {
 
 const rows = ref<AllowEntry[]>([])
 const error = ref('')
-const spiffe = ref('')
-const prefixes = ref('')
-const names = ref('')
 
 async function load(): Promise<void> {
   try {
@@ -26,20 +26,14 @@ async function load(): Promise<void> {
   }
 }
 
-const split = (s: string): string[] => s.split(',').map((x) => x.trim()).filter(Boolean)
-const valid = (): boolean => spiffe.value.startsWith('spiffe://') && split(prefixes.value).length > 0 && split(names.value).length > 0
-
-async function add(): Promise<void> {
-  if (!valid()) return
-  error.value = ''
-  try {
-    await api('POST', '/gateway/v1/ops/allowlist', { spiffe_id: spiffe.value.trim(), prefixes: split(prefixes.value), names: split(names.value) })
-    spiffe.value = prefixes.value = names.value = ''
+const form = useZodForm(allowEntrySchema, {
+  initial: { spiffe_id: '', prefixes: '', names: '' },
+  onSubmit: (payload) => api('POST', '/gateway/v1/ops/allowlist', payload),
+  onSuccess: async () => {
+    form.reset({ spiffe_id: '', prefixes: '', names: '' })
     await load()
-  } catch (err) {
-    error.value = err instanceof ApiError ? err.reason : 'error'
-  }
-}
+  },
+})
 
 async function revoke(e: AllowEntry): Promise<void> {
   try {
@@ -50,30 +44,34 @@ async function revoke(e: AllowEntry): Promise<void> {
   }
 }
 
+const columns: Column<AllowEntry>[] = [
+  { key: 'spiffe_id', label: 'Identity' },
+  { key: 'prefixes', label: 'Prefixes', format: (e) => e.prefixes.join(', ') },
+  { key: 'names', label: 'Names', format: (e) => e.names.join(', ') },
+  { key: 'created_at', label: 'Created', format: (e) => `${e.created_at} by ${e.created_by}${e.revoked_at ? ' (revoked)' : ''}`, hideOnStack: true },
+]
 onMounted(load)
 </script>
 
 <template>
-  <h1 class="text-h5 mb-4">Allow-list</h1>
-  <v-alert v-if="error" type="error" variant="tonal" class="mb-4" data-test="ops-error">{{ error }}</v-alert>
-  <v-form class="mb-6" data-test="allow-form" @submit.prevent="add">
-    <v-row dense>
-      <v-col cols="12" md="4"><v-text-field v-model="spiffe" label="SPIFFE ID" placeholder="spiffe://example.org/svc/orders" data-test="allow-spiffe" /></v-col>
-      <v-col cols="12" md="3"><v-text-field v-model="prefixes" label="Prefixes (comma separated)" placeholder="/api/orders" data-test="allow-prefixes" /></v-col>
-      <v-col cols="12" md="3"><v-text-field v-model="names" label="Module names" placeholder="orders" data-test="allow-names" /></v-col>
-      <v-col cols="12" md="2"><v-btn type="submit" color="primary" block :disabled="!valid()" data-test="allow-add">Allow</v-btn></v-col>
-    </v-row>
-  </v-form>
-  <v-table data-test="allowlist">
-    <thead><tr><th>Identity</th><th>Prefixes</th><th>Names</th><th>Created</th><th /></tr></thead>
-    <tbody>
-      <tr v-for="e in rows" :key="e.id" :data-test="'allow-' + e.id" :class="{ 'text-disabled': e.revoked_at }">
-        <td>{{ e.spiffe_id }}</td>
-        <td>{{ e.prefixes.join(', ') }}</td>
-        <td>{{ e.names.join(', ') }}</td>
-        <td>{{ e.created_at }} <span class="text-caption">by {{ e.created_by }}</span><span v-if="e.revoked_at"> (revoked)</span></td>
-        <td><v-btn v-if="!e.revoked_at" size="small" variant="text" color="error" :data-test="'allow-revoke-' + e.id" @click="revoke(e)">Revoke</v-btn></td>
-      </tr>
-    </tbody>
-  </v-table>
+  <UiPage title="Allow-list" subtitle="Workload identities allowed to register modules with the gateway">
+    <UiAlert v-if="error" kind="error" class="mb-4" data-test="ops-error">{{ error }}</UiAlert>
+    <UiCard class="mb-4">
+      <UiForm :form="form" data-test="allow-form">
+        <div class="grid grid-cols-1 gap-3 md:grid-cols-12 md:items-end">
+          <div class="md:col-span-4"><UiInput v-bind="form.field('spiffe_id')" label="SPIFFE ID" placeholder="spiffe://example.org/svc/orders" required data-test="allow-spiffe" /></div>
+          <div class="md:col-span-3"><UiInput v-bind="form.field('prefixes')" label="Prefixes (comma separated)" placeholder="/api/orders" required data-test="allow-prefixes" /></div>
+          <div class="md:col-span-3"><UiInput v-bind="form.field('names')" label="Module names" placeholder="orders" required data-test="allow-names" /></div>
+          <div class="md:col-span-2"><UiButton type="submit" block :loading="form.submitting.value" data-test="allow-add">Allow</UiButton></div>
+        </div>
+      </UiForm>
+    </UiCard>
+    <UiCard :padded="false">
+      <UiDataTable :items="rows" :columns="columns" row-key="id" caption="Allow-list entries" empty-title="No entries" :row-attrs="(e) => ({ 'data-test': 'allow-' + e.id, class: e.revoked_at ? 'opacity-50' : '' })" data-test="allowlist">
+        <template #actions="{ row }">
+          <UiButton v-if="!row.revoked_at" size="sm" variant="text" color="error" :data-test="'allow-revoke-' + row.id" @click="revoke(row)">Revoke</UiButton>
+        </template>
+      </UiDataTable>
+    </UiCard>
+  </UiPage>
 </template>

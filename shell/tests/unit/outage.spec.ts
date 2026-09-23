@@ -1,9 +1,8 @@
 import { beforeEach, describe, expect, it } from 'vitest'
 import { createPinia, setActivePinia } from 'pinia'
 import { mount } from '@vue/test-utils'
-import { createVuetify } from 'vuetify'
 import { h, nextTick } from 'vue'
-import RemoteBoundary from '@/components/RemoteBoundary.vue'
+import ModuleBoundary from '@/components/ModuleBoundary.vue'
 import { useRegistry } from '@/stores/registry'
 
 describe('module outage handling', () => {
@@ -11,7 +10,7 @@ describe('module outage handling', () => {
 
   it('shows an outage card for unhealthy modules and clears it on recovery', async () => {
     const registry = useRegistry()
-    const w = mount(RemoteBoundary, { props: { module: 'hello' }, slots: { default: () => h('p', { 'data-test': 'content' }, 'hi') }, global: { plugins: [createVuetify()] } })
+    const w = mount(ModuleBoundary, { props: { module: 'hello' }, slots: { default: () => h('p', { 'data-test': 'content' }, 'hi') } })
     expect(w.find('[data-test="content"]').exists()).toBe(true)
     registry.apply('unhealthy', 'hello')
     await nextTick()

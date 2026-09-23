@@ -1,7 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { createPinia, setActivePinia } from 'pinia'
 import { mount, flushPromises } from '@vue/test-utils'
-import { createVuetify } from 'vuetify'
 import Registrations from '@/views/ops/Registrations.vue'
 import Allowlist from '@/views/ops/Allowlist.vue'
 import Audit from '@/views/ops/Audit.vue'
@@ -40,7 +39,7 @@ describe('operations views', () => {
       }
       return [reg('alpha', state)]
     })
-    const w = mount(Registrations, { global: { plugins: [createVuetify()] } })
+    const w = mount(Registrations)
     await flushPromises()
     expect(w.find('[data-test="state-alpha"]').text()).toBe('active')
     expect(w.text()).toContain('12.3')
@@ -55,7 +54,7 @@ describe('operations views', () => {
 
   it('requires a reason of ten characters before revoking', async () => {
     const calls = fetchMock((url) => (url.endsWith('/revoke') ? 204 : [reg('alpha', 'active')]))
-    const w = mount(Registrations, { global: { plugins: [createVuetify()], stubs: { VDialog: { template: '<div><slot /></div>' } } }, attachTo: document.body })
+    const w = mount(Registrations, { attachTo: document.body })
     await flushPromises()
     await w.find('[data-test="revoke-alpha"]').trigger('click')
     await flushPromises()
@@ -91,7 +90,7 @@ describe('operations views', () => {
       }
       return entries
     })
-    const w = mount(Allowlist, { global: { plugins: [createVuetify()] } })
+    const w = mount(Allowlist)
     await flushPromises()
     expect(w.find('[data-test="empty"]').exists()).toBe(false)
     await w.find('[data-test="allow-spiffe"] input').setValue('spiffe://example.org/svc/orders')
@@ -109,7 +108,7 @@ describe('operations views', () => {
 
   it('renders the audit trail with filters and paging', async () => {
     const calls = fetchMock(() => ({ events: [{ ts: 't1', event_type: 'module_drained', module: 'alpha', actor_kind: 'operator', actor_id: 'op', subject_kind: 'module', subject_id: 'alpha', outcome: 'ok', reason: 'drained', correlation_id: '', details: {} }], next_cursor: 't1' }))
-    const w = mount(Audit, { global: { plugins: [createVuetify()] } })
+    const w = mount(Audit)
     await flushPromises()
     expect(w.find('[data-test="audit-module_drained"]').exists()).toBe(true)
     await w.find('[data-test="audit-more"]').trigger('click')

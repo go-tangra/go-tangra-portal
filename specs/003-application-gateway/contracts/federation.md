@@ -7,9 +7,15 @@
   with `@module-federation/enhanced/runtime` `registerRemotes([{ name, entry }])` where
   `entry` is `/m/<module>/mf-manifest.json` (same origin, relayed by the gateway).
 - Shared singletons provided by the shell (`shared` with `singleton: true`): `vue`,
-  `vue-router`, `pinia`, `vuetify`, `@casl/ability`, `@casl/vue`. Remotes MUST declare the
-  same packages as shared and MUST NOT bundle their own copies.
-- The shell provides: Vuetify instance and theme (with CSP nonce), the router, the Pinia
+  `vue-router`, `pinia`, `@casl/ability`, `@casl/vue`, `zod` and `@freya/ui` (with its
+  `./forms` and `./api` subpaths; `strictVersion: true` for the last two). Remotes MUST
+  declare the same packages as shared and MUST NOT bundle their own copies. A shared-version
+  mismatch surfaces in the module's `UiRemoteBoundary` error state (retry), never as a
+  blank page. `vuetify` remains shared only while a front-end is still `legacy` in
+  `ui/MIGRATION.md` (see specs/013-flyonui-frontend-rework/contracts/federation-changes.md).
+- The shell provides: the kit theme (`data-theme` on `<html>`, `useTheme()`), the single
+  toast and confirm hosts (remotes call `useToast()`/`useConfirm()` from `@freya/ui` and
+  never mount their own), the router, the Pinia
   instance, a `session` store (identity from `/gateway/v1/me`), an `api` helper (fetch with
   CSRF header and error mapping), and one CASL `Ability` via `@casl/vue`'s
   `abilitiesPlugin` (so `useAbility()` and `<Can>` work inside remotes).

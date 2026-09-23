@@ -8,7 +8,7 @@ import { live, type LiveBus } from '@/api/live'
 import { SESSION_CHANGED_EVENT } from '@/stores/session'
 import { useRegistry } from '@/stores/registry'
 import { loadExpose, registerModules, RemoteLoadError } from '@/federation/runtime'
-import RemoteBoundary from '@/components/RemoteBoundary.vue'
+import ModuleBoundary from '@/components/ModuleBoundary.vue'
 
 /** What a remote's ./routes expose must export (contracts/federation.md). */
 export interface RoutesExpose {
@@ -49,7 +49,7 @@ export function wrapRoute(route: RouteRecordRaw, module: string): RouteRecordRaw
     ? defineComponent({
         name: `Remote:${module}`,
         setup() {
-          return () => h(RemoteBoundary, { module }, () => h(typeof original === 'function' ? defineAsync(original as () => Promise<unknown>) : original))
+          return () => h(ModuleBoundary, { module }, () => h(typeof original === 'function' ? defineAsync(original as () => Promise<unknown>) : original))
         },
       })
     : undefined

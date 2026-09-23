@@ -1,10 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { createPinia, setActivePinia } from 'pinia'
 import { flushPromises, mount } from '@vue/test-utils'
-import { createVuetify } from 'vuetify'
 import { createRouter, createMemoryHistory } from 'vue-router'
-import { defineComponent, h } from 'vue'
-import { VApp } from 'vuetify/components'
 import Default from '@/layouts/Default.vue'
 import { useSession } from '@/stores/session'
 
@@ -29,15 +26,12 @@ describe('navigation from manifests', () => {
     const router = createRouter({ history: createMemoryHistory(), routes: [{ path: '/:pathMatch(.*)*', component: { template: '<div />' } }] })
     await router.push('/warden/folders')
     await router.isReady()
-    // Layout components need the v-app layout context.
-    const Host = defineComponent({ setup: () => () => h(VApp, () => h(Default, null, { default: () => h('p', 'content') })) })
-    const w = mount(Host, { global: { plugins: [createVuetify(), router] } })
+    const w = mount(Default, { slots: { default: '<p>content</p>' }, global: { plugins: [router] } })
     await flushPromises()
     const groups = w.findAll('[data-test^="nav-group-"]').map((n) => n.attributes('data-test'))
     expect(groups).toEqual(['nav-group-hello', 'nav-group-warden', 'nav-group-auth'])
-    // The menu of the module owning the current route is open; the others are collapsed
-    // (Vuetify marks a collapsed menu's items inert; jsdom's computed display is unreliable after toggles).
-    const visible = (sel: string) => w.findAll(sel).filter((n) => n.element.closest('.v-list-group__items')?.getAttribute('inert') !== 'true').length
+    // The menu of the module owning the current route is expanded; the others render no items.
+    const visible = (sel: string) => w.findAll(sel).length
     expect(visible('[data-test="nav-warden"]')).toBe(2)
     expect(visible('[data-test="nav-auth"]')).toBe(0)
     await w.find('[data-test="nav-group-auth"]').trigger('click')

@@ -1,23 +1,23 @@
 <script setup lang="ts">
+import { UiPage, UiCard, UiEmptyState, UiIcon, UiStatusChip } from '@freya/ui'
 import { useSession } from '@/stores/session'
 const session = useSession()
 </script>
 
 <template>
-  <h1 class="text-h4 mb-1">Welcome{{ session.displayName ? `, ${session.displayName}` : '' }}</h1>
-  <p class="mb-6">Modules registered with the platform gateway.</p>
-  <v-card>
-    <v-card-title>Modules</v-card-title>
-    <v-list v-if="session.modules.length" data-test="module-list" lines="two">
-      <v-list-item v-for="m in session.modules" :key="m.module ?? ''" :title="m.display_name || m.module || ''" :subtitle="m.version ?? ''" :data-test="'module-' + m.module">
-        <template #prepend>
-          <v-avatar color="primary" variant="tonal" rounded="lg"><v-icon icon="mdi-view-module-outline" /></v-avatar>
-        </template>
-        <template #append>
-          <v-chip size="small" :color="m.state === 'active' ? 'success' : 'warning'" variant="tonal">{{ m.state }}</v-chip>
-        </template>
-      </v-list-item>
-    </v-list>
-    <v-card-text v-else data-test="no-modules">No modules are registered yet.</v-card-text>
-  </v-card>
+  <UiPage :title="'Welcome' + (session.displayName ? `, ${session.displayName}` : '')" subtitle="Modules registered with the platform gateway.">
+    <UiCard title="Modules" :padded="false">
+      <ul v-if="session.modules.length" class="divide-y divide-base-300" data-test="module-list">
+        <li v-for="m in session.modules" :key="m.module ?? ''" class="flex items-center gap-3 px-4 py-3" :data-test="'module-' + m.module">
+          <span class="flex size-10 shrink-0 items-center justify-center rounded-box bg-primary/10 text-primary"><UiIcon name="mdi-view-module-outline" /></span>
+          <span class="min-w-0 grow">
+            <span class="block truncate font-medium">{{ m.display_name || m.module || '' }}</span>
+            <span class="block truncate text-xs text-base-content/70">{{ m.version ?? '' }}</span>
+          </span>
+          <UiStatusChip :status="m.state ?? ''" />
+        </li>
+      </ul>
+      <UiEmptyState v-else title="No modules are registered yet." data-test="no-modules" />
+    </UiCard>
+  </UiPage>
 </template>

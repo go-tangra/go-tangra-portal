@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
+import { UiPage, UiAlert, UiCard, UiInput, UiSelect, UiButton, UiDataTable, UiStatusChip, type Column, type SelectOption } from '@freya/ui'
 import { api, ApiError } from '@/api/client'
 
-export interface AuditEvent {
+export interface AuditEvent extends Record<string, unknown> {
   ts: string
   event_type: string
   module: string
@@ -37,31 +38,34 @@ async function load(more = false): Promise<void> {
   }
 }
 
+const typeOptions: SelectOption[] = eventTypes.map((t) => ({ title: t, value: t }))
+const columns: Column<AuditEvent>[] = [
+  { key: 'ts', label: 'Time', width: 'sm' },
+  { key: 'event_type', label: 'Event' },
+  { key: 'module', label: 'Module' },
+  { key: 'actor_id', label: 'Actor', format: (e) => `${e.actor_kind} ${e.actor_id}`, hideOnStack: true },
+  { key: 'subject_id', label: 'Subject', format: (e) => `${e.subject_kind} ${e.subject_id}` },
+  { key: 'outcome', label: 'Outcome', width: 'sm' },
+  { key: 'reason', label: 'Reason', hideOnStack: true },
+]
 onMounted(() => load())
 </script>
 
 <template>
-  <h1 class="text-h5 mb-4">Gateway audit</h1>
-  <v-alert v-if="error" type="error" variant="tonal" class="mb-4" data-test="ops-error">{{ error }}</v-alert>
-  <v-row dense class="mb-2">
-    <v-col cols="12" md="4"><v-text-field v-model="module" label="Module" clearable data-test="audit-module" @keyup.enter="load()" /></v-col>
-    <v-col cols="12" md="5"><v-select v-model="eventType" :items="eventTypes" label="Event type" clearable data-test="audit-type" /></v-col>
-    <v-col cols="12" md="3"><v-btn color="primary" block data-test="audit-search" @click="load()">Search</v-btn></v-col>
-  </v-row>
-  <v-table data-test="audit">
-    <thead><tr><th>Time</th><th>Event</th><th>Module</th><th>Actor</th><th>Subject</th><th>Outcome</th><th>Reason</th></tr></thead>
-    <tbody>
-      <tr v-for="e in events" :key="e.ts + e.event_type + e.subject_id" :data-test="'audit-' + e.event_type">
-        <td class="text-no-wrap">{{ e.ts }}</td>
-        <td>{{ e.event_type }}</td>
-        <td>{{ e.module }}</td>
-        <td>{{ e.actor_kind }} {{ e.actor_id }}</td>
-        <td>{{ e.subject_kind }} {{ e.subject_id }}</td>
-        <td><v-chip size="x-small" :color="e.outcome === 'ok' ? 'success' : 'warning'">{{ e.outcome }}</v-chip></td>
-        <td>{{ e.reason }}</td>
-      </tr>
-      <tr v-if="!events.length"><td colspan="7" class="text-center text-medium-emphasis" data-test="empty">No events</td></tr>
-    </tbody>
-  </v-table>
-  <v-btn v-if="next" variant="text" class="mt-2" data-test="audit-more" @click="load(true)">Load more</v-btn>
+  <UiPage title="Gateway audit" subtitle="Registration, identity and permission decisions taken by the gateway">
+    <UiAlert v-if="error" kind="error" class="mb-4" data-test="ops-error">{{ error }}</UiAlert>
+    <template #filters>
+      <div class="grid w-full grid-cols-1 gap-2 md:grid-cols-12 md:items-end">
+        <div class="md:col-span-4"><UiInput id="audit-module" v-model="module" label="Module" size="sm" data-test="audit-module" @enter="load()" /></div>
+        <div class="md:col-span-5"><UiSelect id="audit-type" v-model="eventType" label="Event type" :options="typeOptions" size="sm" data-test="audit-type" /></div>
+        <div class="md:col-span-3"><UiButton block size="sm" data-test="audit-search" @click="load()">Search</UiButton></div>
+      </div>
+    </template>
+    <UiCard :padded="false">
+      <UiDataTable :items="events" :columns="columns" caption="Audit events" empty-title="No events" :row-attrs="(e) => ({ 'data-test': 'audit-' + e.event_type })" data-test="audit">
+        <template #cell-outcome="{ row }"><UiStatusChip :status="String(row.outcome)" :colors="{ ok: 'success' }" /></template>
+      </UiDataTable>
+      <div v-if="next" class="px-4 pb-3"><UiButton variant="text" size="sm" data-test="audit-more" @click="load(true)">Load more</UiButton></div>
+    </UiCard>
+  </UiPage>
 </template>

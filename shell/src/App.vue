@@ -16,11 +16,10 @@ onUnmounted(() => unbind?.())
 </script>
 
 <template>
-  <v-app>
-    <component :is="layout">
-      <router-view v-slot="{ Component }">
-        <component :is="Component" />
-      </router-view>
-    </component>
-  </v-app>
+  <!-- The toast and confirm hosts live inside UiAppShell / Bare; remotes use useToast()/useConfirm(). -->
+  <component :is="layout">
+    <router-view v-slot="{ Component }">
+      <component :is="Component" />
+    </router-view>
+  </component>
 </template>
