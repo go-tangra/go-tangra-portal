@@ -7,3 +7,5 @@ examples/hello-module/ui/dist/
 .artifacts/
 coverage.out
 bin/
+shell/.mf/
+/gatewaysvc
