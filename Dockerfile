@@ -1,46 +1,51 @@
 # syntax=docker/dockerfile:1
-# Gateway service image: builds the shell web UI, embeds it (-tags shell), and
-# produces a slim runtime carrying gatewaysvc. Build context is the repo root so
-# the module's replace directives (../.. , ../auth, ../lcm) resolve.
+# go-tangra-portal (gateway service, go-tangra v4) - standalone image.
+# Build context: the repository root. Generated from go-freya tools/split/templates/Dockerfile.tmpl.
+#
+#   docker buildx build --secret id=npm_token,env=NODE_AUTH_TOKEN \
+#     --build-arg APP_VERSION=4.0.0 --build-arg VCS_REF=$(git rev-parse HEAD) -t go-tangra-portal:dev .
+#
+# npm_token is a GitHub token with read:packages for @go-tangra/ui on npm.pkg.github.com.
+# It is mounted only for the npm ci step and written to a tmpfs, so it never lands in a layer.
 
 FROM node:22-alpine AS ui
-# The front-ends form one npm workspace (root package-lock.json) with the shared
-# kit at ui/kit; install the workspace, build the kit, then this front-end.
-WORKDIR /w
-COPY package.json package-lock.json .npmrc ./
-COPY ui/kit/package.json ui/kit/
-COPY services/gateway/shell/package.json services/gateway/shell/
-COPY services/auth/console/package.json services/auth/console/
-COPY services/asset/ui/package.json services/asset/ui/
-COPY services/inventory/ui/package.json services/inventory/ui/
-COPY services/ipam/ui/package.json services/ipam/ui/
-COPY services/paperless/ui/package.json services/paperless/ui/
-COPY services/deployer/ui/package.json services/deployer/ui/
-COPY services/lcm/ui/package.json services/lcm/ui/
-COPY services/notification/ui/package.json services/notification/ui/
-COPY services/warden/ui/package.json services/warden/ui/
-COPY services/ticket/ui/package.json services/ticket/ui/
-COPY services/dns/ui/package.json services/dns/ui/
-RUN npm ci --no-audit --no-fund
-COPY ui/ ./ui/
-RUN npm run -w ui/kit build
-COPY services/gateway/shell/ ./services/gateway/shell/
-RUN npm run -w services/gateway/shell build
+WORKDIR /src/shell
+COPY shell/package.json shell/package-lock.json ./
+RUN --mount=type=secret,id=npm_token,required=true \
+    --mount=type=tmpfs,target=/run/npmrc \
+    --mount=type=cache,target=/root/.npm \
+    set -eu; \
+    printf '@go-tangra:registry=https://npm.pkg.github.com\n//npm.pkg.github.com/:_authToken=%s\nignore-scripts=true\nfund=false\naudit=false\n' \
+      "$(cat /run/secrets/npm_token)" > /run/npmrc/.npmrc; \
+    NPM_CONFIG_USERCONFIG=/run/npmrc/.npmrc npm ci --no-audit --no-fund
+COPY shell/ ./
+RUN npm run build
 
 FROM golang:1.26-alpine AS build
 RUN apk add --no-cache git ca-certificates
 WORKDIR /src
+# GOWORK=off: service repositories never use a go.work; dependencies come from published tags.
+ENV CGO_ENABLED=0 GOFLAGS=-buildvcs=false GOWORK=off
+COPY go.mod go.sum ./
+COPY sdk/go.mod sdk/go.sum ./sdk/
+RUN --mount=type=cache,target=/go/pkg/mod go mod download
 COPY . .
-COPY --from=ui /w/services/gateway/shell/dist ./services/gateway/shell/dist
-WORKDIR /src/services/gateway
-ENV CGO_ENABLED=0 GOFLAGS=-buildvcs=false
-RUN go build -tags "shell" -o /out/gatewaysvc ./cmd/gatewaysvc
+COPY --from=ui /src/shell/dist ./shell/dist
+ARG APP_VERSION=dev
+RUN --mount=type=cache,target=/go/pkg/mod --mount=type=cache,target=/root/.cache/go-build \
+    go build -trimpath -tags "shell" -ldflags "-s -w -X main.version=${APP_VERSION}" -o /out/gatewaysvc ./cmd/gatewaysvc
 
 FROM alpine:3.20
+ARG APP_VERSION=dev
+ARG VCS_REF=unknown
+LABEL org.opencontainers.image.source="https://github.com/go-tangra/go-tangra-portal" \
+      org.opencontainers.image.title="go-tangra-portal" \
+      org.opencontainers.image.version="${APP_VERSION}" \
+      org.opencontainers.image.revision="${VCS_REF}"
 RUN apk add --no-cache ca-certificates postgresql-client && adduser -D -u 10001 app
 COPY --from=build /out/gatewaysvc /usr/local/bin/
-COPY services/gateway/deploy /app/deploy
+COPY deploy /app/deploy
 WORKDIR /app
 USER app
 ENTRYPOINT ["gatewaysvc"]
-CMD ["-config", "deploy/dev.yaml"]
+CMD ["-config","deploy/dev.yaml"]
