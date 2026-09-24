@@ -21,6 +21,31 @@
 4. Operators are members of the platform tenant holding one of
    `operators.roles` (default `operator`); the auth bootstrap invitation grants it.
 
+## Mesh enrollment (`enroll`)
+
+With `enroll.enabled` the gateway obtains its SVID from lcm at start. It
+cannot enroll through its own edge, so it calls lcm's keyless enroll listener
+directly (`enroll_url: https://lcm:9947/api/lcm/v1/enroll`), which presents
+lcm's own SVID: a URI SAN `spiffe://<trust_domain>/svc/lcm`, no DNS name,
+issued by the mesh root. Verify it with the mesh trust bundle:
+
+```yaml
+enroll:
+  enabled: true
+  enroll_url: https://lcm:9947/api/lcm/v1/enroll
+  lcm_grpc: lcm:9945
+  token_file: /tokens/gateway.token
+  state_file: /state/svid.json
+  ca_file: /certs/ca.pem          # mesh root bundle (lcm bootstrap output)
+  # server_spiffe_id: spiffe://<trust_domain>/svc/lcm   (default)
+```
+
+`ca_file` unset means public verification (system roots + host name), which
+lcm's SVID can never pass. `insecure: true` skips verification of this first
+call (renewals are always verified); it is a development-only setting, warned
+at start and refused when `env: production`. `insecure` and `ca_file` are
+mutually exclusive.
+
 ## Allow-list
 
 - Managed at **Operations → Allow-list** or `POST /gateway/v1/ops/allowlist`

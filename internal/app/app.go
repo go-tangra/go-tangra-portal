@@ -6,6 +6,7 @@ package app
 
 import (
 	"context"
+	"crypto/tls"
 	"fmt"
 	"io/fs"
 	"log/slog"
@@ -42,6 +43,7 @@ import (
 	"github.com/go-tangra/go-tangra/v4"
 	fidentity "github.com/go-tangra/go-tangra/v4/identity"
 	"github.com/go-tangra/go-tangra/v4/transport/edge"
+	"github.com/go-tangra/go-tangra/v4/transport/tlsconf"
 )
 
 // Options override infrastructure (tests) and attach story handlers.
@@ -134,10 +136,19 @@ func Build(ctx context.Context, cfg config.Config, o Options) (a *App, err error
 		if rerr != nil {
 			return nil, fmt.Errorf("gateway: enroll token: %w", rerr)
 		}
+		// First-enroll server verification: lcm's SVID against the mesh bundle
+		// (enroll.ca_file) or public roots; insecure only outside production.
+		var enrollTLS *tls.Config
+		if !cfg.Enroll.Insecure {
+			if enrollTLS, rerr = tlsconf.LoadEnrollClientConfig(cfg.Enroll.EnrollTLS, cfg.Config.TrustDomain); rerr != nil {
+				return nil, fmt.Errorf("gateway: enroll tls: %w", rerr)
+			}
+		}
 		prov, perr := lcmidentity.NewNet(ctx, lcmidentity.NetConfig{
 			EnrollURL: cfg.Enroll.EnrollURL, LCMGRPCTarget: cfg.Enroll.LCMGRPCTarget,
 			TenantID: cfg.Enroll.TenantID, TrustDomain: cfg.Config.TrustDomain, ServiceName: cfg.Config.ServiceName,
-			EnrollmentToken: strings.TrimSpace(string(raw)), Insecure: cfg.Enroll.Insecure, StateFile: cfg.Enroll.StateFile,
+			EnrollmentToken: strings.TrimSpace(string(raw)), EnrollTLS: enrollTLS, Insecure: cfg.Enroll.Insecure,
+			StateFile: cfg.Enroll.StateFile,
 		})
 		if perr != nil {
 			return nil, fmt.Errorf("gateway: enroll: %w", perr)
