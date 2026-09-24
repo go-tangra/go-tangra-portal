@@ -7,8 +7,8 @@ toolchain go1.26.8
 require (
 	github.com/getkin/kin-openapi v0.149.0
 	github.com/go-kratos/kratos/v3 v3.0.0
-	github.com/go-tangra/go-tangra-auth/v4 v4.0.0
 	github.com/go-tangra/go-tangra-auth/sdk/v4 v4.0.0
+	github.com/go-tangra/go-tangra-auth/v4 v4.0.0
 	github.com/go-tangra/go-tangra-lcm/sdk/v4 v4.0.0
 	github.com/go-tangra/go-tangra-portal/sdk/v4 v4.0.0
 	github.com/go-tangra/go-tangra/v4 v4.0.0
@@ -96,3 +96,5 @@ require (
 	google.golang.org/genproto/googleapis/api v0.0.0-20260526163538-3dc84a4a5aaa // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20260831171406-18b4a7587f8a // indirect
 )
+
+replace github.com/go-tangra/go-tangra-portal/sdk/v4 => ./sdk
