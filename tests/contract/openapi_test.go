@@ -14,7 +14,7 @@ import (
 	"github.com/go-tangra/go-tangra/v4/freyatest/testutil"
 )
 
-const specOpenAPI = "../../../../specs/003-application-gateway/contracts/gateway-api.openapi.yaml"
+const specOpenAPI = "../../specs/003-application-gateway/contracts/gateway-api.openapi.yaml"
 
 func TestOpenAPIParsesAndEveryRouteIsMounted(t *testing.T) {
 	doc, err := httpapi.LoadDocument()

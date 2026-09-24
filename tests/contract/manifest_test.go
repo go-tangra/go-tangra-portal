@@ -12,7 +12,7 @@ import (
 	"github.com/go-tangra/go-tangra-portal/v4/internal/manifest"
 )
 
-const specSchema = "../../../../specs/003-application-gateway/contracts/manifest.schema.json"
+const specSchema = "../../specs/003-application-gateway/contracts/manifest.schema.json"
 
 func TestManifestSchemaSelfValidatesAndMatchesContract(t *testing.T) {
 	c := jsonschema.NewCompiler()
