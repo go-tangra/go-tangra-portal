@@ -172,8 +172,8 @@ func Start(t *testing.T) *Env {
 	gwEdge, gwGRPC := freePort(t), freePort(t)
 	valkeyAddr := vkHost + ":" + vkPorts["6379/tcp"]
 
-	// --- auth module: a separate process built from ../../../auth (its own edge
-	// for sign-in until gateway mode lands in US2), identity from the shared CA.
+	// --- auth module: a separate process built from a go-tangra-auth checkout
+	// (see authDir; its own edge for sign-in), identity from the shared CA.
 	authBin := buildAuth(t)
 	svidDir := filepath.Join(dir, "svid")
 	authCert, authKey, bundle, err := ca.WriteSVID(svidDir, "auth", ca.MustIssue("auth", testutil.IssueOptions{}))
@@ -202,7 +202,7 @@ valkey: { addresses: ["%s"], password: test, ca_file: %s }
 openfga: { url: http://%s:%s, preshared_key: test-key, allow_plaintext: true }
 kek: { source: file, path: %s }
 email: { transport: smtp, host: %s, port: %s, from: auth@example.org, allow_plaintext: true }
-`, trustDomain, authCert, authKey, bundle, abs(t, "../../../auth/deploy/policy.yaml"), authGRPC, authHTTP, gwGRPC, gwEdge,
+`, trustDomain, authCert, authKey, bundle, filepath.Join(authDir(t), "deploy", "policy.yaml"), authGRPC, authHTTP, gwGRPC, gwEdge,
 		pgHost, pgPorts["5432/tcp"], adminAuth, valkeyAddr, certPath, fgaHost, fgaPorts["8080/tcp"], kekPath, mpHost, mpPorts["1025/tcp"])
 	if err := os.WriteFile(authCfg, []byte(authYAML), 0o600); err != nil {
 		t.Fatal(err)
@@ -330,7 +330,7 @@ func buildAuth(t *testing.T) string {
 	buildOnce.Do(func() {
 		out := filepath.Join(os.TempDir(), fmt.Sprintf("authsvc-%d", os.Getpid()))
 		cmd := exec.Command("go", "build", "-o", out, "./cmd/authsvc")
-		cmd.Dir = abs(t, "../../../auth")
+		cmd.Dir = authDir(t)
 		if b, err := cmd.CombinedOutput(); err != nil {
 			buildErr = fmt.Errorf("build authsvc: %v\n%s", err, b)
 			return
@@ -341,6 +341,23 @@ func buildAuth(t *testing.T) string {
 		t.Fatal(buildErr)
 	}
 	return builtAuth
+}
+
+// authDir is the go-tangra-auth checkout the harness builds authsvc from. The
+// auth module keeps its sdk as an in-repo replace, so it cannot be built from
+// the module cache: GO_TANGRA_AUTH_DIR names the checkout, and by default a
+// sibling clone next to this repository (../go-tangra-auth) is used.
+func authDir(t *testing.T) string {
+	t.Helper()
+	dir := os.Getenv("GO_TANGRA_AUTH_DIR")
+	if dir == "" {
+		dir = "../../../go-tangra-auth"
+	}
+	dir = abs(t, dir)
+	if _, err := os.Stat(filepath.Join(dir, "cmd", "authsvc")); err != nil {
+		t.Fatalf("auth checkout not found at %s (clone github.com/go-tangra/go-tangra-auth there or set GO_TANGRA_AUTH_DIR): %v", dir, err)
+	}
+	return dir
 }
 
 func abs(t *testing.T, p string) string {
