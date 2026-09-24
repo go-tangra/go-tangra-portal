@@ -26,6 +26,6 @@ export default defineConfig({
     environmentOptions: { jsdom: { url: 'https://localhost/' } },
     include: ['tests/unit/**/*.spec.ts'],
     setupFiles: ['tests/unit/setup.ts'],
-    server: { deps: { inline: ['@freya/ui'] } },
+    server: { deps: { inline: ['@go-tangra/ui'] } },
   },
 })

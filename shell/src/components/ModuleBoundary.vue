@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, onErrorCaptured, ref } from 'vue'
-import { UiAlert, UiRemoteBoundary } from '@freya/ui'
+import { UiAlert, UiRemoteBoundary } from '@go-tangra/ui'
 import { useRegistry } from '@/stores/registry'
 
 // Isolates one federated module on top of the kit's boundary: a render or load

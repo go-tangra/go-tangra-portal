@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { UiCard, UiIcon } from '@freya/ui'
+import { UiCard, UiIcon } from '@go-tangra/ui'
 </script>
 
 <template>

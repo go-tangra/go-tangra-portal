@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { UiPage, UiCard, UiEmptyState, UiIcon, UiStatusChip } from '@freya/ui'
+import { UiPage, UiCard, UiEmptyState, UiIcon, UiStatusChip } from '@go-tangra/ui'
 import { useSession } from '@/stores/session'
 const session = useSession()
 </script>

@@ -1,6 +1,6 @@
 // Gateway operations forms (specs/003 contracts/gateway.yaml ops section).
 import { z } from 'zod'
-import { nonEmpty } from '@freya/ui/forms'
+import { nonEmpty } from '@go-tangra/ui/forms'
 
 /** "a, b ,c" → ["a","b","c"]; at least one entry. */
 const csvList = z

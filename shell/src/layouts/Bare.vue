@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { UiToast, UiConfirm } from '@freya/ui'
+import { UiToast, UiConfirm } from '@go-tangra/ui'
 </script>
 
 <template>

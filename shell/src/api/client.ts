@@ -1,7 +1,7 @@
 // The shell's transport: the kit client (same-origin, CSRF double submit, closed
 // reason vocabulary) plus the outage / session-loss events the session store and
 // the outage boundary listen to. The same object is handed to remotes as ctx.api.
-import { createApi, ApiError, csrfToken, CSRF_COOKIE, CSRF_HEADER, type Api, type Method, type RequestOptions } from '@freya/ui/api'
+import { createApi, ApiError, csrfToken, CSRF_COOKIE, CSRF_HEADER, type Api, type Method, type RequestOptions } from '@go-tangra/ui/api'
 import type { paths } from './schema'
 
 export { ApiError, csrfToken, CSRF_COOKIE, CSRF_HEADER }

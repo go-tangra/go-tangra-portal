@@ -4,7 +4,7 @@ import { mount } from '@vue/test-utils'
 import { defineComponent, h, nextTick, ref } from 'vue'
 import ModuleBoundary from '@/components/ModuleBoundary.vue'
 
-// A remote built against another @freya/ui version fails inside its own
+// A remote built against another @go-tangra/ui version fails inside its own
 // boundary with a version-specific message and a retry; a throwing remote is
 // isolated from its siblings (FR-011).
 describe('remote boundary (kit)', () => {
@@ -15,7 +15,7 @@ describe('remote boundary (kit)', () => {
   })
 
   it('shows the version-mismatch state with retry for a strictVersion failure', async () => {
-    const Mismatch = defineComponent({ setup() { throw new Error('Unsatisfied version 0.9.0 from asset of shared singleton module @freya/ui (required ^1.0.0)') } })
+    const Mismatch = defineComponent({ setup() { throw new Error('Unsatisfied version 3.9.0 from asset of shared singleton module @go-tangra/ui (required ^4.0.0)') } })
     const w = mount(ModuleBoundary, { props: { module: 'asset' }, slots: { default: () => h(Mismatch) }, global: { config: { errorHandler: () => undefined } } })
     await nextTick()
     const card = w.find('[data-test="module-error"]')

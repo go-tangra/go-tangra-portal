@@ -7,9 +7,9 @@ export const shared = {
   '@casl/ability': { singleton: true, requiredVersion: '^7.0.0' },
   '@casl/vue': { singleton: true, requiredVersion: '^3.0.0' },
   zod: { singleton: true, requiredVersion: '^4.0.0', strictVersion: true },
-  '@freya/ui': { singleton: true, requiredVersion: '^1.0.0', strictVersion: true },
-  '@freya/ui/forms': { singleton: true, requiredVersion: '^1.0.0', strictVersion: true },
-  '@freya/ui/api': { singleton: true, requiredVersion: '^1.0.0', strictVersion: true },
+  '@go-tangra/ui': { singleton: true, requiredVersion: '^4.0.0', strictVersion: true },
+  '@go-tangra/ui/forms': { singleton: true, requiredVersion: '^4.0.0', strictVersion: true },
+  '@go-tangra/ui/api': { singleton: true, requiredVersion: '^4.0.0', strictVersion: true },
 }
 
 export const hostConfig = {

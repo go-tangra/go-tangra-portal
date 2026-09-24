@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { RouterLink } from 'vue-router'
-import { UiAppShell, UiNavDrawer, UiButton, UiAvatar, UiIcon, useTheme, type NavGroup } from '@freya/ui'
+import { UiAppShell, UiNavDrawer, UiButton, UiAvatar, UiIcon, useTheme, type NavGroup } from '@go-tangra/ui'
 import { useSession } from '@/stores/session'
 import { navigation } from '@/router'
 import { headerSlots, type BootContext } from '@/federation/boot'

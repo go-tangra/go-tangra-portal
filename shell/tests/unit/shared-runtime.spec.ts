@@ -25,14 +25,14 @@ describe('shared runtime (US5)', () => {
     loadRemote.mockReset()
   })
 
-  it('shares exactly vue, vue-router, pinia, @casl/ability, @casl/vue, zod and the @freya/ui entry points', () => {
-    expect(Object.keys(shared).sort()).toEqual(['@casl/ability', '@casl/vue', '@freya/ui', '@freya/ui/api', '@freya/ui/forms', 'pinia', 'vue', 'vue-router', 'zod'].sort())
+  it('shares exactly vue, vue-router, pinia, @casl/ability, @casl/vue, zod and the @go-tangra/ui entry points', () => {
+    expect(Object.keys(shared).sort()).toEqual(['@casl/ability', '@casl/vue', '@go-tangra/ui', '@go-tangra/ui/api', '@go-tangra/ui/forms', 'pinia', 'vue', 'vue-router', 'zod'].sort())
     expect(shared).not.toHaveProperty('vuetify')
     for (const [name, cfg] of Object.entries(shared)) {
       expect(cfg.singleton, name).toBe(true)
       expect(cfg.requiredVersion, name).toMatch(/^\^\d+\.\d+\.\d+$/)
     }
-    for (const name of ['zod', '@freya/ui', '@freya/ui/forms', '@freya/ui/api']) expect((shared as Record<string, { strictVersion?: boolean }>)[name]?.strictVersion, name).toBe(true)
+    for (const name of ['zod', '@go-tangra/ui', '@go-tangra/ui/forms', '@go-tangra/ui/api']) expect((shared as Record<string, { strictVersion?: boolean }>)[name]?.strictVersion, name).toBe(true)
     federationHost()
     const opts = init.mock.calls[0]?.[0] as { name: string; shared: Record<string, unknown> } | undefined
     expect(opts?.name).toBe(hostConfig.name)

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { UiErrorState } from '@freya/ui'
+import { UiErrorState } from '@go-tangra/ui'
 defineProps<{ module: string; retry?: () => void }>()
 </script>
 
