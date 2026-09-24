@@ -1,0 +1,12 @@
+syntax = "proto3";
+
+package hello.v1;
+
+option go_package = "github.com/go-tangra/go-tangra-portal/v4/examples/hello-module/api/hello/v1;hellov1";
+
+service Hello {
+  rpc Say(SayRequest) returns (SayResponse);
+}
+
+message SayRequest { string name = 1; }
+message SayResponse { string greeting = 1; string caller = 2; }

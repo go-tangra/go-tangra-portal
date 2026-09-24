@@ -1,60 +1,46 @@
-##################################
-# 第一阶段：构建GO可执行文件
-##################################
+# syntax=docker/dockerfile:1
+# Gateway service image: builds the shell web UI, embeds it (-tags shell), and
+# produces a slim runtime carrying gatewaysvc. Build context is the repo root so
+# the module's replace directives (../.. , ../auth, ../lcm) resolve.
 
-# 使用官方的 Go 基础镜像作为构建环境
-FROM golang:1.24.6 AS builder
+FROM node:22-alpine AS ui
+# The front-ends form one npm workspace (root package-lock.json) with the shared
+# kit at ui/kit; install the workspace, build the kit, then this front-end.
+WORKDIR /w
+COPY package.json package-lock.json .npmrc ./
+COPY ui/kit/package.json ui/kit/
+COPY services/gateway/shell/package.json services/gateway/shell/
+COPY services/auth/console/package.json services/auth/console/
+COPY services/asset/ui/package.json services/asset/ui/
+COPY services/inventory/ui/package.json services/inventory/ui/
+COPY services/ipam/ui/package.json services/ipam/ui/
+COPY services/paperless/ui/package.json services/paperless/ui/
+COPY services/deployer/ui/package.json services/deployer/ui/
+COPY services/lcm/ui/package.json services/lcm/ui/
+COPY services/notification/ui/package.json services/notification/ui/
+COPY services/warden/ui/package.json services/warden/ui/
+COPY services/ticket/ui/package.json services/ticket/ui/
+COPY services/dns/ui/package.json services/dns/ui/
+RUN npm ci --no-audit --no-fund
+COPY ui/ ./ui/
+RUN npm run -w ui/kit build
+COPY services/gateway/shell/ ./services/gateway/shell/
+RUN npm run -w services/gateway/shell build
 
-ARG SERVICE_NAME=app
-ARG APP_VERSION=1.0.0
-
-# 设置工作目录
+FROM golang:1.26-alpine AS build
+RUN apk add --no-cache git ca-certificates
 WORKDIR /src
+COPY . .
+COPY --from=ui /w/services/gateway/shell/dist ./services/gateway/shell/dist
+WORKDIR /src/services/gateway
+ENV CGO_ENABLED=0 GOFLAGS=-buildvcs=false
+RUN go build -tags "shell" -o /out/gatewaysvc ./cmd/gatewaysvc
 
-# 复制项目源代码到工作目录
-COPY . /src
-
-# 进入到服务目录
-RUN cd /src/app/$SERVICE_NAME/service
-# 创建二进制文件目录
-RUN mkdir -p /src/app/$SERVICE_NAME/service/bin
-
-# 下载依赖，在中国国内，请使用国内代理。有可能会出现下载失败的情况，多试几次即可。
-RUN GOPROXY=https://goproxy.cn go mod download
-# 编译可执行文件
-RUN CGO_ENABLED=0 \
-    GOOS=linux \
-    GOARCH=amd64 \
-    go build -ldflags "-X main.version=$APP_VERSION" -o /src/app/$SERVICE_NAME/service/bin/ ./...
-
-##################################
-# 第二阶段：创建最终的运行时镜像
-##################################
-
-# 使用 Alpine 作为基础镜像，因为它非常轻量级
-FROM alpine:3.18
-
-ARG SERVICE_NAME=app
-
-# 安装必要的证书（如果应用程序需要进行 HTTPS 请求）
-RUN apk --no-cache add ca-certificates
-
-# 设置工作目录
+FROM alpine:3.20
+RUN apk add --no-cache ca-certificates postgresql-client && adduser -D -u 10001 app
+COPY --from=build /out/gatewaysvc /usr/local/bin/
+COPY services/gateway/deploy /app/deploy
 WORKDIR /app
-
-# 从第一阶段的构建结果中复制可执行文件到当前工作目录
-COPY --from=builder /src/app/$SERVICE_NAME/service/bin/ /app/bin
-
-# 拷贝配置文件
-COPY --from=builder /src/app/$SERVICE_NAME/service/configs/ /app/configs
-
-# 创建一个名为 appuser 的非 root 用户
-RUN adduser -D appuser
-
-# 切换到非特权用户
-USER appuser:appuser
-
-# 暴露服务端口，根据你的实际服务端口进行修改
-
-# 设置容器启动时执行的命令
-CMD ["/app/bin/server", "-c", "/app/configs"]
+USER app
+ENTRYPOINT ["gatewaysvc"]
+CMD ["-config", "deploy/dev.yaml"]

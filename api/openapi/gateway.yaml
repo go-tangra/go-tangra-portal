@@ -1,0 +1,90 @@
+openapi: 3.1.0
+info:
+  title: Application Gateway — shell and operations API
+  version: 1.0.0
+  description: |
+    Served by the gateway itself under /gateway/v1. Browser calls carry the platform
+    session cookie and the CSRF double-submit header on state-changing methods.
+    Every refusal is {"reason": "<closed vocabulary>"}: unauthenticated, forbidden,
+    not_found, validation_failed, temporarily_unavailable, rate_limited, csrf.
+servers: [{ url: https://platform.example.org }]
+components:
+  parameters:
+    csrf: { name: X-CSRF-Token, in: header, required: false, description: 'Double-submit token; enforced by the edge for cookie-bearing requests, not needed by bearer clients', schema: { type: string } }
+  schemas:
+    Error: { type: object, required: [reason], properties: { reason: { type: string } } }
+    Module:
+      type: object
+      properties:
+        module: { type: string }
+        display_name: { type: string }
+        version: { type: string }
+        remote: { type: object, properties: { entry: { type: string }, exposes: { type: array, items: { type: string } }, integrity: { type: string } } }
+        nav: { type: array, items: { type: object, properties: { title: { type: string }, path: { type: string }, icon: { type: string }, order: { type: integer } } } }
+        state: { type: string, enum: [active, draining, unhealthy] }
+    Me:
+      type: object
+      properties:
+        user_id: { type: string }
+        tenant_id: { type: string }
+        session_id: { type: string }
+        roles: { type: array, items: { type: string }, description: effective roles (direct and through groups) }
+        amr: { type: array, items: { type: string } }
+        operator: { type: boolean }
+        source: { type: string, enum: [session, bearer] }
+        expires_at: { type: string, format: date-time }
+        display_name: { type: string, description: 'from the auth module profile; empty for bearer callers' }
+        avatar_url: { type: string, description: 'gateway-relative, content-addressed; empty when none' }
+    Abilities:
+      type: object
+      properties:
+        tenant: { type: string }
+        user: { type: string }
+        roles: { type: array, items: { type: string } }
+        version: { type: string }
+        modules: { type: object, additionalProperties: { type: array, description: CASL packed rules } }
+    Registration:
+      type: object
+      properties:
+        module: { type: string }
+        identity: { type: string }
+        state: { type: string, enum: [active, draining, unhealthy, revoked] }
+        instances: { type: integer }
+        last_renewal: { type: string, format: date-time }
+        manifest: { type: object }
+        traffic: { type: object, properties: { requests_1m: { type: integer }, refusals_1m: { type: integer }, p95_ms: { type: number } } }
+paths:
+  /gateway/v1/me:
+    get: { operationId: me, summary: 'Identity of the caller (session or bearer) with display name and avatar', responses: { '200': { description: identity, content: { application/json: { schema: { $ref: '#/components/schemas/Me' } } } }, '401': { description: unauthenticated } } }
+  /gateway/v1/me/modules:
+    get: { operationId: myModules, summary: 'Registered modules visible to the caller with remote entries and navigation', responses: { '200': { description: list, content: { application/json: { schema: { type: array, items: { $ref: '#/components/schemas/Module' } } } } } } }
+  /gateway/v1/me/abilities:
+    get: { operationId: myAbilities, summary: 'CASL rules derived from the caller API permissions, per module', responses: { '200': { description: abilities, content: { application/json: { schema: { $ref: '#/components/schemas/Abilities' } } } } } }
+  /gateway/v1/events:
+    get: { operationId: events, summary: 'Server-sent events for registry and ability version changes (shell refetch trigger)', responses: { '200': { description: text/event-stream } } }
+  /gateway/v1/stream:
+    get: { operationId: userStream, summary: 'Per-signed-in-user SSE bus: realtime events any module publishes to the shared platform stream', parameters: [{ name: Last-Event-ID, in: header, schema: { type: string, maxLength: 64 } }], responses: { '200': { description: text/event-stream } } }
+  /gateway/v1/ops/registrations:
+    get: { operationId: listRegistrations, summary: 'Every registration with health and traffic (operators)', responses: { '200': { description: list, content: { application/json: { schema: { type: array, items: { $ref: '#/components/schemas/Registration' } } } } }, '403': { description: forbidden } } }
+  /gateway/v1/ops/registrations/{module}/drain:
+    post: { operationId: drainModule, parameters: [{ $ref: '#/components/parameters/csrf' }, { name: module, in: path, required: true, schema: { type: string } }], responses: { '204': { description: draining } } }
+  /gateway/v1/ops/registrations/{module}/undrain:
+    post: { operationId: undrainModule, parameters: [{ $ref: '#/components/parameters/csrf' }, { name: module, in: path, required: true, schema: { type: string } }], responses: { '204': { description: active } } }
+  /gateway/v1/ops/registrations/{module}/revoke:
+    post: { operationId: revokeModule, parameters: [{ $ref: '#/components/parameters/csrf' }, { name: module, in: path, required: true, schema: { type: string } }], requestBody: { content: { application/json: { schema: { type: object, additionalProperties: false, required: [reason], properties: { reason: { type: string, minLength: 10 } } } } } }, responses: { '204': { description: revoked } } }
+  /gateway/v1/ops/allowlist:
+    get: { operationId: listAllowlist, responses: { '200': { description: entries } } }
+    post:
+      operationId: addAllowlist
+      parameters: [{ $ref: '#/components/parameters/csrf' }]
+      requestBody: { content: { application/json: { schema: { type: object, additionalProperties: false, required: [spiffe_id, prefixes, names], properties: { spiffe_id: { type: string, format: uri }, prefixes: { type: array, items: { type: string } }, names: { type: array, items: { type: string } } } } } } }
+      responses: { '201': { description: added } }
+  /gateway/v1/ops/allowlist/{id}/revoke:
+    post: { operationId: revokeAllowlist, parameters: [{ $ref: '#/components/parameters/csrf' }, { name: id, in: path, required: true, schema: { type: string } }], responses: { '204': { description: revoked } } }
+  /gateway/v1/ops/audit:
+    get:
+      operationId: gatewayAudit
+      parameters: [{ name: module, in: query, schema: { type: string } }, { name: event_type, in: query, schema: { type: string } }, { name: from, in: query, schema: { type: string, format: date-time } }, { name: to, in: query, schema: { type: string, format: date-time } }, { name: cursor, in: query, schema: { type: string } }]
+      responses: { '200': { description: page of events } }
+  /m/{module}/{asset}:
+    get: { operationId: moduleAsset, summary: 'Federated remote assets relayed from the module (immutable caching for hashed assets; mf-manifest.json no-store)', parameters: [{ name: module, in: path, required: true, schema: { type: string } }, { name: asset, in: path, required: true, schema: { type: string } }], responses: { '200': { description: asset }, '404': { description: not_found } } }
