@@ -12,7 +12,7 @@ import (
 
 	"github.com/santhosh-tekuri/jsonschema/v6"
 
-	"github.com/go-freya/freya/services/gateway/api/schema"
+	"github.com/go-tangra/go-tangra-portal/sdk/v4/api/schema"
 )
 
 // Manifest is a validated module manifest (contracts/manifest.schema.json).

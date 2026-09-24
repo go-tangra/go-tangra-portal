@@ -38,14 +38,14 @@ import (
 	"github.com/testcontainers/testcontainers-go/wait"
 	"google.golang.org/grpc"
 
-	"github.com/go-freya/freya"
-	fconfig "github.com/go-freya/freya/config"
-	"github.com/go-freya/freya/discovery"
-	"github.com/go-freya/freya/internal/testutil"
-	"github.com/go-freya/freya/services/gateway/internal/app"
-	"github.com/go-freya/freya/services/gateway/internal/config"
-	"github.com/go-freya/freya/services/gateway/internal/store"
-	"github.com/go-freya/freya/transport/edge"
+	"github.com/go-tangra/go-tangra-portal/v4/internal/app"
+	"github.com/go-tangra/go-tangra-portal/v4/internal/config"
+	"github.com/go-tangra/go-tangra-portal/v4/internal/store"
+	"github.com/go-tangra/go-tangra/v4"
+	fconfig "github.com/go-tangra/go-tangra/v4/config"
+	"github.com/go-tangra/go-tangra/v4/discovery"
+	"github.com/go-tangra/go-tangra/v4/freyatest/testutil"
+	"github.com/go-tangra/go-tangra/v4/transport/edge"
 )
 
 const trustDomain = "example.org"

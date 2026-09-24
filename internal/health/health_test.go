@@ -8,11 +8,11 @@ import (
 	"testing"
 	"time"
 
-	"github.com/go-freya/freya/internal/testrt"
-	"github.com/go-freya/freya/internal/testutil"
-	"github.com/go-freya/freya/services/gateway/internal/registry"
-	tgrpc "github.com/go-freya/freya/transport/grpc"
-	thttp "github.com/go-freya/freya/transport/http"
+	"github.com/go-tangra/go-tangra-portal/v4/internal/registry"
+	"github.com/go-tangra/go-tangra/v4/freyatest/testrt"
+	"github.com/go-tangra/go-tangra/v4/freyatest/testutil"
+	tgrpc "github.com/go-tangra/go-tangra/v4/transport/grpc"
+	thttp "github.com/go-tangra/go-tangra/v4/transport/http"
 )
 
 type fakeReg struct {

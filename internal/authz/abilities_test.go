@@ -6,10 +6,10 @@ import (
 	"errors"
 	"testing"
 
-	"github.com/go-freya/freya/services/gateway/internal/audit"
-	"github.com/go-freya/freya/services/gateway/internal/manifest"
-	"github.com/go-freya/freya/services/gateway/internal/memstore"
-	"github.com/go-freya/freya/services/gateway/internal/registry"
+	"github.com/go-tangra/go-tangra-portal/v4/internal/audit"
+	"github.com/go-tangra/go-tangra-portal/v4/internal/manifest"
+	"github.com/go-tangra/go-tangra-portal/v4/internal/memstore"
+	"github.com/go-tangra/go-tangra-portal/v4/internal/registry"
 )
 
 func TestPackUnpack(t *testing.T) {

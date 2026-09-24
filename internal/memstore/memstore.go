@@ -8,7 +8,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/go-freya/freya/services/gateway/internal/store"
+	"github.com/go-tangra/go-tangra-portal/v4/internal/store"
 )
 
 // Store keeps everything in maps; exported fields are for test setup.

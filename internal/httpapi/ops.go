@@ -6,10 +6,10 @@ import (
 	"net/url"
 	"time"
 
-	"github.com/go-freya/freya/services/gateway/internal/audit"
-	"github.com/go-freya/freya/services/gateway/internal/identity"
-	"github.com/go-freya/freya/services/gateway/internal/registry"
-	"github.com/go-freya/freya/services/gateway/internal/store"
+	"github.com/go-tangra/go-tangra-portal/v4/internal/audit"
+	"github.com/go-tangra/go-tangra-portal/v4/internal/identity"
+	"github.com/go-tangra/go-tangra-portal/v4/internal/registry"
+	"github.com/go-tangra/go-tangra-portal/v4/internal/store"
 )
 
 // OpsDeps wire the operations API.

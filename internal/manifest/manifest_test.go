@@ -11,7 +11,7 @@ import (
 	"google.golang.org/protobuf/types/known/durationpb"
 	"google.golang.org/protobuf/types/known/structpb"
 
-	gatewayv1 "github.com/go-freya/freya/services/gateway/api/proto/gateway/v1"
+	gatewayv1 "github.com/go-tangra/go-tangra-portal/sdk/v4/api/proto/gateway/v1"
 )
 
 func load(t *testing.T) []byte {

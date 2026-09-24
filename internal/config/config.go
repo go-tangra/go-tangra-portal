@@ -10,8 +10,8 @@ import (
 
 	"gopkg.in/yaml.v3"
 
-	fconfig "github.com/go-freya/freya/config"
-	"github.com/go-freya/freya/transport/edge"
+	fconfig "github.com/go-tangra/go-tangra/v4/config"
+	"github.com/go-tangra/go-tangra/v4/transport/edge"
 )
 
 // Config is the Freya configuration plus the gateway's own settings.

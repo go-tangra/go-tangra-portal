@@ -129,7 +129,7 @@ const file_hello_v1_hello_proto_rawDesc = "" +
 	"\bgreeting\x18\x01 \x01(\tR\bgreeting\x12\x16\n" +
 	"\x06caller\x18\x02 \x01(\tR\x06caller2;\n" +
 	"\x05Hello\x122\n" +
-	"\x03Say\x12\x14.hello.v1.SayRequest\x1a\x15.hello.v1.SayResponseBWZUgithub.com/go-freya/freya/services/gateway/examples/hello-module/api/hello/v1;hellov1b\x06proto3"
+	"\x03Say\x12\x14.hello.v1.SayRequest\x1a\x15.hello.v1.SayResponseBUZSgithub.com/go-tangra/go-tangra-portal/v4/examples/hello-module/api/hello/v1;hellov1b\x06proto3"
 
 var (
 	file_hello_v1_hello_proto_rawDescOnce sync.Once

@@ -12,11 +12,11 @@ import (
 	"sync"
 	"time"
 
-	"github.com/go-freya/freya/identity"
-	"github.com/go-freya/freya/services/gateway/internal/registry"
-	"github.com/go-freya/freya/transport"
-	thttp "github.com/go-freya/freya/transport/http"
-	"github.com/go-freya/freya/transport/tlsconf"
+	"github.com/go-tangra/go-tangra-portal/v4/internal/registry"
+	"github.com/go-tangra/go-tangra/v4/identity"
+	"github.com/go-tangra/go-tangra/v4/transport"
+	thttp "github.com/go-tangra/go-tangra/v4/transport/http"
+	"github.com/go-tangra/go-tangra/v4/transport/tlsconf"
 )
 
 // Prober checks one instance; a nil error means reachable and authenticated.

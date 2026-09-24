@@ -12,10 +12,10 @@ import (
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
 
-	"github.com/go-freya/freya/services/gateway/internal/audit"
-	"github.com/go-freya/freya/services/gateway/internal/config"
-	"github.com/go-freya/freya/services/gateway/internal/manifest"
-	"github.com/go-freya/freya/services/gateway/internal/store"
+	"github.com/go-tangra/go-tangra-portal/v4/internal/audit"
+	"github.com/go-tangra/go-tangra-portal/v4/internal/config"
+	"github.com/go-tangra/go-tangra-portal/v4/internal/manifest"
+	"github.com/go-tangra/go-tangra-portal/v4/internal/store"
 )
 
 type allowFlag []store.AllowEntry

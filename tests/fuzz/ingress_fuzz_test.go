@@ -13,12 +13,12 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
-	authv1 "github.com/go-freya/freya/services/auth/api/proto/auth/v1"
-	"github.com/go-freya/freya/services/auth/pkg/authclient"
-	"github.com/go-freya/freya/services/gateway/internal/identity"
-	"github.com/go-freya/freya/services/gateway/internal/proxy/grpcweb"
-	"github.com/go-freya/freya/services/gateway/internal/registry"
-	"github.com/go-freya/freya/services/gateway/internal/route"
+	authv1 "github.com/go-tangra/go-tangra-auth/sdk/v4/api/proto/auth/v1"
+	"github.com/go-tangra/go-tangra-auth/sdk/v4/pkg/authclient"
+	"github.com/go-tangra/go-tangra-portal/v4/internal/identity"
+	"github.com/go-tangra/go-tangra-portal/v4/internal/proxy/grpcweb"
+	"github.com/go-tangra/go-tangra-portal/v4/internal/registry"
+	"github.com/go-tangra/go-tangra-portal/v4/internal/route"
 )
 
 func FuzzGRPCWebFrame(f *testing.F) {

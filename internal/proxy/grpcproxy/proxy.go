@@ -20,10 +20,10 @@ import (
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
 
-	"github.com/go-freya/freya/identity"
-	"github.com/go-freya/freya/observe"
-	"github.com/go-freya/freya/transport"
-	"github.com/go-freya/freya/transport/tlsconf"
+	"github.com/go-tangra/go-tangra/v4/identity"
+	"github.com/go-tangra/go-tangra/v4/observe"
+	"github.com/go-tangra/go-tangra/v4/transport"
+	"github.com/go-tangra/go-tangra/v4/transport/tlsconf"
 )
 
 // Route is where and how one call is forwarded (decided by the Director).

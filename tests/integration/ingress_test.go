@@ -20,8 +20,8 @@ import (
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/proto"
 
-	"github.com/go-freya/freya/services/gateway/internal/proxy/grpcproxy/echov1"
-	"github.com/go-freya/freya/services/gateway/internal/proxy/grpcweb"
+	"github.com/go-tangra/go-tangra-portal/v4/internal/proxy/grpcproxy/echov1"
+	"github.com/go-tangra/go-tangra-portal/v4/internal/proxy/grpcweb"
 )
 
 func decodeJSON(resp *http.Response, v any) error {

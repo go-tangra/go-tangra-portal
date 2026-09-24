@@ -8,7 +8,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/go-freya/freya/services/gateway/pkg/gatewayclient"
+	"github.com/go-tangra/go-tangra-portal/sdk/v4/pkg/gatewayclient"
 )
 
 func TestAbilitiesMatchDecisions(t *testing.T) {

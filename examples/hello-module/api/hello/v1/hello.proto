@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package hello.v1;
 
-option go_package = "github.com/go-freya/freya/services/gateway/examples/hello-module/api/hello/v1;hellov1";
+option go_package = "github.com/go-tangra/go-tangra-portal/v4/examples/hello-module/api/hello/v1;hellov1";
 
 service Hello {
   rpc Say(SayRequest) returns (SayResponse);

@@ -14,9 +14,9 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
-	gatewayv1 "github.com/go-freya/freya/services/gateway/api/proto/gateway/v1"
-	"github.com/go-freya/freya/services/gateway/internal/store"
-	"github.com/go-freya/freya/services/gateway/pkg/gatewayclient"
+	gatewayv1 "github.com/go-tangra/go-tangra-portal/sdk/v4/api/proto/gateway/v1"
+	"github.com/go-tangra/go-tangra-portal/sdk/v4/pkg/gatewayclient"
+	"github.com/go-tangra/go-tangra-portal/v4/internal/store"
 )
 
 func echoHandler(instance string) http.Handler {

@@ -20,13 +20,13 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
-	"github.com/go-freya/freya"
-	"github.com/go-freya/freya/authn"
-	"github.com/go-freya/freya/config"
-	authv1 "github.com/go-freya/freya/services/auth/api/proto/auth/v1"
-	"github.com/go-freya/freya/services/auth/pkg/authclient"
-	hellov1 "github.com/go-freya/freya/services/gateway/examples/hello-module/api/hello/v1"
-	"github.com/go-freya/freya/services/gateway/pkg/gatewayclient"
+	authv1 "github.com/go-tangra/go-tangra-auth/sdk/v4/api/proto/auth/v1"
+	"github.com/go-tangra/go-tangra-auth/sdk/v4/pkg/authclient"
+	"github.com/go-tangra/go-tangra-portal/sdk/v4/pkg/gatewayclient"
+	hellov1 "github.com/go-tangra/go-tangra-portal/v4/examples/hello-module/api/hello/v1"
+	"github.com/go-tangra/go-tangra/v4"
+	"github.com/go-tangra/go-tangra/v4/authn"
+	"github.com/go-tangra/go-tangra/v4/config"
 )
 
 type helloServer struct {

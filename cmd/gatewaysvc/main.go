@@ -11,9 +11,9 @@ import (
 	"os/signal"
 	"syscall"
 
-	"github.com/go-freya/freya/services/gateway/internal/app"
-	"github.com/go-freya/freya/services/gateway/internal/config"
-	"github.com/go-freya/freya/services/gateway/shell"
+	"github.com/go-tangra/go-tangra-portal/v4/internal/app"
+	"github.com/go-tangra/go-tangra-portal/v4/internal/config"
+	"github.com/go-tangra/go-tangra-portal/v4/shell"
 )
 
 func main() {

@@ -4,7 +4,7 @@ import (
 	"context"
 	"net/http"
 
-	"github.com/go-freya/freya/services/gateway/internal/stream"
+	"github.com/go-tangra/go-tangra-portal/v4/internal/stream"
 )
 
 // EventHub is the platform realtime bus the gateway fans out to browsers.

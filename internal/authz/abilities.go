@@ -6,8 +6,8 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/go-freya/freya/services/gateway/internal/manifest"
-	"github.com/go-freya/freya/services/gateway/internal/registry"
+	"github.com/go-tangra/go-tangra-portal/v4/internal/manifest"
+	"github.com/go-tangra/go-tangra-portal/v4/internal/registry"
 )
 
 // PackedRule is a CASL packed rule: [actions, subjects, conditions|0,

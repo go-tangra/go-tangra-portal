@@ -7,7 +7,7 @@ import (
 
 	"google.golang.org/grpc"
 
-	authv1 "github.com/go-freya/freya/services/auth/api/proto/auth/v1"
+	authv1 "github.com/go-tangra/go-tangra-auth/sdk/v4/api/proto/auth/v1"
 )
 
 // RevocationFeed is auth.v1.Sessions/RevokedSince.

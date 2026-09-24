@@ -6,7 +6,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/go-freya/freya/services/gateway/internal/manifest"
+	"github.com/go-tangra/go-tangra-portal/v4/internal/manifest"
 )
 
 // Module is what the table needs from a registration.

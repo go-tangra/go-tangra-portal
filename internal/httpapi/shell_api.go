@@ -5,8 +5,8 @@ import (
 	"net/http"
 	"sort"
 
-	"github.com/go-freya/freya/services/gateway/internal/authz"
-	"github.com/go-freya/freya/services/gateway/internal/registry"
+	"github.com/go-tangra/go-tangra-portal/v4/internal/authz"
+	"github.com/go-tangra/go-tangra-portal/v4/internal/registry"
 )
 
 // Decisions is what the shell API needs from the decider.

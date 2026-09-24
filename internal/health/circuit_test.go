@@ -7,14 +7,14 @@ import (
 	"testing"
 	"time"
 
-	fidentity "github.com/go-freya/freya/identity"
-	gatewayv1 "github.com/go-freya/freya/services/gateway/api/proto/gateway/v1"
-	"github.com/go-freya/freya/services/gateway/internal/audit"
-	"github.com/go-freya/freya/services/gateway/internal/health"
-	"github.com/go-freya/freya/services/gateway/internal/httpapi"
-	"github.com/go-freya/freya/services/gateway/internal/memstore"
-	"github.com/go-freya/freya/services/gateway/internal/registry"
-	"github.com/go-freya/freya/services/gateway/internal/store"
+	gatewayv1 "github.com/go-tangra/go-tangra-portal/sdk/v4/api/proto/gateway/v1"
+	"github.com/go-tangra/go-tangra-portal/v4/internal/audit"
+	"github.com/go-tangra/go-tangra-portal/v4/internal/health"
+	"github.com/go-tangra/go-tangra-portal/v4/internal/httpapi"
+	"github.com/go-tangra/go-tangra-portal/v4/internal/memstore"
+	"github.com/go-tangra/go-tangra-portal/v4/internal/registry"
+	"github.com/go-tangra/go-tangra-portal/v4/internal/store"
+	fidentity "github.com/go-tangra/go-tangra/v4/identity"
 )
 
 type stubBackend struct {

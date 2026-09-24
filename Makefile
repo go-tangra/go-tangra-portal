@@ -33,7 +33,7 @@ fuzz:
 	  $(GO) test -run xxx -fuzz=$$f -fuzztime=20s ./tests/fuzz/ || exit 1; done
 
 generate:
-	buf generate
+	cd sdk && buf generate
 
 shell-build:
 	cd shell && npm ci && npm run build

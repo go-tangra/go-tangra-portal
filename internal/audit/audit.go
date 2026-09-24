@@ -11,7 +11,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/go-freya/freya/services/gateway/internal/store"
+	"github.com/go-tangra/go-tangra-portal/v4/internal/store"
 )
 
 // EventType is the closed vocabulary of gateway audit events.

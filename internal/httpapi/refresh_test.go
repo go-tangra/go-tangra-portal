@@ -7,8 +7,8 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	fidentity "github.com/go-freya/freya/identity"
-	"github.com/go-freya/freya/services/gateway/internal/identity"
+	"github.com/go-tangra/go-tangra-portal/v4/internal/identity"
+	fidentity "github.com/go-tangra/go-tangra/v4/identity"
 )
 
 // headerBackend echoes a fixed response header (the auth module's refresh hint)

@@ -16,12 +16,12 @@ import (
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/proto"
 
-	"github.com/go-freya/freya/identity"
-	"github.com/go-freya/freya/internal/testrt"
-	"github.com/go-freya/freya/internal/testutil"
-	"github.com/go-freya/freya/services/gateway/internal/proxy/grpcproxy"
-	"github.com/go-freya/freya/services/gateway/internal/proxy/grpcproxy/echov1"
-	tgrpc "github.com/go-freya/freya/transport/grpc"
+	"github.com/go-tangra/go-tangra-portal/v4/internal/proxy/grpcproxy"
+	"github.com/go-tangra/go-tangra-portal/v4/internal/proxy/grpcproxy/echov1"
+	"github.com/go-tangra/go-tangra/v4/freyatest/testrt"
+	"github.com/go-tangra/go-tangra/v4/freyatest/testutil"
+	"github.com/go-tangra/go-tangra/v4/identity"
+	tgrpc "github.com/go-tangra/go-tangra/v4/transport/grpc"
 )
 
 type director struct {

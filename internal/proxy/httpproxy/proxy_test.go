@@ -10,13 +10,13 @@ import (
 	"testing"
 	"time"
 
-	"github.com/go-freya/freya/authn"
-	"github.com/go-freya/freya/identity"
-	"github.com/go-freya/freya/internal/testrt"
-	"github.com/go-freya/freya/internal/testutil"
-	"github.com/go-freya/freya/observe"
-	"github.com/go-freya/freya/transport/edge"
-	thttp "github.com/go-freya/freya/transport/http"
+	"github.com/go-tangra/go-tangra/v4/authn"
+	"github.com/go-tangra/go-tangra/v4/freyatest/testrt"
+	"github.com/go-tangra/go-tangra/v4/freyatest/testutil"
+	"github.com/go-tangra/go-tangra/v4/identity"
+	"github.com/go-tangra/go-tangra/v4/observe"
+	"github.com/go-tangra/go-tangra/v4/transport/edge"
+	thttp "github.com/go-tangra/go-tangra/v4/transport/http"
 )
 
 type seen struct {

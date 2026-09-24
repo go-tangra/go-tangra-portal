@@ -8,8 +8,8 @@ import (
 
 	"github.com/google/uuid"
 
-	"github.com/go-freya/freya/services/gateway/internal/audit"
-	"github.com/go-freya/freya/services/gateway/internal/store"
+	"github.com/go-tangra/go-tangra-portal/v4/internal/audit"
+	"github.com/go-tangra/go-tangra-portal/v4/internal/store"
 )
 
 // MarkWriter persists operator marks; AllowAdmin manages the allow-list.

@@ -14,15 +14,15 @@ import (
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
 
-	fidentity "github.com/go-freya/freya/identity"
-	"github.com/go-freya/freya/services/auth/pkg/authclient"
-	"github.com/go-freya/freya/services/gateway/internal/authz"
-	"github.com/go-freya/freya/services/gateway/internal/httpapi"
-	"github.com/go-freya/freya/services/gateway/internal/identity"
-	"github.com/go-freya/freya/services/gateway/internal/proxy/grpcproxy"
-	"github.com/go-freya/freya/services/gateway/internal/proxy/httpproxy"
-	"github.com/go-freya/freya/services/gateway/internal/registry"
-	"github.com/go-freya/freya/services/gateway/internal/route"
+	"github.com/go-tangra/go-tangra-auth/sdk/v4/pkg/authclient"
+	"github.com/go-tangra/go-tangra-portal/v4/internal/authz"
+	"github.com/go-tangra/go-tangra-portal/v4/internal/httpapi"
+	"github.com/go-tangra/go-tangra-portal/v4/internal/identity"
+	"github.com/go-tangra/go-tangra-portal/v4/internal/proxy/grpcproxy"
+	"github.com/go-tangra/go-tangra-portal/v4/internal/proxy/httpproxy"
+	"github.com/go-tangra/go-tangra-portal/v4/internal/registry"
+	"github.com/go-tangra/go-tangra-portal/v4/internal/route"
+	fidentity "github.com/go-tangra/go-tangra/v4/identity"
 )
 
 // Resolver resolves callers (identity.Resolver).

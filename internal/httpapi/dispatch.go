@@ -9,13 +9,13 @@ import (
 	"sync/atomic"
 	"time"
 
-	fidentity "github.com/go-freya/freya/identity"
-	"github.com/go-freya/freya/services/gateway/internal/audit"
-	"github.com/go-freya/freya/services/gateway/internal/identity"
-	"github.com/go-freya/freya/services/gateway/internal/proxy/httpproxy"
-	"github.com/go-freya/freya/services/gateway/internal/registry"
-	"github.com/go-freya/freya/services/gateway/internal/route"
-	"github.com/go-freya/freya/transport/edge"
+	"github.com/go-tangra/go-tangra-portal/v4/internal/audit"
+	"github.com/go-tangra/go-tangra-portal/v4/internal/identity"
+	"github.com/go-tangra/go-tangra-portal/v4/internal/proxy/httpproxy"
+	"github.com/go-tangra/go-tangra-portal/v4/internal/registry"
+	"github.com/go-tangra/go-tangra-portal/v4/internal/route"
+	fidentity "github.com/go-tangra/go-tangra/v4/identity"
+	"github.com/go-tangra/go-tangra/v4/transport/edge"
 )
 
 // Backend is a forwarder to one module instance (httpproxy.Proxy).

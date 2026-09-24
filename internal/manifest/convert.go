@@ -6,7 +6,7 @@ import (
 	"strconv"
 	"time"
 
-	gatewayv1 "github.com/go-freya/freya/services/gateway/api/proto/gateway/v1"
+	gatewayv1 "github.com/go-tangra/go-tangra-portal/sdk/v4/api/proto/gateway/v1"
 )
 
 // FromProto converts the wire manifest and validates it exactly like Parse.

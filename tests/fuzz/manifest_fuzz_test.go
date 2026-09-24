@@ -5,8 +5,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/go-freya/freya/services/gateway/internal/manifest"
-	"github.com/go-freya/freya/services/gateway/internal/route"
+	"github.com/go-tangra/go-tangra-portal/v4/internal/manifest"
+	"github.com/go-tangra/go-tangra-portal/v4/internal/route"
 )
 
 func FuzzManifest(f *testing.F) {

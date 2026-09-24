@@ -1128,7 +1128,7 @@ const file_gateway_v1_gateway_proto_rawDesc = "" +
 	"\x05Renew\x12\x18.gateway.v1.RenewRequest\x1a\x11.gateway.v1.Lease\x12K\n" +
 	"\n" +
 	"Deregister\x12\x1d.gateway.v1.DeregisterRequest\x1a\x1e.gateway.v1.DeregisterResponse\x12>\n" +
-	"\x05Watch\x12\x18.gateway.v1.WatchRequest\x1a\x19.gateway.v1.RegistryEvent0\x01BKZIgithub.com/go-freya/freya/services/gateway/api/proto/gateway/v1;gatewayv1b\x06proto3"
+	"\x05Watch\x12\x18.gateway.v1.WatchRequest\x1a\x19.gateway.v1.RegistryEvent0\x01BMZKgithub.com/go-tangra/go-tangra-portal/sdk/v4/api/proto/gateway/v1;gatewayv1b\x06proto3"
 
 var (
 	file_gateway_v1_gateway_proto_rawDescOnce sync.Once

@@ -6,7 +6,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/go-freya/freya/services/gateway/internal/store"
+	"github.com/go-tangra/go-tangra-portal/v4/internal/store"
 )
 
 func TestAllowAndMarks(t *testing.T) {

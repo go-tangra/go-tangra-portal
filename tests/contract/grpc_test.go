@@ -5,8 +5,8 @@ import (
 
 	"google.golang.org/protobuf/reflect/protoreflect"
 
-	gatewayv1 "github.com/go-freya/freya/services/gateway/api/proto/gateway/v1"
-	"github.com/go-freya/freya/services/gateway/internal/registry"
+	gatewayv1 "github.com/go-tangra/go-tangra-portal/sdk/v4/api/proto/gateway/v1"
+	"github.com/go-tangra/go-tangra-portal/v4/internal/registry"
 )
 
 // TestGatewayV1Shapes pins the wire contract (contracts/gateway.v1.proto).

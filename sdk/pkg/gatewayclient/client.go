@@ -18,7 +18,7 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
-	gatewayv1 "github.com/go-freya/freya/services/gateway/api/proto/gateway/v1"
+	gatewayv1 "github.com/go-tangra/go-tangra-portal/sdk/v4/api/proto/gateway/v1"
 )
 
 // Options configure the registration loop.

@@ -4,8 +4,8 @@ import (
 	"encoding/json"
 	"testing"
 
-	"github.com/go-freya/freya/services/gateway/internal/authz"
-	"github.com/go-freya/freya/services/gateway/internal/manifest"
+	"github.com/go-tangra/go-tangra-portal/v4/internal/authz"
+	"github.com/go-tangra/go-tangra-portal/v4/internal/manifest"
 )
 
 func FuzzAbilityPack(f *testing.F) {

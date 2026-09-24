@@ -11,8 +11,8 @@ import (
 
 	"google.golang.org/grpc"
 
-	"github.com/go-freya/freya/services/gateway/internal/proxy/grpcproxy/echov1"
-	"github.com/go-freya/freya/services/gateway/pkg/gatewayclient"
+	"github.com/go-tangra/go-tangra-portal/sdk/v4/pkg/gatewayclient"
+	"github.com/go-tangra/go-tangra-portal/v4/internal/proxy/grpcproxy/echov1"
 )
 
 // alphaFull declares HTTP routes and gRPC methods, public and protected.

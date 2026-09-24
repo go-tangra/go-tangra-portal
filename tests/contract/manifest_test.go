@@ -8,8 +8,8 @@ import (
 
 	"github.com/santhosh-tekuri/jsonschema/v6"
 
-	"github.com/go-freya/freya/services/gateway/api/schema"
-	"github.com/go-freya/freya/services/gateway/internal/manifest"
+	"github.com/go-tangra/go-tangra-portal/sdk/v4/api/schema"
+	"github.com/go-tangra/go-tangra-portal/v4/internal/manifest"
 )
 
 const specSchema = "../../../../specs/003-application-gateway/contracts/manifest.schema.json"

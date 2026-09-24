@@ -4,8 +4,8 @@ import (
 	"context"
 	"time"
 
-	authv1 "github.com/go-freya/freya/services/auth/api/proto/auth/v1"
-	"github.com/go-freya/freya/services/gateway/internal/manifest"
+	authv1 "github.com/go-tangra/go-tangra-auth/sdk/v4/api/proto/auth/v1"
+	"github.com/go-tangra/go-tangra-portal/v4/internal/manifest"
 )
 
 // registerPermissions declares a module's API permissions in the auth module

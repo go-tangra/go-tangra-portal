@@ -13,7 +13,7 @@ import (
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
 
-	"github.com/go-freya/freya/authn"
+	"github.com/go-tangra/go-tangra/v4/authn"
 )
 
 // Server is the test implementation of Echo: it reflects selected inbound

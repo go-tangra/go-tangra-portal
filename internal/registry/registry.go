@@ -22,11 +22,11 @@ import (
 
 	"google.golang.org/grpc/codes"
 
-	gatewayv1 "github.com/go-freya/freya/services/gateway/api/proto/gateway/v1"
-	"github.com/go-freya/freya/services/gateway/internal/audit"
-	"github.com/go-freya/freya/services/gateway/internal/manifest"
-	"github.com/go-freya/freya/services/gateway/internal/route"
-	"github.com/go-freya/freya/services/gateway/internal/store"
+	gatewayv1 "github.com/go-tangra/go-tangra-portal/sdk/v4/api/proto/gateway/v1"
+	"github.com/go-tangra/go-tangra-portal/v4/internal/audit"
+	"github.com/go-tangra/go-tangra-portal/v4/internal/manifest"
+	"github.com/go-tangra/go-tangra-portal/v4/internal/route"
+	"github.com/go-tangra/go-tangra-portal/v4/internal/store"
 )
 
 // Error is a refusal with a gRPC code and a closed-vocabulary reason.

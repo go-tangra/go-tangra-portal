@@ -7,7 +7,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/go-freya/freya/services/gateway/internal/manifest"
+	"github.com/go-tangra/go-tangra-portal/v4/internal/manifest"
 )
 
 func mod(name string, prefixes []string, routes []manifest.Route, methods []manifest.Method) Module {

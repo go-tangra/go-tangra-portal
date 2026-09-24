@@ -86,7 +86,7 @@ const file_echo_proto_rawDesc = "" +
 	"\x05Unary\x12\f.echo.v1.Msg\x1a\f.echo.v1.Msg\x12,\n" +
 	"\fServerStream\x12\f.echo.v1.Msg\x1a\f.echo.v1.Msg0\x01\x12,\n" +
 	"\fClientStream\x12\f.echo.v1.Msg\x1a\f.echo.v1.Msg(\x01\x12&\n" +
-	"\x04Bidi\x12\f.echo.v1.Msg\x1a\f.echo.v1.Msg(\x010\x01BSZQgithub.com/go-freya/freya/services/gateway/internal/proxy/grpcproxy/echov1;echov1b\x06proto3"
+	"\x04Bidi\x12\f.echo.v1.Msg\x1a\f.echo.v1.Msg(\x010\x01BQZOgithub.com/go-tangra/go-tangra-portal/v4/internal/proxy/grpcproxy/echov1;echov1b\x06proto3"
 
 var (
 	file_echo_proto_rawDescOnce sync.Once

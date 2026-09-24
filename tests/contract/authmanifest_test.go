@@ -4,9 +4,9 @@ import (
 	"encoding/json"
 	"testing"
 
-	"github.com/go-freya/freya/services/auth/pkg/authmanifest"
-	"github.com/go-freya/freya/services/gateway/internal/manifest"
-	"github.com/go-freya/freya/services/gateway/internal/route"
+	"github.com/go-tangra/go-tangra-auth/v4/pkg/authmanifest"
+	"github.com/go-tangra/go-tangra-portal/v4/internal/manifest"
+	"github.com/go-tangra/go-tangra-portal/v4/internal/route"
 )
 
 // The auth module's manifest must satisfy the published schema and rules.

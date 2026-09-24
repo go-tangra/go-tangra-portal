@@ -6,7 +6,7 @@ package grpcapi
 import (
 	"google.golang.org/grpc"
 
-	gatewayv1 "github.com/go-freya/freya/services/gateway/api/proto/gateway/v1"
+	gatewayv1 "github.com/go-tangra/go-tangra-portal/sdk/v4/api/proto/gateway/v1"
 )
 
 // Register mounts the Registry service; nil installs the Unimplemented stub

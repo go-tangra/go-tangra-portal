@@ -14,7 +14,7 @@ import (
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
 
-	"github.com/go-freya/freya/services/gateway/internal/proxy/grpcproxy"
+	"github.com/go-tangra/go-tangra-portal/v4/internal/proxy/grpcproxy"
 )
 
 // Opener starts forwarded streams (the passthrough proxy).

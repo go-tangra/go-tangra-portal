@@ -8,10 +8,10 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/go-freya/freya/internal/testrt"
-	"github.com/go-freya/freya/internal/testutil"
-	"github.com/go-freya/freya/services/gateway/api/openapi"
-	"github.com/go-freya/freya/services/gateway/internal/httpapi"
+	"github.com/go-tangra/go-tangra-portal/v4/api/openapi"
+	"github.com/go-tangra/go-tangra-portal/v4/internal/httpapi"
+	"github.com/go-tangra/go-tangra/v4/freyatest/testrt"
+	"github.com/go-tangra/go-tangra/v4/freyatest/testutil"
 )
 
 const specOpenAPI = "../../../../specs/003-application-gateway/contracts/gateway-api.openapi.yaml"

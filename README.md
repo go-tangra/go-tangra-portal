@@ -61,7 +61,7 @@ make perf-gate       # BenchmarkForward p95 overhead
 
 ## Moving to its own repository
 
-The service depends on the framework (`github.com/go-freya/freya`) and on the
+The service depends on the framework (`github.com/go-tangra/go-tangra/v4`) and on the
 auth module's public API (`services/auth/api/proto`, `pkg/authclient`,
 `pkg/authmanifest`); both are consumed through `replace` directives in
 `go.mod` that become versioned requirements once published. The integration

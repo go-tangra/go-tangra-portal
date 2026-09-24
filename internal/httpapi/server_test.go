@@ -12,9 +12,9 @@ import (
 	"testing/fstest"
 	"time"
 
-	"github.com/go-freya/freya/internal/testrt"
-	"github.com/go-freya/freya/internal/testutil"
-	"github.com/go-freya/freya/transport/edge"
+	"github.com/go-tangra/go-tangra/v4/freyatest/testrt"
+	"github.com/go-tangra/go-tangra/v4/freyatest/testutil"
+	"github.com/go-tangra/go-tangra/v4/transport/edge"
 )
 
 var shellFS = fstest.MapFS{

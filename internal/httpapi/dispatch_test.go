@@ -13,14 +13,14 @@ import (
 
 	"google.golang.org/protobuf/types/known/durationpb"
 
-	"github.com/go-freya/freya/identity"
-	gatewayv1 "github.com/go-freya/freya/services/gateway/api/proto/gateway/v1"
-	"github.com/go-freya/freya/services/gateway/internal/memstore"
-	"github.com/go-freya/freya/services/gateway/internal/proxy/httpproxy"
-	"github.com/go-freya/freya/services/gateway/internal/registry"
-	"github.com/go-freya/freya/services/gateway/internal/route"
-	"github.com/go-freya/freya/services/gateway/internal/store"
-	"github.com/go-freya/freya/transport/edge"
+	gatewayv1 "github.com/go-tangra/go-tangra-portal/sdk/v4/api/proto/gateway/v1"
+	"github.com/go-tangra/go-tangra-portal/v4/internal/memstore"
+	"github.com/go-tangra/go-tangra-portal/v4/internal/proxy/httpproxy"
+	"github.com/go-tangra/go-tangra-portal/v4/internal/registry"
+	"github.com/go-tangra/go-tangra-portal/v4/internal/route"
+	"github.com/go-tangra/go-tangra-portal/v4/internal/store"
+	"github.com/go-tangra/go-tangra/v4/identity"
+	"github.com/go-tangra/go-tangra/v4/transport/edge"
 )
 
 type fakeBackend struct {

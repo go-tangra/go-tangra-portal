@@ -12,8 +12,8 @@ import (
 
 	"google.golang.org/grpc"
 
-	authv1 "github.com/go-freya/freya/services/auth/api/proto/auth/v1"
-	"github.com/go-freya/freya/services/gateway/internal/audit"
+	authv1 "github.com/go-tangra/go-tangra-auth/sdk/v4/api/proto/auth/v1"
+	"github.com/go-tangra/go-tangra-portal/v4/internal/audit"
 )
 
 // Checker is auth.v1.AuthorizationClient's BatchCheck.

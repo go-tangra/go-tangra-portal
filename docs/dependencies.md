@@ -1,6 +1,6 @@
 # Dependency Justification — services/gateway (Constitution Principle VI)
 
-Go: no modules beyond those already justified for `services/auth` (`github.com/go-freya/freya`,
+Go: no modules beyond those already justified for `services/auth` (`github.com/go-tangra/go-tangra/v4`,
 `services/auth` for `pkg/authclient`, `grpc`, `valkey-go`, `pgx`, `goose`, `kin-openapi`,
 `testcontainers-go` for the tagged suite). The gRPC passthrough proxy and the gRPC-web bridge
 are in-house code on grpc-go: the usual libraries (mwitkow/grpc-proxy, improbable-eng/grpc-web)

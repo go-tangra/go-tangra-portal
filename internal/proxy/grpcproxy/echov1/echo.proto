@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package echo.v1;
 
-option go_package = "github.com/go-freya/freya/services/gateway/internal/proxy/grpcproxy/echov1;echov1";
+option go_package = "github.com/go-tangra/go-tangra-portal/v4/internal/proxy/grpcproxy/echov1;echov1";
 
 // Echo exercises every call kind through the passthrough proxy (tests only).
 service Echo {
