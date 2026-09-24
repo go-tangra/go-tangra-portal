@@ -1,212 +1,55 @@
-# Makefile for managing the Go microservices project
+GO        ?= go
+PKGS      := $(shell $(GO) list ./... | grep -v /examples/)
+COVER_OUT := coverage.out
 
-ifeq ($(OS),Windows_NT)
-    IS_WINDOWS := 1
-endif
+.PHONY: lint vuln test test-integration cover fuzz generate shell-build redaction-scan perf-gate e2e compose-up compose-down
 
-# load environment variables from .env file if it exists
-ifneq (,$(wildcard .env))
-    include .env
-    export
-endif
-
-CURRENT_DIR	:= $(patsubst %/,%,$(dir $(abspath $(lastword $(MAKEFILE_LIST)))))
-ROOT_DIR	:= $(dir $(realpath $(lastword $(MAKEFILE_LIST))))
-
-SRCS_MK		:= $(foreach dir, app, $(wildcard $(dir)/*/*/Makefile))
-
-.PHONY: help wire gen ent build api openapi init all vendor dep test cover vet lint docker
-
-# show environment variables
-env:
-	@echo "CURRENT_DIR: $(CURRENT_DIR)"
-	@echo "ROOT_DIR: $(ROOT_DIR)"
-	@echo "SRCS_MK: $(SRCS_MK)"
-
-# initialize develop environment
-init: plugin cli
-
-# install protoc plugin
-plugin:
-	# go
-	@go install google.golang.org/protobuf/cmd/protoc-gen-go@latest
-	@go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest
-	@go install github.com/go-kratos/kratos/cmd/protoc-gen-go-http/v2@latest
-	@go install github.com/go-kratos/kratos/cmd/protoc-gen-go-errors/v2@latest
-	@go install github.com/google/gnostic/cmd/protoc-gen-openapi@latest
-	@go install github.com/envoyproxy/protoc-gen-validate@latest
-	@go install github.com/menta2k/protoc-gen-redact/v3@latest
-	@go install github.com/go-kratos/protoc-gen-typescript-http@latest
-	# Dart
-	@flutter pub global activate protoc_plugin
-	# Typescript
-	@npm install -g ts-proto
-
-# install cli tools
-cli:
-	@go install github.com/go-kratos/kratos/cmd/kratos/v2@latest
-	@go install github.com/google/gnostic@latest
-	@go install github.com/bufbuild/buf/cmd/buf@latest
-	@go install entgo.io/ent/cmd/ent@latest
-	@go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest
-	@go install github.com/tx7do/kratos-cli/config-exporter/cmd/cfgexp@latest
-	@go install github.com/tx7do/kratos-cli/sql-orm/cmd/sql2orm@latest
-	@go install github.com/tx7do/kratos-cli/sql-proto/cmd/sql2proto@latest
-	@go install github.com/tx7do/kratos-cli/sql-kratos/cmd/sql2kratos@latest
-	@go install github.com/tx7do/kratos-cli/gowind/cmd/gow@latest
-
-# download dependencies of module
-dep:
-	@go mod download
-
-# create vendor
-vendor:
-	@go mod vendor
-
-# run tests
-test:
-	@go test ./...
-
-# run coverage tests
-cover:
-	@go test -v ./... -coverprofile=coverage.out
-
-# run static analysis
-vet:
-	@go vet
-
-# run lint
 lint:
-	@golangci-lint run
+	$(GO) vet ./...
+	staticcheck ./...
+	gosec -quiet -exclude-generated -exclude-dir=shell -exclude-dir=examples/hello-module/ui ./...
 
-# generate wire code
-wire:
-	$(foreach dir, $(dir $(realpath $(SRCS_MK))),\
-      cd $(dir);\
-      make wire;\
-    )
+vuln:
+	./scripts/vulncheck.sh
+	cd sdk && ../scripts/vulncheck.sh
 
-# generate ent code
-ent:
-	$(foreach dir, $(dir $(realpath $(SRCS_MK))),\
-      cd $(dir);\
-      make ent;\
-    )
+test:
+	$(GO) test -race -count=1 ./...
 
-# generate code
-gen: ent wire api openapi
+test-integration:
+	$(GO) test -race -count=1 -tags integration ./tests/integration/...
 
-# generate protobuf api go code
-api:
-	@cd api && \
-	buf generate
+# Unit coverage is measured over packages that carry logic. Generated protobuf
+# code, the SQL bindings (internal/store, */*db), the wiring (internal/app, cmd,
+# examples) and the test packages are exercised by the tagged integration suite
+# (make test-integration) and are excluded from the unit gate on purpose.
+COVERPKG := $(shell $(GO) list ./... | grep -v -E '/api/proto/|/echov1$$|/internal/store$$|/internal/storeadapter$$|/internal/memstore$$|db$$|/internal/app$$|/cmd/|/examples/|/tests/|/shell$$' | paste -sd, -)
 
-# generate protobuf api OpenAPI v3 docs.
-openapi:
-	@cd api && \
-	buf generate --template buf.admin.openapi.gen.yaml
+cover:
+	$(GO) test -count=1 -coverprofile=$(COVER_OUT) -coverpkg=$(COVERPKG) $(PKGS)
+	./scripts/coverage-gate.sh $(COVER_OUT)
 
-# generate IPAM service OpenAPI v3 docs
-# Note: Menus are now in separate menus.yaml files in each module's cmd/server/assets/
-openapi-ipam:
-	@cd api && \
-	buf generate --template buf.ipam.openapi.gen.yaml
+fuzz:
+	for f in FuzzManifest FuzzCASLRule FuzzPrefix FuzzRoutePath FuzzRegisterRequest FuzzGRPCWebFrame FuzzBearerToken FuzzPathNormalize FuzzAbilityPack; do \
+	  $(GO) test -run xxx -fuzz=$$f -fuzztime=20s ./tests/fuzz/ || exit 1; done
 
-# generate LCM service OpenAPI v3 docs
-openapi-lcm:
-	@cd api && \
-	buf generate --template buf.lcm.openapi.gen.yaml
+generate:
+	cd sdk && buf generate
 
-# generate Deployer service OpenAPI v3 docs
-openapi-deployer:
-	@cd api && \
-	buf generate --template buf.deployer.openapi.gen.yaml
+shell-build:
+	cd shell && npm ci && npm run build
 
-# generate Warden service OpenAPI v3 docs
-openapi-warden:
-	@cd api && \
-	buf generate --template buf.warden.openapi.gen.yaml
+redaction-scan:
+	./scripts/redaction-scan.sh
 
-# generate OpenAPI specs for all modules
-openapi-modules: openapi-ipam openapi-lcm openapi-deployer openapi-warden
-	@echo "All module OpenAPI specs generated"
+e2e:
+	cd shell && npx playwright test
 
-# generate protobuf api Typescript code
-ts:
-	@cd api && \
-	buf generate --template buf.admin.typescript.gen.yaml
-
-# build all service applications
-build: api openapi
-	$(foreach dir, $(dir $(realpath $(SRCS_MK))),\
-      cd $(dir);\
-      make build;\
-    )
-
-# only build all service applications without generating api and openapi
-build_only:
-	$(foreach dir, $(dir $(realpath $(SRCS_MK))),\
-      cd $(dir);\
-      make build_only;\
-    )
-
-# export configuration to etcd
-export:
-	@cfgexp \
-		--type=etcd \
-		--addr=localhost:2379 \
-		--proj=$(PROJECT_NAME)
-
-# generate & build all service applications
-all:
-	$(foreach dir, $(dir $(realpath $(SRCS_MK))),\
-      cd $(dir);\
-      make app;\
-    )
-
-# use docker compose to run backend services and all its dependency services like redis, mysql, etc.
 compose-up:
-	@docker compose up -d --force-recreate
+	docker compose -f deploy/compose.yaml up -d
 
-# use docker compose to restart backend services and all its dependency services like redis, mysql, etc.
-compose-restart:
-	@docker compose restart
-
-# use docker compose to down backend services and all its dependency services like redis, mysql, etc.
 compose-down:
-	@docker compose down
+	docker compose -f deploy/compose.yaml down -v
 
-# use docker compose to run only dependency services like redis, mysql, etc. without backend services.
-compose-up-without-service:
-	@docker compose -f `docker-compose-without-services.yaml` up -d
-
-# build docker image
-docker:
-	$(foreach dir, $(dir $(realpath $(SRCS_MK))),\
-      cd $(dir);\
-      make docker;\
-    )
-docker-push:
-	$(foreach dir, $(dir $(realpath $(SRCS_MK))),\
-      cd $(dir);\
-      make docker-push;\
-    )
-
-# show help
-help:
-	@echo ""
-	@echo "Usage:"
-	@echo " make [target]"
-	@echo ""
-	@echo "Targets:"
-	@awk '/^[a-zA-Z\-_0-9]+:/ { \
-	helpMessage = match(lastLine, /^# (.*)/); \
-		if (helpMessage) { \
-			helpCommand = substr($$1, 0, index($$1, ":")-1); \
-			helpMessage = substr(lastLine, RSTART + 2, RLENGTH); \
-			printf "\033[36m%-22s\033[0m %s\n", helpCommand,helpMessage; \
-		} \
-	} \
-	{ lastLine = $$0 }' $(MAKEFILE_LIST)
-
-.DEFAULT_GOAL := help
+perf-gate:
+	./scripts/perf-gate.sh

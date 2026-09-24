@@ -1,6 +1,0 @@
-# Environment file with secrets
-.env
-
-# Test outputs
-*.log
-test-results/

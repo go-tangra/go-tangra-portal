@@ -1,0 +1,8 @@
+# Freya service-to-service policy for the gateway.
+version: gateway-dev-1
+rules:
+  - id: modules-register
+    from: ["spiffe://example.org/svc/*"]
+    to: ["gateway"]
+    operations: ["/gateway.v1.Registry/Register", "/gateway.v1.Registry/Renew", "/gateway.v1.Registry/Deregister", "/gateway.v1.Registry/Watch", "/grpc.health.v1.Health/Check"]
+    effect: allow

@@ -1,0 +1,15 @@
+syntax = "proto3";
+
+package echo.v1;
+
+option go_package = "github.com/go-tangra/go-tangra-portal/v4/internal/proxy/grpcproxy/echov1;echov1";
+
+// Echo exercises every call kind through the passthrough proxy (tests only).
+service Echo {
+  rpc Unary(Msg) returns (Msg);
+  rpc ServerStream(Msg) returns (stream Msg);
+  rpc ClientStream(stream Msg) returns (Msg);
+  rpc Bidi(stream Msg) returns (stream Msg);
+}
+
+message Msg { string text = 1; int32 count = 2; }

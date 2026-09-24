@@ -1,285 +1,135 @@
 # go-tangra-portal
 
-API gateway and administration backend for the Go-Tangra platform. Serves as a Backend-for-Frontend (BFF) with dynamic HTTP-to-gRPC transcoding, authentication, authorization, and module discovery.
+The application gateway of the [go-tangra v4 platform](https://github.com/go-tangra/go-tangra):
+the platform's edge, its module registry and the shell UI.
 
-## Features
+- **Edge.** The gateway is the only public listener. Browsers and API clients talk to it;
+  it verifies sessions and bearer tokens with the auth service, decides permissions, and
+  forwards HTTP, gRPC and gRPC-Web calls to modules over their pinned mTLS channel.
+- **Module registry.** Modules stay private. They register their routes, gRPC methods,
+  API permissions and CASL abilities with `gateway.v1.Registry` (Register / Renew /
+  Deregister / Watch) under a lease, and only SPIFFE identities on the allow-list may do so.
+- **Shell UI.** The gateway embeds the Vue 3 + FlyonUI Module Federation host (`shell/`,
+  built on `@go-tangra/ui`), which composes every registered module's UI remote.
 
-- **Dynamic Module Router** — Hot-reloading of microservice routes without restart
-- **HTTP/gRPC Transcoding** — REST clients transparently access gRPC services via protobuf descriptors
-- **Authentication** — JWT tokens with access/refresh lifecycle, OAuth 2.0, MFA (TOTP, WebAuthn, SMS, backup codes)
-- **Authorization** — Casbin, OPA, and Zanzibar policy engines with role-based access control
-- **Multi-Tenant** — Tenant isolation at service and database levels
-- **Audit Logging** — API, login, operation, data access, permission, and policy evaluation audit trails with ECDSA tamper-proof signatures
-- **Module Registration** — Services self-register with OpenAPI specs, proto descriptors, and menu definitions
-- **File Management** — S3-compatible object storage via MinIO
-- **Internal Messaging** — System notifications with real-time SSE delivery
-- **Platform Statistics** — Aggregated dashboard metrics from all registered modules
-- **Task Scheduling** — Cron-based background job processing via Asynq
-- **Sensitive Data Redaction** — Automatic redaction of sensitive fields in logs and responses
+Security model: [`docs/security-model.md`](docs/security-model.md).
+Operations: [`docs/operations.md`](docs/operations.md).
+Module authors: [`docs/module-guide.md`](docs/module-guide.md).
+Dependencies: [`docs/dependencies.md`](docs/dependencies.md).
+Design history: `specs/003-application-gateway`.
 
-## Ports
+> v4.0.0 replaces the v3 go-tangra portal with this gateway. The v3 portal stays on the
+> `v3` branch and its `v3.x` tags (and images).
 
-| Port | Protocol | Purpose |
-|------|----------|---------|
-| 7787 | gRPC | Service-to-service communication |
-| 7788 | HTTP | REST API for frontend |
-| 7789 | HTTP | Server-Sent Events (SSE) |
-
-## Architecture
+## Place in the platform
 
 ```
-Frontend (Vue.js)
-    │
-    ▼
-Admin Gateway (this service)
-    │ REST → gRPC transcoding
-    ├── LCM Service (:9100)
-    ├── Deployer Service (:9200)
-    ├── Warden Service (:9300)
-    ├── IPAM Service (:9400)
-    ├── Paperless Service (:9500)
-    ├── Sharing Service (:9600)
-    └── Bookmark Service (:9700)
+go-tangra/go-tangra          platform module + @go-tangra/ui kit
+        |
+go-tangra-auth  <---->  go-tangra-portal (gateway)  <---->  go-tangra-lcm
+                                  ^
+        warden, inventory, notification, paperless, deployer, ipam, ticket, asset, dns
+        (register through the portal sdk and ship their UI as federated remotes)
 ```
 
-## Core Services
+- Built on `github.com/go-tangra/go-tangra/v4` (mTLS transports, identity, service
+  policy, audit, observability).
+- Exchanges sessions and verifies tokens through the auth SDK
+  (`github.com/go-tangra/go-tangra-auth/sdk/v4`).
+- Enrolls for its own SVID with lcm (`github.com/go-tangra/go-tangra-lcm/sdk/v4`).
 
-### Authentication & Security
+## Modules in this repository
 
-| Service | Purpose |
-|---------|---------|
-| **AuthenticationService** | Login, logout, token refresh, WhoAmI, OAuth 2.0 providers |
-| **MFAService** | Multi-factor authentication: TOTP enrollment/verification, WebAuthn/FIDO2, SMS, backup codes, device revocation |
-| **LoginPolicyService** | Login policy management and enforcement |
+| Module | Path | Consumers |
+|---|---|---|
+| `github.com/go-tangra/go-tangra-portal/v4` | `/` | the gateway (`cmd/gatewaysvc`) and `examples/hello-module` |
+| `github.com/go-tangra/go-tangra-portal/sdk/v4` | `sdk/` | every module: the `gateway.v1` protobuf API, the manifest schema and `pkg/gatewayclient` (manifest builder, registration loop) |
 
-### User & Tenant Management
+The gateway builds against the in-repo SDK through
+`replace github.com/go-tangra/go-tangra-portal/sdk/v4 => ./sdk`. Modules use the
+SDK's published `sdk/vX.Y.Z` tag.
 
-| Service | Purpose |
-|---------|---------|
-| **UserService** | User CRUD, password management, status lifecycle (normal, disabled, pending, locked, expired, closed) |
-| **UserProfileService** | Profile management, avatar upload, contact binding with verification |
-| **TenantService** | Multi-tenant management, tenant creation with admin user provisioning |
+## Layout
 
-### Role & Permission Management
-
-| Service | Purpose |
-|---------|---------|
-| **RoleService** | Role CRUD with tenant-scoped metadata |
-| **PermissionService** | Permission CRUD, permission sync from code annotations |
-| **PermissionGroupService** | Permission group organization |
-| **MenuService** | Menu/route tree management |
-| **ApiService** | API resource tracking, route discovery, sync |
-
-### Organization Structure
-
-| Service | Purpose |
-|---------|---------|
-| **OrgUnitService** | Hierarchical organization unit management |
-| **PositionService** | Position/job title management |
-
-### Audit Logging
-
-| Service | Purpose |
-|---------|---------|
-| **ApiAuditLogService** | API call audit logs (including transcoded module requests) |
-| **LoginAuditLogService** | Login attempt logs with IP, device info, geo-location |
-| **OperationAuditLogService** | User operation audit logs |
-| **DataAccessAuditLogService** | Data access tracking |
-| **PermissionAuditLogService** | Permission change audit logs |
-| **PolicyEvaluationLogService** | Authorization policy evaluation decision logs |
-
-All audit logs include ECDSA digital signatures for tamper-proofing, device fingerprinting, and sensitive data redaction.
-
-### Content & Communication
-
-| Service | Purpose |
-|---------|---------|
-| **FileService** | File metadata management |
-| **FileTransferService** | Upload/download with S3 streaming |
-| **UEditorService** | Rich text editor backend integration |
-| **InternalMessageService** | Message send/revoke with real-time SSE delivery |
-| **InternalMessageCategoryService** | Message category management |
-| **InternalMessageRecipientService** | User inbox with read/unread tracking |
-
-### Platform Services
-
-| Service | Purpose |
-|---------|---------|
-| **AdminPortalService** | Initial context, navigation routes, permission codes |
-| **ModuleRegistrationService** | Dynamic module lifecycle, heartbeat, discovery |
-| **PlatformStatisticsService** | Aggregated stats from all modules (users, tenants, roles, integrations) |
-| **TaskService** | Scheduled task management with start/stop/restart controls |
-| **DictTypeService** | Dictionary type management |
-| **DictEntryService** | Dictionary entry management with i18n |
-| **LanguageService** | Language/locale management |
-
-## Multi-Factor Authentication (MFA)
-
-Supports multiple MFA methods with enrollment and challenge flows:
-
-- **TOTP** — Time-based one-time passwords with QR code generation
-- **WebAuthn/FIDO2** — Hardware security keys and biometric authenticators
-- **SMS** — SMS-based verification codes
-- **Backup codes** — One-time recovery codes
-
-Endpoints:
-- `POST /admin/v1/mfa/challenge` — Start MFA challenge during login (unauthenticated)
-- `POST /admin/v1/mfa/verify` — Verify MFA challenge, returns JWT on success (unauthenticated)
-- `GET /admin/v1/me/mfa/status` — Get current user's MFA status
-- `GET /admin/v1/me/mfa/methods` — List enrolled MFA methods
-- `POST /admin/v1/me/mfa/enroll` — Start enrolling an MFA method
-- `POST /admin/v1/me/mfa/enroll/confirm` — Confirm enrollment with verification code
-- `POST /admin/v1/me/mfa/disable` — Disable MFA
-- `POST /admin/v1/me/mfa/backup-codes` — Generate new backup codes
-- `GET /admin/v1/me/mfa/backup-codes` — List backup code metadata
-- `DELETE /admin/v1/me/mfa/devices/{credential_id}` — Revoke a specific MFA device
-
-## Module Registration
-
-Services register dynamically at startup, providing:
-- gRPC endpoint address
-- Protobuf `FileDescriptorSet` (with `google.api.http` annotations)
-- OpenAPI specification
-- UI menu definitions (YAML)
-- Periodic heartbeat for health tracking (30s interval)
-
-The gateway parses proto descriptors to create HTTP routes at `/admin/v1/modules/{module_id}/v1/...`, transcoding REST requests to gRPC calls with auth context injection (`x-md-global-*` metadata).
-
-Registered modules: LCM, Deployer, IPAM, Warden, Paperless, Sharing, Bookmark
-
-## Authorization Engines
-
-Multiple pluggable authorization backends:
-
-| Engine | Description |
-|--------|-------------|
-| **Casbin** | RBAC/ABAC policy engine with adapter-based storage |
-| **OPA** | Open Policy Agent with Rego policies (see `assets/rbac.rego`) |
-| **Zanzibar** | Google Zanzibar-style ReBAC via Keto or OpenFGA |
-| **noop** | No-op engine for development/testing |
-
-## Database Schema
-
-40 Ent ORM entities with shared mixins for auto-increment IDs, timestamps, operator tracking, tenant scoping, and soft deletes:
-
-**Core**: User, Tenant, Role, Permission, Menu, Api, Module
-**Relations**: UserRole, UserPosition, UserOrgUnit, RolePermission, PermissionMenu, PermissionApi, Membership, MembershipRole, MembershipPosition, MembershipOrgUnit
-**Organization**: OrgUnit, Position
-**Security**: UserCredential, LoginPolicy, PermissionPolicy, PermissionGroup, RoleMetadata
-**Audit**: ApiAuditLog, LoginAuditLog, OperationAuditLog, DataAccessAuditLog, PermissionAuditLog, PolicyEvaluationLog
-**Content**: File, InternalMessage, InternalMessageCategory, InternalMessageRecipient
-**Dictionary**: DictType, DictEntry, DictTypeI18n, DictEntryI18n, Language
-**Tasks**: Task
-
-## Configuration
-
-Service configs in `app/admin/service/configs/`:
-
-| File | Purpose |
+| Path | Purpose |
 |------|---------|
-| `server.yaml` | HTTP/gRPC/SSE server ports, TLS, timeouts, middleware (logging, recovery, tracing, validation, circuit breaker) |
-| `auth.yaml` | JWT settings (HS256/RS256/ES256/Ed25519), WebAuthn config, authorization engine selection |
-| `data.yaml` | Database connection (PostgreSQL, MySQL, SQLite), auto-migration, connection pooling, Redis |
-| `oss.yaml` | MinIO/S3 object storage |
-| `client.yaml` | External service clients (LCM, Deployer, Paperless, IPAM) |
-| `logger.yaml` | Structured logging configuration |
+| `cmd/gatewaysvc` | binary (serve, `bootstrap` seeds the allow-list, `version`) |
+| `internal/registry` | registrations, leases, marks, allow-list, route snapshot |
+| `internal/httpapi` | edge handler: dispatcher, shell/ops API, SSE, remote relay |
+| `internal/identity`, `internal/authz` | session exchange / bearer verification; permission decisions and CASL abilities |
+| `internal/proxy/{httpproxy,grpcproxy,grpcweb}` | forwarding over the pinned mTLS channel |
+| `internal/health` | probes and circuit breaking |
+| `api/openapi/gateway.yaml` | shell and operations API under `/gateway/v1` |
+| `sdk/api/proto/gateway/v1`, `sdk/api/schema` | registry API and module manifest contract |
+| `shell/` | Module Federation host, embedded with `-tags shell` |
+| `examples/hello-module` | smallest complete module (API + remote UI) |
+| `deploy` | development compose stack, dev configuration, allow-list policies |
+| `tests/{contract,fuzz,integration}` | contract, fuzz and Docker-backed integration suites |
 
-Supports config sources: local YAML, Consul, etcd, Nacos, Kubernetes ConfigMaps.
+## Build and test
 
-## Build
-
-```bash
-make api            # Generate gRPC/HTTP code from protos (buf)
-make openapi        # Generate OpenAPI v3 documentation
-make ent            # Generate Ent ORM code
-make wire           # Generate Wire dependency injection
-make gen            # Generate all (ent + wire + api + openapi)
-make build          # Build binary (with API generation)
-make build_only     # Build binary (without generation)
-make test           # Run tests
-make test-cover     # Run tests with coverage report
-make lint           # Run golangci-lint
-make docker         # Build Docker image
-make docker-push    # Build, tag, and push to registry
-make docker-buildx  # Build multi-platform image (amd64/arm64)
-make run-server     # Run the server locally
-```
-
-### Protoc Plugins
+You need Go 1.26, Node 22, Docker (for integration tests and the image), `buf`, and a
+GitHub token with `read:packages` to install `@go-tangra/ui` from GitHub Packages.
 
 ```bash
-make init           # Install all protoc plugins and CLI tools
+go build ./... && go vet ./... && go test -race ./...
+(cd sdk && go vet ./... && go test -race ./...)
+for d in sdk examples/hello-module internal/proxy/grpcproxy/echov1; do (cd $d && buf lint); done
+make test-integration                     # -tags integration, needs Docker and a go-tangra-auth checkout
+make lint cover fuzz redaction-scan perf-gate vuln
+
+cd shell
+export NODE_AUTH_TOKEN=$(gh auth token)   # shell/.npmrc only references this variable
+npm ci && npm run lint && npm run test:unit && npm run build
 ```
 
-Plugins: `protoc-gen-go`, `protoc-gen-go-grpc`, `protoc-gen-go-http`, `protoc-gen-go-errors`, `protoc-gen-openapi`, `protoc-gen-validate`, `protoc-gen-redact`, `protoc-gen-typescript-http`
+The integration harness runs the auth service as a subprocess. It builds `authsvc` from
+a go-tangra-auth checkout: `../go-tangra-auth` next to this repository by default, or the
+directory named by `GO_TANGRA_AUTH_DIR`.
 
-## Docker
+The unit coverage gate requires at least 80 % overall and 100 % for the security
+packages. Generated code, SQL bindings and wiring are covered by the integration suite.
 
-Multi-stage build with Alpine runtime. Runs as non-root user (`appuser`).
+## Run locally
+
+`deploy/dev.yaml` reads its SVID from `../../.dev/ca`. Create a throw-away CA there with
+the platform's development CA tool:
 
 ```bash
-# Build with custom registry
-make docker-push DOCKER_REGISTRY=ghcr.io/myorg
-
-# Multi-platform build
-make docker-buildx
+go run github.com/go-tangra/go-tangra/v4/cmd/freya-devca@v4.0.0 \
+  -out ../../.dev/ca -trust-domain example.org -services gateway,auth,hello
+make compose-up                           # TimescaleDB, Valkey, OpenFGA, Mailpit
+# in a go-tangra-auth checkout: authsvc bootstrap and serve with -config deploy/gateway-mode.yaml, then:
+go run ./cmd/gatewaysvc bootstrap -config deploy/dev.yaml \
+  -allow "spiffe://example.org/svc/auth=/api/v1,/authorize,/.well-known,/console;auth" \
+  -allow "spiffe://example.org/svc/hello=/api/hello;hello"
+(cd shell && npm ci && npm run build) && go run -tags shell ./cmd/gatewaysvc -config deploy/dev.yaml &
+(cd examples/hello-module/ui && npm ci && npm run build) && go run -tags ui ./examples/hello-module -config deploy/hello.yaml &
+open https://localhost:8443/
 ```
 
-## Deployment
+The full platform stack (every service, lcm-issued identities) lives in the platform
+repository under `deploy/stack`.
 
-Deployment scripts in `script/`:
+## Container image
 
-| Script | Purpose |
-|--------|---------|
-| `prepare_centos.sh` | CentOS environment setup |
-| `prepare_rocky.sh` | Rocky Linux environment setup |
-| `prepare_ubuntu.sh` | Ubuntu environment setup |
-| `prepare_macos.sh` | macOS environment setup |
-| `prepare_windows.ps1` | Windows environment setup |
-| `install_golang.sh` | Go installation |
-| `docker_compose_install.sh` | Full Docker Compose deployment |
-| `docker_compose_install_depends.sh` | Dependencies-only deployment |
-| `build_install.sh` | Build binaries + PM2 process management |
+The image is `ghcr.io/go-tangra/go-tangra-portal`, built by `.github/workflows/ci.yaml`.
+It carries `gatewaysvc` with the embedded shell.
 
-## CI/CD
+```bash
+docker buildx build --secret id=npm_token,env=NODE_AUTH_TOKEN \
+  --build-arg APP_VERSION=4.0.0 -t go-tangra-portal:dev .
+docker run --rm go-tangra-portal:dev version
+```
 
-GitHub Actions workflow (`.github/workflows/ci.yaml`) for Docker image build and push to GHCR.
+The image runs `gatewaysvc -config deploy/dev.yaml` as user `app` (uid 10001), with
+`deploy/` (configuration and allow-list policies, no key material) at `/app/deploy`.
+Deployments mount their own configuration, edge certificate and enrollment token.
 
-## Testing
+## Versioning
 
-- Unit tests across service, data, and business logic layers
-- E2E test suite in `e2e/` with dedicated Docker Compose configuration
-- OPA policy tests (`assets/rbac_test.rego`)
-
-## Dependencies
-
-| Layer | Technology |
-|-------|------------|
-| **Framework** | Kratos v2 + Bootstrap |
-| **ORM** | Ent |
-| **Auth** | JWT (multiple algorithms), Casbin, OPA, Zanzibar |
-| **Storage** | MinIO (S3-compatible) |
-| **Database** | PostgreSQL, MySQL, SQLite |
-| **Cache** | Redis |
-| **Task Queue** | Asynq (Redis-backed) |
-| **Protobuf** | Buf (31 proto files) |
-| **DI** | Google Wire |
-| **SSE** | Server-Sent Events for real-time notifications |
-
-## Registered Modules
-
-| Module | Port | Repository | Description |
-|--------|------|------------|-------------|
-| **LCM** | 9100 | `go-tangra-lcm` | Certificate lifecycle manager — internal CA for the service mesh, automated certificate issuance/renewal, ACME protocol support, and mTLS bootstrap for all modules |
-| **Deployer** | 9200 | `go-tangra-deployer` | Deployment job management — orchestrates application deployments, tracks job status and history, rollback support |
-| **Warden** | 9300 | `go-tangra-warden` | Secrets management — HashiCorp Vault backend for storing and retrieving secrets, credential rotation, secure key/value storage |
-| **IPAM** | 9400 | `go-tangra-ipam` | IP address management — tracks IP allocations, subnets, VLANs, and network resource inventory across tenants |
-| **Paperless** | 9500 | `go-tangra-paperless` | Document management — S3-compatible storage with Apache Tika for content extraction, Gotenberg for PDF conversion, full-text search |
-| **Sharing** | 9600 | `go-tangra-sharing` | Secure file and secret sharing — generates time-limited, password-protected links for sharing files and secrets via email |
-| **Bookmark** | 9700 | `rust-tangra-bookmark` | URL bookmark management — Rust-based service with Google Zanzibar-style permissions (Owner/Editor/Viewer/Sharer relations) |
-
-## TODO
-
-- [ ] **SSE notifications & internal messaging** — Wire up Server-Sent Events for real-time delivery of internal messages, read receipts, and system notifications to connected clients
-- [ ] **Dashboard refactoring** — Redesign the platform statistics dashboard with improved layout, real-time metric widgets, and per-module health/status panels
-- [ ] **External notifications** — Add notification channels for email (SMTP), Slack (webhooks/API), and SMS (provider-agnostic) with configurable routing rules and templates
+- Service releases are tagged `vX.Y.Z`. CI publishes the image as `X.Y.Z`, `X.Y`, `X`
+  and `sha-<short>`. There is no `latest` tag.
+- The SDK is released separately with `sdk/vX.Y.Z` tags. These tags never build an image.
+- v4.0.0 rebuilds the portal as the go-tangra v4 gateway. The v3 portal stays on the
+  `v3` branch and its `v3.x` tags.

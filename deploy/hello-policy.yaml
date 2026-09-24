@@ -1,0 +1,8 @@
+# The hello module accepts forwarded traffic and health probes from the gateway only.
+version: hello-dev-1
+rules:
+  - id: gateway-forwards
+    from: ["spiffe://example.org/svc/gateway"]
+    to: ["hello"]
+    operations: ["*"]
+    effect: allow

@@ -1,5 +1,0 @@
-logger:
-  level: "info"
-  encoding: "json"
-  caller: true
-  stacktrace: true

@@ -1,0 +1,8 @@
+# Test modules accept calls from the gateway (forwarded traffic) and health checks.
+version: module-test-1
+rules:
+  - id: gateway-forwards
+    from: ["spiffe://example.org/svc/gateway"]
+    to: ["alpha", "beta", "gamma"]
+    operations: ["*"]
+    effect: allow
