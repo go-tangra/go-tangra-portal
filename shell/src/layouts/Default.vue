@@ -35,12 +35,12 @@ async function signOut(): Promise<void> {
 </script>
 
 <template>
-  <UiAppShell title="Freya">
+  <UiAppShell title="Tangra">
     <template #brand>
-      <RouterLink to="/" class="inline-flex items-center gap-3" aria-label="Freya home">
+      <RouterLink to="/" class="inline-flex items-center gap-3" aria-label="Tangra home">
         <span class="rounded-field bg-primary text-primary-content flex size-9 items-center justify-center"><UiIcon name="mdi-shield-half-full" /></span>
         <span class="flex flex-col">
-          <span class="text-base-content text-lg font-semibold leading-tight">Freya</span>
+          <span class="text-base-content text-lg font-semibold leading-tight">Tangra</span>
           <span class="text-base-content/70 text-xs">Platform</span>
         </span>
       </RouterLink>
