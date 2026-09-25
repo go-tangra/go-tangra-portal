@@ -81,3 +81,61 @@ func TestLoad(t *testing.T) {
 		t.Fatalf("%+v %v", c.Edge.RateLimit, err)
 	}
 }
+
+func TestEnrollTLS(t *testing.T) {
+	enrolled := func(f func(e *Enroll)) Config {
+		c := valid()
+		c.Enroll = Enroll{Enabled: true, EnrollURL: "https://lcm:9947/api/lcm/v1/enroll", LCMGRPCTarget: "lcm:9945",
+			TokenFile: "/tokens/gateway.token", StateFile: "/state/svid.json"}
+		f(&c.Enroll)
+		return c
+	}
+	prod := func(c Config) Config { c.Config.Env = "production"; return c }
+
+	for name, c := range map[string]Config{
+		"dev insecure":         enrolled(func(e *Enroll) { e.Insecure = true }),
+		"dev mesh ca":          enrolled(func(e *Enroll) { e.CAFile = "/certs/ca.pem" }),
+		"prod mesh ca":         prod(enrolled(func(e *Enroll) { e.CAFile = "/certs/ca.pem" })),
+		"prod mesh ca + id":    prod(enrolled(func(e *Enroll) { e.CAFile, e.ServerSPIFFEID = "/certs/ca.pem", "spiffe://example.org/svc/lcm" })),
+		"prod public edge":     prod(enrolled(func(*Enroll) {})),
+		"prod disabled + flag": prod(func() Config { c := valid(); c.Enroll.Insecure = true; return c }()),
+	} {
+		if err := c.Validate(); err != nil {
+			t.Errorf("%s refused: %v", name, err)
+		}
+	}
+	for name, c := range map[string]Config{
+		"prod insecure":     prod(enrolled(func(e *Enroll) { e.Insecure = true })),
+		"insecure + ca":     enrolled(func(e *Enroll) { e.Insecure, e.CAFile = true, "/certs/ca.pem" }),
+		"id without ca":     enrolled(func(e *Enroll) { e.ServerSPIFFEID = "spiffe://example.org/svc/lcm" }),
+		"foreign server id": enrolled(func(e *Enroll) { e.CAFile, e.ServerSPIFFEID = "/certs/ca.pem", "spiffe://evil.org/svc/lcm" }),
+		"no enroll url":     enrolled(func(e *Enroll) { e.EnrollURL = "" }),
+		"plain http enroll": enrolled(func(e *Enroll) { e.EnrollURL = "http://lcm:9947/api/lcm/v1/enroll" }),
+		"no token file":     enrolled(func(e *Enroll) { e.TokenFile = "" }),
+		"no renewal target": enrolled(func(e *Enroll) { e.LCMGRPCTarget = "" }),
+	} {
+		if err := c.Validate(); err == nil {
+			t.Errorf("%s accepted", name)
+		}
+	}
+	if err := prod(enrolled(func(e *Enroll) { e.Insecure = true })).Validate(); err == nil || !strings.Contains(err.Error(), "enroll.insecure") {
+		t.Fatalf("production refusal names the key: %v", err)
+	}
+	w := enrolled(func(e *Enroll) { e.Insecure = true }).Warnings()
+	if !strings.Contains(strings.Join(w, "|"), "enroll.insecure") {
+		t.Fatalf("insecure enroll not warned: %v", w)
+	}
+	if w := enrolled(func(e *Enroll) { e.CAFile = "/certs/ca.pem" }).Warnings(); strings.Contains(strings.Join(w, "|"), "enroll") {
+		t.Fatalf("verified enroll warned: %v", w)
+	}
+}
+
+func TestLoadEnrollKeys(t *testing.T) {
+	p := filepath.Join(t.TempDir(), "gw.yaml")
+	_ = os.WriteFile(p, []byte("service_name: gateway\nenroll:\n  enabled: true\n  enroll_url: https://lcm:9947/api/lcm/v1/enroll\n"+
+		"  ca_file: /certs/ca.pem\n  server_spiffe_id: spiffe://example.org/svc/lcm\n  insecure: false\n"), 0o600)
+	c, err := Load(p)
+	if err != nil || c.Enroll.CAFile != "/certs/ca.pem" || c.Enroll.ServerSPIFFEID != "spiffe://example.org/svc/lcm" || c.Enroll.Insecure {
+		t.Fatalf("%+v %v", c.Enroll, err)
+	}
+}

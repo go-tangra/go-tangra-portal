@@ -31,14 +31,17 @@ type Config struct {
 
 // Enroll makes the gateway obtain its SVID by enrolling with lcm over the
 // network (direct to lcm's keyless enroll listener), instead of a cert file.
+// The first enroll verifies lcm's SVID with ca_file (the mesh trust bundle)
+// and server_spiffe_id (default spiffe://<trust_domain>/svc/lcm); insecure
+// skips that verification and is refused in production (fconfig.EnrollTLS).
 type Enroll struct {
-	Enabled       bool   `yaml:"enabled"`
-	EnrollURL     string `yaml:"enroll_url"`
-	LCMGRPCTarget string `yaml:"lcm_grpc"`
-	TenantID      string `yaml:"tenant_id"`
-	TokenFile     string `yaml:"token_file"`
-	StateFile     string `yaml:"state_file"`
-	Insecure      bool   `yaml:"insecure"`
+	Enabled           bool   `yaml:"enabled"`
+	EnrollURL         string `yaml:"enroll_url"`
+	LCMGRPCTarget     string `yaml:"lcm_grpc"`
+	TenantID          string `yaml:"tenant_id"`
+	TokenFile         string `yaml:"token_file"`
+	StateFile         string `yaml:"state_file"`
+	fconfig.EnrollTLS `yaml:",inline"`
 }
 
 // Edge configures the public listener.
@@ -143,6 +146,19 @@ func (c Config) Validate() error {
 	case len(c.Operators.Roles) == 0:
 		return errors.New("config: operators.roles must not be empty")
 	}
+	if c.Enroll.Enabled {
+		switch {
+		case !strings.HasPrefix(c.Enroll.EnrollURL, "https://"):
+			return errors.New("config: enroll.enroll_url must be an https URL")
+		case c.Enroll.LCMGRPCTarget == "":
+			return errors.New("config: enroll.lcm_grpc is required")
+		case c.Enroll.TokenFile == "":
+			return errors.New("config: enroll.token_file is required")
+		}
+		if err := c.Enroll.EnrollTLS.Validate(c.TrustDomain, prod); err != nil {
+			return err
+		}
+	}
 	if prod {
 		switch {
 		case c.Edge.CertFile == "" || c.Edge.KeyFile == "":
@@ -167,6 +183,9 @@ func (c Config) Warnings() []string {
 	}
 	if !strings.Contains(c.DB.DSN, "sslmode=verify-full") {
 		w = append(w, "db.dsn sslmode is weaker than verify-full")
+	}
+	if c.Enroll.Enabled {
+		w = append(w, c.Enroll.EnrollTLS.Warnings()...)
 	}
 	for _, o := range c.Edge.AllowedOrigins {
 		if o == "*" {
