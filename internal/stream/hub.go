@@ -85,8 +85,15 @@ type Subscription struct {
 	once   sync.Once
 	mu     sync.Mutex
 	last   string // highest id delivered (dedupe between replay and live)
+	start  string // stream position when opened without Last-Event-ID
 	closed bool
 }
+
+// Position is the tenant stream's tail when the subscription opened without
+// Last-Event-ID ("" otherwise, or for an empty stream). ServeSSE sends it as
+// the first event id, so the browser's reconnect replays what it missed even
+// when no event reached it on this connection.
+func (s *Subscription) Position() string { return s.start }
 
 // NewHub wires the hub; Close stops every subscriber loop.
 func NewHub(c Client, cfg Config, log *slog.Logger) *Hub {
@@ -243,6 +250,9 @@ func (h *Hub) Subscribe(ctx context.Context, tenantID, userID, lastID string) (*
 	h.mu.Unlock()
 	if lastID != "" {
 		h.replay(ctx, s, lastID)
+	} else if tail, err := h.c.XLast(ctx, Key(tenantID)); err == nil {
+		// Read after registering: an event added meanwhile is delivered live.
+		s.start = tail
 	}
 	return s, nil
 }

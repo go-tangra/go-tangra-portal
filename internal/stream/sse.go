@@ -39,7 +39,13 @@ func ServeSSE(w http.ResponseWriter, r *http.Request, sub *Subscription, instanc
 	h.Set("Cache-Control", "no-store")
 	h.Set("X-Accel-Buffering", "no")
 	w.WriteHeader(http.StatusOK)
-	_, _ = fmt.Fprintf(w, "retry: %d\n: connected %s\n\n", Retry, instance)
+	// The position frame carries only an id: it sets the browser's
+	// Last-Event-ID without dispatching an event.
+	pos := ""
+	if p := sub.Position(); p != "" {
+		pos = "id: " + p + "\n"
+	}
+	_, _ = fmt.Fprintf(w, "retry: %d\n%s: connected %s\n\n", Retry, pos, instance)
 	flusher.Flush()
 	if heartbeat <= 0 {
 		heartbeat = Heartbeat
