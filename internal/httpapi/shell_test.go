@@ -41,14 +41,15 @@ type fakeDecide struct {
 
 func (f *fakeDecide) setVersion(v string) { f.mu.Lock(); f.version = v; f.mu.Unlock() }
 
-func (f *fakeDecide) Held(_ context.Context, _, _ string, perms []string) (map[string]bool, error) {
+// held is keyed by module:resource:action.
+func (f *fakeDecide) Held(_ context.Context, _, _ string, refs []authz.Ref) (map[authz.Ref]bool, error) {
 	if f.err != nil {
 		return nil, f.err
 	}
-	out := map[string]bool{}
-	for _, p := range perms {
-		if f.held[p] {
-			out[p] = true
+	out := map[authz.Ref]bool{}
+	for _, r := range refs {
+		if f.held[r.String()] {
+			out[r] = true
 		}
 	}
 	return out, nil
@@ -61,7 +62,7 @@ func (f *fakeDecide) Abilities(ctx context.Context, regs []registry.Registration
 	doc := authz.AbilitiesDoc{Tenant: tenant, User: user, Roles: roles, Version: "x", Modules: map[string][]authz.PackedRule{}}
 	for _, reg := range regs {
 		for _, a := range reg.Manifest.Abilities {
-			if f.held[a.Requires] {
+			if f.held[reg.Module+":"+a.Requires] {
 				doc.Modules[reg.Module] = append(doc.Modules[reg.Module], authz.Pack(a))
 			}
 		}
@@ -90,7 +91,7 @@ func shellServer(t *testing.T) (*Server, *registry.Registry, *fakeDecide, *fakeB
 			t.Fatal(err)
 		}
 	}
-	dec := &fakeDecide{held: map[string]bool{"orders:read": true}, version: "v1"}
+	dec := &fakeDecide{held: map[string]bool{"orders:orders:read": true}, version: "v1"}
 	backend := &fakeBackend{target: "https://orders"}
 	s := newTestServer(t)
 	s.RegisterShell(ShellDeps{Reg: reg, Identity: fakeIdentity{}, Decide: dec, Proxies: func(module string, id fidentity.SPIFFEID, target string) (Backend, error) {

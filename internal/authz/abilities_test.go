@@ -53,7 +53,7 @@ func TestAbilitiesFollowDecisions(t *testing.T) {
 		{Module: "billing", Manifest: manifest.Manifest{Abilities: []manifest.Ability{{Action: []string{"read"}, Subject: []string{"Invoice"}, Requires: "billing:read"}}}},
 		{Module: "empty"},
 	}
-	fc := &fakeChecker{version: "v1", allow: map[string]bool{"orders:read": true}}
+	fc := &fakeChecker{version: "v1", allow: map[string]bool{"orders:orders:read": true}}
 	d, _ := New(Options{Client: fc, KV: registry.NewMemory()})
 	doc, err := d.Abilities(ctx, regs, "t1", "u1", []string{"member"}, 7)
 	if err != nil {
@@ -70,7 +70,7 @@ func TestAbilitiesFollowDecisions(t *testing.T) {
 		t.Fatal("json")
 	}
 	// Grant more: the version follows the tenant policy version.
-	fc.allow["billing:read"] = true
+	fc.allow["billing:billing:read"] = true
 	fc.version = "v2"
 	d2, _ := New(Options{Client: fc, KV: registry.NewMemory()})
 	doc, _ = d2.Abilities(ctx, regs, "t1", "u1", nil, 8)
@@ -116,7 +116,7 @@ func TestAllowedDefaultReason(t *testing.T) {
 	aw := audit.NewWriter(ms, nil)
 	fc := &fakeChecker{version: "v1", allow: map[string]bool{}, blankReason: true}
 	d, _ := New(Options{Client: fc, KV: registry.NewMemory(), Audit: aw})
-	if ok, err := d.Allowed(context.Background(), "m", "t", "u", "x:y"); ok || err != nil {
+	if ok, err := d.Allowed(context.Background(), "mod", "t", "u", "x:y"); ok || err != nil {
 		t.Fatal(ok, err)
 	}
 	aw.Close()
@@ -126,4 +126,31 @@ func TestAllowedDefaultReason(t *testing.T) {
 		}
 	}
 	t.Fatal("default reason missing")
+}
+
+// 019: nav/ability requires stay bare in manifests and are qualified with the
+// registration's module; a permission held for one module unlocks nothing in
+// another module requiring the same resource:action.
+func TestAbilitiesAreModuleScoped(t *testing.T) {
+	ctx := context.Background()
+	regs := []registry.Registration{
+		{Module: "warden", Manifest: manifest.Manifest{Abilities: []manifest.Ability{{Action: []string{"read"}, Subject: []string{"WardenStats"}, Requires: "stats:read"}}}},
+		{Module: "ticket", Manifest: manifest.Manifest{Abilities: []manifest.Ability{{Action: []string{"read"}, Subject: []string{"TicketStats"}, Requires: "stats:read"}}}},
+	}
+	fc := &fakeChecker{version: "v1", allow: map[string]bool{"warden:stats:read": true}}
+	d, _ := New(Options{Client: fc, KV: registry.NewMemory()})
+	doc, err := d.Abilities(ctx, regs, "t1", "u1", nil, 1)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(doc.Modules) != 1 || len(doc.Modules["warden"]) != 1 || doc.Modules["ticket"] != nil {
+		t.Fatalf("ability bleed: %+v", doc.Modules)
+	}
+	if fc.calls != 1 || len(fc.asked) != 2 {
+		t.Fatalf("one batch with both modules: calls=%d asked=%v", fc.calls, fc.asked)
+	}
+	held, err := d.Held(ctx, "t1", "u1", []Ref{{"ticket", "stats:read"}, {"warden", "stats:read"}, {"warden", "stats:read"}})
+	if err != nil || len(held) != 1 || !held[Ref{"warden", "stats:read"}] || held[Ref{"ticket", "stats:read"}] {
+		t.Fatalf("held %v %v", held, err)
+	}
 }

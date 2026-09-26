@@ -6,6 +6,7 @@ package authz
 import (
 	"context"
 	"errors"
+	"regexp"
 	"strings"
 	"sync"
 	"time"
@@ -70,19 +71,31 @@ func (d *Decider) TenantVersion(tenant string) string {
 	return d.versions[tenant]
 }
 
-// Check decides a list of "resource:action" permissions for a user; cached
-// answers are used when present, the rest are asked in one BatchCheck.
-func (d *Decider) Check(ctx context.Context, tenant, user string, perms []string) ([]Decision, error) {
-	out := make([]Decision, len(perms))
+// Ref names a permission of one module: Perm is the bare "resource:action"
+// the module declares in its manifest, Module the registration that owns it.
+// The same Perm of two modules are different permissions.
+type Ref struct {
+	Module string
+	Perm   string
+}
+
+// String renders the ref as "module:resource:action".
+func (r Ref) String() string { return r.Module + ":" + r.Perm }
+
+// Check decides a list of module permissions for a user; cached answers are
+// used when present, the rest are asked in one BatchCheck (refs may mix
+// modules). Invalid refs are refused as unknown_permission without asking.
+func (d *Decider) Check(ctx context.Context, tenant, user string, refs []Ref) ([]Decision, error) {
+	out := make([]Decision, len(refs))
 	version := d.TenantVersion(tenant)
 	var missing []int
-	for i, p := range perms {
-		if !validPerm(p) {
+	for i, r := range refs {
+		if !validRef(r) {
 			out[i] = Decision{Reason: "unknown_permission"}
 			continue
 		}
 		if version != "" {
-			if raw, ok, err := d.o.KV.Get(ctx, key(tenant, user, p, version)); err == nil && ok {
+			if raw, ok, err := d.o.KV.Get(ctx, key(tenant, user, r, version)); err == nil && ok {
 				out[i] = Decision{Allowed: strings.HasPrefix(raw, "1:"), Reason: strings.TrimPrefix(strings.TrimPrefix(raw, "1:"), "0:"), Version: version}
 				continue
 			}
@@ -94,8 +107,8 @@ func (d *Decider) Check(ctx context.Context, tenant, user string, perms []string
 	}
 	req := &authv1.BatchCheckRequest{TenantId: tenant, UserId: user}
 	for _, i := range missing {
-		res, act, _ := strings.Cut(perms[i], ":")
-		req.Permissions = append(req.Permissions, &authv1.PermissionRef{Resource: res, Action: act})
+		res, act, _ := strings.Cut(refs[i].Perm, ":")
+		req.Permissions = append(req.Permissions, &authv1.PermissionRef{Module: refs[i].Module, Resource: res, Action: act})
 	}
 	resp, err := d.o.Client.BatchCheck(ctx, req)
 	if err != nil || len(resp.GetResults()) != len(missing) {
@@ -112,15 +125,16 @@ func (d *Decider) Check(ctx context.Context, tenant, user string, perms []string
 			if r.GetAllowed() {
 				mark = "1:"
 			}
-			_ = d.o.KV.Set(ctx, key(tenant, user, perms[i], v), mark+r.GetReason(), d.o.TTL)
+			_ = d.o.KV.Set(ctx, key(tenant, user, refs[i], v), mark+r.GetReason(), d.o.TTL)
 		}
 	}
 	return out, nil
 }
 
-// Allowed decides one permission and audits refusals (permission_refused).
+// Allowed decides one permission of module (the route's module) and audits
+// refusals (permission_refused).
 func (d *Decider) Allowed(ctx context.Context, module, tenant, user, perm string) (bool, error) {
-	ds, err := d.Check(ctx, tenant, user, []string{perm})
+	ds, err := d.Check(ctx, tenant, user, []Ref{{Module: module, Perm: perm}})
 	if err != nil {
 		d.emit(audit.Event{Type: audit.PermissionRefused, Module: module, ActorKind: "user", ActorID: user, TenantID: tenant, Outcome: "failed", Reason: "decision_unavailable", Details: map[string]any{"permission": perm}})
 		return false, err
@@ -145,12 +159,21 @@ func (d *Decider) emit(e audit.Event) {
 // key namespaces the gateway's decision cache. It must not share a namespace
 // with the auth service's own decision cache (auth encodes values as "0" or a
 // reason string; the gateway encodes "0:"/"1:"+reason): a shared Valkey would
-// otherwise let one service read the other's values and mis-decide.
-func key(tenant, user, perm, version string) string {
-	return "gwdec:" + tenant + ":" + user + ":" + perm + "@" + version
+// otherwise let one service read the other's values and mis-decide. The
+// module is part of the key: one module's answer never decides another's.
+func key(tenant, user string, r Ref, version string) string {
+	return "gwdec:" + tenant + ":" + user + ":" + r.Module + ":" + r.Perm + "@" + version
 }
 
-func validPerm(p string) bool {
-	res, act, ok := strings.Cut(p, ":")
-	return ok && res != "" && act != "" && len(p) <= 130
+var (
+	// moduleRE is the manifest's module grammar.
+	moduleRE = regexp.MustCompile(`^[a-z][a-z0-9-]{1,39}$`)
+	// permRE is the manifest's bare "resource:action" grammar.
+	permRE = regexp.MustCompile(`^[a-z0-9][a-z0-9_.-]{0,63}:[a-z0-9][a-z0-9_.-]{0,63}$`)
+)
+
+// validRef accepts a bare manifest permission of a named module. A missing
+// module is refused: auth would evaluate the legacy, unscoped permission.
+func validRef(r Ref) bool {
+	return moduleRE.MatchString(r.Module) && permRE.MatchString(r.Perm)
 }

@@ -66,14 +66,14 @@ func (f *fakeChecker) BatchCheck(_ context.Context, in *authv1.BatchCheckRequest
 	}
 	resp := &authv1.BatchCheckResponse{}
 	for _, p := range in.Permissions {
-		ref := p.Resource + ":" + p.Action
+		ref := p.Module + ":" + p.Resource + ":" + p.Action
 		resp.Results = append(resp.Results, &authv1.CheckResponse{Allowed: f.allow[ref], PolicyVersion: f.version, Reason: "no_permission"})
 	}
 	return resp, nil
 }
 
 func TestHTTPAuthorizer(t *testing.T) {
-	fc := &fakeChecker{version: "v1", allow: map[string]bool{"orders:read": true}}
+	fc := &fakeChecker{version: "v1", allow: map[string]bool{"orders:orders:read": true}}
 	d, _ := authz.New(authz.Options{Client: fc, KV: registry.NewMemory()})
 	a := &HTTPAuthorizer{Identity: fakeResolver{}, Decider: d}
 	rt := route.Route{Module: "orders", Permission: "orders:read"}
@@ -121,7 +121,7 @@ func TestDirector(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	fc := &fakeChecker{version: "v1", allow: map[string]bool{"orders:read": true}}
+	fc := &fakeChecker{version: "v1", allow: map[string]bool{"orders:orders:read": true}}
 	dec, _ := authz.New(authz.Options{Client: fc, KV: registry.NewMemory()})
 	d := &Director{Reg: reg, Identity: fakeResolver{}, Decider: dec, StreamMax: time.Hour, UnaryTimeout: 30 * time.Second}
 	if _, err := d.Direct(ctx, "/nope.v1.X/Y", metadata.MD{}); status.Code(err) != codes.NotFound {
@@ -151,7 +151,7 @@ func TestDirector(t *testing.T) {
 		t.Fatalf("%+v %v", r, err)
 	}
 	// Permission denied and decision outage.
-	fc.allow["orders:read"] = false
+	fc.allow["orders:orders:read"] = false
 	fc.version = "v2"
 	dec2, _ := authz.New(authz.Options{Client: fc, KV: registry.NewMemory()})
 	d.Decider = dec2
@@ -191,5 +191,42 @@ func TestDirector(t *testing.T) {
 	}
 	if _, _, ok := cutCookie("novalue"); ok {
 		t.Fatal("cut")
+	}
+}
+
+// 019: routes and methods are decided with their module's permission; a
+// grant of the same resource:action for another module is refused.
+func TestRoutesDecideModuleScopedPermissions(t *testing.T) {
+	ctx := context.Background()
+	fc := &fakeChecker{version: "v1", allow: map[string]bool{"warden:stats:read": true}}
+	d, _ := authz.New(authz.Options{Client: fc, KV: registry.NewMemory()})
+	a := &HTTPAuthorizer{Identity: fakeResolver{}, Decider: d}
+	req := httptest.NewRequest("GET", "/x", nil)
+	req.Header.Set("Authorization", "Bearer good")
+	if _, e := a.Authorize(req, route.Route{Module: "warden", Permission: "stats:read"}); e != nil {
+		t.Fatalf("warden route: %v", e)
+	}
+	if _, e := a.Authorize(req, route.Route{Module: "ticket", Permission: "stats:read"}); e != httpapi.ErrForbidden {
+		t.Fatalf("ticket route allowed through warden's grant: %v", e)
+	}
+
+	ms := memstore.New()
+	reg, _ := registry.New(registry.Options{KV: registry.NewMemory(), Allow: ms, Marks: ms})
+	for _, m := range []string{"warden", "ticket"} {
+		_ = ms.InsertAllow(ctx, store.AllowEntry{ID: m, SpiffeID: "spiffe://example.org/svc/" + m, Prefixes: []string{"/api/" + m}, Names: []string{m}})
+		if _, err := reg.Register(ctx, "spiffe://example.org/svc/"+m, &gatewayv1.RegisterRequest{InstanceId: "i1", Backend: &gatewayv1.Backend{HttpUrl: "https://" + m, GrpcTarget: m + ":9443"},
+			Manifest: &gatewayv1.Manifest{Module: m, DisplayName: m, Version: "1.0.0", Prefixes: []string{"/api/" + m},
+				Methods:     []*gatewayv1.Method{{FullMethod: "/" + m + ".v1.Stats/Get", Permission: "stats:read"}},
+				Permissions: []*gatewayv1.Permission{{Resource: "stats", Action: "read"}}, Remote: &gatewayv1.Remote{Entry: "/m/" + m + "/mf-manifest.json", Exposes: []string{"./routes"}}}}); err != nil {
+			t.Fatal(err)
+		}
+	}
+	dir := &Director{Reg: reg, Identity: fakeResolver{}, Decider: d, StreamMax: time.Hour, UnaryTimeout: time.Second}
+	md := metadata.Pairs("authorization", "Bearer good")
+	if r, err := dir.Direct(ctx, "/warden.v1.Stats/Get", md); err != nil || r.Target != "warden:9443" {
+		t.Fatalf("warden method: %+v %v", r, err)
+	}
+	if _, err := dir.Direct(ctx, "/ticket.v1.Stats/Get", md); status.Code(err) != codes.PermissionDenied {
+		t.Fatalf("ticket method allowed through warden's grant: %v", err)
 	}
 }
