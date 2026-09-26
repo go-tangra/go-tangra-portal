@@ -97,18 +97,18 @@ type AbilitiesDoc struct {
 	Modules map[string][]PackedRule `json:"modules"`
 }
 
-// Held decides a set of permissions and returns the ones the user holds.
-func (d *Decider) Held(ctx context.Context, tenant, user string, perms []string) (map[string]bool, error) {
-	uniq := map[string]bool{}
-	var list []string
-	for _, p := range perms {
-		if !uniq[p] {
-			uniq[p] = true
-			list = append(list, p)
+// Held decides a set of module permissions and returns the ones the user holds.
+func (d *Decider) Held(ctx context.Context, tenant, user string, refs []Ref) (map[Ref]bool, error) {
+	uniq := map[Ref]bool{}
+	var list []Ref
+	for _, r := range refs {
+		if !uniq[r] {
+			uniq[r] = true
+			list = append(list, r)
 		}
 	}
-	sort.Strings(list)
-	held := map[string]bool{}
+	sort.Slice(list, func(i, j int) bool { return list[i].String() < list[j].String() })
+	held := map[Ref]bool{}
 	if len(list) == 0 {
 		return held, nil
 	}
@@ -116,25 +116,26 @@ func (d *Decider) Held(ctx context.Context, tenant, user string, perms []string)
 	if err != nil {
 		return nil, err
 	}
-	for i, p := range list {
+	for i, r := range list {
 		if ds[i].Allowed {
-			held[p] = true
+			held[r] = true
 		}
 	}
 	return held, nil
 }
 
 // Abilities evaluates every module's rules for the caller: rules are kept
-// only when the caller holds their `requires` permission; the version
-// changes with the registry and with the tenant policy.
+// only when the caller holds their `requires` permission of that module (a
+// manifest's requires is bare and qualified with the registration's module);
+// the version changes with the registry and with the tenant policy.
 func (d *Decider) Abilities(ctx context.Context, regs []registry.Registration, tenant, user string, roles []string, registryVersion uint64) (AbilitiesDoc, error) {
-	var perms []string
+	var refs []Ref
 	for _, reg := range regs {
 		for _, a := range reg.Manifest.Abilities {
-			perms = append(perms, a.Requires)
+			refs = append(refs, Ref{Module: reg.Module, Perm: a.Requires})
 		}
 	}
-	held, err := d.Held(ctx, tenant, user, perms)
+	held, err := d.Held(ctx, tenant, user, refs)
 	if err != nil {
 		return AbilitiesDoc{}, err
 	}
@@ -145,7 +146,7 @@ func (d *Decider) Abilities(ctx context.Context, regs []registry.Registration, t
 	for _, reg := range regs {
 		var rules []PackedRule
 		for _, a := range reg.Manifest.Abilities {
-			if held[a.Requires] {
+			if held[Ref{Module: reg.Module, Perm: a.Requires}] {
 				rules = append(rules, Pack(a))
 			}
 		}

@@ -11,7 +11,7 @@ import (
 
 // Decisions is what the shell API needs from the decider.
 type Decisions interface {
-	Held(ctx context.Context, tenant, user string, perms []string) (map[string]bool, error)
+	Held(ctx context.Context, tenant, user string, refs []authz.Ref) (map[authz.Ref]bool, error)
 	Abilities(ctx context.Context, regs []registry.Registration, tenant, user string, roles []string, registryVersion uint64) (authz.AbilitiesDoc, error)
 	TenantVersion(tenant string) string
 }
@@ -80,13 +80,15 @@ func (s *Server) myModules(d ShellDeps) http.HandlerFunc {
 			return
 		}
 		regs := visible(d.Reg)
-		var perms []string
+		// Nav requires are bare in manifests: qualify them with the
+		// registration's module so one module's grant unlocks only its nav.
+		var refs []authz.Ref
 		for _, reg := range regs {
 			for _, n := range reg.Manifest.Nav {
-				perms = append(perms, n.Requires)
+				refs = append(refs, authz.Ref{Module: reg.Module, Perm: n.Requires})
 			}
 		}
-		held, err := d.Decide.Held(r.Context(), id.TenantID, id.UserID, perms)
+		held, err := d.Decide.Held(r.Context(), id.TenantID, id.UserID, refs)
 		if err != nil {
 			Fail(w, r, s.rt.Logger(), ErrUnavailable)
 			return
@@ -96,7 +98,7 @@ func (s *Server) myModules(d ShellDeps) http.HandlerFunc {
 			v := ModuleView{Module: reg.Module, DisplayName: reg.Manifest.DisplayName, Version: reg.Manifest.Version, State: string(d.Reg.State(reg.Module)),
 				Remote: RemoteView{Entry: reg.Manifest.Remote.Entry, Exposes: nonNil(reg.Manifest.Remote.Exposes), Integrity: reg.Manifest.Remote.Integrity}, Nav: []NavView{}}
 			for _, n := range reg.Manifest.Nav {
-				if held[n.Requires] {
+				if held[authz.Ref{Module: reg.Module, Perm: n.Requires}] {
 					v.Nav = append(v.Nav, NavView{Title: n.Title, Path: n.Path, Icon: n.Icon, Order: n.Order})
 				}
 			}

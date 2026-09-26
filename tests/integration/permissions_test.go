@@ -68,8 +68,9 @@ func StartPlatform(t *testing.T) *Platform {
 	return &Platform{Env: e, TenantID: tid, UserID: me["user_id"].(string), Alpha: alpha, Echo: echo}
 }
 
-// GrantSelf creates a role holding perms and assigns it to the operator
-// (owners may grant anything), keeping the existing roles.
+// GrantSelf creates a role holding perms (module-qualified refs,
+// module:resource:action) and assigns it to the operator (owners may grant
+// anything), keeping the existing roles.
 func (p *Platform) GrantSelf(slug string, perms ...string) {
 	p.T.Helper()
 	code, role := p.JSON(http.MethodPost, "/api/v1/admin/roles", map[string]any{"slug": slug, "display_name": slug, "permissions": perms})
@@ -134,7 +135,7 @@ func TestPermissionMatrix(t *testing.T) {
 	}
 	resp.Body.Close()
 	// Grant alpha:read only: read allowed within the decision cache window, write still forbidden.
-	p.GrantSelf("alpha-reader", "alpha:read")
+	p.GrantSelf("alpha-reader", "alpha:alpha:read")
 	body := p.waitStatus("/api/alpha/secret", 200, 10*time.Second)
 	hdr := body["headers"].(map[string]any)
 	if !strings.HasPrefix(hdr["Authorization"].(string), "Bearer ey") || hdr["Cookie"] != "" {
@@ -143,7 +144,7 @@ func TestPermissionMatrix(t *testing.T) {
 	if code, body := p.JSON(http.MethodPost, "/api/alpha/items", map[string]string{"n": "1"}); code != 403 || body["reason"] != "forbidden" {
 		t.Fatalf("write without permission → %d %v", code, body)
 	}
-	p.GrantSelf("alpha-writer", "alpha:write")
+	p.GrantSelf("alpha-writer", "alpha:alpha:write")
 	deadline := time.Now().Add(10 * time.Second)
 	for {
 		code, _ := p.JSON(http.MethodPost, "/api/alpha/items", map[string]string{"n": "1"})
@@ -206,7 +207,7 @@ func TestHeaderInjectionAndErrorHygiene(t *testing.T) {
 
 func TestTokenMatrix(t *testing.T) {
 	p := StartPlatform(t)
-	p.GrantSelf("alpha-reader", "alpha:read")
+	p.GrantSelf("alpha-reader", "alpha:alpha:read")
 	tok := p.Token()
 	machine := &http.Client{Transport: p.Client.Transport, Timeout: 10 * time.Second}
 	get := func(bearer string) int {

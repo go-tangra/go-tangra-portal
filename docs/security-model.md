@@ -46,9 +46,15 @@ decides, and what it forwards. Threats follow the STRIDE analysis in
 - A route or method is either `public` or carries exactly one
   `resource:action` permission (enforced by the manifest schema and the
   registry). Protected entries are decided with
-  `auth.v1.Authorization/BatchCheck` for the caller's tenant and user, cached
-  for 2 s under the tenant's policy version, denied on outage
-  (`permission_refused` audited with `decision_unavailable`).
+  `auth.v1.Authorization/BatchCheck` for the caller's tenant and user, naming
+  the route's module (`PermissionRef.module`): the same `resource:action` of
+  two modules are different permissions. Answers are cached for 2 s under
+  `gwdec:<tenant>:<user>:<module>:<resource:action>@<policy version>`, denied
+  on outage (`permission_refused` audited with `decision_unavailable`).
+- Navigation entries and CASL abilities (`/gateway/v1/me/modules`,
+  `/gateway/v1/me/abilities`) are decided the same way: a manifest's bare
+  `requires` is qualified with the registration's module, so a permission
+  held for one module never unlocks another module's navigation or rules.
 - Streams decide once at stream start; a revocation observed on the feed
   cancels every stream of that session, user or tenant with
   `PERMISSION_DENIED` (`grpcproxy.CancelSubject`).
@@ -90,7 +96,10 @@ decides, and what it forwards. Threats follow the STRIDE analysis in
   renewal refusal is audited once with the registrant identity.
 - Module permissions are registered with the auth module for every tenant
   (`Authorization/RegisterPermissions`) when a manifest is accepted and again
-  every five minutes.
+  every five minutes, on the module's behalf: the request names the module
+  and its display name and carries permissions only — never roles, role sets
+  or built-in grants (those come from the module's own registration). A
+  refused registration is logged and the other modules still register.
 
 ## Error hygiene
 

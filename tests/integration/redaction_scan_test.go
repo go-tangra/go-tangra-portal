@@ -29,7 +29,7 @@ func TestRedaction(t *testing.T) {
 	const password = "correct horse battery staple 42"
 	cookie := p.SessionCookie()
 	tok := p.Token()
-	p.GrantSelf("alpha-reader", "alpha:read")
+	p.GrantSelf("alpha-reader", "alpha:alpha:read")
 	p.waitStatus("/api/alpha/secret", 200, 10*time.Second)
 	// A refused call and a bad token produce audit rows and error bodies.
 	anon := &http.Client{Transport: p.Client.Transport, Timeout: 5 * time.Second}

@@ -29,7 +29,7 @@ func TestAbilitiesMatchDecisions(t *testing.T) {
 	}
 	version := doc["version"]
 	// Grant alpha:read: exactly the read rule appears, and the API agrees.
-	p.GrantSelf("alpha-reader", "alpha:read")
+	p.GrantSelf("alpha-reader", "alpha:alpha:read")
 	deadline := time.Now().Add(10 * time.Second)
 	for time.Now().Before(deadline) {
 		_, doc = p.JSON(http.MethodGet, "/gateway/v1/me/abilities", nil)
