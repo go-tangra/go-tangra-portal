@@ -3,16 +3,19 @@ import { defineConfig } from 'vitest/config'
 import vue from '@vitejs/plugin-vue'
 import tailwindcss from '@tailwindcss/vite'
 import { federation } from '@module-federation/vite'
+import { breakpointSpecificity } from '@go-tangra/ui/vite'
 import { hostConfig } from './module-federation.config'
 
 // The shell is served by the gateway at /; remotes are loaded at runtime from
 // /m/<module>/mf-manifest.json (same origin). In development, API calls are
 // proxied to the gateway's edge listener. Vuetify stays only for legacy remotes
-// (transitional, see ui/MIGRATION.md).
+// (transitional, see ui/MIGRATION.md). breakpointSpecificity() keeps the kit's
+// colour modifiers (switch-primary, …) and responsive utilities ahead of the
+// base component rules every remote stylesheet re-emits after the shell's.
 export default defineConfig({
   base: '/',
   resolve: { alias: { '@': fileURLToPath(new URL('./src', import.meta.url)) } },
-  plugins: [vue(), tailwindcss(), federation(hostConfig)],
+  plugins: [vue(), tailwindcss(), breakpointSpecificity(), federation(hostConfig)],
   server: {
     proxy: {
       '/gateway': { target: 'https://127.0.0.1:8443', secure: false },
