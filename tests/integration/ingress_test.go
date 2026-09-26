@@ -92,7 +92,7 @@ func TestSigninThroughGateway(t *testing.T) {
 
 func TestGRPCIngressAndBridge(t *testing.T) {
 	p := StartPlatform(t)
-	p.GrantSelf("alpha-reader", "alpha:read")
+	p.GrantSelf("alpha-reader", "alpha:alpha:read")
 	tok := p.Token()
 	c := p.grpcClient()
 	ctx := context.Background()
@@ -187,7 +187,7 @@ func TestGRPCIngressAndBridge(t *testing.T) {
 
 func TestDecisionOutageFailsClosed(t *testing.T) {
 	p := StartPlatform(t)
-	p.GrantSelf("alpha-reader", "alpha:read")
+	p.GrantSelf("alpha-reader", "alpha:alpha:read")
 	p.waitStatus("/api/alpha/secret", 200, 10*time.Second)
 	// Kill the auth module: public routes keep working, protected ones fail closed.
 	_ = p.Auth.Process.Kill()
