@@ -4,7 +4,7 @@
 
 **Created**: 2026-09-28
 
-**Status**: In progress
+**Status**: Implemented (39/44 tasks; release tasks T038–T042 pending user confirmation)
 
 **Spans**: go-tangra (framework: edge `frame_sources`), go-tangra-portal-v4
 (gateway: console listener), go-tangra-ipam-v4 (KVM console origin, session
