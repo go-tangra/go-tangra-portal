@@ -27,6 +27,7 @@ type Config struct {
 	Forward      Forward   `yaml:"forward"`
 	Operators    Operators `yaml:"operators"`
 	Enroll       Enroll    `yaml:"enroll"`
+	Console      Console   `yaml:"console"`
 }
 
 // Enroll makes the gateway obtain its SVID by enrolling with lcm over the
@@ -52,6 +53,9 @@ type Edge struct {
 	AllowedOrigins []string       `yaml:"allowed_origins"`
 	TrustedProxies []string       `yaml:"trusted_proxies"`
 	RateLimit      edge.RateLimit `yaml:"rate_limit"`
+	// FrameSources are extra https origins the portal's pages may frame
+	// (edge frame-src); the console origin is added automatically.
+	FrameSources []string `yaml:"frame_sources"`
 }
 
 // DB is the gateway database (allow-list, marks, audit).
@@ -106,6 +110,7 @@ func Default() Config {
 	c.Leases = Leases{TTL: 30 * time.Second, Renew: 10 * time.Second}
 	c.Forward = Forward{BodyBytes: 1 << 20, StreamsPerClient: 32, StreamMax: 10 * time.Minute, ModuleTimeout: 30 * time.Second}
 	c.Operators = Operators{Roles: []string{"operator"}}
+	c.Console = defaultConsole()
 	return c
 }
 
@@ -145,6 +150,9 @@ func (c Config) Validate() error {
 		return errors.New("config: forward limits must be positive")
 	case len(c.Operators.Roles) == 0:
 		return errors.New("config: operators.roles must not be empty")
+	}
+	if err := c.validateConsole(); err != nil {
+		return err
 	}
 	if c.Enroll.Enabled {
 		switch {

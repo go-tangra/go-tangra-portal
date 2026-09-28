@@ -10,6 +10,7 @@ import (
 	"fmt"
 	"io/fs"
 	"log/slog"
+	"net/http"
 	"os"
 	"strings"
 	"sync/atomic"
@@ -26,6 +27,7 @@ import (
 	"github.com/go-tangra/go-tangra-portal/v4/internal/authz"
 	"github.com/go-tangra/go-tangra-portal/v4/internal/authz/bind"
 	"github.com/go-tangra/go-tangra-portal/v4/internal/config"
+	"github.com/go-tangra/go-tangra-portal/v4/internal/console"
 	"github.com/go-tangra/go-tangra-portal/v4/internal/grpcapi"
 	"github.com/go-tangra/go-tangra-portal/v4/internal/health"
 	"github.com/go-tangra/go-tangra-portal/v4/internal/httpapi"
@@ -42,7 +44,9 @@ import (
 	"github.com/go-tangra/go-tangra-portal/v4/internal/stream/valkeykv"
 	"github.com/go-tangra/go-tangra/v4"
 	fidentity "github.com/go-tangra/go-tangra/v4/identity"
+	fconfig "github.com/go-tangra/go-tangra/v4/config"
 	"github.com/go-tangra/go-tangra/v4/transport/edge"
+	thttp "github.com/go-tangra/go-tangra/v4/transport/http"
 	"github.com/go-tangra/go-tangra/v4/transport/tlsconf"
 )
 
@@ -79,6 +83,7 @@ type App struct {
 	GRPC     *grpcproxy.Proxy
 	Revoke   *identity.RevocationWatcher
 	Hub      *stream.Hub
+	Console  *console.Server // nil unless console.enabled
 
 	verifier *authclient.Verifier
 	vready   atomic.Bool
@@ -164,9 +169,7 @@ func Build(ctx context.Context, cfg config.Config, o Options) (a *App, err error
 	if o.Shell != nil {
 		hopts = append(hopts, httpapi.WithShell(o.Shell))
 	}
-	ec := edge.Config{Addr: cfg.Edge.Addr, Env: cfg.Env, CertFile: cfg.Edge.CertFile, KeyFile: cfg.Edge.KeyFile,
-		AllowedOrigins: cfg.Edge.AllowedOrigins, TrustedProxies: cfg.Edge.TrustedProxies, RateLimit: cfg.Edge.RateLimit}
-	if built.HTTP, err = httpapi.New(built.Freya, ec, hopts...); err != nil {
+	if built.HTTP, err = httpapi.New(built.Freya, edgeConfig(cfg), hopts...); err != nil {
 		return nil, err
 	}
 	built.Freya.AddServer(built.HTTP)
@@ -230,6 +233,22 @@ func Build(ctx context.Context, cfg config.Config, o Options) (a *App, err error
 			return httpproxy.New(built.Freya, httpproxy.Options{Module: module, Identity: id, Target: target, PublicHost: publicHost, AllowCookies: module == authModule})
 		}}
 	built.HTTP.SetForwarder(built.Dispatch)
+	built.Dispatch.Traffic = httpapi.NewTraffic()
+	// Console listener (feature 025): consoles on an origin of their own.
+	if built.Console, err = newConsole(cfg, built.Freya.Limits(), built.Reg,
+		func(_ string, id fidentity.SPIFFEID) (http.RoundTripper, error) {
+			c, err := thttp.NewClient(built.Freya, id)
+			if err != nil {
+				return nil, err
+			}
+			return c.Transport, nil
+		}, built.Dispatch.Traffic.Record, log); err != nil {
+		return nil, err
+	}
+	if built.Console != nil {
+		built.Freya.AddServer(built.Console)
+		log.Info("console listener enabled", "addr", cfg.Console.Addr, "origin", cfg.Console.Origin())
+	}
 
 	// Identity and decisions come from the auth module over the channel.
 	authConn, err := built.Freya.Client(ctx, cfg.Auth.Service)
@@ -265,7 +284,6 @@ func Build(ctx context.Context, cfg config.Config, o Options) (a *App, err error
 	built.closers = append(built.closers, built.GRPC.Close)
 	built.Dispatch.GRPC = built.GRPC.Server()
 	built.Dispatch.GRPCWeb = &grpcweb.Bridge{Proxy: built.GRPC, MaxFrame: int(cfg.Forward.BodyBytes)}
-	built.Dispatch.Traffic = httpapi.NewTraffic()
 	built.HTTP.RegisterMe(built.Identity)
 	built.HTTP.RegisterOps(httpapi.OpsDeps{Reg: built.Reg, Ops: &registry.Ops{Reg: built.Reg, Marks: adapter, Allow: adapter, Audit: built.Audit}, Identity: built.Identity, Audit: adapter, Traffic: built.Dispatch.Traffic, Roles: cfg.Operators.Roles})
 	built.HTTP.RegisterShell(httpapi.ShellDeps{Reg: built.Reg, Identity: built.Identity, Decide: built.Decider, Proxies: built.Dispatch.Proxies, Hub: built.Hub, Instance: hostname()})
@@ -323,6 +341,37 @@ func (a *App) Close() {
 		a.closers[i]()
 	}
 	a.closers = nil
+}
+
+// edgeConfig maps the gateway configuration onto the framework edge; the
+// console origin (when enabled) joins the frame sources so the shell may
+// embed consoles.
+func edgeConfig(cfg config.Config) edge.Config {
+	return edge.Config{Addr: cfg.Edge.Addr, Env: cfg.Env, CertFile: cfg.Edge.CertFile, KeyFile: cfg.Edge.KeyFile,
+		AllowedOrigins: cfg.Edge.AllowedOrigins, TrustedProxies: cfg.Edge.TrustedProxies, RateLimit: cfg.Edge.RateLimit,
+		FrameSources: cfg.FrameSources()}
+}
+
+// newConsole builds the console listener, or nil when it is disabled. It
+// reuses the edge certificate and the module forwarding limits.
+func newConsole(cfg config.Config, lim fconfig.Limits, reg console.Registry, tf console.TransportFactory,
+	onForward func(module string, status int, d time.Duration), log *slog.Logger) (*console.Server, error) {
+	if !cfg.Console.Enabled {
+		return nil, nil
+	}
+	h, err := console.NewHandler(console.Options{
+		Routes: cfg.Console.RouteMap(), Cookies: cfg.Console.CookieNames(),
+		PortalOrigin: cfg.PublicOrigin, ConsoleOrigin: cfg.Console.PublicOrigin,
+		Registry: reg, Transport: tf,
+		RequestTimeout: cfg.Forward.ModuleTimeout, SessionMax: cfg.Console.SessionMax,
+		BodyBytes: cfg.Forward.BodyBytes, MaxConcurrent: cfg.Console.MaxConcurrent,
+		Logger: log, OnForward: onForward,
+	})
+	if err != nil {
+		return nil, err
+	}
+	return console.NewServer(console.ServerOptions{Addr: cfg.Console.Addr, CertFile: cfg.Edge.CertFile, KeyFile: cfg.Edge.KeyFile,
+		HandshakeTimeout: lim.HandshakeTimeout, IdleTimeout: lim.IdleTimeout, MaxHeaderBytes: lim.MaxHeaderBytes, Logger: log}, h)
 }
 
 // hostname returns this instance's host name for SSE "connected" comments.
