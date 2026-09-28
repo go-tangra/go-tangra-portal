@@ -46,6 +46,39 @@ call (renewals are always verified); it is a development-only setting, warned
 at start and refused when `env: production`. `insecure` and `ca_file` are
 mutually exclusive.
 
+## Console listener (`console`, feature 025)
+
+BMC KVM consoles (ipam `/bmc/`) run the BMC vendor's JavaScript, so they are
+served on an origin of their own — a second TLS port — and never on the
+portal origin:
+
+```yaml
+edge:
+  cert_file: /edge/tls.crt   # required: the console reuses this certificate
+  key_file: /edge/tls.key
+  # frame_sources: []        # other origins the shell may frame (optional)
+console:
+  enabled: true
+  addr: 0.0.0.0:8444
+  public_origin: https://portal.example.com:8444
+  routes: { "/bmc/": ipam }  # default
+  # cookies: [freya_kvm]     # default: the only cookie forwarded/relayed
+  # session_max: 1h          # WebSocket lifetime (1m..24h)
+  # max_concurrent: 64       # in-flight requests
+```
+
+- The listener serves only the configured prefixes and forwards them (HTTP
+  and WebSocket) to the module over the mesh; everything else is 404. It
+  authenticates nobody: ipam's single-use console token gates access.
+- `public_origin` must differ from the portal's `public_origin` and must not
+  be listed in `edge.allowed_origins`; the gateway refuses to start otherwise.
+- The console origin is added to the shell's `frame-src`; console responses
+  may be framed only by the portal (`frame-ancestors <public_origin>`).
+- Set ipam's `kvm.console_origin` to the same origin.
+- Publish the port and open it in the firewall for administrators. A
+  distinct host name (`https://kvm.example.com`, with a certificate naming
+  it) instead of a port isolates cookies completely (see the security model).
+
 ## Allow-list
 
 - Managed at **Operations → Allow-list** or `POST /gateway/v1/ops/allowlist`

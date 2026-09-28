@@ -72,7 +72,8 @@ decides, and what it forwards. Threats follow the STRIDE analysis in
   `X-Gateway-Client-Addr` only on routes flagged `client_address`). Module
   `Set-Cookie` (except auth), `Content-Security-Policy` and
   `Strict-Transport-Security` never reach the browser. Redirects are not
-  followed; WebSocket upgrades are refused (501).
+  followed; WebSocket upgrades are refused (501) — consoles use the console
+  listener below.
 - gRPC: passthrough with a raw codec (payloads are never decoded), metadata
   allow-list with the same removals, deadline capped by the method's declared
   maximum, per-client concurrent streams bounded.
@@ -80,6 +81,32 @@ decides, and what it forwards. Threats follow the STRIDE analysis in
   streaming refused; server streaming supported.
 - Body, header, timeout and stream limits come from the manifest (per route)
   or `forward.*` configuration.
+
+## Console listener (feature 025)
+
+- A second public listener (`console.addr`, TLS 1.3, HTTP/1.1, the edge
+  certificate) serves only `console.routes` prefixes (default `/bmc/` →
+  ipam); every other path, and every path `route.Normalize` refuses, is 404
+  before any module contact.
+- Request: only `console.cookies` (default `freya_kvm`) are forwarded;
+  `Authorization`, `Proxy-Authorization`, `Forwarded`, `X-Forwarded-*`,
+  `X-Real-IP`, `X-Request-Id`, `X-CSP-Nonce`, `X-Freya-*`, `X-Gateway-*` are
+  removed. Response: only allow-listed `Set-Cookie` names are relayed; the
+  module's CSP, XFO, HSTS, COOP/COEP/CORP, Permissions-Policy and caching
+  headers are replaced by the console policy (`frame-ancestors` = the portal
+  origin, inline/eval scripts, blobs and `wss:` to itself, `no-store`).
+- Same host, different port: browsers scope cookies by host, so the portal's
+  `__Host-session` (HttpOnly) and `__Host-csrf` reach port 8444 and console
+  scripts can read `__Host-csrf`. They are stripped before the module; the
+  console cannot read portal responses (cross-origin, no CORS); mutations
+  from it fail the edge CSRF check (custom header ⇒ unanswered preflight, and
+  its `Origin` is refused — the configuration forbids listing it in
+  `allowed_origins`). Residual: console scripts can *set* host cookies
+  (cookie tossing; an existing HttpOnly session cannot be overwritten).
+  A distinct console host name removes the shared cookie jar entirely.
+- Limits: `max_concurrent` in-flight requests, `forward.module_timeout` per
+  request, `console.session_max` per WebSocket, `forward.body_bytes`,
+  TLS/header timeouts from the runtime limits.
 
 ## Registration
 
