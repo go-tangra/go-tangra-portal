@@ -152,6 +152,10 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		writeReason(w, http.StatusNotFound, "not_found")
 		return
 	}
+	if up := r.Header.Get("Upgrade"); up != "" && !strings.EqualFold(up, "websocket") {
+		writeReason(w, http.StatusBadRequest, "unsupported_upgrade") // only WebSockets are relayed
+		return
+	}
 	select {
 	case h.sem <- struct{}{}:
 		defer func() { <-h.sem }()

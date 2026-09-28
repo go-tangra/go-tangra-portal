@@ -13,8 +13,9 @@ certificate = `edge.cert_file`/`edge.key_file` (reloaded every minute).
 
 Forwarding: module state must be `active` and have a healthy instance,
 else `503 {"reason":"temporarily_unavailable"}`. The path and query are
-forwarded unchanged. `Connection: Upgrade` / `Upgrade: websocket` requests
-are relayed (HTTP/1.1 to the module) for at most `console.session_max`.
+forwarded unchanged. Any `Upgrade` other than `websocket` is refused
+(`400 unsupported_upgrade`). `Connection: Upgrade` / `Upgrade: websocket`
+requests are relayed (HTTP/1.1 to the module) for at most `console.session_max`.
 Plain requests: deadline `forward.module_timeout` (`504` on expiry), body
 limit `forward.body_bytes` (`413`). More than `console.max_concurrent`
 in-flight requests: `503`.

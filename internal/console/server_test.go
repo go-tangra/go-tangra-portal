@@ -158,6 +158,9 @@ func TestServerErrors(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+	if err := s.reload(); err != nil { // unchanged files: nothing to swap
+		t.Fatal(err)
+	}
 	if s.srv.ReadHeaderTimeout != 10*time.Second || s.srv.IdleTimeout != 60*time.Second || s.srv.MaxHeaderBytes != 8<<10 || s.o.ReloadInterval != time.Minute {
 		t.Fatalf("defaults %+v", s.o)
 	}

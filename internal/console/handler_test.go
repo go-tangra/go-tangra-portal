@@ -104,6 +104,28 @@ func newHarness(t *testing.T, reg *fakeReg, mut ...func(*Options)) *harness {
 	return hs
 }
 
+// waitRecord waits for exactly one traffic record (the handler reports after
+// the response was relayed, so the client may see it first).
+func (hs *harness) waitRecord(t *testing.T, want forward) {
+	t.Helper()
+	deadline := time.Now().Add(5 * time.Second)
+	for {
+		hs.mu.Lock()
+		recs := append([]forward(nil), hs.records...)
+		hs.mu.Unlock()
+		if len(recs) == 1 {
+			if recs[0] != want {
+				t.Fatalf("traffic record %v, want %v", recs[0], want)
+			}
+			return
+		}
+		if len(recs) > 1 || time.Now().After(deadline) {
+			t.Fatalf("traffic records %v", recs)
+		}
+		time.Sleep(10 * time.Millisecond)
+	}
+}
+
 // backend is a module's mesh HTTP server; it records what it received.
 type backend struct {
 	srv  *httptest.Server
@@ -220,11 +242,7 @@ func TestForwardsAndAppliesPolicy(t *testing.T) {
 			t.Errorf("%s = %q, want %q", k, got, v)
 		}
 	}
-	hs.mu.Lock()
-	defer hs.mu.Unlock()
-	if len(hs.records) != 1 || hs.records[0] != (forward{fwdModule, 200}) {
-		t.Fatalf("traffic records %v", hs.records)
-	}
+	hs.waitRecord(t, forward{fwdModule, http.StatusOK})
 }
 
 func TestCookieHeaderDroppedWhenNothingAllowed(t *testing.T) {
@@ -472,25 +490,19 @@ func TestWebSocketRelayed(t *testing.T) {
 		}
 	}
 	conn.Close()
-	deadline := time.Now().Add(5 * time.Second)
-	for {
-		hs.mu.Lock()
-		n := len(hs.records)
-		var rec forward
-		if n > 0 {
-			rec = hs.records[0]
-		}
-		hs.mu.Unlock()
-		if n == 1 {
-			if rec != (forward{fwdModule, http.StatusSwitchingProtocols}) {
-				t.Fatalf("traffic record %v", rec)
-			}
-			break
-		}
-		if time.Now().After(deadline) {
-			t.Fatal("upgrade not recorded")
-		}
-		time.Sleep(20 * time.Millisecond)
+	hs.waitRecord(t, forward{fwdModule, http.StatusSwitchingProtocols})
+}
+
+func TestOnlyWebSocketUpgrades(t *testing.T) {
+	be := newBackend(t, func(w http.ResponseWriter, _ *http.Request) {})
+	hs := newHarness(t, regWith(be.srv.URL))
+	req := httptest.NewRequest(http.MethodGet, "https://portal.example.org:8444/bmc/dev1/", nil)
+	req.Header.Set("Upgrade", "h2c")
+	req.Header.Set("Connection", "Upgrade")
+	rec := httptest.NewRecorder()
+	hs.h.ServeHTTP(rec, req)
+	if rec.Code != http.StatusBadRequest || be.hits.Load() != 0 {
+		t.Fatalf("h2c upgrade: %d, module hits %d", rec.Code, be.hits.Load())
 	}
 }
 
