@@ -43,8 +43,8 @@ import (
 	"github.com/go-tangra/go-tangra-portal/v4/internal/stream"
 	"github.com/go-tangra/go-tangra-portal/v4/internal/stream/valkeykv"
 	"github.com/go-tangra/go-tangra/v4"
-	fidentity "github.com/go-tangra/go-tangra/v4/identity"
 	fconfig "github.com/go-tangra/go-tangra/v4/config"
+	fidentity "github.com/go-tangra/go-tangra/v4/identity"
 	"github.com/go-tangra/go-tangra/v4/transport/edge"
 	thttp "github.com/go-tangra/go-tangra/v4/transport/http"
 	"github.com/go-tangra/go-tangra/v4/transport/tlsconf"
@@ -349,7 +349,7 @@ func (a *App) Close() {
 func edgeConfig(cfg config.Config) edge.Config {
 	return edge.Config{Addr: cfg.Edge.Addr, Env: cfg.Env, CertFile: cfg.Edge.CertFile, KeyFile: cfg.Edge.KeyFile,
 		AllowedOrigins: cfg.Edge.AllowedOrigins, TrustedProxies: cfg.Edge.TrustedProxies, RateLimit: cfg.Edge.RateLimit,
-		FrameSources: cfg.FrameSources()}
+		FrameSources: cfg.FrameSources(), ConnectSources: cfg.Edge.ConnectSources}
 }
 
 // newConsole builds the console listener, or nil when it is disabled. It

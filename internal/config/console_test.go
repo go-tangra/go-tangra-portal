@@ -69,40 +69,45 @@ func TestConsoleValid(t *testing.T) {
 func TestConsoleRefused(t *testing.T) {
 	mut := func(f func(c *Config)) Config { c := withConsole(); f(&c); return c }
 	for name, c := range map[string]Config{
-		"no origin":             mut(func(c *Config) { c.Console.PublicOrigin = "" }),
-		"http origin":           mut(func(c *Config) { c.Console.PublicOrigin = "http://platform.example.org:8444" }),
-		"origin with path":      mut(func(c *Config) { c.Console.PublicOrigin = "https://platform.example.org:8444/bmc" }),
-		"origin with query":     mut(func(c *Config) { c.Console.PublicOrigin = "https://platform.example.org:8444?x" }),
-		"origin with user":      mut(func(c *Config) { c.Console.PublicOrigin = "https://u@platform.example.org:8444" }),
-		"origin injection":      mut(func(c *Config) { c.Console.PublicOrigin = "https://platform.example.org:8444; script-src *" }),
-		"origin unparsable":     mut(func(c *Config) { c.Console.PublicOrigin = "%zz" }),
-		"origin no host":        mut(func(c *Config) { c.Console.PublicOrigin = "https://" }),
-		"origin = portal":       mut(func(c *Config) { c.Console.PublicOrigin = "https://platform.example.org" }),
-		"origin = portal :443":  mut(func(c *Config) { c.Console.PublicOrigin = "https://platform.example.org:443" }),
-		"origin csrf-allowed":   mut(func(c *Config) { c.Edge.AllowedOrigins = []string{"https://platform.example.org:8444/"} }),
-		"no edge cert":          mut(func(c *Config) { c.Edge.CertFile = "" }),
-		"no edge key":           mut(func(c *Config) { c.Edge.KeyFile = "" }),
-		"no addr":               mut(func(c *Config) { c.Console.Addr = "" }),
-		"root prefix":           mut(func(c *Config) { c.Console.Routes = map[string]string{"/": "ipam"} }),
-		"no trailing slash":     mut(func(c *Config) { c.Console.Routes = map[string]string{"/bmc": "ipam"} }),
-		"no leading slash":      mut(func(c *Config) { c.Console.Routes = map[string]string{"bmc/": "ipam"} }),
-		"api prefix":            mut(func(c *Config) { c.Console.Routes = map[string]string{"/api/ipam/": "ipam"} }),
-		"gateway prefix":        mut(func(c *Config) { c.Console.Routes = map[string]string{"/gateway/x/": "ipam"} }),
-		"remote prefix":         mut(func(c *Config) { c.Console.Routes = map[string]string{"/m/ipam/": "ipam"} }),
-		"bad prefix chars":      mut(func(c *Config) { c.Console.Routes = map[string]string{"/b%6dc/": "ipam"} }),
-		"dot segment":           mut(func(c *Config) { c.Console.Routes = map[string]string{"/bmc/../": "ipam"} }),
-		"double slash":          mut(func(c *Config) { c.Console.Routes = map[string]string{"/bmc//": "ipam"} }),
-		"empty module":          mut(func(c *Config) { c.Console.Routes = map[string]string{"/bmc/": ""} }),
-		"bad module":            mut(func(c *Config) { c.Console.Routes = map[string]string{"/bmc/": "IPAM!"} }),
-		"host cookie":           mut(func(c *Config) { c.Console.Cookies = []string{"__Host-session"} }),
-		"secure cookie":         mut(func(c *Config) { c.Console.Cookies = []string{"__secure-x"} }),
-		"bad cookie":            mut(func(c *Config) { c.Console.Cookies = []string{"a b"} }),
-		"empty cookie":          mut(func(c *Config) { c.Console.Cookies = []string{""} }),
-		"session zero":          mut(func(c *Config) { c.Console.SessionMax = 0 }),
-		"session long":          mut(func(c *Config) { c.Console.SessionMax = 25 * time.Hour }),
-		"concurrency zero":      mut(func(c *Config) { c.Console.MaxConcurrent = 0 }),
-		"concurrency huge":      mut(func(c *Config) { c.Console.MaxConcurrent = 10001 }),
-		"bad frame source":      mut(func(c *Config) { c.Edge.FrameSources = []string{"http://x"} }),
+		"no origin":            mut(func(c *Config) { c.Console.PublicOrigin = "" }),
+		"http origin":          mut(func(c *Config) { c.Console.PublicOrigin = "http://platform.example.org:8444" }),
+		"origin with path":     mut(func(c *Config) { c.Console.PublicOrigin = "https://platform.example.org:8444/bmc" }),
+		"origin with query":    mut(func(c *Config) { c.Console.PublicOrigin = "https://platform.example.org:8444?x" }),
+		"origin with user":     mut(func(c *Config) { c.Console.PublicOrigin = "https://u@platform.example.org:8444" }),
+		"origin injection":     mut(func(c *Config) { c.Console.PublicOrigin = "https://platform.example.org:8444; script-src *" }),
+		"origin unparsable":    mut(func(c *Config) { c.Console.PublicOrigin = "%zz" }),
+		"origin no host":       mut(func(c *Config) { c.Console.PublicOrigin = "https://" }),
+		"origin = portal":      mut(func(c *Config) { c.Console.PublicOrigin = "https://platform.example.org" }),
+		"origin = portal :443": mut(func(c *Config) { c.Console.PublicOrigin = "https://platform.example.org:443" }),
+		"origin csrf-allowed":  mut(func(c *Config) { c.Edge.AllowedOrigins = []string{"https://platform.example.org:8444/"} }),
+		"no edge cert":         mut(func(c *Config) { c.Edge.CertFile = "" }),
+		"no edge key":          mut(func(c *Config) { c.Edge.KeyFile = "" }),
+		"no addr":              mut(func(c *Config) { c.Console.Addr = "" }),
+		"root prefix":          mut(func(c *Config) { c.Console.Routes = map[string]string{"/": "ipam"} }),
+		"no trailing slash":    mut(func(c *Config) { c.Console.Routes = map[string]string{"/bmc": "ipam"} }),
+		"no leading slash":     mut(func(c *Config) { c.Console.Routes = map[string]string{"bmc/": "ipam"} }),
+		"api prefix":           mut(func(c *Config) { c.Console.Routes = map[string]string{"/api/ipam/": "ipam"} }),
+		"gateway prefix":       mut(func(c *Config) { c.Console.Routes = map[string]string{"/gateway/x/": "ipam"} }),
+		"remote prefix":        mut(func(c *Config) { c.Console.Routes = map[string]string{"/m/ipam/": "ipam"} }),
+		"bad prefix chars":     mut(func(c *Config) { c.Console.Routes = map[string]string{"/b%6dc/": "ipam"} }),
+		"dot segment":          mut(func(c *Config) { c.Console.Routes = map[string]string{"/bmc/../": "ipam"} }),
+		"double slash":         mut(func(c *Config) { c.Console.Routes = map[string]string{"/bmc//": "ipam"} }),
+		"empty module":         mut(func(c *Config) { c.Console.Routes = map[string]string{"/bmc/": ""} }),
+		"bad module":           mut(func(c *Config) { c.Console.Routes = map[string]string{"/bmc/": "IPAM!"} }),
+		"host cookie":          mut(func(c *Config) { c.Console.Cookies = []string{"__Host-session"} }),
+		"secure cookie":        mut(func(c *Config) { c.Console.Cookies = []string{"__secure-x"} }),
+		"bad cookie":           mut(func(c *Config) { c.Console.Cookies = []string{"a b"} }),
+		"empty cookie":         mut(func(c *Config) { c.Console.Cookies = []string{""} }),
+		"session zero":         mut(func(c *Config) { c.Console.SessionMax = 0 }),
+		"session long":         mut(func(c *Config) { c.Console.SessionMax = 25 * time.Hour }),
+		"concurrency zero":     mut(func(c *Config) { c.Console.MaxConcurrent = 0 }),
+		"concurrency huge":     mut(func(c *Config) { c.Console.MaxConcurrent = 10001 }),
+		"bad frame source":     mut(func(c *Config) { c.Edge.FrameSources = []string{"http://x"} }),
+		"bad connect source":   mut(func(c *Config) { c.Edge.ConnectSources = []string{"http://localhost:53952"} }),
+		"connect source allowed origin": mut(func(c *Config) {
+			c.Edge.ConnectSources = []string{"https://localhost:53952"}
+			c.Edge.AllowedOrigins = append(c.Edge.AllowedOrigins, "https://localhost:53952")
+		}),
 		"frame source disabled": func() Config { c := valid(); c.Edge.FrameSources = []string{"https://x/p"}; return c }(),
 	} {
 		if err := c.Validate(); err == nil {
@@ -115,7 +120,7 @@ func TestConsoleRefused(t *testing.T) {
 
 func TestLoadConsole(t *testing.T) {
 	p := filepath.Join(t.TempDir(), "gw.yaml")
-	_ = os.WriteFile(p, []byte("service_name: gw\nedge: { frame_sources: [\"https://a.example\"] }\nconsole:\n  enabled: true\n  addr: 0.0.0.0:9444\n  public_origin: https://x:9444\n  routes: { \"/kvm/\": other }\n  cookies: [c1]\n  session_max: 2h\n  max_concurrent: 8\n"), 0o600)
+	_ = os.WriteFile(p, []byte("service_name: gw\nedge: { frame_sources: [\"https://a.example\"], connect_sources: [\"https://localhost:53952\"] }\nconsole:\n  enabled: true\n  addr: 0.0.0.0:9444\n  public_origin: https://x:9444\n  routes: { \"/kvm/\": other }\n  cookies: [c1]\n  session_max: 2h\n  max_concurrent: 8\n"), 0o600)
 	c, err := Load(p)
 	if err != nil {
 		t.Fatal(err)
@@ -126,6 +131,9 @@ func TestLoadConsole(t *testing.T) {
 	// Configured routes replace the default instead of merging with it.
 	if !reflect.DeepEqual(c.Console.RouteMap(), map[string]string{"/kvm/": "other"}) || !reflect.DeepEqual(c.Console.CookieNames(), []string{"c1"}) {
 		t.Fatalf("routes %v cookies %v", c.Console.RouteMap(), c.Console.CookieNames())
+	}
+	if !reflect.DeepEqual(c.Edge.ConnectSources, []string{"https://localhost:53952"}) {
+		t.Fatalf("connect sources %v", c.Edge.ConnectSources)
 	}
 	if !reflect.DeepEqual(c.Edge.FrameSources, []string{"https://a.example"}) {
 		t.Fatalf("frame sources %v", c.Edge.FrameSources)

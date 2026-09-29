@@ -87,6 +87,12 @@ func TestEdgeFrameSourcesFollowConsole(t *testing.T) {
 	if csp := portalCSP(t, consoleCfg(t, true)); !strings.Contains(csp, "frame-src 'self' https://portal.example.org:8444;") || !strings.Contains(csp, "frame-ancestors 'none'") {
 		t.Fatalf("enabled: %q", csp)
 	}
+	bissCfg := consoleCfg(t, false)
+	bissCfg.Edge.ConnectSources = []string{"https://localhost:53952", "https://localhost:53955"}
+	if csp := portalCSP(t, bissCfg); !strings.Contains(csp, "connect-src 'self' https://localhost:53952 https://localhost:53955;") ||
+		strings.Contains(csp, "script-src 'self' https://localhost") {
+		t.Fatalf("connect sources: %s", csp)
+	}
 	if csp := portalCSP(t, consoleCfg(t, false)); strings.Contains(csp, "frame-src") {
 		t.Fatalf("disabled: %q", csp)
 	}

@@ -101,6 +101,17 @@ func (c Config) validateConsole() error {
 			return fmt.Errorf("config: edge.frame_sources %q: %w", f, err)
 		}
 	}
+	for _, f := range c.Edge.ConnectSources {
+		o, err := canonicalOrigin(f)
+		if err != nil {
+			return fmt.Errorf("config: edge.connect_sources %q: %w", f, err)
+		}
+		for _, a := range c.Edge.AllowedOrigins {
+			if ao, _ := canonicalOrigin(a); ao == o {
+				return fmt.Errorf("config: edge.connect_sources %q must not be in edge.allowed_origins", f)
+			}
+		}
+	}
 	k := c.Console
 	if !k.Enabled {
 		return nil
