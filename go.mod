@@ -98,3 +98,5 @@ require (
 )
 
 replace github.com/go-tangra/go-tangra-portal/sdk/v4 => ./sdk
+
+replace github.com/go-tangra/go-tangra/v4 => ../go-tangra

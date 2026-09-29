@@ -56,6 +56,10 @@ type Edge struct {
 	// FrameSources are extra https origins the portal's pages may frame
 	// (edge frame-src); the console origin is added automatically.
 	FrameSources []string `yaml:"frame_sources"`
+	// ConnectSources are extra https origins the portal's pages may connect
+	// to (edge connect-src), e.g. the local B-Trust BISS application of
+	// qualified signatures (https://localhost:53952–53955).
+	ConnectSources []string `yaml:"connect_sources"`
 }
 
 // DB is the gateway database (allow-list, marks, audit).
