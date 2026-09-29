@@ -82,6 +82,10 @@ type Ref struct {
 // String renders the ref as "module:resource:action".
 func (r Ref) String() string { return r.Module + ":" + r.Perm }
 
+// MaxBatchCheck is the most permissions auth's Authorization/BatchCheck
+// accepts in one request.
+const MaxBatchCheck = 100
+
 // Check decides a list of module permissions for a user; cached answers are
 // used when present, the rest are asked in one BatchCheck (refs may mix
 // modules). Invalid refs are refused as unknown_permission without asking.
@@ -105,17 +109,24 @@ func (d *Decider) Check(ctx context.Context, tenant, user string, refs []Ref) ([
 	if len(missing) == 0 {
 		return out, nil
 	}
-	req := &authv1.BatchCheckRequest{TenantId: tenant, UserId: user}
-	for _, i := range missing {
-		res, act, _ := strings.Cut(refs[i].Perm, ":")
-		req.Permissions = append(req.Permissions, &authv1.PermissionRef{Module: refs[i].Module, Resource: res, Action: act})
-	}
-	resp, err := d.o.Client.BatchCheck(ctx, req)
-	if err != nil || len(resp.GetResults()) != len(missing) {
-		return nil, ErrUnavailable
+	// auth answers at most MaxBatchCheck permissions per call; the shell's
+	// abilities span every module, so larger sets go out in chunks.
+	results := make([]*authv1.CheckResponse, 0, len(missing))
+	for start := 0; start < len(missing); start += MaxBatchCheck {
+		chunk := missing[start:min(start+MaxBatchCheck, len(missing))]
+		req := &authv1.BatchCheckRequest{TenantId: tenant, UserId: user}
+		for _, i := range chunk {
+			res, act, _ := strings.Cut(refs[i].Perm, ":")
+			req.Permissions = append(req.Permissions, &authv1.PermissionRef{Module: refs[i].Module, Resource: res, Action: act})
+		}
+		resp, err := d.o.Client.BatchCheck(ctx, req)
+		if err != nil || len(resp.GetResults()) != len(chunk) {
+			return nil, ErrUnavailable
+		}
+		results = append(results, resp.GetResults()...)
 	}
 	for j, i := range missing {
-		r := resp.Results[j]
+		r := results[j]
 		out[i] = Decision{Allowed: r.GetAllowed(), Reason: r.GetReason(), Version: r.GetPolicyVersion()}
 		if v := r.GetPolicyVersion(); v != "" {
 			d.mu.Lock()

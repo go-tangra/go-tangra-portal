@@ -3,6 +3,7 @@ package authz
 import (
 	"context"
 	"errors"
+	"fmt"
 	"strings"
 	"testing"
 	"time"
@@ -225,4 +226,39 @@ func TestModuleScopedDecisions(t *testing.T) {
 	if (Ref{"warden", "stats:read"}).String() != "warden:stats:read" {
 		t.Fatal("Ref.String")
 	}
+}
+
+// More permissions than auth's BatchCheck accepts go out in chunks of at
+// most MaxBatchCheck (the shell's abilities span every module).
+func TestCheckChunksLargeBatches(t *testing.T) {
+	ctx := context.Background()
+	ms := memstore.New()
+	aw := audit.NewWriter(ms, nil)
+	defer aw.Close()
+	fc := &fakeChecker{version: "v1", allow: map[string]bool{"mod:res0:read": true, "mod:res249:read": true}}
+	d, err := New(Options{Client: &limitChecker{fakeChecker: fc}, KV: registry.NewMemory(), Audit: aw, TTL: time.Minute})
+	if err != nil {
+		t.Fatal(err)
+	}
+	var refs []Ref
+	for i := 0; i < 250; i++ {
+		refs = append(refs, Ref{Module: "mod", Perm: fmt.Sprintf("res%d:read", i)})
+	}
+	ds, err := d.Check(ctx, "0190f7c2-6a3e-7c1a-9b2e-2f6f9d1b4c55", "u", refs)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if fc.calls != 3 || !ds[0].Allowed || !ds[249].Allowed || ds[1].Allowed || len(ds) != 250 {
+		t.Fatalf("calls %d, decisions %v %v %v", fc.calls, ds[0], ds[1], ds[249])
+	}
+}
+
+// limitChecker refuses batches larger than auth does.
+type limitChecker struct{ *fakeChecker }
+
+func (l *limitChecker) BatchCheck(ctx context.Context, in *authv1.BatchCheckRequest, opts ...grpc.CallOption) (*authv1.BatchCheckResponse, error) {
+	if len(in.Permissions) > MaxBatchCheck {
+		return nil, errors.New("invalid argument: too many permissions")
+	}
+	return l.fakeChecker.BatchCheck(ctx, in, opts...)
 }
