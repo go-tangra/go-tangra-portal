@@ -8,6 +8,20 @@ import { useSession } from '@/stores/session'
 describe('navigation from manifests', () => {
   beforeEach(() => setActivePinia(createPinia()))
 
+  it('puts a module dashboard first in its menu; group icon and order stay from the first manifest entry', async () => {
+    const s = useSession()
+    s.apply({ user_id: 'u1', tenant_id: 't1', operator: false })
+    vi.stubGlobal('fetch', vi.fn(async () => new Response(JSON.stringify([
+      { module: 'paperless', display_name: 'Paperless', nav: [{ title: 'Documents', path: '/paperless', icon: 'mdi-file', order: 500 }, { title: 'Search', path: '/paperless/search', order: 520 }, { title: 'Dashboard', path: '/paperless/dashboard', order: 530 }] },
+      { module: 'warden', display_name: 'Warden', nav: [{ title: 'Secrets', path: '/warden', order: 100 }] },
+    ]), { status: 200 })))
+    await s.loadModules()
+    expect(s.navGroups.map((g) => [g.module, g.icon, g.entries.map((e) => e.title)])).toEqual([
+      ['warden', 'mdi-view-module-outline', ['Secrets']],
+      ['paperless', 'mdi-file', ['Dashboard', 'Documents', 'Search']],
+    ])
+  })
+
   it('lists permitted entries ordered across modules and the operations entry for operators', async () => {
     const s = useSession()
     s.apply({ user_id: 'u1', tenant_id: 't1', operator: true })
