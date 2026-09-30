@@ -77,7 +77,9 @@ export const useSession = defineStore('session', {
         .sort((a, b) => a.order - b.order || a.title.localeCompare(b.title)),
     /**
      * Navigation grouped by module: one menu per module (titled by its display
-     * name, ordered by its first entry) holding that module's entries.
+     * name, ordered by its first entry) holding that module's entries. A
+     * module's dashboard (an entry whose path ends in /dashboard) always comes
+     * first in its menu, whatever order the manifest gave it.
      */
     navGroups(): NavGroup[] {
       const groups = new Map<string, NavGroup>()
@@ -90,6 +92,8 @@ export const useSession = defineStore('session', {
         }
         g.entries.push(n)
       }
+      const isDashboard = (e: NavEntry) => /\/dashboard\/?$/.test(e.path)
+      for (const g of groups.values()) g.entries = [...g.entries.filter(isDashboard), ...g.entries.filter((e) => !isDashboard(e))]
       return [...groups.values()].sort((a, b) => a.order - b.order || a.title.localeCompare(b.title))
     },
   },
