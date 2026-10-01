@@ -72,6 +72,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/gateway/v1/stream": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Per-signed-in-user SSE bus: realtime events any module publishes to the shared platform stream */
+        get: operations["userStream"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/gateway/v1/ops/registrations": {
         parameters: {
             query?: never;
@@ -176,6 +193,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
+        /** @description Page of gateway audit events (Page; default window the last 7 days, newest first). The cursor/limit style is the legacy shape {events, next_cursor}, kept for one release. */
         get: operations["gatewayAudit"];
         put?: never;
         post?: never;
@@ -208,6 +226,16 @@ export interface components {
     schemas: {
         Error: {
             reason: string;
+        };
+        /** @description List contract (go-tangra specs/032-server-side-tables) */
+        Page: {
+            items: unknown[];
+            total: number;
+            page: number;
+            page_size: number;
+            sort: string;
+            /** @enum {string} */
+            order: "asc" | "desc";
         };
         Module: {
             module?: string;
@@ -273,6 +301,10 @@ export interface components {
     parameters: {
         /** @description Double-submit token; enforced by the edge for cookie-bearing requests, not needed by bearer clients */
         csrf: string;
+        /** @description 1-based page; beyond the last page returns the last page */
+        page: number;
+        pageSize: number;
+        order: "asc" | "desc";
     };
     requestBodies: never;
     headers: never;
@@ -365,23 +397,58 @@ export interface operations {
             };
         };
     };
-    listRegistrations: {
+    userStream: {
         parameters: {
             query?: never;
+            header?: {
+                "Last-Event-ID"?: string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description text/event-stream */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    listRegistrations: {
+        parameters: {
+            query?: {
+                /** @description 1-based page; beyond the last page returns the last page */
+                page?: components["parameters"]["page"];
+                page_size?: components["parameters"]["pageSize"];
+                sort?: "module" | "state" | "instances" | "last_renewal";
+                order?: components["parameters"]["order"];
+            };
             header?: never;
             path?: never;
             cookie?: never;
         };
         requestBody?: never;
         responses: {
-            /** @description list */
+            /** @description page of registrations */
             200: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["Registration"][];
+                    "application/json": components["schemas"]["Page"] & {
+                        items?: components["schemas"]["Registration"][];
+                    };
                 };
+            };
+            /** @description validation_failed */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
             /** @description forbidden */
             403: {
@@ -469,15 +536,28 @@ export interface operations {
     };
     listAllowlist: {
         parameters: {
-            query?: never;
+            query?: {
+                /** @description 1-based page; beyond the last page returns the last page */
+                page?: components["parameters"]["page"];
+                page_size?: components["parameters"]["pageSize"];
+                sort?: "spiffe_id" | "created_at" | "revoked_at";
+                order?: components["parameters"]["order"];
+            };
             header?: never;
             path?: never;
             cookie?: never;
         };
         requestBody?: never;
         responses: {
-            /** @description entries */
+            /** @description page of entries (Page) */
             200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description validation_failed */
+            400: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -545,7 +625,15 @@ export interface operations {
                 event_type?: string;
                 from?: string;
                 to?: string;
+                /** @description 1-based page; beyond the last page returns the last page */
+                page?: components["parameters"]["page"];
+                page_size?: components["parameters"]["pageSize"];
+                sort?: "ts" | "module" | "event_type";
+                order?: components["parameters"]["order"];
+                /** @deprecated */
                 cursor?: string;
+                /** @deprecated */
+                limit?: number;
             };
             header?: never;
             path?: never;

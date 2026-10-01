@@ -5,6 +5,7 @@ import (
 	"errors"
 	"time"
 
+	"github.com/go-tangra/go-tangra/v4/listquery"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgconn"
 )
@@ -130,6 +131,32 @@ func QueryAudit(ctx context.Context, tx pgx.Tx, module, eventType string, from, 
 		out = append(out, r)
 	}
 	return out, rows.Err()
+}
+
+// PageAudit counts the events matching q, clamps req to the last page and
+// reads that page in req's order (store.AuditList), in one transaction.
+func PageAudit(ctx context.Context, tx pgx.Tx, q AuditQuery, req listquery.Request) ([]AuditRow, int, listquery.Request, error) {
+	const where = `FROM gateway_audit_events WHERE ($1 = '' OR module = $1) AND ($2 = '' OR event_type = $2) AND ts >= $3 AND ts <= $4`
+	var total int
+	if err := tx.QueryRow(ctx, `SELECT count(*) `+where, q.Module, q.EventType, q.From, q.To).Scan(&total); err != nil {
+		return nil, 0, req, err
+	}
+	req = req.Clamp(total)
+	rows, err := tx.Query(ctx, `SELECT id, ts, event_type, module, actor_kind, actor_id, tenant_id, subject_kind, subject_id, outcome, reason, correlation_id, details `+
+		where+` ORDER BY `+req.OrderBy(AuditList)+` LIMIT $5 OFFSET $6`, q.Module, q.EventType, q.From, q.To, req.Limit(), req.Offset())
+	if err != nil {
+		return nil, 0, req, err
+	}
+	defer rows.Close()
+	var out []AuditRow
+	for rows.Next() {
+		var r AuditRow
+		if err := rows.Scan(&r.ID, &r.TS, &r.EventType, &r.Module, &r.ActorKind, &r.ActorID, &r.TenantID, &r.SubjectKind, &r.SubjectID, &r.Outcome, &r.Reason, &r.CorrelationID, &r.Details); err != nil {
+			return nil, 0, req, err
+		}
+		out = append(out, r)
+	}
+	return out, total, req, rows.Err()
 }
 
 func nullTime(t time.Time) *time.Time {

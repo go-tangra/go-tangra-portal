@@ -21,6 +21,7 @@ type Mark struct {
 
 // AuditRow is one gateway audit event.
 type AuditRow struct {
+	ID            int64
 	TS            time.Time
 	EventType     string
 	Module        string

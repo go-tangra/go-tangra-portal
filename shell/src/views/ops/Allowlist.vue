@@ -3,6 +3,7 @@ import { onMounted, ref } from 'vue'
 import { UiPage, UiAlert, UiCard, UiForm, UiInput, UiButton, UiDataTable, type Column } from '@go-tangra/ui'
 import { useZodForm } from '@go-tangra/ui/forms'
 import { api, ApiError } from '@/api/client'
+import { useServerList } from '@/composables/useServerList'
 import { allowEntrySchema } from '@/schemas/ops'
 
 export interface AllowEntry extends Record<string, unknown> {
@@ -15,16 +16,9 @@ export interface AllowEntry extends Record<string, unknown> {
   revoked_at?: string
 }
 
-const rows = ref<AllowEntry[]>([])
-const error = ref('')
-
-async function load(): Promise<void> {
-  try {
-    rows.value = await api<AllowEntry[]>('GET', '/gateway/v1/ops/allowlist')
-  } catch (err) {
-    error.value = err instanceof ApiError ? err.reason : 'error'
-  }
-}
+const list = useServerList<AllowEntry>('allow', '/gateway/v1/ops/allowlist', { sortable: ['spiffe_id', 'created_at', 'revoked_at'], defaultSort: { key: 'spiffe_id', dir: 'asc' } })
+const { lq, load } = list
+const actionError = ref('')
 
 const form = useZodForm(allowEntrySchema, {
   initial: { spiffe_id: '', prefixes: '', names: '' },
@@ -40,22 +34,23 @@ async function revoke(e: AllowEntry): Promise<void> {
     await api('POST', `/gateway/v1/ops/allowlist/${e.id}/revoke`)
     await load()
   } catch (err) {
-    error.value = err instanceof ApiError ? err.reason : 'error'
+    actionError.value = err instanceof ApiError ? err.reason : 'error'
   }
 }
 
 const columns: Column<AllowEntry>[] = [
-  { key: 'spiffe_id', label: 'Identity' },
+  { key: 'spiffe_id', label: 'Identity', sortable: true },
   { key: 'prefixes', label: 'Prefixes', format: (e) => e.prefixes.join(', ') },
   { key: 'names', label: 'Names', format: (e) => e.names.join(', ') },
-  { key: 'created_at', label: 'Created', format: (e) => `${e.created_at} by ${e.created_by}${e.revoked_at ? ' (revoked)' : ''}`, hideOnStack: true },
+  { key: 'created_at', label: 'Created', format: (e) => `${e.created_at} by ${e.created_by}`, sortable: true, defaultDir: 'desc', hideOnStack: true },
+  { key: 'revoked_at', label: 'Revoked', format: (e) => e.revoked_at ?? '', sortable: true, defaultDir: 'desc', hideOnStack: true },
 ]
 onMounted(load)
 </script>
 
 <template>
   <UiPage title="Allow-list" subtitle="Workload identities allowed to register modules with the gateway">
-    <UiAlert v-if="error" kind="error" class="mb-4" data-test="ops-error">{{ error }}</UiAlert>
+    <UiAlert v-if="list.error.value || actionError" kind="error" class="mb-4" data-test="ops-error">{{ list.error.value || actionError }}</UiAlert>
     <UiCard class="mb-4">
       <UiForm :form="form" data-test="allow-form">
         <div class="grid grid-cols-1 gap-3 md:grid-cols-12 md:items-end">
@@ -67,7 +62,7 @@ onMounted(load)
       </UiForm>
     </UiCard>
     <UiCard :padded="false">
-      <UiDataTable :items="rows" :columns="columns" row-key="id" caption="Allow-list entries" empty-title="No entries" :row-attrs="(e) => ({ 'data-test': 'allow-' + e.id, class: e.revoked_at ? 'opacity-50' : '' })" data-test="allowlist">
+      <UiDataTable :items="list.items.value" :total="list.total.value" :page="lq.page.value" :page-size="lq.pageSize.value" :sort="lq.sort.value" :loading="list.loading.value" :columns="columns" row-key="id" caption="Allow-list entries" empty-title="No entries" @update:page="lq.setPage" @update:page-size="lq.setPageSize" @update:sort="lq.setSort" :row-attrs="(e) => ({ 'data-test': 'allow-' + e.id, class: e.revoked_at ? 'opacity-50' : '' })" data-test="allowlist">
         <template #actions="{ row }">
           <UiButton v-if="!row.revoked_at" size="sm" variant="text" color="error" :data-test="'allow-revoke-' + row.id" @click="revoke(row)">Revoke</UiButton>
         </template>

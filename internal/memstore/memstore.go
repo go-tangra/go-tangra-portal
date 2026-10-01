@@ -4,11 +4,13 @@ package memstore
 
 import (
 	"context"
+	"fmt"
 	"sort"
 	"sync"
 	"time"
 
 	"github.com/go-tangra/go-tangra-portal/v4/internal/store"
+	"github.com/go-tangra/go-tangra/v4/listquery"
 )
 
 // Store keeps everything in maps; exported fields are for test setup.
@@ -17,6 +19,7 @@ type Store struct {
 	Allow     map[string]store.AllowEntry // by id
 	Marks     map[string]store.Mark       // by id
 	AuditRows []store.AuditRow
+	auditSeq  int64
 	Now       func() time.Time
 	// Fail, when set, is returned by every method (failure injection).
 	Fail error
@@ -160,7 +163,11 @@ func (m *Store) InsertAuditRows(_ context.Context, rows []store.AuditRow) error 
 	if m.Fail != nil {
 		return m.Fail
 	}
-	m.AuditRows = append(m.AuditRows, rows...)
+	for _, r := range rows {
+		m.auditSeq++
+		r.ID = m.auditSeq
+		m.AuditRows = append(m.AuditRows, r)
+	}
 	return nil
 }
 
@@ -183,6 +190,38 @@ func (m *Store) QueryAudit(_ context.Context, module, eventType string, from, to
 		out = out[:limit]
 	}
 	return out, nil
+}
+
+// PageAudit filters, sorts and pages rows like the SQL repository.
+func (m *Store) PageAudit(_ context.Context, q store.AuditQuery, req listquery.Request) ([]store.AuditRow, int, listquery.Request, error) {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+	if m.Fail != nil {
+		return nil, 0, req, m.Fail
+	}
+	var match []*store.AuditRow
+	for i := range m.AuditRows {
+		r := &m.AuditRows[i]
+		if (q.Module != "" && r.Module != q.Module) || (q.EventType != "" && r.EventType != q.EventType) || r.TS.Before(q.From) || r.TS.After(q.To) {
+			continue
+		}
+		match = append(match, r)
+	}
+	listquery.SortSlice(match, req, func(r *store.AuditRow, field string) any {
+		switch field {
+		case "module":
+			return r.Module
+		case "event_type":
+			return r.EventType
+		}
+		return r.TS
+	}, func(r *store.AuditRow) string { return fmt.Sprintf("%020d", r.ID) })
+	page, total, applied := listquery.Window(match, req)
+	out := make([]store.AuditRow, 0, len(page))
+	for _, r := range page {
+		out = append(out, *r)
+	}
+	return out, total, applied, nil
 }
 
 // Audit returns a copy of the audit rows (test helper).

@@ -12,8 +12,9 @@ import (
 func TestOperatorControls(t *testing.T) {
 	p := StartPlatform(t)
 	// Registrations with health and traffic.
-	code, regs := p.JSONList(http.MethodGet, "/gateway/v1/ops/registrations")
-	if code != 200 || len(regs) < 2 {
+	code, regPage := p.JSON(http.MethodGet, "/gateway/v1/ops/registrations", nil)
+	regs := pageItems(regPage)
+	if code != 200 || len(regs) < 2 || regPage["total"].(float64) < 2 {
 		t.Fatalf("%d %v", code, regs)
 	}
 	var alpha map[string]any
@@ -52,8 +53,9 @@ func TestOperatorControls(t *testing.T) {
 	if code != 201 || entry["id"] == "" {
 		t.Fatalf("add allow → %d %v", code, entry)
 	}
-	code, list := p.JSONList(http.MethodGet, "/gateway/v1/ops/allowlist")
-	if code != 200 || len(list) < 3 {
+	code, allowPage := p.JSON(http.MethodGet, "/gateway/v1/ops/allowlist?sort=created_at", nil)
+	list := pageItems(allowPage)
+	if code != 200 || len(list) < 3 || allowPage["sort"] != "created_at" || allowPage["order"] != "desc" {
 		t.Fatalf("list allow → %d %v", code, list)
 	}
 	if code, _ := p.JSON(http.MethodPost, "/gateway/v1/ops/allowlist/"+entry["id"].(string)+"/revoke", nil); code != 204 {
@@ -95,4 +97,16 @@ func TestOperatorControls(t *testing.T) {
 	if code, a := p.JSON(http.MethodGet, "/gateway/v1/ops/audit?event_type=allowlist_changed", nil); code != 200 || strings.Count(toJSON(a), "allowlist_changed") < 2 {
 		t.Fatalf("allow audit → %d %v", code, a)
 	}
+}
+
+// pageItems returns the rows of a list-contract response.
+func pageItems(body map[string]any) []map[string]any {
+	raw, _ := body["items"].([]any)
+	out := make([]map[string]any, 0, len(raw))
+	for _, r := range raw {
+		if m, ok := r.(map[string]any); ok {
+			out = append(out, m)
+		}
+	}
+	return out
 }

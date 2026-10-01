@@ -11,8 +11,22 @@ servers: [{ url: https://platform.example.org }]
 components:
   parameters:
     csrf: { name: X-CSRF-Token, in: header, required: false, description: 'Double-submit token; enforced by the edge for cookie-bearing requests, not needed by bearer clients', schema: { type: string } }
+    page: { name: page, in: query, description: '1-based page; beyond the last page returns the last page', schema: { type: integer, minimum: 1, maximum: 2147483647 } }
+    pageSize: { name: page_size, in: query, schema: { type: integer, minimum: 1, maximum: 200 } }
+    order: { name: order, in: query, schema: { type: string, enum: [asc, desc] } }
   schemas:
     Error: { type: object, required: [reason], properties: { reason: { type: string } } }
+    Page:
+      type: object
+      description: 'List contract (go-tangra specs/032-server-side-tables)'
+      required: [items, total, page, page_size, sort, order]
+      properties:
+        items: { type: array, items: {} }
+        total: { type: integer }
+        page: { type: integer }
+        page_size: { type: integer }
+        sort: { type: string }
+        order: { type: string, enum: [asc, desc] }
     Module:
       type: object
       properties:
@@ -65,7 +79,7 @@ paths:
   /gateway/v1/stream:
     get: { operationId: userStream, summary: 'Per-signed-in-user SSE bus: realtime events any module publishes to the shared platform stream', parameters: [{ name: Last-Event-ID, in: header, schema: { type: string, maxLength: 64 } }], responses: { '200': { description: text/event-stream } } }
   /gateway/v1/ops/registrations:
-    get: { operationId: listRegistrations, summary: 'Every registration with health and traffic (operators)', responses: { '200': { description: list, content: { application/json: { schema: { type: array, items: { $ref: '#/components/schemas/Registration' } } } } }, '403': { description: forbidden } } }
+    get: { operationId: listRegistrations, summary: 'Every registration with health and traffic (operators)', parameters: [{ $ref: '#/components/parameters/page' }, { $ref: '#/components/parameters/pageSize' }, { name: sort, in: query, schema: { type: string, enum: [module, state, instances, last_renewal] } }, { $ref: '#/components/parameters/order' }], responses: { '200': { description: 'page of registrations', content: { application/json: { schema: { allOf: [{ $ref: '#/components/schemas/Page' }, { type: object, properties: { items: { type: array, items: { $ref: '#/components/schemas/Registration' } } } }] } } } }, '400': { description: validation_failed }, '403': { description: forbidden } } }
   /gateway/v1/ops/registrations/{module}/drain:
     post: { operationId: drainModule, parameters: [{ $ref: '#/components/parameters/csrf' }, { name: module, in: path, required: true, schema: { type: string } }], responses: { '204': { description: draining } } }
   /gateway/v1/ops/registrations/{module}/undrain:
@@ -73,7 +87,7 @@ paths:
   /gateway/v1/ops/registrations/{module}/revoke:
     post: { operationId: revokeModule, parameters: [{ $ref: '#/components/parameters/csrf' }, { name: module, in: path, required: true, schema: { type: string } }], requestBody: { content: { application/json: { schema: { type: object, additionalProperties: false, required: [reason], properties: { reason: { type: string, minLength: 10 } } } } } }, responses: { '204': { description: revoked } } }
   /gateway/v1/ops/allowlist:
-    get: { operationId: listAllowlist, responses: { '200': { description: entries } } }
+    get: { operationId: listAllowlist, parameters: [{ $ref: '#/components/parameters/page' }, { $ref: '#/components/parameters/pageSize' }, { name: sort, in: query, schema: { type: string, enum: [spiffe_id, created_at, revoked_at] } }, { $ref: '#/components/parameters/order' }], responses: { '200': { description: 'page of entries (Page)' }, '400': { description: validation_failed } } }
     post:
       operationId: addAllowlist
       parameters: [{ $ref: '#/components/parameters/csrf' }]
@@ -84,7 +98,8 @@ paths:
   /gateway/v1/ops/audit:
     get:
       operationId: gatewayAudit
-      parameters: [{ name: module, in: query, schema: { type: string } }, { name: event_type, in: query, schema: { type: string } }, { name: from, in: query, schema: { type: string, format: date-time } }, { name: to, in: query, schema: { type: string, format: date-time } }, { name: cursor, in: query, schema: { type: string } }]
+      description: 'Page of gateway audit events (Page; default window the last 7 days, newest first). The cursor/limit style is the legacy shape {events, next_cursor}, kept for one release.'
+      parameters: [{ name: module, in: query, schema: { type: string } }, { name: event_type, in: query, schema: { type: string } }, { name: from, in: query, schema: { type: string, format: date-time } }, { name: to, in: query, schema: { type: string, format: date-time } }, { $ref: '#/components/parameters/page' }, { $ref: '#/components/parameters/pageSize' }, { name: sort, in: query, schema: { type: string, enum: [ts, module, event_type] } }, { $ref: '#/components/parameters/order' }, { name: cursor, in: query, deprecated: true, schema: { type: string } }, { name: limit, in: query, deprecated: true, schema: { type: integer, minimum: 1, maximum: 500 } }]
       responses: { '200': { description: page of events } }
   /m/{module}/{asset}:
     get: { operationId: moduleAsset, summary: 'Federated remote assets relayed from the module (immutable caching for hashed assets; mf-manifest.json no-store)', parameters: [{ name: module, in: path, required: true, schema: { type: string } }, { name: asset, in: path, required: true, schema: { type: string } }], responses: { '200': { description: asset }, '404': { description: not_found } } }

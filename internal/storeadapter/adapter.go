@@ -9,6 +9,7 @@ import (
 	"github.com/jackc/pgx/v5"
 
 	"github.com/go-tangra/go-tangra-portal/v4/internal/store"
+	"github.com/go-tangra/go-tangra/v4/listquery"
 )
 
 // Adapter wraps a *store.Store.
@@ -56,6 +57,15 @@ func (a *Adapter) SetMark(ctx context.Context, m store.Mark) error {
 // ClearMark clears the active mark of a module.
 func (a *Adapter) ClearMark(ctx context.Context, module string) error {
 	return a.St.Tx(ctx, func(tx pgx.Tx) error { return store.ClearMark(ctx, tx, module, time.Now().UTC()) })
+}
+
+// PageAudit implements audit.Querier: count and page in one transaction.
+func (a *Adapter) PageAudit(ctx context.Context, q store.AuditQuery, req listquery.Request) (out []store.AuditRow, total int, applied listquery.Request, err error) {
+	err = a.St.Tx(ctx, func(tx pgx.Tx) error {
+		out, total, applied, err = store.PageAudit(ctx, tx, q, req)
+		return err
+	})
+	return
 }
 
 // QueryAudit implements audit.Querier.
