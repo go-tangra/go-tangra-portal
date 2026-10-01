@@ -3,6 +3,7 @@ import { onMounted, ref } from 'vue'
 import { UiPage, UiAlert, UiCard, UiButton, UiDataTable, UiDialog, UiForm, UiTextarea, UiStatusChip, type Column } from '@go-tangra/ui'
 import { useZodForm } from '@go-tangra/ui/forms'
 import { api, ApiError } from '@/api/client'
+import { useServerList } from '@/composables/useServerList'
 import { revokeSchema } from '@/schemas/ops'
 
 export interface Registration extends Record<string, unknown> {
@@ -16,19 +17,11 @@ export interface Registration extends Record<string, unknown> {
   traffic: { requests_1m: number; refusals_1m: number; p95_ms: number }
 }
 
-const rows = ref<Registration[]>([])
+const list = useServerList<Registration>('reg', '/gateway/v1/ops/registrations', { sortable: ['module', 'state', 'instances', 'last_renewal'], defaultSort: { key: 'module', dir: 'asc' } })
+const { lq, load } = list
 const error = ref('')
 const busy = ref('')
 const revokeFor = ref<Registration | null>(null)
-
-async function load(): Promise<void> {
-  error.value = ''
-  try {
-    rows.value = await api<Registration[]>('GET', '/gateway/v1/ops/registrations')
-  } catch (err) {
-    error.value = err instanceof ApiError ? err.reason : 'error'
-  }
-}
 
 async function act(r: Registration, action: 'drain' | 'undrain'): Promise<void> {
   busy.value = r.module
@@ -61,13 +54,13 @@ const revokeForm = useZodForm(revokeSchema, {
 })
 
 const columns: Column<Registration>[] = [
-  { key: 'module', label: 'Module', format: (r) => `${r.manifest.display_name || r.module} ${r.manifest.version ?? ''}` },
-  { key: 'state', label: 'State', width: 'sm' },
-  { key: 'instances', label: 'Instances', format: (r) => String(r.instances) + (r.unhealthy ? ` (${r.unhealthy} unhealthy)` : '') },
+  { key: 'module', label: 'Module', format: (r) => `${r.manifest.display_name || r.module} ${r.manifest.version ?? ''}`, sortable: true },
+  { key: 'state', label: 'State', width: 'sm', sortable: true },
+  { key: 'instances', label: 'Instances', format: (r) => String(r.instances) + (r.unhealthy ? ` (${r.unhealthy} unhealthy)` : ''), sortable: true, defaultDir: 'desc' },
   { key: 'requests', label: 'Requests (1m)', align: 'end', format: (r) => String(r.traffic.requests_1m), hideOnStack: true },
   { key: 'refusals', label: 'Refusals (1m)', align: 'end', format: (r) => String(r.traffic.refusals_1m), hideOnStack: true },
   { key: 'p95', label: 'p95 ms', align: 'end', format: (r) => r.traffic.p95_ms.toFixed(1) },
-  { key: 'last_renewal', label: 'Last renewal', format: (r) => r.last_renewal ?? '—', hideOnStack: true },
+  { key: 'last_renewal', label: 'Last renewal', format: (r) => r.last_renewal ?? '—', sortable: true, defaultDir: 'desc', hideOnStack: true },
 ]
 
 onMounted(load)
@@ -75,9 +68,9 @@ onMounted(load)
 
 <template>
   <UiPage title="Registrations" subtitle="Modules registered with the gateway and their traffic">
-    <UiAlert v-if="error" kind="error" class="mb-4" data-test="ops-error">{{ error }}</UiAlert>
+    <UiAlert v-if="list.error.value || error" kind="error" class="mb-4" data-test="ops-error">{{ list.error.value || error }}</UiAlert>
     <UiCard :padded="false">
-      <UiDataTable :items="rows" :columns="columns" row-key="module" caption="Registrations" empty-title="No registrations" :row-attrs="(r) => ({ 'data-test': 'reg-' + r.module })" data-test="registrations">
+      <UiDataTable :items="list.items.value" :total="list.total.value" :page="lq.page.value" :page-size="lq.pageSize.value" :sort="lq.sort.value" :loading="list.loading.value" :columns="columns" row-key="module" caption="Registrations" empty-title="No registrations" @update:page="lq.setPage" @update:page-size="lq.setPageSize" @update:sort="lq.setSort" :row-attrs="(r) => ({ 'data-test': 'reg-' + r.module })" data-test="registrations">
         <template #cell-state="{ row }"><UiStatusChip :status="String(row.state)" :colors="{ draining: 'warning', unhealthy: 'warning' }" :data-test="'state-' + row.module" /></template>
         <template #actions="{ row }">
           <UiButton v-if="row.state === 'active' || row.state === 'unhealthy'" size="sm" variant="text" :loading="busy === row.module" :data-test="'drain-' + row.module" @click="act(row, 'drain')">Drain</UiButton>
