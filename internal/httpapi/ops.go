@@ -257,6 +257,10 @@ func (s *Server) opsAudit(d OpsDeps) opsHandler {
 			return
 		}
 		rows, err := audit.Query(r.Context(), d.Audit, f, time.Now())
+		if errors.Is(err, audit.ErrSpan) {
+			failParam(w, "from")
+			return
+		}
 		if err != nil {
 			Fail(w, r, s.rt.Logger(), ErrValidation)
 			return
@@ -297,7 +301,8 @@ func auditView(e *store.AuditRow) AuditView {
 }
 
 // opsAuditPage serves the list contract: page/page_size/sort/order within the
-// module/event_type/from/to filters (default window: the last 7 days).
+// module/event_type/from/to filters (default window: the last 7 days; a
+// range wider than audit.MaxAuditSpan is refused naming "from").
 func (s *Server) opsAuditPage(d OpsDeps) opsHandler {
 	return func(w http.ResponseWriter, r *http.Request, _ registry.Operator) {
 		req, ok := parseList(w, r, store.AuditList)
@@ -317,6 +322,10 @@ func (s *Server) opsAuditPage(d OpsDeps) opsHandler {
 		}
 		rows, total, applied, err := audit.QueryPage(r.Context(), d.Audit, f, req, time.Now())
 		if err != nil {
+			if errors.Is(err, audit.ErrSpan) {
+				failParam(w, "from")
+				return
+			}
 			if errors.Is(err, audit.ErrFilter) {
 				Fail(w, r, nil, ErrValidation)
 				return

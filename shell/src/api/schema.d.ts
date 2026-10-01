@@ -193,7 +193,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** @description Page of gateway audit events (Page; default window the last 7 days, newest first). The cursor/limit style is the legacy shape {events, next_cursor}, kept for one release. */
+        /** @description Page of gateway audit events (Page; default window the last 7 days, at most 90 days, newest first). The cursor/limit style is the legacy shape {events, next_cursor}, kept for one release. */
         get: operations["gatewayAudit"];
         put?: never;
         post?: never;
@@ -623,7 +623,9 @@ export interface operations {
             query?: {
                 module?: string;
                 event_type?: string;
+                /** @description Start of the range (RFC 3339). Default: to minus 7 days (legacy cursor/limit: minus 24 hours). to - from may not exceed 90 days; a wider range is 400 validation_failed with detail.param "from". */
                 from?: string;
+                /** @description End of the range (RFC 3339). Default: now. to - from may not exceed 90 days. */
                 to?: string;
                 /** @description 1-based page; beyond the last page returns the last page */
                 page?: components["parameters"]["page"];

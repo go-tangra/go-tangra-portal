@@ -10,6 +10,7 @@ import (
 
 	"github.com/go-tangra/go-tangra-portal/v4/internal/memstore"
 	"github.com/go-tangra/go-tangra-portal/v4/internal/store"
+	"github.com/go-tangra/go-tangra/v4/listquery"
 )
 
 type fakeIns struct {
@@ -143,5 +144,53 @@ func TestQuery(t *testing.T) {
 	}
 	if _, err := Query(ctx, m, Filter{From: now.Add(time.Hour)}, now); err == nil {
 		t.Fatal("from after to")
+	}
+}
+
+// TestSpanCap: both query paths refuse a from/to range wider than
+// MaxAuditSpan (security review F-2); exactly MaxAuditSpan is allowed and an
+// absent from keeps the default window.
+func TestSpanCap(t *testing.T) {
+	ctx := context.Background()
+	m := memstore.New()
+	now := time.Date(2026, 6, 1, 0, 0, 0, 0, time.UTC)
+	to := now.Add(-time.Hour)
+	_ = m.InsertAuditRows(ctx, []store.AuditRow{
+		{TS: now.Add(-time.Hour), EventType: "module_drained", Module: "a"},
+		{TS: now.Add(-8 * 24 * time.Hour), EventType: "module_drained", Module: "a"},
+		{TS: now.Add(-48 * time.Hour), EventType: "module_drained", Module: "a"},
+	})
+	page := listquery.Request{Page: 1, PageSize: 50, Sort: "ts", Order: listquery.Desc}
+
+	tooWide := Filter{From: to.Add(-91 * 24 * time.Hour), To: to}
+	if _, _, _, err := QueryPage(ctx, m, tooWide, page, now); !errors.Is(err, ErrSpan) {
+		t.Fatalf("page 91d → %v", err)
+	}
+	if _, err := Query(ctx, m, tooWide, now); !errors.Is(err, ErrSpan) {
+		t.Fatalf("legacy 91d → %v", err)
+	}
+	// from alone (to defaults to now) is capped too.
+	if _, _, _, err := QueryPage(ctx, m, Filter{From: time.Unix(0, 0)}, page, now); !errors.Is(err, ErrSpan) {
+		t.Fatalf("page 1970 → %v", err)
+	}
+	if _, err := Query(ctx, m, Filter{From: time.Unix(0, 0)}, now); !errors.Is(err, ErrSpan) {
+		t.Fatalf("legacy 1970 → %v", err)
+	}
+
+	exact := Filter{From: now.Add(-MaxAuditSpan), To: now}
+	if _, total, _, err := QueryPage(ctx, m, exact, page, now); err != nil || total != 3 {
+		t.Fatalf("page 90d → %d %v", total, err)
+	}
+	if rows, err := Query(ctx, m, exact, now); err != nil || len(rows) != 3 {
+		t.Fatalf("legacy 90d → %d %v", len(rows), err)
+	}
+
+	// Absent from: the page path defaults to the last 7 days (2 of 3 rows).
+	if _, total, _, err := QueryPage(ctx, m, Filter{}, page, now); err != nil || total != 2 {
+		t.Fatalf("page default → %d %v", total, err)
+	}
+	// Absent from with a to far in the past still yields a bounded window.
+	if _, _, _, err := QueryPage(ctx, m, Filter{To: time.Unix(0, 0)}, page, now); err != nil {
+		t.Fatalf("page to-only → %v", err)
 	}
 }
