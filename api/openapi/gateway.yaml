@@ -32,7 +32,9 @@ components:
       properties:
         module: { type: string }
         display_name: { type: string }
-        version: { type: string }
+        version: { type: string, description: 'manifest contract version (not the release)' }
+        build_version: { type: string, description: 'newest release the module instances run (e.g. 4.10.2); empty when none reported one' }
+        build_versions: { type: array, items: { type: string }, description: 'distinct releases the instances run, ascending (more than one during a rollout)' }
         remote: { type: object, properties: { entry: { type: string }, exposes: { type: array, items: { type: string } }, integrity: { type: string } } }
         nav: { type: array, items: { type: object, properties: { title: { type: string }, path: { type: string }, icon: { type: string }, order: { type: integer } } } }
         state: { type: string, enum: [active, draining, unhealthy] }
@@ -66,6 +68,7 @@ components:
         instances: { type: integer }
         last_renewal: { type: string, format: date-time }
         manifest: { type: object }
+        build_versions: { type: array, items: { type: string }, description: 'distinct releases the instances run, ascending' }
         traffic: { type: object, properties: { requests_1m: { type: integer }, refusals_1m: { type: integer }, p95_ms: { type: number } } }
 paths:
   /gateway/v1/me:

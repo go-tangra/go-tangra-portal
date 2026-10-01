@@ -240,7 +240,12 @@ export interface components {
         Module: {
             module?: string;
             display_name?: string;
+            /** @description manifest contract version (not the release) */
             version?: string;
+            /** @description newest release the module instances run (e.g. 4.10.2); empty when none reported one */
+            build_version?: string;
+            /** @description distinct releases the instances run, ascending (more than one during a rollout) */
+            build_versions?: string[];
             remote?: {
                 entry?: string;
                 exposes?: string[];
@@ -290,6 +295,8 @@ export interface components {
             /** Format: date-time */
             last_renewal?: string;
             manifest?: Record<string, never>;
+            /** @description distinct releases the instances run, ascending */
+            build_versions?: string[];
             traffic?: {
                 requests_1m?: number;
                 refusals_1m?: number;

@@ -47,6 +47,9 @@ func alphaManifest() gatewayclient.Manifest {
 		Permissions: []gatewayclient.Permission{{Resource: "alpha", Action: "read"}}, Exposes: []string{"./routes"}}
 }
 
+// testBuildVersion is the release every test module reports at registration.
+const testBuildVersion = "4.2.7"
+
 // register runs the SDK loop for a module until the returned cancel is called.
 func (e *Env) register(m *Module, man gatewayclient.Manifest) context.CancelFunc {
 	e.T.Helper()
@@ -54,7 +57,7 @@ func (e *Env) register(m *Module, man gatewayclient.Manifest) context.CancelFunc
 	if err != nil {
 		e.T.Fatal(err)
 	}
-	c, err := gatewayclient.New(conn, gatewayclient.Options{Manifest: man, HTTPURL: m.HTTPURL, GRPCTarget: m.GRPCTarget, InstanceID: m.Name + "-" + m.GRPCTarget})
+	c, err := gatewayclient.New(conn, gatewayclient.Options{Manifest: man, HTTPURL: m.HTTPURL, GRPCTarget: m.GRPCTarget, InstanceID: m.Name + "-" + m.GRPCTarget, BuildVersion: "v" + testBuildVersion})
 	if err != nil {
 		e.T.Fatal(err)
 	}

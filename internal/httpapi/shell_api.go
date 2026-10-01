@@ -30,12 +30,17 @@ type ShellDeps struct {
 
 // ModuleView is one entry of GET /gateway/v1/me/modules.
 type ModuleView struct {
-	Module      string     `json:"module"`
-	DisplayName string     `json:"display_name"`
-	Version     string     `json:"version"`
-	Remote      RemoteView `json:"remote"`
-	Nav         []NavView  `json:"nav"`
-	State       string     `json:"state"`
+	Module      string `json:"module"`
+	DisplayName string `json:"display_name"`
+	// Version is the manifest (contract) version, not the release.
+	Version string `json:"version"`
+	// BuildVersion is the newest release the module's instances run ("" when
+	// none reported one); BuildVersions lists all of them during a rollout.
+	BuildVersion  string     `json:"build_version"`
+	BuildVersions []string   `json:"build_versions"`
+	Remote        RemoteView `json:"remote"`
+	Nav           []NavView  `json:"nav"`
+	State         string     `json:"state"`
 }
 
 // RemoteView locates the federated remote.
@@ -95,8 +100,12 @@ func (s *Server) myModules(d ShellDeps) http.HandlerFunc {
 		}
 		out := make([]ModuleView, 0, len(regs))
 		for _, reg := range regs {
-			v := ModuleView{Module: reg.Module, DisplayName: reg.Manifest.DisplayName, Version: reg.Manifest.Version, State: string(d.Reg.State(reg.Module)),
+			builds := nonNil(reg.BuildVersions())
+			v := ModuleView{Module: reg.Module, DisplayName: reg.Manifest.DisplayName, Version: reg.Manifest.Version, BuildVersions: builds, State: string(d.Reg.State(reg.Module)),
 				Remote: RemoteView{Entry: reg.Manifest.Remote.Entry, Exposes: nonNil(reg.Manifest.Remote.Exposes), Integrity: reg.Manifest.Remote.Integrity}, Nav: []NavView{}}
+			if len(builds) > 0 {
+				v.BuildVersion = builds[len(builds)-1]
+			}
 			for _, n := range reg.Manifest.Nav {
 				if held[authz.Ref{Module: reg.Module, Perm: n.Requires}] {
 					v.Nav = append(v.Nav, NavView{Title: n.Title, Path: n.Path, Icon: n.Icon, Order: n.Order})

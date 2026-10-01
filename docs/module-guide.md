@@ -23,7 +23,18 @@ Build it with `pkg/gatewayclient` (typed) or hand it to `Register` as
 | `nav[]` | entries shown when the caller holds `requires`; the shell groups them under one menu per module titled `display_name`, placed by the lowest `order` and using the first entry's `icon` |
 
 Bump `version` when the manifest changes; instances with the old manifest
-have their renewals refused and re-register.
+have their renewals refused and re-register. `version` is the manifest
+*contract* version, not your release: the shell never shows it to users.
+
+Your release ("build version", e.g. `4.10.2`) travels separately, per
+instance, in `RegisterRequest.build_version`; the landing page and the
+operations view show it. `gatewayclient` sends `Options.BuildVersion`, else
+the process build version set once at start-up:
+
+```go
+// cmd/<svc>/version.go — version is stamped with -ldflags "-X main.version=${APP_VERSION}"
+func init() { gatewayclient.SetBuildVersion(version) }
+```
 
 ## 2. API permissions vs UI abilities
 

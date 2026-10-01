@@ -64,6 +64,11 @@ func TestAbilitiesMatchDecisions(t *testing.T) {
 			if r, _ := m["remote"].(map[string]any); r["entry"] != "/m/alpha/mf-manifest.json" {
 				t.Fatalf("remote %v", r)
 			}
+			// The landing page shows the release the instance reported over
+			// gRPC, not the manifest contract version.
+			if m["build_version"] != testBuildVersion || m["version"] != "1.0.0" {
+				t.Fatalf("versions: build=%v manifest=%v", m["build_version"], m["version"])
+			}
 		}
 	}
 	if !found {
