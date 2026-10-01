@@ -100,7 +100,10 @@ console:
 
 Every action carries the operator's user id in the audit trail
 (`GET /gateway/v1/ops/audit`, filters `module`, `event_type`, `from`, `to`,
-`cursor`).
+`cursor`). Without `from` the page view covers the last 7 days (the legacy
+`cursor`/`limit` view the last 24 hours); `to - from` may not exceed 90 days
+— a wider range is refused with `400 validation_failed`, `detail.param:
+"from"`. Query older periods in 90-day slices.
 
 ## Health
 

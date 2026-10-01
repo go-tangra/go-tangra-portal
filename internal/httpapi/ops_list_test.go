@@ -130,6 +130,41 @@ func TestOpsListValidation(t *testing.T) {
 	}
 }
 
+// TestOpsAuditSpanCap: a from/to range wider than 90 days is refused with
+// validation_failed naming "from" (never the value) on the paged and legacy
+// paths; exactly 90 days is accepted (security review F-2).
+func TestOpsAuditSpanCap(t *testing.T) {
+	s, _, ms, _ := opsServer(t)
+	op := map[string]string{"Authorization": "Bearer operator"}
+	seedAudit(t, ms, 3, time.Now().Add(-time.Hour))
+	to := time.Now().UTC().Truncate(time.Second)
+	ts := func(t time.Time) string { return t.Format(time.RFC3339) }
+	wide := "from=" + ts(to.Add(-91*24*time.Hour)) + "&to=" + ts(to)
+	exact := "from=" + ts(to.Add(-90*24*time.Hour)) + "&to=" + ts(to)
+	for _, path := range []string{
+		"/gateway/v1/ops/audit?" + wide,
+		"/gateway/v1/ops/audit?page_size=10&" + wide,
+		"/gateway/v1/ops/audit?from=1970-01-01T00:00:00Z",
+		"/gateway/v1/ops/audit?cursor=" + ts(to) + "&" + wide,
+		"/gateway/v1/ops/audit?limit=10&from=1970-01-01T00:00:00Z",
+	} {
+		w := do(s, "GET", path, "", op)
+		body := w.Body.String()
+		if w.Code != 400 || !strings.Contains(body, `"reason":"validation_failed"`) || !strings.Contains(body, `"param":"from"`) {
+			t.Fatalf("%s → %d %s", path, w.Code, body)
+		}
+		if strings.Contains(body, "1970") || strings.Contains(body, ts(to)) {
+			t.Fatalf("%s echoed input: %s", path, body)
+		}
+	}
+	if p := decodePage[AuditView](t, do(s, "GET", "/gateway/v1/ops/audit?"+exact, "", op).Body.String()); p.Total != 3 {
+		t.Fatalf("90d page → %+v", p)
+	}
+	if w := do(s, "GET", "/gateway/v1/ops/audit?cursor="+ts(to.Add(time.Minute))+"&"+exact, "", op); w.Code != 200 || strings.Count(w.Body.String(), "module_drained") != 3 {
+		t.Fatalf("90d legacy → %d %s", w.Code, w.Body.String())
+	}
+}
+
 func TestOpsAuditLegacyCursor(t *testing.T) {
 	s, _, ms, _ := opsServer(t)
 	op := map[string]string{"Authorization": "Bearer operator"}

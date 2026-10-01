@@ -141,7 +141,7 @@ func TestOpsRegistrationsAndControls(t *testing.T) {
 	if w = do(s, "GET", "/gateway/v1/ops/audit?from=notatime", "", op); w.Code != 400 {
 		t.Fatalf("bad time → %d", w.Code)
 	}
-	if w = do(s, "GET", "/gateway/v1/ops/audit?event_type=allowlist_changed&from=2020-01-01T00:00:00Z", "", op); w.Code != 200 || strings.Count(w.Body.String(), "allowlist_changed") < 2 {
+	if w = do(s, "GET", "/gateway/v1/ops/audit?event_type=allowlist_changed&from="+time.Now().Add(-time.Hour).UTC().Format(time.RFC3339), "", op); w.Code != 200 || strings.Count(w.Body.String(), "allowlist_changed") < 2 {
 		t.Fatalf("allow audits → %d %s", w.Code, w.Body.String())
 	}
 }
