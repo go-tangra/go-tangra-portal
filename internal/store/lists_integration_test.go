@@ -5,6 +5,8 @@ package store
 import (
 	"context"
 	"fmt"
+	"regexp"
+	"strings"
 	"testing"
 	"time"
 
@@ -91,4 +93,54 @@ func TestPageAudit(t *testing.T) {
 	if total != 0 || applied.Page != 1 || len(items) != 0 {
 		t.Fatalf("empty: %d %d %d", total, applied.Page, len(items))
 	}
+
+	// Both directions of the ts sort are served by gateway_audit_ts_id
+	// (ts DESC, id DESC) without a Sort node: ts is NotNull, so OrderBy emits
+	// no NULLS LAST and the index matches forward (desc) and backward (asc).
+	for _, dir := range []listquery.Dir{listquery.Desc, listquery.Asc} {
+		req := listquery.Request{Page: 1, PageSize: 25, Sort: "ts", Order: dir}
+		plan := explainNoSort(t, st, `SELECT id, ts FROM gateway_audit_events WHERE ($1 = '' OR module = $1) AND ($2 = '' OR event_type = $2) AND ts >= $3 AND ts <= $4 ORDER BY `+
+			req.OrderBy(AuditList)+` LIMIT 25`, "", "", window.From, window.To)
+		if !strings.Contains(plan, "ts_id") {
+			t.Fatalf("ts %s: audit index not used:\n%s", dir, plan)
+		}
+	}
+}
+
+var sortNode = regexp.MustCompile(`(?m)^\s*(->\s+)?(Incremental )?Sort\s*$`)
+
+// explainNoSort returns the plan of query with sequential and bitmap scans
+// disabled and fails if the planner still needs a Sort node, i.e. no index
+// delivers the requested order.
+func explainNoSort(t *testing.T, st *Store, query string, args ...any) string {
+	t.Helper()
+	var plan []string
+	err := st.Tx(context.Background(), func(tx pgx.Tx) error {
+		for _, set := range []string{"SET LOCAL enable_seqscan = off", "SET LOCAL enable_bitmapscan = off"} {
+			if _, err := tx.Exec(context.Background(), set); err != nil {
+				return err
+			}
+		}
+		rows, err := tx.Query(context.Background(), "EXPLAIN (COSTS OFF) "+query, args...)
+		if err != nil {
+			return err
+		}
+		defer rows.Close()
+		for rows.Next() {
+			var line string
+			if err := rows.Scan(&line); err != nil {
+				return err
+			}
+			plan = append(plan, line)
+		}
+		return rows.Err()
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	out := strings.Join(plan, "\n")
+	if sortNode.MatchString(out) {
+		t.Fatalf("plan sorts instead of scanning an index:\n%s", out)
+	}
+	return out
 }
