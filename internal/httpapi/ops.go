@@ -10,6 +10,7 @@ import (
 	"github.com/go-tangra/go-tangra-portal/v4/internal/identity"
 	"github.com/go-tangra/go-tangra-portal/v4/internal/registry"
 	"github.com/go-tangra/go-tangra-portal/v4/internal/store"
+	"github.com/go-tangra/go-tangra/v4/listquery"
 )
 
 // OpsDeps wire the operations API.
@@ -66,16 +67,38 @@ func (s *Server) RegisterOps(d OpsDeps) {
 		s.opsResult(w, r, d.Ops.Revoke(r.Context(), r.PathValue("module"), in.Reason, op))
 	}))
 	s.MustHandle("GET", "/gateway/v1/ops/allowlist", s.operator(d, func(w http.ResponseWriter, r *http.Request, _ registry.Operator) {
+		req, ok := parseList(w, r, store.AllowListList)
+		if !ok {
+			return
+		}
 		list, err := d.Ops.ListAllow(r.Context())
 		if err != nil {
 			Fail(w, r, s.rt.Logger(), err)
 			return
 		}
-		out := make([]AllowView, 0, len(list))
-		for _, e := range list {
-			out = append(out, allowView(e))
+		// The allow-list is small and operator-managed: sort and page it here.
+		entries := make([]*store.AllowEntry, 0, len(list))
+		for i := range list {
+			entries = append(entries, &list[i])
 		}
-		WriteJSON(w, http.StatusOK, out)
+		listquery.SortSlice(entries, req, func(e *store.AllowEntry, field string) any {
+			switch field {
+			case "created_at":
+				return e.CreatedAt
+			case "revoked_at":
+				if e.RevokedAt == nil {
+					return nil
+				}
+				return *e.RevokedAt
+			}
+			return e.SpiffeID
+		}, func(e *store.AllowEntry) string { return e.ID })
+		page, total, applied := listquery.Window(entries, req)
+		out := make([]AllowView, 0, len(page))
+		for _, e := range page {
+			out = append(out, allowView(*e))
+		}
+		WriteJSON(w, http.StatusOK, listquery.NewPage(out, total, applied))
 	}))
 	s.MustHandle("POST", "/gateway/v1/ops/allowlist", s.operator(d, func(w http.ResponseWriter, r *http.Request, op registry.Operator) {
 		var in struct {
@@ -161,6 +184,10 @@ func allowView(e store.AllowEntry) AllowView {
 
 func (s *Server) listRegistrations(d OpsDeps) opsHandler {
 	return func(w http.ResponseWriter, r *http.Request, _ registry.Operator) {
+		req, ok := parseList(w, r, store.RegistrationList)
+		if !ok {
+			return
+		}
 		regs := d.Reg.Registrations()
 		out := make([]RegistrationView, 0, len(regs))
 		for _, reg := range regs {
@@ -180,13 +207,41 @@ func (s *Server) listRegistrations(d OpsDeps) opsHandler {
 			}
 			out = append(out, v)
 		}
-		WriteJSON(w, http.StatusOK, out)
+		views := make([]*RegistrationView, 0, len(out))
+		for i := range out {
+			views = append(views, &out[i])
+		}
+		listquery.SortSlice(views, req, func(v *RegistrationView, field string) any {
+			switch field {
+			case "state":
+				return v.State
+			case "instances":
+				return v.Instances
+			case "last_renewal":
+				if v.LastRenewal == "" {
+					return nil
+				}
+				return v.LastRenewal // RFC 3339 UTC sorts as text
+			}
+			return v.Module
+		}, func(v *RegistrationView) string { return v.Module })
+		page, total, applied := listquery.Window(views, req)
+		items := make([]RegistrationView, 0, len(page))
+		for _, v := range page {
+			items = append(items, *v)
+		}
+		WriteJSON(w, http.StatusOK, listquery.NewPage(items, total, applied))
 	}
 }
 
 func (s *Server) opsAudit(d OpsDeps) opsHandler {
-	return func(w http.ResponseWriter, r *http.Request, _ registry.Operator) {
+	return func(w http.ResponseWriter, r *http.Request, op registry.Operator) {
 		q := r.URL.Query()
+		if !listquery.Legacy(q) {
+			s.opsAuditPage(d)(w, r, op)
+			return
+		}
+		// Legacy cursor paging (one release; specs/032 research D7).
 		f := audit.Filter{Module: q.Get("module"), EventType: q.Get("event_type"), Limit: 100}
 		var err error
 		if f.From, err = parseTime(q, "from"); err != nil {
@@ -206,32 +261,91 @@ func (s *Server) opsAudit(d OpsDeps) opsHandler {
 			Fail(w, r, s.rt.Logger(), ErrValidation)
 			return
 		}
-		type row struct {
-			TS            string `json:"ts"`
-			EventType     string `json:"event_type"`
-			Module        string `json:"module"`
-			ActorKind     string `json:"actor_kind"`
-			ActorID       string `json:"actor_id"`
-			SubjectKind   string `json:"subject_kind"`
-			SubjectID     string `json:"subject_id"`
-			Outcome       string `json:"outcome"`
-			Reason        string `json:"reason"`
-			CorrelationID string `json:"correlation_id"`
-			Details       any    `json:"details"`
-		}
 		out := struct {
-			Events []row  `json:"events"`
-			Next   string `json:"next_cursor,omitempty"`
-		}{Events: []row{}}
-		for _, e := range rows {
-			out.Events = append(out.Events, row{TS: e.TS.UTC().Format(time.RFC3339Nano), EventType: e.EventType, Module: e.Module, ActorKind: e.ActorKind, ActorID: e.ActorID,
-				SubjectKind: e.SubjectKind, SubjectID: e.SubjectID, Outcome: e.Outcome, Reason: e.Reason, CorrelationID: e.CorrelationID, Details: rawJSON(e.Details)})
+			Events []AuditView `json:"events"`
+			Next   string      `json:"next_cursor,omitempty"`
+		}{Events: []AuditView{}}
+		for i := range rows {
+			out.Events = append(out.Events, auditView(&rows[i]))
 		}
 		if len(rows) == f.Limit {
 			out.Next = rows[len(rows)-1].TS.UTC().Format(time.RFC3339Nano)
 		}
 		WriteJSON(w, http.StatusOK, out)
 	}
+}
+
+// AuditView is one gateway audit event in the ops API.
+type AuditView struct {
+	ID            int64  `json:"id,omitempty"`
+	TS            string `json:"ts"`
+	EventType     string `json:"event_type"`
+	Module        string `json:"module"`
+	ActorKind     string `json:"actor_kind"`
+	ActorID       string `json:"actor_id"`
+	SubjectKind   string `json:"subject_kind"`
+	SubjectID     string `json:"subject_id"`
+	Outcome       string `json:"outcome"`
+	Reason        string `json:"reason"`
+	CorrelationID string `json:"correlation_id"`
+	Details       any    `json:"details"`
+}
+
+func auditView(e *store.AuditRow) AuditView {
+	return AuditView{ID: e.ID, TS: e.TS.UTC().Format(time.RFC3339Nano), EventType: e.EventType, Module: e.Module, ActorKind: e.ActorKind, ActorID: e.ActorID,
+		SubjectKind: e.SubjectKind, SubjectID: e.SubjectID, Outcome: e.Outcome, Reason: e.Reason, CorrelationID: e.CorrelationID, Details: rawJSON(e.Details)}
+}
+
+// opsAuditPage serves the list contract: page/page_size/sort/order within the
+// module/event_type/from/to filters (default window: the last 7 days).
+func (s *Server) opsAuditPage(d OpsDeps) opsHandler {
+	return func(w http.ResponseWriter, r *http.Request, _ registry.Operator) {
+		req, ok := parseList(w, r, store.AuditList)
+		if !ok {
+			return
+		}
+		q := r.URL.Query()
+		f := audit.Filter{Module: q.Get("module"), EventType: q.Get("event_type")}
+		var err error
+		if f.From, err = parseTime(q, "from"); err != nil {
+			failParam(w, "from")
+			return
+		}
+		if f.To, err = parseTime(q, "to"); err != nil {
+			failParam(w, "to")
+			return
+		}
+		rows, total, applied, err := audit.QueryPage(r.Context(), d.Audit, f, req, time.Now())
+		if err != nil {
+			if errors.Is(err, audit.ErrFilter) {
+				Fail(w, r, nil, ErrValidation)
+				return
+			}
+			Fail(w, r, s.rt.Logger(), err)
+			return
+		}
+		items := make([]AuditView, 0, len(rows))
+		for i := range rows {
+			items = append(items, auditView(&rows[i]))
+		}
+		WriteJSON(w, http.StatusOK, listquery.NewPage(items, total, applied))
+	}
+}
+
+// parseList validates the list parameters; on failure it answers
+// validation_failed naming the parameter (never echoing the value).
+func parseList(w http.ResponseWriter, r *http.Request, spec listquery.Spec) (listquery.Request, bool) {
+	req, err := listquery.Parse(r.URL.Query(), spec)
+	var le *listquery.Error
+	if errors.As(err, &le) {
+		failParam(w, le.Param)
+		return req, false
+	}
+	return req, true
+}
+
+func failParam(w http.ResponseWriter, param string) {
+	WriteJSON(w, ErrValidation.Status, map[string]any{"reason": ErrValidation.Reason, "detail": map[string]string{"param": param}})
 }
 
 func parseTime(q url.Values, key string) (time.Time, error) {

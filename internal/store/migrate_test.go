@@ -20,7 +20,7 @@ func startDB(t *testing.T) (adminDSN, appDSN string) {
 		ContainerRequest: testcontainers.ContainerRequest{
 			Image: "timescale/timescaledb:latest-pg16", ExposedPorts: []string{"5432/tcp"},
 			Env:        map[string]string{"POSTGRES_PASSWORD": "test", "POSTGRES_DB": "gateway"},
-			WaitingFor: wait.ForListeningPort("5432/tcp").WithStartupTimeout(2 * time.Minute),
+			WaitingFor: wait.ForAll(wait.ForListeningPort("5432/tcp"), wait.ForLog("database system is ready to accept connections").WithOccurrence(2)).WithDeadline(2 * time.Minute),
 		}, Started: true,
 	})
 	if err != nil {
@@ -64,7 +64,7 @@ func TestMigrateAndRepos(t *testing.T) {
 		t.Fatal(err)
 	}
 	if err := st.Tx(ctx, func(tx pgx.Tx) error {
-		return InsertAllow(ctx, tx, AllowEntry{ID: "0190f7c2-6a3e-7c1a-9b2e-2f6f9d1b4c56", SpiffeID: "spiffe://example.org/svc/orders", CreatedAt: now})
+		return InsertAllow(ctx, tx, AllowEntry{ID: "0190f7c2-6a3e-7c1a-9b2e-2f6f9d1b4c56", SpiffeID: "spiffe://example.org/svc/orders", Prefixes: []string{"/api/orders2"}, Names: []string{"orders2"}, CreatedAt: now})
 	}); !errors.Is(err, ErrConflict) {
 		t.Fatalf("duplicate active spiffe id accepted: %v", err)
 	}

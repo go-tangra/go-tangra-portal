@@ -108,7 +108,7 @@ func TestOpsRegistrationsAndControls(t *testing.T) {
 		t.Fatalf("invalid → %d", w.Code)
 	}
 	w = do(s, "GET", "/gateway/v1/ops/allowlist", "", op)
-	if w.Code != 200 || strings.Count(w.Body.String(), `"spiffe_id"`) != 2 {
+	if w.Code != 200 || strings.Count(w.Body.String(), `"spiffe_id":"spiffe`) != 2 {
 		t.Fatalf("list → %d %s", w.Code, w.Body.String())
 	}
 	var id string

@@ -6,11 +6,39 @@ import (
 	"time"
 
 	"github.com/go-tangra/go-tangra-portal/v4/internal/store"
+	"github.com/go-tangra/go-tangra/v4/listquery"
 )
 
 // Querier reads audit rows (store or memstore).
 type Querier interface {
 	QueryAudit(ctx context.Context, module, eventType string, from, to, cursor time.Time, limit int) ([]store.AuditRow, error)
+	PageAudit(ctx context.Context, q store.AuditQuery, req listquery.Request) ([]store.AuditRow, int, listquery.Request, error)
+}
+
+// ErrFilter reports an invalid filter (unknown event type, from after to).
+var ErrFilter = errors.New("audit: invalid filter")
+
+// DefaultWindow bounds a page query without from/to so counts stay cheap on
+// the hypertable (specs/032-server-side-tables research D6).
+const DefaultWindow = 7 * 24 * time.Hour
+
+// QueryPage validates the filter and reads one page of the list contract:
+// events within [from, to] (default: the last DefaultWindow), counted and
+// ordered per req.
+func QueryPage(ctx context.Context, q Querier, f Filter, req listquery.Request, now time.Time) ([]store.AuditRow, int, listquery.Request, error) {
+	if f.EventType != "" && !Known(f.EventType) {
+		return nil, 0, req, ErrFilter
+	}
+	if f.To.IsZero() {
+		f.To = now
+	}
+	if f.From.IsZero() {
+		f.From = f.To.Add(-DefaultWindow)
+	}
+	if f.From.After(f.To) {
+		return nil, 0, req, ErrFilter
+	}
+	return q.PageAudit(ctx, store.AuditQuery{Module: f.Module, EventType: f.EventType, From: f.From, To: f.To}, req)
 }
 
 // Filter bounds an audit query.
