@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { UiPage, UiCard, UiEmptyState, UiIcon, UiStatusChip } from '@go-tangra/ui'
 import { useSession } from '@/stores/session'
+import { releaseLabel } from '@/api/versions'
 const session = useSession()
 </script>
 
@@ -12,7 +13,7 @@ const session = useSession()
           <span class="flex size-10 shrink-0 items-center justify-center rounded-box bg-primary/10 text-primary"><UiIcon name="mdi-view-module-outline" /></span>
           <span class="min-w-0 grow">
             <span class="block truncate font-medium">{{ m.display_name || m.module || '' }}</span>
-            <span class="block truncate text-xs text-base-content/70">{{ m.version ?? '' }}</span>
+            <span class="block truncate text-xs text-base-content/70" :data-test="'version-' + m.module">{{ releaseLabel(m) }}</span>
           </span>
           <UiStatusChip :status="m.state ?? ''" />
         </li>

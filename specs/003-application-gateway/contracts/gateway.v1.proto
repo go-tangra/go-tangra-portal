@@ -25,6 +25,10 @@ message RegisterRequest {
   Manifest manifest = 1;
   string instance_id = 2;          // stable per process
   Backend backend = 3;
+  // build_version is the release this instance runs (e.g. "4.10.2"), stamped
+  // at build time. It is informational and per instance: it never takes part
+  // in manifest drift detection (manifest.version is the contract version).
+  string build_version = 4;
 }
 message RenewRequest { string lease_id = 1; }
 message DeregisterRequest { string lease_id = 1; }

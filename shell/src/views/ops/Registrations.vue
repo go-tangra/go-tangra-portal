@@ -5,6 +5,7 @@ import { useZodForm } from '@go-tangra/ui/forms'
 import { api, ApiError } from '@/api/client'
 import { useServerList } from '@/composables/useServerList'
 import { revokeSchema } from '@/schemas/ops'
+import { releaseLabel } from '@/api/versions'
 
 export interface Registration extends Record<string, unknown> {
   module: string
@@ -14,6 +15,8 @@ export interface Registration extends Record<string, unknown> {
   unhealthy: number
   last_renewal?: string
   manifest: { version?: string; display_name?: string; prefixes?: string[]; routes?: number; methods?: number }
+  /** Releases the instances run (ascending); manifest.version is the contract version. */
+  build_versions?: string[]
   traffic: { requests_1m: number; refusals_1m: number; p95_ms: number }
 }
 
@@ -54,7 +57,8 @@ const revokeForm = useZodForm(revokeSchema, {
 })
 
 const columns: Column<Registration>[] = [
-  { key: 'module', label: 'Module', format: (r) => `${r.manifest.display_name || r.module} ${r.manifest.version ?? ''}`, sortable: true },
+  { key: 'module', label: 'Module', format: (r) => `${r.manifest.display_name || r.module} ${releaseLabel(r)}`.trim(), sortable: true },
+  { key: 'manifest', label: 'Manifest', format: (r) => r.manifest.version ?? '—', hideOnStack: true },
   { key: 'state', label: 'State', width: 'sm', sortable: true },
   { key: 'instances', label: 'Instances', format: (r) => String(r.instances) + (r.unhealthy ? ` (${r.unhealthy} unhealthy)` : ''), sortable: true, defaultDir: 'desc' },
   { key: 'requests', label: 'Requests (1m)', align: 'end', format: (r) => String(r.traffic.requests_1m), hideOnStack: true },

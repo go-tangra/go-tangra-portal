@@ -32,6 +32,10 @@ type Options struct {
 	MaxBackoff time.Duration
 	// OnState is called on every transition (registered, lost, refused).
 	OnState func(State)
+	// BuildVersion is the release this process runs (e.g. "4.10.2"); the
+	// gateway shows it to users. Empty means the process build version
+	// (see SetBuildVersion and BuildVersion).
+	BuildVersion string
 }
 
 // State is the lease state visible to the module.
@@ -78,6 +82,9 @@ func New(conn grpc.ClientConnInterface, o Options) (*Client, error) {
 	if o.MaxBackoff <= 0 {
 		o.MaxBackoff = 30 * time.Second
 	}
+	if o.BuildVersion == "" {
+		o.BuildVersion = BuildVersion()
+	}
 	return &Client{reg: gatewayv1.NewRegistryClient(conn), opts: o, rand: jitter, now: time.Now}, nil
 }
 
@@ -100,7 +107,8 @@ func (c *Client) Run(ctx context.Context) error {
 	if err != nil {
 		return err
 	}
-	req := &gatewayv1.RegisterRequest{Manifest: pm, InstanceId: c.opts.InstanceID, Backend: &gatewayv1.Backend{HttpUrl: c.opts.HTTPURL, GrpcTarget: c.opts.GRPCTarget}}
+	req := &gatewayv1.RegisterRequest{Manifest: pm, InstanceId: c.opts.InstanceID, Backend: &gatewayv1.Backend{HttpUrl: c.opts.HTTPURL, GrpcTarget: c.opts.GRPCTarget},
+		BuildVersion: c.opts.BuildVersion}
 	backoff := time.Second
 	for {
 		lease, err := c.reg.Register(ctx, req)

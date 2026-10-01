@@ -68,6 +68,9 @@ type Instance struct {
 	ManifestHash string    `json:"manifest_hash"`
 	RegisteredAt time.Time `json:"registered_at"`
 	RenewedAt    time.Time `json:"renewed_at"`
+	// BuildVersion is the release the instance runs ("" when it did not
+	// report one). Informational only: it never affects drift detection.
+	BuildVersion string `json:"build_version,omitempty"`
 }
 
 // Registration is a module with its manifest and instances.
@@ -80,6 +83,43 @@ type Registration struct {
 	RegisteredAt time.Time            `json:"registered_at"`
 	UpdatedAt    time.Time            `json:"updated_at"`
 	Unhealthy    map[string]time.Time `json:"-"` // instance → since (local health view)
+}
+
+// BuildVersions lists the distinct build versions the instances report,
+// sorted; empty when none reported one. More than one means a rollout is in
+// progress.
+func (r Registration) BuildVersions() []string {
+	seen := map[string]bool{}
+	var out []string
+	for _, in := range r.Instances {
+		if in.BuildVersion != "" && !seen[in.BuildVersion] {
+			seen[in.BuildVersion] = true
+			out = append(out, in.BuildVersion)
+		}
+	}
+	sort.Slice(out, func(i, j int) bool { return newer(out[j], out[i]) || !newer(out[i], out[j]) && out[i] < out[j] })
+	return out
+}
+
+// CleanBuildVersion normalises a reported build version: surrounding space
+// and a leading "v" before a digit are dropped; anything longer than 64
+// characters or outside [0-9A-Za-z.+_-] is discarded ("").
+func CleanBuildVersion(v string) string {
+	v = strings.TrimSpace(v)
+	if len(v) > 1 && v[0] == 'v' && v[1] >= '0' && v[1] <= '9' {
+		v = v[1:]
+	}
+	if v == "" || len(v) > 64 {
+		return ""
+	}
+	for _, c := range v {
+		switch {
+		case c >= '0' && c <= '9', c >= 'a' && c <= 'z', c >= 'A' && c <= 'Z', c == '.', c == '+', c == '_', c == '-':
+		default:
+			return ""
+		}
+	}
+	return v
 }
 
 // State derives the module state from marks and health.
@@ -502,6 +542,7 @@ func (r *Registry) Register(ctx context.Context, identity string, req *gatewayv1
 	}
 	hash := hashManifest(m)
 	now := r.o.Now()
+	build := CleanBuildVersion(req.GetBuildVersion())
 
 	r.mu.Lock()
 	switch r.marks[m.Module] {
@@ -559,7 +600,7 @@ func (r *Registry) Register(ctx context.Context, identity string, req *gatewayv1
 	if old, ok := reg.Instances[instance]; ok {
 		r.leases = without(r.leases, old.LeaseID)
 	}
-	reg.Instances[instance] = Instance{ID: instance, Backend: be, LeaseID: leaseID, ManifestHash: hash, RegisteredAt: now, RenewedAt: now}
+	reg.Instances[instance] = Instance{ID: instance, Backend: be, LeaseID: leaseID, ManifestHash: hash, RegisteredAt: now, RenewedAt: now, BuildVersion: build}
 	reg.UpdatedAt = now
 	r.regs[m.Module] = reg
 	r.leases[leaseID] = leaseRef{m.Module, instance}
@@ -584,7 +625,7 @@ func (r *Registry) Register(ctx context.Context, identity string, req *gatewayv1
 	r.mu.Unlock()
 	v := r.announce(ctx, kind, m.Module)
 	r.emit(audit.Event{Type: auditType, Module: m.Module, ActorKind: "service", ActorID: identity, Outcome: "ok", Reason: kind, SubjectKind: "instance", SubjectID: instance,
-		Details: map[string]any{"prefixes": m.Prefixes, "version": m.Version, "routes": len(m.Routes), "methods": len(m.Methods)}})
+		Details: map[string]any{"prefixes": m.Prefixes, "version": m.Version, "build_version": build, "routes": len(m.Routes), "methods": len(m.Methods)}})
 	if r.o.OnAccepted != nil && kind == EventRegistered || r.o.OnAccepted != nil && auditType == audit.RegistrationUpdated {
 		r.o.OnAccepted(ctx, m)
 	}

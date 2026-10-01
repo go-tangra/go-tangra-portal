@@ -28,10 +28,14 @@ const (
 )
 
 type RegisterRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Manifest      *Manifest              `protobuf:"bytes,1,opt,name=manifest,proto3" json:"manifest,omitempty"`
-	InstanceId    string                 `protobuf:"bytes,2,opt,name=instance_id,json=instanceId,proto3" json:"instance_id,omitempty"` // stable per process
-	Backend       *Backend               `protobuf:"bytes,3,opt,name=backend,proto3" json:"backend,omitempty"`
+	state      protoimpl.MessageState `protogen:"open.v1"`
+	Manifest   *Manifest              `protobuf:"bytes,1,opt,name=manifest,proto3" json:"manifest,omitempty"`
+	InstanceId string                 `protobuf:"bytes,2,opt,name=instance_id,json=instanceId,proto3" json:"instance_id,omitempty"` // stable per process
+	Backend    *Backend               `protobuf:"bytes,3,opt,name=backend,proto3" json:"backend,omitempty"`
+	// build_version is the release this instance runs (e.g. "4.10.2"), stamped
+	// at build time. It is informational and per instance: it never takes part
+	// in manifest drift detection (manifest.version is the contract version).
+	BuildVersion  string `protobuf:"bytes,4,opt,name=build_version,json=buildVersion,proto3" json:"build_version,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -85,6 +89,13 @@ func (x *RegisterRequest) GetBackend() *Backend {
 		return x.Backend
 	}
 	return nil
+}
+
+func (x *RegisterRequest) GetBuildVersion() string {
+	if x != nil {
+		return x.BuildVersion
+	}
+	return ""
 }
 
 type RenewRequest struct {
@@ -1037,12 +1048,13 @@ var File_gateway_v1_gateway_proto protoreflect.FileDescriptor
 const file_gateway_v1_gateway_proto_rawDesc = "" +
 	"\n" +
 	"\x18gateway/v1/gateway.proto\x12\n" +
-	"gateway.v1\x1a\x1egoogle/protobuf/duration.proto\x1a\x1cgoogle/protobuf/struct.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\x93\x01\n" +
+	"gateway.v1\x1a\x1egoogle/protobuf/duration.proto\x1a\x1cgoogle/protobuf/struct.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xb8\x01\n" +
 	"\x0fRegisterRequest\x120\n" +
 	"\bmanifest\x18\x01 \x01(\v2\x14.gateway.v1.ManifestR\bmanifest\x12\x1f\n" +
 	"\vinstance_id\x18\x02 \x01(\tR\n" +
 	"instanceId\x12-\n" +
-	"\abackend\x18\x03 \x01(\v2\x13.gateway.v1.BackendR\abackend\")\n" +
+	"\abackend\x18\x03 \x01(\v2\x13.gateway.v1.BackendR\abackend\x12#\n" +
+	"\rbuild_version\x18\x04 \x01(\tR\fbuildVersion\")\n" +
 	"\fRenewRequest\x12\x19\n" +
 	"\blease_id\x18\x01 \x01(\tR\aleaseId\".\n" +
 	"\x11DeregisterRequest\x12\x19\n" +
