@@ -6,6 +6,7 @@ import { api } from '@/api/client'
 import { subscribeEvents } from '@/api/events'
 import { live, type LiveBus } from '@/api/live'
 import { SESSION_CHANGED_EVENT } from '@/stores/session'
+import { checkSession, keeper } from '@/session'
 import { useRegistry } from '@/stores/registry'
 import { loadExpose, registerModules, RemoteLoadError } from '@/federation/runtime'
 import ModuleBoundary from '@/components/ModuleBoundary.vue'
@@ -140,7 +141,11 @@ export async function boot(router: Router): Promise<() => void> {
   const registry = useRegistry()
   const stop = subscribeEvents({
     onOpen: () => registry.setGateway(false),
-    onError: () => registry.setGateway(true),
+    onError: () => {
+      registry.setGateway(true)
+      // A stream refused because the session ended: confirm and go to sign-in.
+      void checkSession()
+    },
     onRegistry: async (e) => {
       registry.apply(e.kind, e.module)
       if (e.kind === 'unhealthy' || e.kind === 'recovered') return
@@ -163,13 +168,17 @@ export async function boot(router: Router): Promise<() => void> {
   // dropped its cached identity, so /me answers with the new attributes.
   const onChanged = (): void => void session.refresh()
   window.addEventListener(SESSION_CHANGED_EVENT, onChanged)
+  // Renew the session while the person is active; warn and end it when idle.
+  keeper.start()
   const unbind = session.$subscribe((_m, state) => {
     if (state.status !== 'authenticated') {
+      keeper.stop()
       clearAbilities()
       for (const module of [...mounted.keys()]) unmountModule(router, module)
     }
   })
   return () => {
+    keeper.stop()
     stop()
     unbind()
     window.removeEventListener(SESSION_CHANGED_EVENT, onChanged)

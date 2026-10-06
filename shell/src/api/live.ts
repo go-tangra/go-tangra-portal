@@ -3,6 +3,8 @@
 // shared Valkey stream; remotes subscribe by event type via the BootContext.
 // EventSource reconnects on its own and replays from Last-Event-ID, so
 // listeners registered here survive reconnects.
+import { checkSession } from '@/session/expiry'
+
 export type LiveHandler = (data: unknown) => void
 
 export interface LiveBus {
@@ -17,6 +19,8 @@ let es: EventSource | null = null
 function ensure(): void {
   if (es || typeof EventSource === 'undefined') return
   es = new EventSource('/gateway/v1/stream', { withCredentials: true })
+  // A stream refused because the session ended: confirm and go to sign-in.
+  es.onerror = () => void checkSession()
   for (const type of handlers.keys()) bindType(type)
 }
 

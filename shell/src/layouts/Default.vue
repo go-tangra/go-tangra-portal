@@ -9,6 +9,7 @@ import { ability } from '@/casl/ability'
 import { api } from '@/api/client'
 import { live } from '@/api/live'
 import ModuleBoundary from '@/components/ModuleBoundary.vue'
+import SessionWarning from '@/components/SessionWarning.vue'
 
 const session = useSession()
 const headerCtx: BootContext = { ability, session, api, live }
@@ -63,5 +64,6 @@ async function signOut(): Promise<void> {
       <UiNavDrawer :groups="groups" @navigate="close" />
     </template>
     <slot />
+    <SessionWarning v-if="session.signedIn" @sign-out="signOut" />
   </UiAppShell>
 </template>
