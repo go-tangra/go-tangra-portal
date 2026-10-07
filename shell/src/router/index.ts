@@ -20,6 +20,7 @@ export const routes: RouteRecordRaw[] = [
   { path: '/ops', name: 'ops', component: () => import('@/views/ops/Registrations.vue'), meta: { operator: true } },
   { path: '/ops/allowlist', name: 'ops-allowlist', component: () => import('@/views/ops/Allowlist.vue'), meta: { operator: true } },
   { path: '/ops/audit', name: 'ops-audit', component: () => import('@/views/ops/Audit.vue'), meta: { operator: true } },
+  { path: '/ops/enrollment', name: 'ops-enrollment', component: () => import('@/views/ops/Enrollment.vue'), meta: { operator: true } },
   { path: '/outage', name: 'outage', component: () => import('@/views/Outage.vue'), meta: { public: true, layout: 'bare' } },
   { path: '/forbidden', name: 'forbidden', component: () => import('@/views/Forbidden.vue') },
   // Not public: module routes only exist for a signed-in browser, so an unknown

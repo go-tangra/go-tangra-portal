@@ -186,6 +186,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/gateway/v1/ops/enrollment-tokens": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description Mint a single-use lcm enrolment (join) token for services of this trust domain (the console equivalent of `authsvc mint-enrollment-token`). Operators only. The token is returned once (Cache-Control no-store) and never stored or logged; the mint is audited (enrollment_token_minted) without it. */
+        post: operations["mintEnrollmentToken"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/gateway/v1/ops/audit": {
         parameters: {
             query?: never;
@@ -224,6 +241,14 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        EnrollmentToken: {
+            /** @description single-use; shown once */
+            token: string;
+            /** Format: date-time */
+            expires_at: string;
+            spiffe_ids: string[];
+            tenant_id: string;
+        };
         Error: {
             reason: string;
         };
@@ -618,6 +643,61 @@ export interface operations {
         responses: {
             /** @description revoked */
             204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    mintEnrollmentToken: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Double-submit token; enforced by the edge for cookie-bearing requests, not needed by bearer clients */
+                "X-CSRF-Token"?: components["parameters"]["csrf"];
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    /** @description service names ("sms-gw") or SPIFFE ids of this trust domain ("spiffe://<td>/svc/sms-gw") */
+                    services: string[];
+                    /** @description tenant the SVID is issued under (default: the lcm mesh tenant 00000000-0000-0000-0000-000000000001) */
+                    tenant_id?: string;
+                    /** @description token lifetime (default 600; auth caps it at 30 minutes) */
+                    ttl_seconds?: number;
+                };
+            };
+        };
+        responses: {
+            /** @description minted */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EnrollmentToken"];
+                };
+            };
+            /** @description validation_failed (detail.param: services | tenant_id | ttl_seconds) */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description forbidden (not an operator) */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description temporarily_unavailable (auth unreachable) */
+            503: {
                 headers: {
                     [name: string]: unknown;
                 };

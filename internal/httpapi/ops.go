@@ -2,6 +2,8 @@ package httpapi
 
 import (
 	"errors"
+
+	authv1 "github.com/go-tangra/go-tangra-auth/sdk/v4/api/proto/auth/v1"
 	"net/http"
 	"net/url"
 	"time"
@@ -22,6 +24,12 @@ type OpsDeps struct {
 	Traffic  *Traffic
 	// Roles that may operate the gateway (platform tenant members).
 	Roles []string
+	// Enroll mints lcm enrolment tokens through auth (nil: no enrolment API).
+	Enroll authv1.EnrollmentClient
+	// TrustDomain scopes the SPIFFE ids an enrolment token may name.
+	TrustDomain string
+	// Events records operator actions (enrolment tokens minted).
+	Events *audit.Writer
 }
 
 // RegistrationView is one row of GET /gateway/v1/ops/registrations.
@@ -124,6 +132,9 @@ func (s *Server) RegisterOps(d OpsDeps) {
 		s.opsResult(w, r, d.Ops.RevokeAllow(r.Context(), r.PathValue("id"), op))
 	}))
 	s.MustHandle("GET", "/gateway/v1/ops/audit", s.operator(d, s.opsAudit(d)))
+	if d.Enroll != nil {
+		s.MustHandle("POST", "/gateway/v1/ops/enrollment-tokens", s.operator(d, s.mintEnrollment(d)))
+	}
 }
 
 type opsHandler func(w http.ResponseWriter, r *http.Request, op registry.Operator)
