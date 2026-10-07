@@ -22,7 +22,15 @@ const headerModules = computed(() => {
 const groups = computed<NavGroup[]>(() => [
   { items: [{ title: 'Home', path: '/', icon: 'mdi-home-outline', exact: true, testId: 'nav-home' }] },
   ...session.navGroups.map((g) => ({ key: g.module, title: g.title, icon: g.icon, testId: 'nav-group-' + g.module, items: g.entries.map((n) => ({ title: n.title, path: n.path, icon: n.icon || 'mdi-circle-small', testId: 'nav-' + n.module })) })),
-  ...(session.operator ? [{ items: [{ title: 'Gateway operations', path: '/ops', icon: 'mdi-server-network', testId: 'nav-ops' }] }] : []),
+  // Gateway operations (platform operators): one menu with its pages.
+  ...(session.operator
+    ? [{ key: 'ops', title: 'Gateway operations', icon: 'mdi-server-network', testId: 'nav-ops', items: [
+        { title: 'Registrations', path: '/ops', icon: 'mdi-view-list-outline', exact: true, testId: 'nav-ops-registrations' },
+        { title: 'Allow-list', path: '/ops/allowlist', icon: 'mdi-shield-check-outline', testId: 'nav-ops-allowlist' },
+        { title: 'Enrolment tokens', path: '/ops/enrollment', icon: 'mdi-key-plus', testId: 'nav-ops-enrollment' },
+        { title: 'Audit', path: '/ops/audit', icon: 'mdi-text-box-search-outline', testId: 'nav-ops-audit' },
+      ] }]
+    : []),
 ])
 const theme = useTheme()
 const dark = computed(() => theme.theme.value === 'freya-dark')

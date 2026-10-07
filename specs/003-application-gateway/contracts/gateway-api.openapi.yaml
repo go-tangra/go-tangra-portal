@@ -15,6 +15,14 @@ components:
     pageSize: { name: page_size, in: query, schema: { type: integer, minimum: 1, maximum: 200 } }
     order: { name: order, in: query, schema: { type: string, enum: [asc, desc] } }
   schemas:
+    EnrollmentToken:
+      type: object
+      required: [token, expires_at, spiffe_ids, tenant_id]
+      properties:
+        token: { type: string, description: 'single-use; shown once' }
+        expires_at: { type: string, format: date-time }
+        spiffe_ids: { type: array, items: { type: string } }
+        tenant_id: { type: string }
     Error: { type: object, required: [reason], properties: { reason: { type: string } } }
     Page:
       type: object
@@ -98,6 +106,28 @@ paths:
       responses: { '201': { description: added } }
   /gateway/v1/ops/allowlist/{id}/revoke:
     post: { operationId: revokeAllowlist, parameters: [{ $ref: '#/components/parameters/csrf' }, { name: id, in: path, required: true, schema: { type: string } }], responses: { '204': { description: revoked } } }
+  /gateway/v1/ops/enrollment-tokens:
+    post:
+      operationId: mintEnrollmentToken
+      description: 'Mint a single-use lcm enrolment (join) token for services of this trust domain (the console equivalent of `authsvc mint-enrollment-token`). Operators only. The token is returned once (Cache-Control no-store) and never stored or logged; the mint is audited (enrollment_token_minted) without it.'
+      parameters: [{ $ref: '#/components/parameters/csrf' }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required: [services]
+              properties:
+                services: { type: array, minItems: 1, maxItems: 10, items: { type: string, maxLength: 255 }, description: 'service names ("sms-gw") or SPIFFE ids of this trust domain ("spiffe://<td>/svc/sms-gw")' }
+                tenant_id: { type: string, description: 'tenant the SVID is issued under (default: the lcm mesh tenant 00000000-0000-0000-0000-000000000001)' }
+                ttl_seconds: { type: integer, minimum: 60, maximum: 1800, description: 'token lifetime (default 600; auth caps it at 30 minutes)' }
+      responses:
+        '201': { description: minted, content: { application/json: { schema: { $ref: '#/components/schemas/EnrollmentToken' } } } }
+        '400': { description: 'validation_failed (detail.param: services | tenant_id | ttl_seconds)' }
+        '403': { description: forbidden (not an operator) }
+        '503': { description: temporarily_unavailable (auth unreachable) }
   /gateway/v1/ops/audit:
     get:
       operationId: gatewayAudit
