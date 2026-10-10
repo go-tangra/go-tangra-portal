@@ -16,6 +16,7 @@ type Refresh = components['schemas']['CatalogueRefresh']
 const items = ref<Item[]>([])
 const canManage = ref(false)
 const canJoin = ref(false)
+const canDeliver = ref(false)
 const joinFor = ref<Item | null>(null)
 const partial = ref(false)
 const loading = ref(false)
@@ -36,6 +37,7 @@ async function load(): Promise<void> {
     items.value = v.items as Item[]
     canManage.value = v.can_manage
     canJoin.value = !!v.can_join
+    canDeliver.value = !!v.can_deliver
     partial.value = !!v.partial
     error.value = ''
     if (canManage.value) await loadSources()
@@ -159,7 +161,7 @@ onMounted(load)
         </template>
       </UiDataTable>
     </UiCard>
-    <JoinWizard :item="joinFor" @close="joinFor = null; load()" @installed="load()" />
+    <JoinWizard :item="joinFor" :can-deliver="canDeliver" @close="joinFor = null; load()" @installed="load()" />
     <UiDialog :model-value="!!forgetFor" :title="forgetFor ? `Forget ${forgetFor.module}` : ''" size="sm" @update:model-value="forgetFor = null">
       <p class="text-sm" data-test="forget-dialog">The module is removed from this list. If it registers again later, it reappears.</p>
       <template #actions>

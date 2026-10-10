@@ -323,6 +323,40 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/gateway/v1/ops/catalogue/{module}/targets": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Hosts of the caller's tenant an inventory agent could deliver the module to, with eligibility and the addresses of their latest snapshot (spec 037). Platform administrators only; needs catalogue.agent_delivery. */
+        get: operations["catalogueModuleTargets"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/gateway/v1/ops/catalogue/{module}/deliver": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description Deliver a join bundle for the module's newest verified entry to a host through its enrolled inventory agent (spec 037): checks the host inputs, ensures the allow-list entry (409 if a different one is active), records the join and asks the inventory to deliver. The bundle is rendered and its token minted only when the agent fetches it. Platform administrators only; audited (module_join_bundle with channel agent; module_bundle_rendered at fetch). */
+        post: operations["deliverCatalogueModule"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/gateway/v1/ops/catalogue/{module}/join/{id}": {
         parameters: {
             query?: never;
@@ -330,7 +364,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** @description Install progress of a join bundle: token used (auth), registered and its state (registry), the last registration refusal since the bundle was made. Kept 24 h past the token's expiry. Platform administrators only. */
+        /** @description Install progress of a join bundle: for agent deliveries the delivery state (inventory), token used (auth), registered and its state (registry), the last registration refusal since the bundle was made. Kept 24 h past the token's expiry. Platform administrators only. */
         get: operations["joinProgress"];
         put?: never;
         post?: never;
@@ -409,6 +443,8 @@ export interface components {
             can_manage: boolean;
             /** @description join bundles can be made here (administrator, catalogue.join configured) */
             can_join: boolean;
+            /** @description join bundles can also be delivered through inventory agents (catalogue.agent_delivery configured; spec 037) */
+            can_deliver?: boolean;
             partial?: boolean;
             items: components["schemas"]["CatalogueItem"][];
         };
@@ -463,6 +499,28 @@ export interface components {
                 at?: string;
             };
             partial?: boolean;
+            /** @enum {string} */
+            channel?: "download" | "agent";
+            delivery?: components["schemas"]["ModuleDelivery"];
+        };
+        /** @description An agent delivery as the inventory reports it (spec 037). */
+        ModuleDelivery: {
+            host_id: string;
+            hostname: string;
+            /** @enum {string} */
+            state: "unspecified" | "pending" | "delivered" | "fetched" | "installed" | "failed" | "hook_failed" | "unsupported" | "superseded" | "expired";
+            reason?: string;
+            agent_online: boolean;
+            hook_exit_code?: number;
+        };
+        ModuleTarget: {
+            host_id: string;
+            hostname: string;
+            os_name: string;
+            agent_online: boolean;
+            /** @description enabled | disabled_on_host | upgrade_required | not_supported_platform | no_agent | ambiguous_agent | disabled_on_server */
+            capability: string;
+            ip_addresses: string[];
         };
         CatalogueSource: {
             repo: string;
@@ -1276,6 +1334,137 @@ export interface operations {
                 content?: never;
             };
             /** @description temporarily_unavailable (auth, store, or catalogue.join not configured) */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    catalogueModuleTargets: {
+        parameters: {
+            query?: {
+                /** @description hostname substring */
+                q?: string;
+            };
+            header?: never;
+            path: {
+                module: components["parameters"]["catalogueModule"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description hosts */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        hosts: components["schemas"]["ModuleTarget"][];
+                        truncated: boolean;
+                    };
+                };
+            };
+            /** @description validation_failed */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description not_found (no verified entry for the module) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description temporarily_unavailable (inventory, or agent delivery not configured) */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    deliverCatalogueModule: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Double-submit token; enforced by the edge for cookie-bearing requests, not needed by bearer clients */
+                "X-CSRF-Token"?: components["parameters"]["csrf"];
+            };
+            path: {
+                module: components["parameters"]["catalogueModule"];
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    host_id: string;
+                    inputs?: {
+                        [key: string]: string;
+                    };
+                    ttl_hours?: number;
+                };
+            };
+        };
+        responses: {
+            /** @description delivery queued */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        join_id: string;
+                        /** Format: date-time */
+                        expires_at: string;
+                        delivery: components["schemas"]["ModuleDelivery"];
+                    };
+                };
+            };
+            /** @description validation_failed (detail.param: host_id, a host input key or ttl_hours) */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description not_found (no verified entry, or unknown host) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description conflict: a different allow-list entry is active, or the host is not eligible (detail.reason: no_agent, upgrade_required, ambiguous_agent, not_supported_platform, disabled_on_host, disabled_on_server, retired, not_eligible) */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description temporarily_unavailable (inventory, auth, store, or agent delivery not configured) */
             503: {
                 headers: {
                     [name: string]: unknown;
