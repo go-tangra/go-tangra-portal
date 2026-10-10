@@ -4,6 +4,7 @@ import (
 	"errors"
 
 	authv1 "github.com/go-tangra/go-tangra-auth/sdk/v4/api/proto/auth/v1"
+	inventoryv1 "github.com/go-tangra/go-tangra-inventory/sdk/v4/api/proto/inventory/v1"
 	"net/http"
 	"net/url"
 	"time"
@@ -39,6 +40,9 @@ type OpsDeps struct {
 	Refresher CatalogueRefresher
 	// Join makes join bundles (nil: catalogue.join not configured).
 	Join *JoinDeps
+	// Inventory delivers join bundles through inventory agents (spec 037;
+	// nil: catalogue.agent_delivery not configured).
+	Inventory inventoryv1.ModuleDeliveryServiceClient
 }
 
 // RegistrationView is one row of GET /gateway/v1/ops/registrations.

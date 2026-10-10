@@ -137,6 +137,30 @@ console:
   wizard follows the install (token used, registered, active) and shows the
   last registration refusal. Audit: `module_join_bundle` (never the token).
 
+### Delivering through the inventory agent (feature 037)
+
+- Needs `catalogue.join` plus `catalogue.agent_delivery.inventory_service`
+  (the inventory's mesh service name, usually `inventory`), the gateway
+  policy rule `inventory-module-bundle` (inventory → gateway
+  `inventory.v1.ModuleBundleSource/RenderModuleBundle`), and on the
+  inventory `module_delivery.enabled: true` with `gateway` in
+  `module_delivery.sources`.
+- **Modules → Add → Deliver to a host**: pick a host of your tenant whose
+  agent supports module delivery (the picker shows why other hosts are not
+  eligible), check the inputs (pre-filled from the host's reported name and
+  addresses) and deliver. Nothing secret exists yet: when the agent fetches
+  its item, the inventory asks the gateway, which then mints the token
+  (valid until the delivery expires) and renders the bundle; at most five
+  renders per delivery. Audit: `module_join_bundle` with `channel: agent`,
+  then `module_bundle_rendered` (join, item, jti; never the token).
+- The agent writes the bundle to `<modules.directory>/<module>/` (default
+  `/opt/tangra/modules`), never over an existing directory
+  (`already_installed`), and runs only its locally configured
+  `modules.deploy_hook` (for example `docker compose up -d`). Without a hook,
+  start the module on the host by hand. The wizard shows the delivery state
+  (pending, delivered, fetched, installed, failed, hook failed), then token
+  used and registered as for a download.
+
 ## Allow-list
 
 - Managed at **Operations → Allow-list** or `POST /gateway/v1/ops/allowlist`

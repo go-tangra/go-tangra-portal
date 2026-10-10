@@ -18,6 +18,14 @@ func conflict(err error) error {
 	return err
 }
 
+// nullable maps "" to SQL NULL.
+func nullable(s string) any {
+	if s == "" {
+		return nil
+	}
+	return s
+}
+
 // InsertAllow adds an allow-list entry.
 func InsertAllow(ctx context.Context, tx pgx.Tx, e AllowEntry) error {
 	_, err := tx.Exec(ctx, `INSERT INTO allow_list (id, spiffe_id, prefixes, names, created_by, created_at) VALUES ($1,$2,$3,$4,$5,$6)`,
@@ -277,6 +285,14 @@ FROM catalogue_entries ORDER BY module, version_key DESC`)
 	return out, rows.Err()
 }
 
+// GetEntry returns one stored entry, without its bundle.
+func GetEntry(ctx context.Context, tx pgx.Tx, module, version string) (CatalogueEntry, error) {
+	var e CatalogueEntry
+	err := tx.QueryRow(ctx, `SELECT module, version, repo, version_key, entry, entry_sha256, bundle_sha256, attested_by, verified_at
+FROM catalogue_entries WHERE module = $1 AND version = $2`, module, version).Scan(&e.Module, &e.Version, &e.Repo, &e.VersionKey, &e.Entry, &e.EntrySHA256, &e.BundleSHA256, &e.AttestedBy, &e.VerifiedAt)
+	return e, notFound(err)
+}
+
 // EntryBundle returns the bundle of one stored entry.
 func EntryBundle(ctx context.Context, tx pgx.Tx, module, version string) ([]byte, error) {
 	var b []byte
@@ -288,17 +304,44 @@ func EntryBundle(ctx context.Context, tx pgx.Tx, module, version string) ([]byte
 
 // InsertJoin records a join bundle.
 func InsertJoin(ctx context.Context, tx pgx.Tx, j CatalogueJoin) error {
-	_, err := tx.Exec(ctx, `INSERT INTO catalogue_joins (id, module, version, jti, minted_by, created_at, expires_at) VALUES ($1,$2,$3,$4,$5,$6,$7)`,
-		j.ID, j.Module, j.Version, j.JTI, j.MintedBy, j.CreatedAt, j.ExpiresAt)
+	channel := j.Channel
+	if channel == "" {
+		channel = JoinDownload
+	}
+	_, err := tx.Exec(ctx, `INSERT INTO catalogue_joins (id, module, version, jti, minted_by, created_at, expires_at, channel, tenant_id, host_id, inputs)
+VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11)`,
+		j.ID, j.Module, j.Version, nullable(j.JTI), j.MintedBy, j.CreatedAt, j.ExpiresAt, channel, nullable(j.TenantID), nullable(j.HostID), j.Inputs)
 	return conflict(err)
+}
+
+const joinColumns = `id::text, module, version, coalesce(jti::text, ''), minted_by, created_at, expires_at, channel,
+coalesce(tenant_id::text, ''), coalesce(host_id::text, ''), inputs, renders`
+
+func scanJoin(row pgx.Row) (CatalogueJoin, error) {
+	var j CatalogueJoin
+	err := row.Scan(&j.ID, &j.Module, &j.Version, &j.JTI, &j.MintedBy, &j.CreatedAt, &j.ExpiresAt, &j.Channel, &j.TenantID, &j.HostID, &j.Inputs, &j.Renders)
+	return j, notFound(err)
 }
 
 // GetJoin returns a join record kept for progress (24 h past expiry).
 func GetJoin(ctx context.Context, tx pgx.Tx, id string, now time.Time) (CatalogueJoin, error) {
-	var j CatalogueJoin
-	err := tx.QueryRow(ctx, `SELECT id::text, module, version, jti::text, minted_by, created_at, expires_at FROM catalogue_joins
-WHERE id = $1 AND expires_at > $2`, id, now.Add(-24*time.Hour)).Scan(&j.ID, &j.Module, &j.Version, &j.JTI, &j.MintedBy, &j.CreatedAt, &j.ExpiresAt)
-	return j, notFound(err)
+	return scanJoin(tx.QueryRow(ctx, `SELECT `+joinColumns+` FROM catalogue_joins WHERE id = $1 AND expires_at > $2`, id, now.Add(-24*time.Hour)))
+}
+
+// ClaimJoinRender counts one render of an unexpired agent join that has
+// renders left and returns it; anything else is ErrNotFound.
+func ClaimJoinRender(ctx context.Context, tx pgx.Tx, id string, now time.Time) (CatalogueJoin, error) {
+	return scanJoin(tx.QueryRow(ctx, `UPDATE catalogue_joins SET renders = renders + 1
+WHERE id = $1 AND channel = 'agent' AND expires_at > $2 AND renders < $3 RETURNING `+joinColumns, id, now, MaxJoinRenders))
+}
+
+// SetJoinJTI records the token of the latest render.
+func SetJoinJTI(ctx context.Context, tx pgx.Tx, id, jti string) error {
+	tag, err := tx.Exec(ctx, `UPDATE catalogue_joins SET jti = $2 WHERE id = $1`, id, jti)
+	if err == nil && tag.RowsAffected() == 0 {
+		return ErrNotFound
+	}
+	return err
 }
 
 // PruneJoins deletes join records 24 h past expiry.

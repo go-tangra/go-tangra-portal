@@ -12,6 +12,7 @@ import (
 	"testing/fstest"
 	"time"
 
+	inventoryv1 "github.com/go-tangra/go-tangra-inventory/sdk/v4/api/proto/inventory/v1"
 	fwcat "github.com/go-tangra/go-tangra/v4/catalogue"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -46,6 +47,11 @@ type joinEnv struct {
 
 func newJoinEnv(t *testing.T, configured bool) *joinEnv {
 	t.Helper()
+	return newJoinEnvWith(t, configured, nil)
+}
+
+func newJoinEnvWith(t *testing.T, configured bool, inv inventoryv1.ModuleDeliveryServiceClient) *joinEnv {
+	t.Helper()
 	ctx := context.Background()
 	ms := memstore.New()
 	ms.Owners = []string{"go-tangra"}
@@ -78,7 +84,8 @@ func newJoinEnv(t *testing.T, configured bool) *joinEnv {
 	}
 	s := newTestServer(t)
 	s.RegisterOps(OpsDeps{Reg: reg, Ops: &registry.Ops{Reg: reg, Marks: ms, Allow: ms, Audit: aw}, Identity: opsIdentity{}, Audit: ms, Roles: []string{"operator"},
-		AdminRoles: []string{"owner", "admin"}, Known: ms, Events: aw, Sources: ms, Refresher: &stubRefresher{}, Enroll: auth, TrustDomain: "example.org", Join: join})
+		AdminRoles: []string{"owner", "admin"}, Known: ms, Events: aw, Sources: ms, Refresher: &stubRefresher{}, Enroll: auth, TrustDomain: "example.org", Join: join,
+		Inventory: inv})
 	return &joinEnv{s: s, ms: ms, aw: aw, reg: reg, auth: auth}
 }
 

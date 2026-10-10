@@ -162,6 +162,23 @@ func (a *Adapter) InsertJoin(ctx context.Context, j store.CatalogueJoin) error {
 	})
 }
 
+// Entry returns one stored catalogue entry.
+func (a *Adapter) Entry(ctx context.Context, module, version string) (out store.CatalogueEntry, err error) {
+	err = a.St.Tx(ctx, func(tx pgx.Tx) error { out, err = store.GetEntry(ctx, tx, module, version); return err })
+	return
+}
+
+// ClaimJoinRender counts one render of an agent join.
+func (a *Adapter) ClaimJoinRender(ctx context.Context, id string) (out store.CatalogueJoin, err error) {
+	err = a.St.Tx(ctx, func(tx pgx.Tx) error { out, err = store.ClaimJoinRender(ctx, tx, id, time.Now().UTC()); return err })
+	return
+}
+
+// SetJoinJTI records the latest render's token.
+func (a *Adapter) SetJoinJTI(ctx context.Context, id, jti string) error {
+	return a.St.Tx(ctx, func(tx pgx.Tx) error { return store.SetJoinJTI(ctx, tx, id, jti) })
+}
+
 // GetJoin returns a join record.
 func (a *Adapter) GetJoin(ctx context.Context, id string) (out store.CatalogueJoin, err error) {
 	err = a.St.Tx(ctx, func(tx pgx.Tx) error { out, err = store.GetJoin(ctx, tx, id, time.Now().UTC()); return err })

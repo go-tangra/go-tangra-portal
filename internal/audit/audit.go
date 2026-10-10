@@ -47,6 +47,9 @@ const (
 	AllowedOwnersChanged   EventType = "allowed_owners_changed"
 	// An administrator downloaded a module's join bundle (spec 036; never the token).
 	ModuleJoinBundle EventType = "module_join_bundle"
+	// The inventory fetched an agent delivery's bundle; it was rendered and
+	// its token minted then (spec 037; never the token or the bundle).
+	ModuleBundleRendered EventType = "module_bundle_rendered"
 )
 
 var known = map[EventType]struct{}{}
@@ -54,7 +57,7 @@ var known = map[EventType]struct{}{}
 func init() {
 	for _, t := range []EventType{RegistrationAccepted, RegistrationRefused, RegistrationUpdated, RegistrationWithdrawn, RenewalRefused,
 		ModuleDrained, ModuleRevoked, ModuleUnhealthy, ModuleRecovered, AllowlistChanged, IdentityRefused, PermissionRefused, StreamTerminated, LimitExceeded, EnrollmentTokenMinted, KnownModuleExpected, KnownModuleForgotten,
-		CatalogueEntryVerified, CatalogueEntryRefused, CatalogueSourceAdded, CatalogueSourceRemoved, AllowedOwnersChanged, ModuleJoinBundle} {
+		CatalogueEntryVerified, CatalogueEntryRefused, CatalogueSourceAdded, CatalogueSourceRemoved, AllowedOwnersChanged, ModuleJoinBundle, ModuleBundleRendered} {
 		known[t] = struct{}{}
 	}
 }

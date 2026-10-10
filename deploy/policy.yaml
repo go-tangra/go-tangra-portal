@@ -6,3 +6,11 @@ rules:
     to: ["gateway"]
     operations: ["/gateway.v1.Registry/Register", "/gateway.v1.Registry/Renew", "/gateway.v1.Registry/Deregister", "/gateway.v1.Registry/Watch", "/grpc.health.v1.Health/Check"]
     effect: allow
+  # Agent module delivery (spec 037): the inventory fetches a join bundle
+  # when an agent asks for its delivery item; the handler also requires the
+  # caller to be catalogue.agent_delivery.inventory_service.
+  - id: inventory-module-bundle
+    from: ["spiffe://example.org/svc/inventory"]
+    to: ["gateway"]
+    operations: ["/inventory.v1.ModuleBundleSource/RenderModuleBundle", "/grpc.health.v1.Health/Check"]
+    effect: allow

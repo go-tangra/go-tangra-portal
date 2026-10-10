@@ -32,6 +32,7 @@ components:
       properties:
         can_manage: { type: boolean, description: 'the caller may change the catalogue (platform administrator)' }
         can_join: { type: boolean, description: 'join bundles can be made here (administrator, catalogue.join configured)' }
+        can_deliver: { type: boolean, description: 'join bundles can also be delivered through inventory agents (catalogue.agent_delivery configured; spec 037)' }
         partial: { type: boolean }
         items: { type: array, items: { $ref: '#/components/schemas/CatalogueItem' } }
     CatalogueItem:
@@ -73,6 +74,29 @@ components:
         state: { type: string }
         last_refusal: { type: object, properties: { reason: { type: string }, at: { type: string, format: date-time } } }
         partial: { type: boolean }
+        channel: { type: string, enum: [download, agent] }
+        delivery: { $ref: '#/components/schemas/ModuleDelivery' }
+    ModuleDelivery:
+      type: object
+      description: 'An agent delivery as the inventory reports it (spec 037).'
+      required: [host_id, hostname, state, agent_online]
+      properties:
+        host_id: { type: string }
+        hostname: { type: string }
+        state: { type: string, enum: [unspecified, pending, delivered, fetched, installed, failed, hook_failed, unsupported, superseded, expired] }
+        reason: { type: string }
+        agent_online: { type: boolean }
+        hook_exit_code: { type: integer }
+    ModuleTarget:
+      type: object
+      required: [host_id, hostname, os_name, agent_online, capability, ip_addresses]
+      properties:
+        host_id: { type: string }
+        hostname: { type: string }
+        os_name: { type: string }
+        agent_online: { type: boolean }
+        capability: { type: string, description: 'enabled | disabled_on_host | upgrade_required | not_supported_platform | no_agent | ambiguous_agent | disabled_on_server' }
+        ip_addresses: { type: array, items: { type: string } }
     CatalogueSource:
       type: object
       required: [repo, added_by, added_at]
@@ -262,10 +286,34 @@ paths:
         '404': { description: not_found (no verified entry for the module) }
         '409': { description: conflict (a different allow-list entry is active for the module) }
         '503': { description: 'temporarily_unavailable (auth, store, or catalogue.join not configured)' }
+  /gateway/v1/ops/catalogue/{module}/targets:
+    get:
+      operationId: catalogueModuleTargets
+      description: 'Hosts of the caller''s tenant an inventory agent could deliver the module to, with eligibility and the addresses of their latest snapshot (spec 037). Platform administrators only; needs catalogue.agent_delivery.'
+      parameters: [{ $ref: '#/components/parameters/catalogueModule' }, { name: q, in: query, description: hostname substring, schema: { type: string, maxLength: 64 } }]
+      responses:
+        '200': { description: hosts, content: { application/json: { schema: { type: object, required: [hosts, truncated], properties: { hosts: { type: array, items: { $ref: '#/components/schemas/ModuleTarget' } }, truncated: { type: boolean } } } } } }
+        '400': { description: validation_failed }
+        '403': { description: forbidden }
+        '404': { description: not_found (no verified entry for the module) }
+        '503': { description: 'temporarily_unavailable (inventory, or agent delivery not configured)' }
+  /gateway/v1/ops/catalogue/{module}/deliver:
+    post:
+      operationId: deliverCatalogueModule
+      description: 'Deliver a join bundle for the module''s newest verified entry to a host through its enrolled inventory agent (spec 037): checks the host inputs, ensures the allow-list entry (409 if a different one is active), records the join and asks the inventory to deliver. The bundle is rendered and its token minted only when the agent fetches it. Platform administrators only; audited (module_join_bundle with channel agent; module_bundle_rendered at fetch).'
+      parameters: [{ $ref: '#/components/parameters/csrf' }, { $ref: '#/components/parameters/catalogueModule' }]
+      requestBody: { required: true, content: { application/json: { schema: { type: object, additionalProperties: false, required: [host_id], properties: { host_id: { type: string, maxLength: 36 }, inputs: { type: object, additionalProperties: { type: string, maxLength: 1024 } }, ttl_hours: { type: integer, minimum: 1, maximum: 24 } } } } } }
+      responses:
+        '202': { description: 'delivery queued', content: { application/json: { schema: { type: object, required: [join_id, expires_at, delivery], properties: { join_id: { type: string }, expires_at: { type: string, format: date-time }, delivery: { $ref: '#/components/schemas/ModuleDelivery' } } } } } }
+        '400': { description: 'validation_failed (detail.param: host_id, a host input key or ttl_hours)' }
+        '403': { description: forbidden }
+        '404': { description: 'not_found (no verified entry, or unknown host)' }
+        '409': { description: 'conflict: a different allow-list entry is active, or the host is not eligible (detail.reason: no_agent, upgrade_required, ambiguous_agent, not_supported_platform, disabled_on_host, disabled_on_server, retired, not_eligible)' }
+        '503': { description: 'temporarily_unavailable (inventory, auth, store, or agent delivery not configured)' }
   /gateway/v1/ops/catalogue/{module}/join/{id}:
     get:
       operationId: joinProgress
-      description: 'Install progress of a join bundle: token used (auth), registered and its state (registry), the last registration refusal since the bundle was made. Kept 24 h past the token''s expiry. Platform administrators only.'
+      description: 'Install progress of a join bundle: for agent deliveries the delivery state (inventory), token used (auth), registered and its state (registry), the last registration refusal since the bundle was made. Kept 24 h past the token''s expiry. Platform administrators only.'
       parameters: [{ $ref: '#/components/parameters/catalogueModule' }, { name: id, in: path, required: true, schema: { type: string } }]
       responses:
         '200': { description: progress, content: { application/json: { schema: { $ref: '#/components/schemas/JoinProgress' } } } }

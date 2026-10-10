@@ -24,7 +24,7 @@ const list = useServerList<AuditEvent>('audit', '/gateway/v1/ops/audit', { sorta
   () => ({ module: module.value || undefined, event_type: eventType.value || undefined }))
 const { lq, load, search } = list
 
-const eventTypes = ['registration_accepted', 'registration_refused', 'registration_updated', 'registration_withdrawn', 'renewal_refused', 'module_drained', 'module_revoked', 'module_unhealthy', 'module_recovered', 'allowlist_changed', 'identity_refused', 'permission_refused', 'stream_terminated', 'limit_exceeded', 'enrollment_token_minted', 'known_module_expected', 'known_module_forgotten']
+const eventTypes = ['registration_accepted', 'registration_refused', 'registration_updated', 'registration_withdrawn', 'renewal_refused', 'module_drained', 'module_revoked', 'module_unhealthy', 'module_recovered', 'allowlist_changed', 'identity_refused', 'permission_refused', 'stream_terminated', 'limit_exceeded', 'enrollment_token_minted', 'known_module_expected', 'known_module_forgotten', 'catalogue_entry_verified', 'catalogue_entry_refused', 'catalogue_source_added', 'catalogue_source_removed', 'allowed_owners_changed', 'module_join_bundle', 'module_bundle_rendered']
 
 
 const typeOptions: SelectOption[] = eventTypes.map((t) => ({ title: t, value: t }))

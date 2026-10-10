@@ -43,6 +43,15 @@ type Catalogue struct {
 	GitHubAPI      string        `yaml:"github_api"`
 	GitHubTokenEnv string        `yaml:"github_token_env"`
 	Join           Join          `yaml:"join"`
+	AgentDelivery  AgentDelivery `yaml:"agent_delivery"`
+}
+
+// AgentDelivery lets the add-module wizard deliver join bundles through
+// inventory agents (spec 037): the inventory's mesh service name, which is
+// called for hosts and deliveries and is the only caller allowed to render
+// bundles. Empty disables agent delivery. It needs catalogue.join.
+type AgentDelivery struct {
+	InventoryService string `yaml:"inventory_service"`
 }
 
 // Join holds what the add-module wizard writes into join bundles (spec 036):
@@ -62,6 +71,9 @@ type Join struct {
 // Configured reports whether join bundles can be made (the mesh addresses
 // are set).
 func (j Join) Configured() bool { return j.AuthGRPC != "" && j.GatewayGRPC != "" && j.LCMGRPC != "" }
+
+// moduleServiceRE is a mesh service name (a DNS label).
+var moduleServiceRE = regexp.MustCompile(`^[a-z0-9][a-z0-9-]{0,62}$`)
 
 // JoinEnrollURL is the enrolment URL written into join bundles.
 func (c Config) JoinEnrollURL() string {
@@ -231,6 +243,14 @@ func (c Config) Validate() error {
 	}
 	if err := c.Catalogue.Join.validate(); err != nil {
 		return err
+	}
+	if svc := c.Catalogue.AgentDelivery.InventoryService; svc != "" {
+		if !moduleServiceRE.MatchString(svc) {
+			return errors.New("config: catalogue.agent_delivery.inventory_service must be a mesh service name")
+		}
+		if !c.Catalogue.Join.Configured() {
+			return errors.New("config: catalogue.agent_delivery needs catalogue.join (auth_grpc, gateway_grpc, lcm_grpc)")
+		}
 	}
 	for _, o := range c.Catalogue.AllowedOwners {
 		if !githubOwnerRE.MatchString(o) {

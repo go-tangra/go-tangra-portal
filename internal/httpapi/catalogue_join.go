@@ -3,17 +3,15 @@ package httpapi
 import (
 	"context"
 	"errors"
-	"fmt"
 	"net/http"
 	"sort"
 	"strings"
 	"time"
 
 	authv1 "github.com/go-tangra/go-tangra-auth/sdk/v4/api/proto/auth/v1"
+	inventoryv1 "github.com/go-tangra/go-tangra-inventory/sdk/v4/api/proto/inventory/v1"
 	fwcat "github.com/go-tangra/go-tangra/v4/catalogue"
 	"github.com/google/uuid"
-	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/status"
 
 	"github.com/go-tangra/go-tangra-portal/v4/internal/audit"
 	catsvc "github.com/go-tangra/go-tangra-portal/v4/internal/catalogue"
@@ -50,6 +48,9 @@ type JoinProgress struct {
 	State       string       `json:"state,omitempty"`
 	LastRefusal *RefusalView `json:"last_refusal,omitempty"`
 	Partial     bool         `json:"partial,omitempty"`
+	// Channel is download or agent; Delivery is the agent delivery (spec 037).
+	Channel  string        `json:"channel"`
+	Delivery *DeliveryView `json:"delivery,omitempty"`
 }
 
 // RefusalView is a registration refusal since the join.
@@ -97,54 +98,21 @@ func (s *Server) registerCatalogueJoin(d OpsDeps) {
 			failParam(w, ie.Key)
 			return
 		}
-		bundle, err := d.Join.Store.EntryBundle(r.Context(), module, entry.Version)
-		if err != nil {
-			Fail(w, r, s.rt.Logger(), err)
-			return
-		}
-		if err := entry.CheckBundle(bundle); err != nil {
-			Fail(w, r, s.rt.Logger(), fmt.Errorf("stored bundle does not match its entry: %w", err))
-			return
-		}
-		ca, err := d.Join.MeshCA(r.Context())
-		if err != nil {
-			Fail(w, r, s.rt.Logger(), fmt.Errorf("mesh CA: %w", err))
-			return
-		}
 		spiffeID := "spiffe://" + d.TrustDomain + "/svc/" + module
 		op := registry.Operator{UserID: id.UserID, TenantID: id.TenantID}
 		if err := ensureAllow(r.Context(), d, entry, spiffeID, op); err != nil {
 			Fail(w, r, s.rt.Logger(), err)
 			return
 		}
-		ctx, cancel := context.WithTimeout(r.Context(), 5*time.Second)
-		defer cancel()
-		minted, err := d.Enroll.MintEnrollmentToken(ctx, &authv1.MintEnrollmentTokenRequest{TenantId: d.Join.Core["MESH_TENANT_ID"],
-			SpiffePaths: []string{spiffeID}, TtlSeconds: int64(ttl.Seconds())})
-		if err != nil {
-			if status.Code(err) == codes.InvalidArgument {
-				Fail(w, r, s.rt.Logger(), fmt.Errorf("auth refused the join token: %w", err))
-				return
-			}
-			Fail(w, r, s.rt.Logger(), err)
-			return
-		}
-		jti, err := catsvc.TokenJTI(minted.GetToken())
-		if err != nil {
-			Fail(w, r, s.rt.Logger(), err)
-			return
-		}
 		now := time.Now().UTC()
-		zipped, err := catsvc.RenderJoin(catsvc.JoinRequest{Entry: entry, Bundle: bundle, Core: d.Join.Core, Inputs: inputs, Token: minted.GetToken(), MeshCA: ca, Now: now})
+		built, err := joinBuilder(d).Build(r.Context(), entry, inputs, ttl, now)
 		if err != nil {
 			Fail(w, r, s.rt.Logger(), err)
 			return
 		}
-		expires := now.Add(ttl)
-		if minted.GetExpiresAt() != nil {
-			expires = minted.GetExpiresAt().AsTime().UTC()
-		}
-		join := store.CatalogueJoin{ID: uuid.Must(uuid.NewV7()).String(), Module: module, Version: entry.Version, JTI: jti, MintedBy: id.UserID, CreatedAt: now, ExpiresAt: expires}
+		jti, expires, zipped := built.JTI, built.ExpiresAt, built.Zip
+		join := store.CatalogueJoin{ID: uuid.Must(uuid.NewV7()).String(), Module: module, Version: entry.Version, JTI: jti, MintedBy: id.UserID, CreatedAt: now, ExpiresAt: expires,
+			Channel: store.JoinDownload}
 		if err := d.Join.Store.InsertJoin(r.Context(), join); err != nil {
 			Fail(w, r, s.rt.Logger(), err)
 			return
@@ -172,16 +140,27 @@ func (s *Server) registerCatalogueJoin(d OpsDeps) {
 			Fail(w, r, s.rt.Logger(), knownErr(orNotFound(err)))
 			return
 		}
-		p := JoinProgress{ID: j.ID, Module: j.Module, Version: j.Version, CreatedAt: stamp(j.CreatedAt), ExpiresAt: stamp(j.ExpiresAt)}
+		p := JoinProgress{ID: j.ID, Module: j.Module, Version: j.Version, CreatedAt: stamp(j.CreatedAt), ExpiresAt: stamp(j.ExpiresAt), Channel: j.Channel}
 		ctx, cancel := context.WithTimeout(r.Context(), 5*time.Second)
 		defer cancel()
-		if st, err := d.Enroll.TokenStatus(ctx, &authv1.TokenStatusRequest{Jti: j.JTI}); err == nil {
-			p.TokenUsed = st.GetConsumed()
-			if st.GetConsumedAt() != nil {
-				p.TokenUsedAt = stamp(st.GetConsumedAt().AsTime())
+		if j.Channel == store.JoinAgent {
+			if d.Inventory == nil {
+				p.Partial = true
+			} else if del, err := d.Inventory.GetModuleDelivery(ctx, &inventoryv1.GetModuleDeliveryRequest{TenantId: j.TenantID, DeliveryId: j.ID}); err == nil {
+				p.Delivery = deliveryView(del)
+			} else {
+				p.Partial = true
 			}
-		} else {
-			p.Partial = true
+		}
+		if j.JTI != "" {
+			if st, err := d.Enroll.TokenStatus(ctx, &authv1.TokenStatusRequest{Jti: j.JTI}); err == nil {
+				p.TokenUsed = st.GetConsumed()
+				if st.GetConsumedAt() != nil {
+					p.TokenUsedAt = stamp(st.GetConsumedAt().AsTime())
+				}
+			} else {
+				p.Partial = true
+			}
 		}
 		if _, ok := d.Reg.Get(module); ok {
 			p.Registered, p.State = true, string(d.Reg.State(module))
@@ -194,6 +173,11 @@ func (s *Server) registerCatalogueJoin(d OpsDeps) {
 		}
 		WriteJSON(w, http.StatusOK, p)
 	}))
+}
+
+// joinBuilder mints and renders join bundles from the ops dependencies.
+func joinBuilder(d OpsDeps) *catsvc.Builder {
+	return &catsvc.Builder{TrustDomain: d.TrustDomain, Core: d.Join.Core, MeshCA: d.Join.MeshCA, Bundle: d.Join.Store.EntryBundle, Mint: d.Enroll}
 }
 
 // latestEntry is the module's newest verified entry (404 without one).
