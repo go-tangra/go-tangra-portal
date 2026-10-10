@@ -46,13 +46,24 @@ func TestDefaultsValidateWarnings(t *testing.T) {
 		"join http url":   mut(func(c *Config) { c.Catalogue.Join.EnrollURL = "http://x/api/lcm/v1/enroll" }),
 		"join bad addr":   mut(func(c *Config) { c.Catalogue.Join.AuthGRPC = "no-port" }),
 		"join bad tenant": mut(func(c *Config) { c.Catalogue.Join.MeshTenantID = "nope" }),
-		"prod no cert":    mut(func(c *Config) { c.Config.Env = "production"; c.Edge.CertFile = "" }),
-		"prod plain kv":   mut(func(c *Config) { c.Config.Env = "production"; c.Valkey.AllowPlaintext = true }),
-		"prod weak ssl":   mut(func(c *Config) { c.Config.Env = "production"; c.DB.DSN = "postgres://u@db/g?sslmode=disable" }),
+		"agent no join":   mut(func(c *Config) { c.Catalogue.AgentDelivery.InventoryService = "inventory" }),
+		"agent bad name": mut(func(c *Config) {
+			c.Catalogue.Join = Join{AuthGRPC: "a:1", GatewayGRPC: "g:1", LCMGRPC: "l:1", MeshTenantID: "00000000-0000-0000-0000-000000000001"}
+			c.Catalogue.AgentDelivery.InventoryService = "spiffe://x/svc/inventory"
+		}),
+		"prod no cert":  mut(func(c *Config) { c.Config.Env = "production"; c.Edge.CertFile = "" }),
+		"prod plain kv": mut(func(c *Config) { c.Config.Env = "production"; c.Valkey.AllowPlaintext = true }),
+		"prod weak ssl": mut(func(c *Config) { c.Config.Env = "production"; c.DB.DSN = "postgres://u@db/g?sslmode=disable" }),
 	} {
 		if err := c.Validate(); err == nil {
 			t.Errorf("%s accepted", name)
 		}
+	}
+	agent := valid()
+	agent.Catalogue.Join = Join{AuthGRPC: "a:1", GatewayGRPC: "g:1", LCMGRPC: "l:1", MeshTenantID: "00000000-0000-0000-0000-000000000001"}
+	agent.Catalogue.AgentDelivery.InventoryService = "inventory"
+	if err := agent.Validate(); err != nil {
+		t.Fatalf("agent delivery: %v", err)
 	}
 	dev := valid()
 	dev.Edge.CertFile = ""

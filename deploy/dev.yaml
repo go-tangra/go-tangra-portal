@@ -32,3 +32,5 @@ catalogue:
   poll: 6h
   allowed_owners: [go-tangra]
   join: { auth_grpc: "localhost:9543", gateway_grpc: "localhost:9643", lcm_grpc: "localhost:9945" }
+  # Feature 037: deliver join bundles through inventory agents ("" disables).
+  agent_delivery: { inventory_service: inventory }

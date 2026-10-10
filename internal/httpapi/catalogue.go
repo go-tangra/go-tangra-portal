@@ -31,8 +31,10 @@ type CatalogueView struct {
 	// modules are listed.
 	Partial bool `json:"partial,omitempty"`
 	// CanJoin: join bundles can be made here (catalogue.join configured).
-	CanJoin bool            `json:"can_join"`
-	Items   []CatalogueItem `json:"items"`
+	CanJoin bool `json:"can_join"`
+	// CanDeliver: join bundles can also go through inventory agents (spec 037).
+	CanDeliver bool            `json:"can_deliver"`
+	Items      []CatalogueItem `json:"items"`
 }
 
 // CatalogueItem is one module: its known record merged with the live registry.
@@ -71,6 +73,7 @@ func (s *Server) registerCatalogue(d OpsDeps) {
 	if d.Sources != nil && d.Refresher != nil {
 		s.registerCatalogueSources(d)
 		s.registerCatalogueJoin(d)
+		s.registerCatalogueDeliver(d)
 	}
 	s.MustHandle("GET", "/gateway/v1/ops/catalogue", s.catalogueReader(d, func(w http.ResponseWriter, r *http.Request, id identity.Identity) {
 		WriteJSON(w, http.StatusOK, buildCatalogue(r.Context(), d, s, r, IsAdmin(id, d.AdminRoles)))
@@ -167,7 +170,8 @@ func IsAdmin(id identity.Identity, roles []string) bool {
 }
 
 func buildCatalogue(ctx context.Context, d OpsDeps, s *Server, r *http.Request, canManage bool) CatalogueView {
-	v := CatalogueView{CanManage: canManage, CanJoin: canManage && d.Join != nil && d.Enroll != nil, Items: []CatalogueItem{}}
+	v := CatalogueView{CanManage: canManage, CanJoin: canManage && d.Join != nil && d.Enroll != nil,
+		CanDeliver: canManage && d.Join != nil && d.Enroll != nil && d.Inventory != nil, Items: []CatalogueItem{}}
 	live := map[string]registry.Registration{}
 	for _, reg := range d.Reg.Registrations() {
 		live[reg.Module] = reg

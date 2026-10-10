@@ -51,7 +51,23 @@ type CatalogueEntry struct {
 type CatalogueJoin struct {
 	ID, Module, Version, JTI, MintedBy string
 	CreatedAt, ExpiresAt               time.Time
+	// Channel is JoinDownload or JoinAgent (spec 037). Agent joins keep the
+	// tenant, host and host inputs and are rendered when the agent fetches,
+	// at most MaxJoinRenders times; JTI is the latest render's token.
+	Channel          string
+	TenantID, HostID string
+	Inputs           map[string]string
+	Renders          int
 }
+
+// Join channels.
+const (
+	JoinDownload = "download"
+	JoinAgent    = "agent"
+)
+
+// MaxJoinRenders bounds how often an agent join is rendered.
+const MaxJoinRenders = 5
 
 // AuditRow is one gateway audit event.
 type AuditRow struct {

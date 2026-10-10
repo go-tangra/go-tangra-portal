@@ -23,6 +23,7 @@ import (
 
 	authv1 "github.com/go-tangra/go-tangra-auth/sdk/v4/api/proto/auth/v1"
 	"github.com/go-tangra/go-tangra-auth/sdk/v4/pkg/authclient"
+	inventoryv1 "github.com/go-tangra/go-tangra-inventory/sdk/v4/api/proto/inventory/v1"
 	"github.com/go-tangra/go-tangra-lcm/sdk/v4/pkg/lcmidentity"
 	gatewayv1 "github.com/go-tangra/go-tangra-portal/sdk/v4/api/proto/gateway/v1"
 	"github.com/go-tangra/go-tangra-portal/v4/internal/audit"
@@ -307,9 +308,23 @@ func Build(ctx context.Context, cfg config.Config, o Options) (a *App, err error
 			"TRUST_DOMAIN": cfg.Config.TrustDomain, "GATEWAY_ISSUER": cfg.Auth.Issuer, "LCM_ENROLL_URL": cfg.JoinEnrollURL(),
 			"AUTH_GRPC": j.AuthGRPC, "GATEWAY_GRPC": j.GatewayGRPC, "LCM_GRPC": j.LCMGRPC, "MESH_TENANT_ID": j.MeshTenantID}}
 	}
+	// Agent delivery (spec 037): the inventory hands bundles to enrolled
+	// agents and is the only caller that may render them.
+	var inventory inventoryv1.ModuleDeliveryServiceClient
+	var bundles inventoryv1.ModuleBundleSourceServer
+	if svc := cfg.Catalogue.AgentDelivery.InventoryService; svc != "" && join != nil {
+		invConn, err := built.Freya.Client(ctx, svc)
+		if err != nil {
+			return nil, fmt.Errorf("inventory module: %w", err)
+		}
+		inventory = inventoryv1.NewModuleDeliveryServiceClient(invConn)
+		bundles = &grpcapi.ModuleBundleServer{Caller: "spiffe://" + cfg.Config.TrustDomain + "/svc/" + svc, Joins: adapter, Events: built.Audit, Logger: log,
+			Builder: &catalogue.Builder{TrustDomain: cfg.Config.TrustDomain, Core: join.Core, MeshCA: join.MeshCA, Bundle: adapter.EntryBundle,
+				Mint: authv1.NewEnrollmentClient(authConn)}}
+	}
 	built.HTTP.RegisterOps(httpapi.OpsDeps{Reg: built.Reg, Ops: &registry.Ops{Reg: built.Reg, Marks: adapter, Allow: adapter, Audit: built.Audit}, Identity: built.Identity, Audit: adapter, Traffic: built.Dispatch.Traffic, Roles: cfg.Operators.Roles,
 		Enroll: authv1.NewEnrollmentClient(authConn), TrustDomain: cfg.Config.TrustDomain, Events: built.Audit, AdminRoles: cfg.Operators.AdminRoles, Known: adapter,
-		Sources: adapter, Refresher: built.Catalogue, Join: join})
+		Sources: adapter, Refresher: built.Catalogue, Join: join, Inventory: inventory})
 	built.Known = &known.Recorder{Reg: built.Reg, Store: adapter, Logger: log}
 	if err := adapter.SeedAllowedOwners(ctx, cfg.Catalogue.AllowedOwners); err != nil {
 		log.Warn("catalogue: allowed owners not seeded; retried at next start")
@@ -322,6 +337,7 @@ func Build(ctx context.Context, cfg config.Config, o Options) (a *App, err error
 		rs = &grpcapi.RegistryServer{Reg: built.Reg}
 	}
 	grpcapi.Register(built.Freya.GRPC(), rs)
+	grpcapi.RegisterModuleBundle(built.Freya.GRPC(), bundles)
 	return built, nil
 }
 

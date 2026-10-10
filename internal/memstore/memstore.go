@@ -392,12 +392,31 @@ func (m *Store) EntryBundle(_ context.Context, module, version string) ([]byte, 
 	return nil, store.ErrNotFound
 }
 
+// Entry mirrors store.GetEntry.
+func (m *Store) Entry(_ context.Context, module, version string) (store.CatalogueEntry, error) {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+	if m.Fail != nil {
+		return store.CatalogueEntry{}, m.Fail
+	}
+	for _, e := range m.Entries {
+		if e.Module == module && e.Version == version {
+			e.Bundle = nil
+			return e, nil
+		}
+	}
+	return store.CatalogueEntry{}, store.ErrNotFound
+}
+
 // InsertJoin mirrors store.InsertJoin.
 func (m *Store) InsertJoin(_ context.Context, j store.CatalogueJoin) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 	if m.Fail != nil {
 		return m.Fail
+	}
+	if j.Channel == "" {
+		j.Channel = store.JoinDownload
 	}
 	m.Joins[j.ID] = j
 	return nil
@@ -415,6 +434,38 @@ func (m *Store) GetJoin(_ context.Context, id string) (store.CatalogueJoin, erro
 		return store.CatalogueJoin{}, store.ErrNotFound
 	}
 	return j, nil
+}
+
+// ClaimJoinRender mirrors store.ClaimJoinRender.
+func (m *Store) ClaimJoinRender(_ context.Context, id string) (store.CatalogueJoin, error) {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+	if m.Fail != nil {
+		return store.CatalogueJoin{}, m.Fail
+	}
+	j, ok := m.Joins[id]
+	if !ok || j.Channel != store.JoinAgent || !j.ExpiresAt.After(m.Now()) || j.Renders >= store.MaxJoinRenders {
+		return store.CatalogueJoin{}, store.ErrNotFound
+	}
+	j.Renders++
+	m.Joins[id] = j
+	return j, nil
+}
+
+// SetJoinJTI mirrors store.SetJoinJTI.
+func (m *Store) SetJoinJTI(_ context.Context, id, jti string) error {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+	if m.Fail != nil {
+		return m.Fail
+	}
+	j, ok := m.Joins[id]
+	if !ok {
+		return store.ErrNotFound
+	}
+	j.JTI = jti
+	m.Joins[id] = j
+	return nil
 }
 
 // InsertAuditRows appends rows (audit.Inserter).
