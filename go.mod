@@ -75,7 +75,7 @@ require (
 	github.com/go-openapi/swag/yamlutils v0.27.3 // indirect
 	github.com/go-openapi/validate v0.26.1 // indirect
 	github.com/go-playground/form/v4 v4.3.0 // indirect
-	github.com/go-tangra/go-tangra-inventory/sdk/v4 v4.4.0
+	github.com/go-tangra/go-tangra-inventory/sdk/v4 v4.5.0
 	github.com/go-viper/mapstructure/v2 v2.5.0 // indirect
 	github.com/google/certificate-transparency-go v1.3.3 // indirect
 	github.com/google/go-containerregistry v0.21.7 // indirect
@@ -157,5 +157,3 @@ require (
 )
 
 replace github.com/go-tangra/go-tangra-portal/sdk/v4 => ./sdk
-
-replace github.com/go-tangra/go-tangra-inventory/sdk/v4 => ../go-tangra-inventory-v4/sdk
