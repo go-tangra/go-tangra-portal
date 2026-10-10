@@ -42,6 +42,33 @@ type Catalogue struct {
 	AllowedOwners  []string      `yaml:"allowed_owners"`
 	GitHubAPI      string        `yaml:"github_api"`
 	GitHubTokenEnv string        `yaml:"github_token_env"`
+	Join           Join          `yaml:"join"`
+}
+
+// Join holds what the add-module wizard writes into join bundles (spec 036):
+// the addresses a module host uses to reach the core's mesh (as seen from
+// that host), the lcm enrolment URL (default <public_origin>/api/lcm/v1/enroll)
+// and the mesh tenant. The mesh CA comes from the gateway's own identity;
+// mesh_ca_file is for gateways with a file identity.
+type Join struct {
+	AuthGRPC     string `yaml:"auth_grpc"`
+	GatewayGRPC  string `yaml:"gateway_grpc"`
+	LCMGRPC      string `yaml:"lcm_grpc"`
+	EnrollURL    string `yaml:"enroll_url"`
+	MeshTenantID string `yaml:"mesh_tenant_id"`
+	MeshCAFile   string `yaml:"mesh_ca_file"`
+}
+
+// Configured reports whether join bundles can be made (the mesh addresses
+// are set).
+func (j Join) Configured() bool { return j.AuthGRPC != "" && j.GatewayGRPC != "" && j.LCMGRPC != "" }
+
+// JoinEnrollURL is the enrolment URL written into join bundles.
+func (c Config) JoinEnrollURL() string {
+	if c.Catalogue.Join.EnrollURL != "" {
+		return c.Catalogue.Join.EnrollURL
+	}
+	return strings.TrimSuffix(c.PublicOrigin, "/") + "/api/lcm/v1/enroll"
 }
 
 // Enroll makes the gateway obtain its SVID by enrolling with lcm over the
@@ -121,6 +148,26 @@ type Operators struct {
 	AdminRoles []string `yaml:"admin_roles"`
 }
 
+var (
+	hostPortRE = regexp.MustCompile(`^[A-Za-z0-9.-]{1,253}:[0-9]{1,5}$`)
+	uuidRE     = regexp.MustCompile(`^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$`)
+)
+
+func (j Join) validate() error {
+	for name, v := range map[string]string{"auth_grpc": j.AuthGRPC, "gateway_grpc": j.GatewayGRPC, "lcm_grpc": j.LCMGRPC} {
+		if v != "" && !hostPortRE.MatchString(v) {
+			return fmt.Errorf("config: catalogue.join.%s must be host:port", name)
+		}
+	}
+	if j.EnrollURL != "" && !strings.HasPrefix(j.EnrollURL, "https://") {
+		return errors.New("config: catalogue.join.enroll_url must be an https URL")
+	}
+	if !uuidRE.MatchString(j.MeshTenantID) {
+		return errors.New("config: catalogue.join.mesh_tenant_id must be a UUID")
+	}
+	return nil
+}
+
 var githubOwnerRE = regexp.MustCompile(`^[A-Za-z0-9][A-Za-z0-9-]{0,38}$`)
 
 // Default returns secure defaults; addresses and secrets must be provided.
@@ -133,7 +180,8 @@ func Default() Config {
 	c.Leases = Leases{TTL: 30 * time.Second, Renew: 10 * time.Second}
 	c.Forward = Forward{BodyBytes: 1 << 20, StreamsPerClient: 32, StreamMax: 10 * time.Minute, ModuleTimeout: 30 * time.Second}
 	c.Operators = Operators{Roles: []string{"operator"}, AdminRoles: []string{"owner", "admin"}}
-	c.Catalogue = Catalogue{Poll: 6 * time.Hour, AllowedOwners: []string{"go-tangra"}, GitHubAPI: "https://api.github.com"}
+	c.Catalogue = Catalogue{Poll: 6 * time.Hour, AllowedOwners: []string{"go-tangra"}, GitHubAPI: "https://api.github.com",
+		Join: Join{MeshTenantID: "00000000-0000-0000-0000-000000000001"}}
 	c.Console = defaultConsole()
 	return c
 }
@@ -180,6 +228,9 @@ func (c Config) Validate() error {
 		return errors.New("config: catalogue.poll must be at least 10m")
 	case !strings.HasPrefix(c.Catalogue.GitHubAPI, "https://"):
 		return errors.New("config: catalogue.github_api must be an https URL")
+	}
+	if err := c.Catalogue.Join.validate(); err != nil {
+		return err
 	}
 	for _, o := range c.Catalogue.AllowedOwners {
 		if !githubOwnerRE.MatchString(o) {

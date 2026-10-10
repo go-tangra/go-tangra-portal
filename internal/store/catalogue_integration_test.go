@@ -46,7 +46,9 @@ func TestCatalogueTables(t *testing.T) {
 	if err := tx(func(tx pgx.Tx) error { return AddSource(ctx, tx, "go-tangra/go-tangra-sms-gw", "op") }); !errors.Is(err, ErrConflict) {
 		t.Fatalf("duplicate source: %v", err)
 	}
-	must(tx(func(tx pgx.Tx) error { return SourceChecked(ctx, tx, "go-tangra/go-tangra-sms-gw", "sms-gw", "", time.Now()) }))
+	must(tx(func(tx pgx.Tx) error {
+		return SourceChecked(ctx, tx, "go-tangra/go-tangra-sms-gw", "sms-gw", "", time.Now())
+	}))
 	if err := tx(func(tx pgx.Tx) error { return SourceChecked(ctx, tx, "go-tangra/fork", "sms-gw", "", time.Now()) }); !errors.Is(err, ErrConflict) {
 		t.Fatalf("module taken by a second source: %v", err)
 	}

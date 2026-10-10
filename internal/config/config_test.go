@@ -26,25 +26,29 @@ func TestDefaultsValidateWarnings(t *testing.T) {
 		t.Fatal(err)
 	}
 	if c.Leases.TTL != 30*time.Second || c.Forward.BodyBytes != 1<<20 || c.Operators.Roles[0] != "operator" || strings.Join(c.Operators.AdminRoles, ",") != "owner,admin" ||
-		c.Catalogue.Poll != 6*time.Hour || strings.Join(c.Catalogue.AllowedOwners, ",") != "go-tangra" || c.Catalogue.GitHubAPI != "https://api.github.com" {
+		c.Catalogue.Poll != 6*time.Hour || strings.Join(c.Catalogue.AllowedOwners, ",") != "go-tangra" || c.Catalogue.GitHubAPI != "https://api.github.com" ||
+		c.Catalogue.Join.MeshTenantID != "00000000-0000-0000-0000-000000000001" || c.JoinEnrollURL() != c.PublicOrigin+"/api/lcm/v1/enroll" || c.Catalogue.Join.Configured() {
 		t.Fatalf("defaults %+v", c)
 	}
 	mut := func(f func(c *Config)) Config { c := valid(); f(&c); return c }
 	for name, c := range map[string]Config{
-		"http origin":   mut(func(c *Config) { c.PublicOrigin = "http://x" }),
-		"no dsn":        mut(func(c *Config) { c.DB.DSN = "" }),
-		"no valkey":     mut(func(c *Config) { c.Valkey.Addresses = nil }),
-		"no issuer":     mut(func(c *Config) { c.Auth.Issuer = "" }),
-		"short ttl":     mut(func(c *Config) { c.Leases.TTL = 15 * time.Second }),
-		"zero limit":    mut(func(c *Config) { c.Forward.BodyBytes = 0 }),
-		"no operators":  mut(func(c *Config) { c.Operators.Roles = nil }),
-		"no admins":     mut(func(c *Config) { c.Operators.AdminRoles = nil }),
-		"fast poll":     mut(func(c *Config) { c.Catalogue.Poll = time.Minute }),
-		"bad owner":     mut(func(c *Config) { c.Catalogue.AllowedOwners = []string{"https://github.com/x"} }),
-		"http api":      mut(func(c *Config) { c.Catalogue.GitHubAPI = "http://api.github.com" }),
-		"prod no cert":  mut(func(c *Config) { c.Config.Env = "production"; c.Edge.CertFile = "" }),
-		"prod plain kv": mut(func(c *Config) { c.Config.Env = "production"; c.Valkey.AllowPlaintext = true }),
-		"prod weak ssl": mut(func(c *Config) { c.Config.Env = "production"; c.DB.DSN = "postgres://u@db/g?sslmode=disable" }),
+		"http origin":     mut(func(c *Config) { c.PublicOrigin = "http://x" }),
+		"no dsn":          mut(func(c *Config) { c.DB.DSN = "" }),
+		"no valkey":       mut(func(c *Config) { c.Valkey.Addresses = nil }),
+		"no issuer":       mut(func(c *Config) { c.Auth.Issuer = "" }),
+		"short ttl":       mut(func(c *Config) { c.Leases.TTL = 15 * time.Second }),
+		"zero limit":      mut(func(c *Config) { c.Forward.BodyBytes = 0 }),
+		"no operators":    mut(func(c *Config) { c.Operators.Roles = nil }),
+		"no admins":       mut(func(c *Config) { c.Operators.AdminRoles = nil }),
+		"fast poll":       mut(func(c *Config) { c.Catalogue.Poll = time.Minute }),
+		"bad owner":       mut(func(c *Config) { c.Catalogue.AllowedOwners = []string{"https://github.com/x"} }),
+		"http api":        mut(func(c *Config) { c.Catalogue.GitHubAPI = "http://api.github.com" }),
+		"join http url":   mut(func(c *Config) { c.Catalogue.Join.EnrollURL = "http://x/api/lcm/v1/enroll" }),
+		"join bad addr":   mut(func(c *Config) { c.Catalogue.Join.AuthGRPC = "no-port" }),
+		"join bad tenant": mut(func(c *Config) { c.Catalogue.Join.MeshTenantID = "nope" }),
+		"prod no cert":    mut(func(c *Config) { c.Config.Env = "production"; c.Edge.CertFile = "" }),
+		"prod plain kv":   mut(func(c *Config) { c.Config.Env = "production"; c.Valkey.AllowPlaintext = true }),
+		"prod weak ssl":   mut(func(c *Config) { c.Config.Env = "production"; c.DB.DSN = "postgres://u@db/g?sslmode=disable" }),
 	} {
 		if err := c.Validate(); err == nil {
 			t.Errorf("%s accepted", name)

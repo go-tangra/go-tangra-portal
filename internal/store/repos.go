@@ -286,6 +286,27 @@ func EntryBundle(ctx context.Context, tx pgx.Tx, module, version string) ([]byte
 	return b, nil
 }
 
+// InsertJoin records a join bundle.
+func InsertJoin(ctx context.Context, tx pgx.Tx, j CatalogueJoin) error {
+	_, err := tx.Exec(ctx, `INSERT INTO catalogue_joins (id, module, version, jti, minted_by, created_at, expires_at) VALUES ($1,$2,$3,$4,$5,$6,$7)`,
+		j.ID, j.Module, j.Version, j.JTI, j.MintedBy, j.CreatedAt, j.ExpiresAt)
+	return conflict(err)
+}
+
+// GetJoin returns a join record kept for progress (24 h past expiry).
+func GetJoin(ctx context.Context, tx pgx.Tx, id string, now time.Time) (CatalogueJoin, error) {
+	var j CatalogueJoin
+	err := tx.QueryRow(ctx, `SELECT id::text, module, version, jti::text, minted_by, created_at, expires_at FROM catalogue_joins
+WHERE id = $1 AND expires_at > $2`, id, now.Add(-24*time.Hour)).Scan(&j.ID, &j.Module, &j.Version, &j.JTI, &j.MintedBy, &j.CreatedAt, &j.ExpiresAt)
+	return j, notFound(err)
+}
+
+// PruneJoins deletes join records 24 h past expiry.
+func PruneJoins(ctx context.Context, tx pgx.Tx, now time.Time) error {
+	_, err := tx.Exec(ctx, `DELETE FROM catalogue_joins WHERE expires_at <= $1`, now.Add(-24*time.Hour))
+	return err
+}
+
 // InsertAuditRows bulk-inserts audit rows.
 func InsertAuditRows(ctx context.Context, tx pgx.Tx, rows []AuditRow) error {
 	src := make([][]any, 0, len(rows))

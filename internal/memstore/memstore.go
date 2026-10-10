@@ -23,6 +23,7 @@ type Store struct {
 	Owners    []string
 	Sources   map[string]store.CatalogueSource // by lower(repo)
 	Entries   []store.CatalogueEntry
+	Joins     map[string]store.CatalogueJoin
 	AuditRows []store.AuditRow
 	auditSeq  int64
 	Now       func() time.Time
@@ -32,7 +33,7 @@ type Store struct {
 
 // New returns an empty store.
 func New() *Store {
-	return &Store{Allow: map[string]store.AllowEntry{}, Marks: map[string]store.Mark{}, Known: map[string]store.KnownModule{}, Sources: map[string]store.CatalogueSource{}, Now: time.Now}
+	return &Store{Allow: map[string]store.AllowEntry{}, Marks: map[string]store.Mark{}, Known: map[string]store.KnownModule{}, Sources: map[string]store.CatalogueSource{}, Joins: map[string]store.CatalogueJoin{}, Now: time.Now}
 }
 
 // InsertAllow adds an entry; a second active entry for the same identity conflicts.
@@ -389,6 +390,31 @@ func (m *Store) EntryBundle(_ context.Context, module, version string) ([]byte, 
 		}
 	}
 	return nil, store.ErrNotFound
+}
+
+// InsertJoin mirrors store.InsertJoin.
+func (m *Store) InsertJoin(_ context.Context, j store.CatalogueJoin) error {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+	if m.Fail != nil {
+		return m.Fail
+	}
+	m.Joins[j.ID] = j
+	return nil
+}
+
+// GetJoin mirrors store.GetJoin.
+func (m *Store) GetJoin(_ context.Context, id string) (store.CatalogueJoin, error) {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+	if m.Fail != nil {
+		return store.CatalogueJoin{}, m.Fail
+	}
+	j, ok := m.Joins[id]
+	if !ok || !j.ExpiresAt.After(m.Now().Add(-24*time.Hour)) {
+		return store.CatalogueJoin{}, store.ErrNotFound
+	}
+	return j, nil
 }
 
 // InsertAuditRows appends rows (audit.Inserter).

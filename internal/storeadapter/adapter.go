@@ -151,3 +151,19 @@ func (a *Adapter) EntryBundle(ctx context.Context, module, version string) (out 
 	err = a.St.Tx(ctx, func(tx pgx.Tx) error { out, err = store.EntryBundle(ctx, tx, module, version); return err })
 	return
 }
+
+// InsertJoin records a join bundle.
+func (a *Adapter) InsertJoin(ctx context.Context, j store.CatalogueJoin) error {
+	return a.St.Tx(ctx, func(tx pgx.Tx) error {
+		if err := store.PruneJoins(ctx, tx, time.Now().UTC()); err != nil {
+			return err
+		}
+		return store.InsertJoin(ctx, tx, j)
+	})
+}
+
+// GetJoin returns a join record.
+func (a *Adapter) GetJoin(ctx context.Context, id string) (out store.CatalogueJoin, err error) {
+	err = a.St.Tx(ctx, func(tx pgx.Tx) error { out, err = store.GetJoin(ctx, tx, id, time.Now().UTC()); return err })
+	return
+}

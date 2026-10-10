@@ -7,7 +7,7 @@ toolchain go1.26.8
 require (
 	github.com/getkin/kin-openapi v0.149.0
 	github.com/go-kratos/kratos/v3 v3.0.0
-	github.com/go-tangra/go-tangra-auth/sdk/v4 v4.1.0
+	github.com/go-tangra/go-tangra-auth/sdk/v4 v4.3.1-0.20261010054817-b2e5d2e26fe0
 	github.com/go-tangra/go-tangra-auth/v4 v4.0.0
 	github.com/go-tangra/go-tangra-lcm/sdk/v4 v4.1.0
 	github.com/go-tangra/go-tangra-portal/sdk/v4 v4.0.0

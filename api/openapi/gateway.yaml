@@ -28,9 +28,10 @@ components:
         tenant_id: { type: string }
     Catalogue:
       type: object
-      required: [can_manage, items]
+      required: [can_manage, can_join, items]
       properties:
         can_manage: { type: boolean, description: 'the caller may change the catalogue (platform administrator)' }
+        can_join: { type: boolean, description: 'join bundles can be made here (administrator, catalogue.join configured)' }
         partial: { type: boolean }
         items: { type: array, items: { $ref: '#/components/schemas/CatalogueItem' } }
     CatalogueItem:
@@ -55,6 +56,23 @@ components:
         repository: { type: string }
         update_available: { type: boolean }
         installable: { type: boolean }
+        host_inputs: { type: array, items: { type: object, required: [key, label, pattern], properties: { key: { type: string }, label: { type: string }, pattern: { type: string }, default: { type: string } } } }
+        min_core: { type: object, additionalProperties: { type: string } }
+    JoinProgress:
+      type: object
+      required: [id, module, version, created_at, expires_at, token_used, registered]
+      properties:
+        id: { type: string }
+        module: { type: string }
+        version: { type: string }
+        created_at: { type: string, format: date-time }
+        expires_at: { type: string, format: date-time }
+        token_used: { type: boolean }
+        token_used_at: { type: string, format: date-time }
+        registered: { type: boolean }
+        state: { type: string }
+        last_refusal: { type: object, properties: { reason: { type: string }, at: { type: string, format: date-time } } }
+        partial: { type: boolean }
     CatalogueSource:
       type: object
       required: [repo, added_by, added_at]
@@ -231,6 +249,28 @@ paths:
         '400': { description: 'validation_failed (detail.error: why the release was refused)' }
         '403': { description: forbidden }
         '413': { description: payload_too_large }
+  /gateway/v1/ops/catalogue/{module}/join:
+    post:
+      operationId: joinCatalogueModule
+      description: 'Make a join bundle for the module''s newest verified catalogue entry: checks the host inputs, ensures the allow-list entry for spiffe://<trust domain>/svc/<module> (409 if a different one is active), mints a single-use enrolment token (1-24 h, default 24 h) and returns the rendered bundle once (no-store; X-Join-Id identifies it for progress). Platform administrators only; audited (module_join_bundle, never the token).'
+      parameters: [{ $ref: '#/components/parameters/csrf' }, { $ref: '#/components/parameters/catalogueModule' }]
+      requestBody: { required: true, content: { application/json: { schema: { type: object, additionalProperties: false, properties: { inputs: { type: object, additionalProperties: { type: string, maxLength: 1024 } }, ttl_hours: { type: integer, minimum: 1, maximum: 24 } } } } } }
+      responses:
+        '200': { description: 'join bundle (zip)', content: { application/zip: { schema: { type: string, format: binary } } } }
+        '400': { description: 'validation_failed (detail.param: the host input key or ttl_hours)' }
+        '403': { description: forbidden }
+        '404': { description: not_found (no verified entry for the module) }
+        '409': { description: conflict (a different allow-list entry is active for the module) }
+        '503': { description: 'temporarily_unavailable (auth, store, or catalogue.join not configured)' }
+  /gateway/v1/ops/catalogue/{module}/join/{id}:
+    get:
+      operationId: joinProgress
+      description: 'Install progress of a join bundle: token used (auth), registered and its state (registry), the last registration refusal since the bundle was made. Kept 24 h past the token''s expiry. Platform administrators only.'
+      parameters: [{ $ref: '#/components/parameters/catalogueModule' }, { name: id, in: path, required: true, schema: { type: string } }]
+      responses:
+        '200': { description: progress, content: { application/json: { schema: { $ref: '#/components/schemas/JoinProgress' } } } }
+        '403': { description: forbidden }
+        '404': { description: not_found }
   /gateway/v1/ops/catalogue/{module}:
     patch:
       operationId: setCatalogueExpected

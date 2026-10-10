@@ -47,6 +47,12 @@ type CatalogueEntry struct {
 	VerifiedAt                time.Time
 }
 
+// CatalogueJoin is one join bundle made by the add-module wizard.
+type CatalogueJoin struct {
+	ID, Module, Version, JTI, MintedBy string
+	CreatedAt, ExpiresAt               time.Time
+}
+
 // AuditRow is one gateway audit event.
 type AuditRow struct {
 	ID            int64

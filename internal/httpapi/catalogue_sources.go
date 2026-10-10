@@ -251,6 +251,7 @@ func (s *Server) mergeEntries(ctx context.Context, d OpsDeps, v *CatalogueView) 
 		}
 		it := &v.Items[i]
 		it.LatestVersion, it.Summary, it.Category, it.Image, it.Repository, it.Installable = e.Version, e.Summary, e.Category, e.Image, e.Repository, true
+		it.HostInputs, it.MinCore = e.HostInputs, e.MinCore
 		for _, running := range it.BuildVersions {
 			if c, err := fwcat.CompareVersions(running, e.Version); err == nil && c < 0 {
 				it.UpdateAvailable = true

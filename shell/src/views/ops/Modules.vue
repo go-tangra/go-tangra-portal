@@ -7,6 +7,7 @@ import { computed, onMounted, ref } from 'vue'
 import { UiPage, UiAlert, UiCard, UiButton, UiDataTable, UiDialog, UiInput, UiStatusChip, UiSwitch, type Column } from '@go-tangra/ui'
 import { api, ApiError } from '@/api/client'
 import type { components } from '@/api/schema'
+import JoinWizard from '@/components/ops/JoinWizard.vue'
 
 type Item = components['schemas']['CatalogueItem'] & Record<string, unknown>
 type Source = components['schemas']['CatalogueSource'] & Record<string, unknown>
@@ -14,6 +15,8 @@ type Refresh = components['schemas']['CatalogueRefresh']
 
 const items = ref<Item[]>([])
 const canManage = ref(false)
+const canJoin = ref(false)
+const joinFor = ref<Item | null>(null)
 const partial = ref(false)
 const loading = ref(false)
 const error = ref('')
@@ -32,6 +35,7 @@ async function load(): Promise<void> {
     const v = await api<components['schemas']['Catalogue']>('GET', '/gateway/v1/ops/catalogue')
     items.value = v.items as Item[]
     canManage.value = v.can_manage
+    canJoin.value = !!v.can_join
     partial.value = !!v.partial
     error.value = ''
     if (canManage.value) await loadSources()
@@ -136,6 +140,7 @@ onMounted(load)
           <UiSwitch :id="'expected-' + row.module" :model-value="row.expected" :label="row.expected ? 'Yes' : 'No'" :disabled="busy === row.module" :data-test="'expected-' + row.module" @update:model-value="(v: boolean) => setExpected(row, v)" />
         </template>
         <template #actions="{ row }">
+          <UiButton v-if="canJoin && row.installable && !row.registered" size="sm" variant="text" :data-test="'add-' + row.module" @click="joinFor = row">Add</UiButton>
           <UiButton v-if="canManage && !row.registered" size="sm" variant="text" color="error" :loading="busy === row.module" :data-test="'forget-' + row.module" @click="forgetFor = row">Forget</UiButton>
         </template>
       </UiDataTable>
@@ -154,6 +159,7 @@ onMounted(load)
         </template>
       </UiDataTable>
     </UiCard>
+    <JoinWizard :item="joinFor" @close="joinFor = null; load()" @installed="load()" />
     <UiDialog :model-value="!!forgetFor" :title="forgetFor ? `Forget ${forgetFor.module}` : ''" size="sm" @update:model-value="forgetFor = null">
       <p class="text-sm" data-test="forget-dialog">The module is removed from this list. If it registers again later, it reappears.</p>
       <template #actions>

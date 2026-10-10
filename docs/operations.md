@@ -99,6 +99,44 @@ console:
     again. Audited `known_module_forgotten`.
 - Refusals of non-administrators are audited `permission_refused`.
 
+## Catalogue sources (feature 035)
+
+- Module repositories describe themselves in `tangra-module.yaml` and publish
+  `catalogue-entry.json`, `bundle.zip` and `catalogue.sigstore.json` with every
+  `v*` release (`go-tangra/go-tangra/.github/actions/catalogue-entry`).
+- Administrators add sources at **Operations → Modules → Sources**
+  (`POST /gateway/v1/ops/catalogue/sources` `{"repo":"owner/repo"}`); only
+  repositories of allowed owners (`catalogue.allowed_owners`, default
+  `[go-tangra]`, then `PUT /gateway/v1/ops/catalogue/allowed-owners`).
+- The gateway reads each source's latest release every `catalogue.poll`
+  (default 6h) and on **Read now**. An entry is stored only when its GitHub
+  artifact attestation verifies (Sigstore public-good: built by that
+  repository's workflow on the release tag); tampered, foreign, downgraded
+  or renamed releases are refused and shown on the source
+  (`catalogue_entry_refused`). GitHub or Sigstore being unreachable keeps the
+  stored entries. Cores without GitHub access upload the three assets
+  (`POST /gateway/v1/ops/catalogue/upload`).
+- Modules shows `available` modules (entry, never installed) and
+  `update <version>` when an instance runs an older release.
+
+## Adding a module (feature 036)
+
+- Needs `catalogue.join` in the gateway configuration: the mesh addresses a
+  module host reaches (`auth_grpc`, `gateway_grpc`, `lcm_grpc`), optionally
+  `enroll_url` (default `<public_origin>/api/lcm/v1/enroll`), `mesh_tenant_id`
+  and `mesh_ca_file` (only for a file identity; otherwise the gateway's own
+  trust bundle is used).
+- **Modules → Add** (administrators): fill in the inputs the module
+  declares and download `<module>-join.zip`. The gateway ensures the
+  allow-list entry for `spiffe://<td>/svc/<module>` (an existing different
+  entry is a 409 to resolve on the Allow-list page), mints a single-use join
+  token (1-24 h; auth refuses longer) and renders every core value
+  (issuer, trust domain, addresses, mesh CA) into the bundle. Generated store
+  passwords and the bundle's local TLS keys are in the zip and nowhere else.
+- On the module host: `unzip`, `cd <module>`, `docker compose up -d`. The
+  wizard follows the install (token used, registered, active) and shows the
+  last registration refusal. Audit: `module_join_bundle` (never the token).
+
 ## Allow-list
 
 - Managed at **Operations → Allow-list** or `POST /gateway/v1/ops/allowlist`

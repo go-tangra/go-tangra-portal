@@ -19,16 +19,32 @@ import (
 	"github.com/go-tangra/go-tangra-portal/v4/internal/registry"
 )
 
-// fakeEnroll records mint requests; err fails them.
+// fakeEnroll records mint requests; err fails them. token overrides the
+// minted token; consumed lists the JTIs TokenStatus reports as used.
 type fakeEnroll struct {
-	got []*authv1.MintEnrollmentTokenRequest
-	err error
+	got      []*authv1.MintEnrollmentTokenRequest
+	err      error
+	token    string
+	consumed map[string]time.Time
+}
+
+func (f *fakeEnroll) TokenStatus(_ context.Context, in *authv1.TokenStatusRequest, _ ...grpc.CallOption) (*authv1.TokenStatusResponse, error) {
+	if f.err != nil {
+		return nil, f.err
+	}
+	if at, ok := f.consumed[in.GetJti()]; ok {
+		return &authv1.TokenStatusResponse{Consumed: true, ConsumedAt: timestamppb.New(at)}, nil
+	}
+	return &authv1.TokenStatusResponse{}, nil
 }
 
 func (f *fakeEnroll) MintEnrollmentToken(_ context.Context, in *authv1.MintEnrollmentTokenRequest, _ ...grpc.CallOption) (*authv1.MintEnrollmentTokenResponse, error) {
 	f.got = append(f.got, in)
 	if f.err != nil {
 		return nil, f.err
+	}
+	if f.token != "" {
+		return &authv1.MintEnrollmentTokenResponse{Token: f.token, ExpiresAt: timestamppb.New(time.Now().Add(time.Duration(in.GetTtlSeconds()) * time.Second))}, nil
 	}
 	return &authv1.MintEnrollmentTokenResponse{Token: "eyJ.enrol.token", ExpiresAt: timestamppb.New(time.Date(2026, 10, 7, 12, 30, 0, 0, time.UTC))}, nil
 }

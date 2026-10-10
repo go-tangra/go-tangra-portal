@@ -26,3 +26,9 @@ forward: { body_bytes: 1048576, streams_per_client: 32, stream_max: 10m, module_
 operators: { roles: [operator], admin_roles: [owner, admin] }
 limits:
   max_request_bytes: 16842752 # warden transfer/backup uploads (16 MiB + slack); avatars need 2162688
+# Module catalogue (features 035/036): sources are read from GitHub releases;
+# join bundles need the mesh addresses a module host reaches.
+catalogue:
+  poll: 6h
+  allowed_owners: [go-tangra]
+  join: { auth_grpc: "localhost:9543", gateway_grpc: "localhost:9643", lcm_grpc: "localhost:9945" }

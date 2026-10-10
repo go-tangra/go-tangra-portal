@@ -306,6 +306,40 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/gateway/v1/ops/catalogue/{module}/join": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description Make a join bundle for the module's newest verified catalogue entry: checks the host inputs, ensures the allow-list entry for spiffe://<trust domain>/svc/<module> (409 if a different one is active), mints a single-use enrolment token (1-24 h, default 24 h) and returns the rendered bundle once (no-store; X-Join-Id identifies it for progress). Platform administrators only; audited (module_join_bundle, never the token). */
+        post: operations["joinCatalogueModule"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/gateway/v1/ops/catalogue/{module}/join/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Install progress of a join bundle: token used (auth), registered and its state (registry), the last registration refusal since the bundle was made. Kept 24 h past the token's expiry. Platform administrators only. */
+        get: operations["joinProgress"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/gateway/v1/ops/catalogue/{module}": {
         parameters: {
             query?: never;
@@ -373,6 +407,8 @@ export interface components {
         Catalogue: {
             /** @description the caller may change the catalogue (platform administrator) */
             can_manage: boolean;
+            /** @description join bundles can be made here (administrator, catalogue.join configured) */
+            can_join: boolean;
             partial?: boolean;
             items: components["schemas"]["CatalogueItem"][];
         };
@@ -398,6 +434,35 @@ export interface components {
             repository?: string;
             update_available: boolean;
             installable: boolean;
+            host_inputs?: {
+                key: string;
+                label: string;
+                pattern: string;
+                default?: string;
+            }[];
+            min_core?: {
+                [key: string]: string;
+            };
+        };
+        JoinProgress: {
+            id: string;
+            module: string;
+            version: string;
+            /** Format: date-time */
+            created_at: string;
+            /** Format: date-time */
+            expires_at: string;
+            token_used: boolean;
+            /** Format: date-time */
+            token_used_at?: string;
+            registered: boolean;
+            state?: string;
+            last_refusal?: {
+                reason?: string;
+                /** Format: date-time */
+                at?: string;
+            };
+            partial?: boolean;
         };
         CatalogueSource: {
             repo: string;
@@ -1143,6 +1208,112 @@ export interface operations {
             };
             /** @description payload_too_large */
             413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    joinCatalogueModule: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Double-submit token; enforced by the edge for cookie-bearing requests, not needed by bearer clients */
+                "X-CSRF-Token"?: components["parameters"]["csrf"];
+            };
+            path: {
+                module: components["parameters"]["catalogueModule"];
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    inputs?: {
+                        [key: string]: string;
+                    };
+                    ttl_hours?: number;
+                };
+            };
+        };
+        responses: {
+            /** @description join bundle (zip) */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/zip": string;
+                };
+            };
+            /** @description validation_failed (detail.param: the host input key or ttl_hours) */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description not_found (no verified entry for the module) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description conflict (a different allow-list entry is active for the module) */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description temporarily_unavailable (auth, store, or catalogue.join not configured) */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    joinProgress: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                module: components["parameters"]["catalogueModule"];
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description progress */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["JoinProgress"];
+                };
+            };
+            /** @description forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description not_found */
+            404: {
                 headers: {
                     [name: string]: unknown;
                 };
