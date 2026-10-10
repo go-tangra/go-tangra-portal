@@ -163,6 +163,150 @@ func ForgetKnown(ctx context.Context, tx pgx.Tx, module string, at time.Time) er
 	return nil
 }
 
+// ListAllowedOwners lists the catalogue's allowed GitHub owners.
+func ListAllowedOwners(ctx context.Context, tx pgx.Tx) ([]string, error) {
+	rows, err := tx.Query(ctx, `SELECT owner FROM catalogue_allowed_owners ORDER BY owner`)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	out := []string{}
+	for rows.Next() {
+		var o string
+		if err := rows.Scan(&o); err != nil {
+			return nil, err
+		}
+		out = append(out, o)
+	}
+	return out, rows.Err()
+}
+
+// ReplaceAllowedOwners sets the allowed owners.
+func ReplaceAllowedOwners(ctx context.Context, tx pgx.Tx, owners []string, by string) error {
+	if _, err := tx.Exec(ctx, `DELETE FROM catalogue_allowed_owners WHERE NOT (owner = ANY($1))`, owners); err != nil {
+		return err
+	}
+	for _, o := range owners {
+		if _, err := tx.Exec(ctx, `INSERT INTO catalogue_allowed_owners (owner, added_by) VALUES ($1,$2) ON CONFLICT (owner) DO NOTHING`, o, by); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+// SeedAllowedOwners inserts owners when the list is empty (first start).
+func SeedAllowedOwners(ctx context.Context, tx pgx.Tx, owners []string) error {
+	var n int
+	if err := tx.QueryRow(ctx, `SELECT count(*) FROM catalogue_allowed_owners`).Scan(&n); err != nil || n > 0 {
+		return err
+	}
+	return ReplaceAllowedOwners(ctx, tx, owners, "config")
+}
+
+// ListSources lists catalogue sources by repository.
+func ListSources(ctx context.Context, tx pgx.Tx) ([]CatalogueSource, error) {
+	rows, err := tx.Query(ctx, `SELECT repo, added_by, coalesce(module, ''), last_error, added_at, last_checked_at FROM catalogue_sources ORDER BY repo`)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	out := []CatalogueSource{}
+	for rows.Next() {
+		var c CatalogueSource
+		if err := rows.Scan(&c.Repo, &c.AddedBy, &c.Module, &c.LastError, &c.AddedAt, &c.LastCheckedAt); err != nil {
+			return nil, err
+		}
+		out = append(out, c)
+	}
+	return out, rows.Err()
+}
+
+// AddSource adds a repository (ErrConflict when present).
+func AddSource(ctx context.Context, tx pgx.Tx, repo, by string) error {
+	_, err := tx.Exec(ctx, `INSERT INTO catalogue_sources (repo, added_by) VALUES ($1,$2)`, repo, by)
+	return conflict(err)
+}
+
+// RemoveSource removes a repository; its entries stay.
+func RemoveSource(ctx context.Context, tx pgx.Tx, repo string) error {
+	tag, err := tx.Exec(ctx, `DELETE FROM catalogue_sources WHERE lower(repo) = lower($1)`, repo)
+	if err != nil {
+		return err
+	}
+	if tag.RowsAffected() == 0 {
+		return ErrNotFound
+	}
+	return nil
+}
+
+// SourceChecked records a check of a source: its error text ("" = ok) and,
+// once known, the module it publishes (ErrConflict when another source
+// already publishes that module).
+func SourceChecked(ctx context.Context, tx pgx.Tx, repo, module, errText string, at time.Time) error {
+	var mod any
+	if module != "" {
+		mod = module
+	}
+	_, err := tx.Exec(ctx, `UPDATE catalogue_sources SET last_checked_at = $2, last_error = $3, module = coalesce($4, module) WHERE lower(repo) = lower($1)`, repo, at, errText, mod)
+	return conflict(err)
+}
+
+// InsertEntry stores a verified entry (ErrConflict when that version exists).
+func InsertEntry(ctx context.Context, tx pgx.Tx, e CatalogueEntry) error {
+	_, err := tx.Exec(ctx, `INSERT INTO catalogue_entries (module, version, repo, version_key, entry, entry_sha256, bundle, bundle_sha256, attested_by, verified_at)
+VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)`, e.Module, e.Version, e.Repo, e.VersionKey, e.Entry, e.EntrySHA256, e.Bundle, e.BundleSHA256, e.AttestedBy, e.VerifiedAt)
+	return conflict(err)
+}
+
+// LatestEntries returns the newest entry per module, without bundles.
+func LatestEntries(ctx context.Context, tx pgx.Tx) ([]CatalogueEntry, error) {
+	rows, err := tx.Query(ctx, `SELECT DISTINCT ON (module) module, version, repo, version_key, entry, entry_sha256, bundle_sha256, attested_by, verified_at
+FROM catalogue_entries ORDER BY module, version_key DESC`)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	out := []CatalogueEntry{}
+	for rows.Next() {
+		var e CatalogueEntry
+		if err := rows.Scan(&e.Module, &e.Version, &e.Repo, &e.VersionKey, &e.Entry, &e.EntrySHA256, &e.BundleSHA256, &e.AttestedBy, &e.VerifiedAt); err != nil {
+			return nil, err
+		}
+		out = append(out, e)
+	}
+	return out, rows.Err()
+}
+
+// EntryBundle returns the bundle of one stored entry.
+func EntryBundle(ctx context.Context, tx pgx.Tx, module, version string) ([]byte, error) {
+	var b []byte
+	if err := tx.QueryRow(ctx, `SELECT bundle FROM catalogue_entries WHERE module = $1 AND version = $2`, module, version).Scan(&b); err != nil {
+		return nil, notFound(err)
+	}
+	return b, nil
+}
+
+// InsertJoin records a join bundle.
+func InsertJoin(ctx context.Context, tx pgx.Tx, j CatalogueJoin) error {
+	_, err := tx.Exec(ctx, `INSERT INTO catalogue_joins (id, module, version, jti, minted_by, created_at, expires_at) VALUES ($1,$2,$3,$4,$5,$6,$7)`,
+		j.ID, j.Module, j.Version, j.JTI, j.MintedBy, j.CreatedAt, j.ExpiresAt)
+	return conflict(err)
+}
+
+// GetJoin returns a join record kept for progress (24 h past expiry).
+func GetJoin(ctx context.Context, tx pgx.Tx, id string, now time.Time) (CatalogueJoin, error) {
+	var j CatalogueJoin
+	err := tx.QueryRow(ctx, `SELECT id::text, module, version, jti::text, minted_by, created_at, expires_at FROM catalogue_joins
+WHERE id = $1 AND expires_at > $2`, id, now.Add(-24*time.Hour)).Scan(&j.ID, &j.Module, &j.Version, &j.JTI, &j.MintedBy, &j.CreatedAt, &j.ExpiresAt)
+	return j, notFound(err)
+}
+
+// PruneJoins deletes join records 24 h past expiry.
+func PruneJoins(ctx context.Context, tx pgx.Tx, now time.Time) error {
+	_, err := tx.Exec(ctx, `DELETE FROM catalogue_joins WHERE expires_at <= $1`, now.Add(-24*time.Hour))
+	return err
+}
+
 // InsertAuditRows bulk-inserts audit rows.
 func InsertAuditRows(ctx context.Context, tx pgx.Tx, rows []AuditRow) error {
 	src := make([][]any, 0, len(rows))

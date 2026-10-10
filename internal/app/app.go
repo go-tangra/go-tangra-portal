@@ -7,6 +7,8 @@ package app
 import (
 	"context"
 	"crypto/tls"
+	"encoding/pem"
+	"errors"
 	"fmt"
 	"io/fs"
 	"log/slog"
@@ -26,6 +28,7 @@ import (
 	"github.com/go-tangra/go-tangra-portal/v4/internal/audit"
 	"github.com/go-tangra/go-tangra-portal/v4/internal/authz"
 	"github.com/go-tangra/go-tangra-portal/v4/internal/authz/bind"
+	"github.com/go-tangra/go-tangra-portal/v4/internal/catalogue"
 	"github.com/go-tangra/go-tangra-portal/v4/internal/config"
 	"github.com/go-tangra/go-tangra-portal/v4/internal/console"
 	"github.com/go-tangra/go-tangra-portal/v4/internal/grpcapi"
@@ -84,9 +87,11 @@ type App struct {
 	GRPC     *grpcproxy.Proxy
 	Revoke   *identity.RevocationWatcher
 	// Known records the modules the registry has seen (module catalogue).
-	Known   *known.Recorder
-	Hub     *stream.Hub
-	Console *console.Server // nil unless console.enabled
+	Known *known.Recorder
+	// Catalogue reads and verifies module releases (catalogue sources).
+	Catalogue *catalogue.Service
+	Hub       *stream.Hub
+	Console   *console.Server // nil unless console.enabled
 
 	verifier *authclient.Verifier
 	vready   atomic.Bool
@@ -139,6 +144,7 @@ func Build(ctx context.Context, cfg config.Config, o Options) (a *App, err error
 	built.Audit = audit.NewWriter(ins, func(err error) { log.Error("audit write failed", "err", err) })
 	built.closers = append(built.closers, built.Audit.Close)
 	fopts := append([]freya.Option{freya.WithLogger(handler)}, o.Freya...)
+	var meshProvider fidentity.Provider // the gateway's own identity (mesh CA for join bundles)
 	if cfg.Enroll.Enabled {
 		raw, rerr := os.ReadFile(cfg.Enroll.TokenFile)
 		if rerr != nil {
@@ -163,6 +169,7 @@ func Build(ctx context.Context, cfg config.Config, o Options) (a *App, err error
 		}
 		built.closers = append(built.closers, func() { _ = prov.Close() })
 		fopts = append(fopts, freya.WithIdentityProvider(prov))
+		meshProvider = prov
 	}
 	if built.Freya, err = freya.New(cfg.Config, fopts...); err != nil {
 		return nil, err
@@ -288,9 +295,25 @@ func Build(ctx context.Context, cfg config.Config, o Options) (a *App, err error
 	built.Dispatch.GRPC = built.GRPC.Server()
 	built.Dispatch.GRPCWeb = &grpcweb.Bridge{Proxy: built.GRPC, MaxFrame: int(cfg.Forward.BodyBytes)}
 	built.HTTP.RegisterMe(built.Identity)
+	token := ""
+	if cfg.Catalogue.GitHubTokenEnv != "" {
+		token = os.Getenv(cfg.Catalogue.GitHubTokenEnv)
+	}
+	built.Catalogue = &catalogue.Service{Store: adapter, GitHub: &catalogue.GitHub{API: cfg.Catalogue.GitHubAPI, Token: token},
+		Verify: catalogue.LazyVerify(catalogue.LiveTrustedRoot), Audit: built.Audit, Logger: log, Interval: cfg.Catalogue.Poll}
+	var join *httpapi.JoinDeps
+	if j := cfg.Catalogue.Join; j.Configured() {
+		join = &httpapi.JoinDeps{Store: adapter, MeshCA: meshCA(meshProvider, j.MeshCAFile), Core: map[string]string{
+			"TRUST_DOMAIN": cfg.Config.TrustDomain, "GATEWAY_ISSUER": cfg.Auth.Issuer, "LCM_ENROLL_URL": cfg.JoinEnrollURL(),
+			"AUTH_GRPC": j.AuthGRPC, "GATEWAY_GRPC": j.GatewayGRPC, "LCM_GRPC": j.LCMGRPC, "MESH_TENANT_ID": j.MeshTenantID}}
+	}
 	built.HTTP.RegisterOps(httpapi.OpsDeps{Reg: built.Reg, Ops: &registry.Ops{Reg: built.Reg, Marks: adapter, Allow: adapter, Audit: built.Audit}, Identity: built.Identity, Audit: adapter, Traffic: built.Dispatch.Traffic, Roles: cfg.Operators.Roles,
-		Enroll: authv1.NewEnrollmentClient(authConn), TrustDomain: cfg.Config.TrustDomain, Events: built.Audit, AdminRoles: cfg.Operators.AdminRoles, Known: adapter})
+		Enroll: authv1.NewEnrollmentClient(authConn), TrustDomain: cfg.Config.TrustDomain, Events: built.Audit, AdminRoles: cfg.Operators.AdminRoles, Known: adapter,
+		Sources: adapter, Refresher: built.Catalogue, Join: join})
 	built.Known = &known.Recorder{Reg: built.Reg, Store: adapter, Logger: log}
+	if err := adapter.SeedAllowedOwners(ctx, cfg.Catalogue.AllowedOwners); err != nil {
+		log.Warn("catalogue: allowed owners not seeded; retried at next start")
+	}
 	built.HTTP.RegisterShell(httpapi.ShellDeps{Reg: built.Reg, Identity: built.Identity, Decide: built.Decider, Proxies: built.Dispatch.Proxies, Hub: built.Hub, Instance: hostname()})
 	built.Revoke = &identity.RevocationWatcher{Feed: authv1.NewSessionsClient(authConn), Poll: 5 * time.Second, Logger: log,
 		OnRevoke: func(subject, reason string) { built.GRPC.CancelSubject(subject, reason) }}
@@ -316,6 +339,9 @@ func (a *App) Run(ctx context.Context) error {
 	go a.Revoke.Run(ctx)
 	if a.Known != nil {
 		go func() { _ = a.Known.Run(ctx) }()
+	}
+	if a.Catalogue != nil {
+		go a.Catalogue.Run(ctx)
 	}
 	go a.permissionSyncLoop(ctx)
 	if a.verifier != nil {
@@ -389,4 +415,30 @@ func hostname() string {
 		return "gateway"
 	}
 	return h
+}
+
+// meshCA returns the mesh trust bundle for join bundles: the gateway's own
+// identity bundle, or mesh_ca_file for gateways with a file identity.
+func meshCA(p fidentity.Provider, file string) func(context.Context) ([]byte, error) {
+	return func(ctx context.Context) ([]byte, error) {
+		if file != "" {
+			b, err := os.ReadFile(file) // #nosec G304 -- operator-configured path
+			if err != nil {
+				return nil, fmt.Errorf("catalogue.join.mesh_ca_file: %w", err)
+			}
+			return b, nil
+		}
+		if p == nil {
+			return nil, errors.New("no mesh identity provider: set catalogue.join.mesh_ca_file")
+		}
+		_, bundle, err := p.Current(ctx)
+		if err != nil || bundle == nil || len(bundle.Roots()) == 0 {
+			return nil, errors.New("mesh trust bundle unavailable")
+		}
+		var out []byte
+		for _, c := range bundle.Roots() {
+			out = append(out, pem.EncodeToMemory(&pem.Block{Type: "CERTIFICATE", Bytes: c.Raw})...)
+		}
+		return out, nil
+	}
 }

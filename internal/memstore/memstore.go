@@ -6,6 +6,7 @@ import (
 	"context"
 	"fmt"
 	"sort"
+	"strings"
 	"sync"
 	"time"
 
@@ -19,6 +20,10 @@ type Store struct {
 	Allow     map[string]store.AllowEntry  // by id
 	Marks     map[string]store.Mark        // by id
 	Known     map[string]store.KnownModule // by module
+	Owners    []string
+	Sources   map[string]store.CatalogueSource // by lower(repo)
+	Entries   []store.CatalogueEntry
+	Joins     map[string]store.CatalogueJoin
 	AuditRows []store.AuditRow
 	auditSeq  int64
 	Now       func() time.Time
@@ -28,7 +33,7 @@ type Store struct {
 
 // New returns an empty store.
 func New() *Store {
-	return &Store{Allow: map[string]store.AllowEntry{}, Marks: map[string]store.Mark{}, Known: map[string]store.KnownModule{}, Now: time.Now}
+	return &Store{Allow: map[string]store.AllowEntry{}, Marks: map[string]store.Mark{}, Known: map[string]store.KnownModule{}, Sources: map[string]store.CatalogueSource{}, Joins: map[string]store.CatalogueJoin{}, Now: time.Now}
 }
 
 // InsertAllow adds an entry; a second active entry for the same identity conflicts.
@@ -229,6 +234,187 @@ func (m *Store) ForgetKnown(_ context.Context, module string) error {
 	x.ForgottenAt = &now
 	m.Known[module] = x
 	return nil
+}
+
+// ListAllowedOwners mirrors store.ListAllowedOwners.
+func (m *Store) ListAllowedOwners(context.Context) ([]string, error) {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+	if m.Fail != nil {
+		return nil, m.Fail
+	}
+	out := append([]string{}, m.Owners...)
+	sort.Strings(out)
+	return out, nil
+}
+
+// ReplaceAllowedOwners mirrors store.ReplaceAllowedOwners.
+func (m *Store) ReplaceAllowedOwners(_ context.Context, owners []string, _ string) error {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+	if m.Fail != nil {
+		return m.Fail
+	}
+	m.Owners = append([]string{}, owners...)
+	return nil
+}
+
+// SeedAllowedOwners mirrors store.SeedAllowedOwners.
+func (m *Store) SeedAllowedOwners(ctx context.Context, owners []string) error {
+	m.mu.Lock()
+	empty := len(m.Owners) == 0
+	m.mu.Unlock()
+	if !empty {
+		return nil
+	}
+	return m.ReplaceAllowedOwners(ctx, owners, "config")
+}
+
+// ListSources mirrors store.ListSources.
+func (m *Store) ListSources(context.Context) ([]store.CatalogueSource, error) {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+	if m.Fail != nil {
+		return nil, m.Fail
+	}
+	out := []store.CatalogueSource{}
+	for _, s := range m.Sources {
+		out = append(out, s)
+	}
+	sort.Slice(out, func(i, j int) bool { return out[i].Repo < out[j].Repo })
+	return out, nil
+}
+
+// AddSource mirrors store.AddSource.
+func (m *Store) AddSource(_ context.Context, repo, by string) error {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+	if m.Fail != nil {
+		return m.Fail
+	}
+	if _, ok := m.Sources[strings.ToLower(repo)]; ok {
+		return store.ErrConflict
+	}
+	m.Sources[strings.ToLower(repo)] = store.CatalogueSource{Repo: repo, AddedBy: by, AddedAt: m.Now()}
+	return nil
+}
+
+// RemoveSource mirrors store.RemoveSource.
+func (m *Store) RemoveSource(_ context.Context, repo string) error {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+	if m.Fail != nil {
+		return m.Fail
+	}
+	if _, ok := m.Sources[strings.ToLower(repo)]; !ok {
+		return store.ErrNotFound
+	}
+	delete(m.Sources, strings.ToLower(repo))
+	return nil
+}
+
+// SourceChecked mirrors store.SourceChecked (module unique across sources).
+func (m *Store) SourceChecked(_ context.Context, repo, module, errText string) error {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+	if m.Fail != nil {
+		return m.Fail
+	}
+	key := strings.ToLower(repo)
+	s, ok := m.Sources[key]
+	if !ok {
+		return nil
+	}
+	if module != "" {
+		for k, o := range m.Sources {
+			if k != key && o.Module == module {
+				return store.ErrConflict
+			}
+		}
+		s.Module = module
+	}
+	now := m.Now()
+	s.LastCheckedAt, s.LastError = &now, errText
+	m.Sources[key] = s
+	return nil
+}
+
+// InsertEntry mirrors store.InsertEntry.
+func (m *Store) InsertEntry(_ context.Context, e store.CatalogueEntry) error {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+	if m.Fail != nil {
+		return m.Fail
+	}
+	for _, x := range m.Entries {
+		if x.Module == e.Module && x.Version == e.Version {
+			return store.ErrConflict
+		}
+	}
+	m.Entries = append(m.Entries, e)
+	return nil
+}
+
+// LatestEntries mirrors store.LatestEntries (bundles left out).
+func (m *Store) LatestEntries(context.Context) ([]store.CatalogueEntry, error) {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+	if m.Fail != nil {
+		return nil, m.Fail
+	}
+	best := map[string]store.CatalogueEntry{}
+	for _, e := range m.Entries {
+		if b, ok := best[e.Module]; !ok || e.VersionKey > b.VersionKey {
+			e.Bundle = nil
+			best[e.Module] = e
+		}
+	}
+	out := []store.CatalogueEntry{}
+	for _, e := range best {
+		out = append(out, e)
+	}
+	sort.Slice(out, func(i, j int) bool { return out[i].Module < out[j].Module })
+	return out, nil
+}
+
+// EntryBundle mirrors store.EntryBundle.
+func (m *Store) EntryBundle(_ context.Context, module, version string) ([]byte, error) {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+	if m.Fail != nil {
+		return nil, m.Fail
+	}
+	for _, e := range m.Entries {
+		if e.Module == module && e.Version == version {
+			return e.Bundle, nil
+		}
+	}
+	return nil, store.ErrNotFound
+}
+
+// InsertJoin mirrors store.InsertJoin.
+func (m *Store) InsertJoin(_ context.Context, j store.CatalogueJoin) error {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+	if m.Fail != nil {
+		return m.Fail
+	}
+	m.Joins[j.ID] = j
+	return nil
+}
+
+// GetJoin mirrors store.GetJoin.
+func (m *Store) GetJoin(_ context.Context, id string) (store.CatalogueJoin, error) {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+	if m.Fail != nil {
+		return store.CatalogueJoin{}, m.Fail
+	}
+	j, ok := m.Joins[id]
+	if !ok || !j.ExpiresAt.After(m.Now().Add(-24*time.Hour)) {
+		return store.CatalogueJoin{}, store.ErrNotFound
+	}
+	return j, nil
 }
 
 // InsertAuditRows appends rows (audit.Inserter).

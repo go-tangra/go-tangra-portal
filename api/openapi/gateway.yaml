@@ -10,6 +10,8 @@ info:
 servers: [{ url: https://platform.example.org }]
 components:
   parameters:
+    sourceOwner: { name: owner, in: path, required: true, schema: { type: string, pattern: '^[A-Za-z0-9][A-Za-z0-9-]{0,38}$' } }
+    sourceRepo: { name: repo, in: path, required: true, schema: { type: string, pattern: '^[A-Za-z0-9._-]{1,100}$' } }
     catalogueModule: { name: module, in: path, required: true, schema: { type: string, pattern: '^[a-z0-9][a-z0-9-]{0,62}$' } }
     csrf: { name: X-CSRF-Token, in: header, required: false, description: 'Double-submit token; enforced by the edge for cookie-bearing requests, not needed by bearer clients', schema: { type: string } }
     page: { name: page, in: query, description: '1-based page; beyond the last page returns the last page', schema: { type: integer, minimum: 1, maximum: 2147483647 } }
@@ -26,19 +28,20 @@ components:
         tenant_id: { type: string }
     Catalogue:
       type: object
-      required: [can_manage, items]
+      required: [can_manage, can_join, items]
       properties:
         can_manage: { type: boolean, description: 'the caller may change the catalogue (platform administrator)' }
+        can_join: { type: boolean, description: 'join bundles can be made here (administrator, catalogue.join configured)' }
         partial: { type: boolean }
         items: { type: array, items: { $ref: '#/components/schemas/CatalogueItem' } }
     CatalogueItem:
       type: object
-      required: [module, display_name, identity, state, registered, instances, build_versions, last_version, expected]
+      required: [module, display_name, state, registered, instances, build_versions, expected, update_available, installable]
       properties:
         module: { type: string }
         display_name: { type: string }
         identity: { type: string }
-        state: { type: string, enum: [active, draining, unhealthy, revoked, down, stopped] }
+        state: { type: string, enum: [active, draining, unhealthy, revoked, down, stopped, available] }
         registered: { type: boolean }
         instances: { type: integer }
         build_versions: { type: array, items: { type: string } }
@@ -46,6 +49,49 @@ components:
         first_seen_at: { type: string, format: date-time }
         last_seen_at: { type: string, format: date-time }
         expected: { type: boolean }
+        latest_version: { type: string }
+        summary: { type: string }
+        category: { type: string }
+        image: { type: string }
+        repository: { type: string }
+        update_available: { type: boolean }
+        installable: { type: boolean }
+        host_inputs: { type: array, items: { type: object, required: [key, label, pattern], properties: { key: { type: string }, label: { type: string }, pattern: { type: string }, default: { type: string } } } }
+        min_core: { type: object, additionalProperties: { type: string } }
+    JoinProgress:
+      type: object
+      required: [id, module, version, created_at, expires_at, token_used, registered]
+      properties:
+        id: { type: string }
+        module: { type: string }
+        version: { type: string }
+        created_at: { type: string, format: date-time }
+        expires_at: { type: string, format: date-time }
+        token_used: { type: boolean }
+        token_used_at: { type: string, format: date-time }
+        registered: { type: boolean }
+        state: { type: string }
+        last_refusal: { type: object, properties: { reason: { type: string }, at: { type: string, format: date-time } } }
+        partial: { type: boolean }
+    CatalogueSource:
+      type: object
+      required: [repo, added_by, added_at]
+      properties:
+        repo: { type: string }
+        module: { type: string }
+        last_checked_at: { type: string, format: date-time }
+        last_error: { type: string }
+        added_by: { type: string }
+        added_at: { type: string, format: date-time }
+    CatalogueRefresh:
+      type: object
+      required: [outcome]
+      properties:
+        repo: { type: string }
+        module: { type: string }
+        version: { type: string }
+        outcome: { type: string, enum: [stored, current, refused, unavailable] }
+        error: { type: string }
     Error: { type: object, required: [reason], properties: { reason: { type: string } } }
     Page:
       type: object
@@ -158,6 +204,73 @@ paths:
       responses:
         '200': { description: catalogue, content: { application/json: { schema: { $ref: '#/components/schemas/Catalogue' } } } }
         '403': { description: forbidden (not an operator or administrator of the platform tenant) }
+  /gateway/v1/ops/catalogue/sources:
+    get:
+      operationId: listCatalogueSources
+      description: 'Catalogue sources (GitHub owner/repo) and the allowed owners. Operators and platform administrators.'
+      responses: { '200': { description: 'sources and allowed owners', content: { application/json: { schema: { type: object, required: [sources, allowed_owners], properties: { sources: { type: array, items: { $ref: '#/components/schemas/CatalogueSource' } }, allowed_owners: { type: array, items: { type: string } } } } } } } }
+    post:
+      operationId: addCatalogueSource
+      description: 'Add a GitHub repository of an allowed owner as a catalogue source and read its latest release now (the result is returned). Platform administrators only; audited (catalogue_source_added).'
+      parameters: [{ $ref: '#/components/parameters/csrf' }]
+      requestBody: { required: true, content: { application/json: { schema: { type: object, additionalProperties: false, required: [repo], properties: { repo: { type: string, pattern: '^[A-Za-z0-9][A-Za-z0-9-]{0,38}/[A-Za-z0-9._-]{1,100}$' } } } } } }
+      responses:
+        '201': { description: 'added; first read', content: { application/json: { schema: { $ref: '#/components/schemas/CatalogueRefresh' } } } }
+        '400': { description: 'validation_failed (bad name or owner not allowed)' }
+        '403': { description: forbidden }
+        '409': { description: conflict (already a source) }
+  /gateway/v1/ops/catalogue/sources/{owner}/{repo}:
+    delete:
+      operationId: removeCatalogueSource
+      description: 'Remove a catalogue source; its verified entries stay. Platform administrators only; audited (catalogue_source_removed).'
+      parameters: [{ $ref: '#/components/parameters/csrf' }, { $ref: '#/components/parameters/sourceOwner' }, { $ref: '#/components/parameters/sourceRepo' }]
+      responses: { '204': { description: removed }, '403': { description: forbidden }, '404': { description: not_found } }
+  /gateway/v1/ops/catalogue/sources/{owner}/{repo}/refresh:
+    post:
+      operationId: refreshCatalogueSource
+      description: 'Read the source''s latest release now. Platform administrators only.'
+      parameters: [{ $ref: '#/components/parameters/csrf' }, { $ref: '#/components/parameters/sourceOwner' }, { $ref: '#/components/parameters/sourceRepo' }]
+      responses: { '200': { description: result, content: { application/json: { schema: { $ref: '#/components/schemas/CatalogueRefresh' } } } }, '403': { description: forbidden }, '404': { description: not_found } }
+  /gateway/v1/ops/catalogue/allowed-owners:
+    put:
+      operationId: setCatalogueAllowedOwners
+      description: 'Replace the GitHub owners whose repositories may be catalogue sources. Platform administrators only; audited (allowed_owners_changed).'
+      parameters: [{ $ref: '#/components/parameters/csrf' }]
+      requestBody: { required: true, content: { application/json: { schema: { type: object, additionalProperties: false, required: [owners], properties: { owners: { type: array, minItems: 1, maxItems: 50, items: { type: string, pattern: '^[A-Za-z0-9][A-Za-z0-9-]{0,38}$' } } } } } } }
+      responses: { '204': { description: replaced }, '400': { description: validation_failed }, '403': { description: forbidden } }
+  /gateway/v1/ops/catalogue/upload:
+    post:
+      operationId: uploadCatalogueRelease
+      description: 'Upload a release''s catalogue-entry.json (entry), bundle.zip (bundle) and catalogue.sigstore.json (attestation) for cores without GitHub access; verified exactly as when read from GitHub. Platform administrators only.'
+      parameters: [{ $ref: '#/components/parameters/csrf' }]
+      requestBody: { required: true, content: { multipart/form-data: { schema: { type: object, properties: { entry: { type: string, format: binary }, bundle: { type: string, format: binary }, attestation: { type: string, format: binary } } } } } }
+      responses:
+        '201': { description: stored or current, content: { application/json: { schema: { $ref: '#/components/schemas/CatalogueRefresh' } } } }
+        '400': { description: 'validation_failed (detail.error: why the release was refused)' }
+        '403': { description: forbidden }
+        '413': { description: payload_too_large }
+  /gateway/v1/ops/catalogue/{module}/join:
+    post:
+      operationId: joinCatalogueModule
+      description: 'Make a join bundle for the module''s newest verified catalogue entry: checks the host inputs, ensures the allow-list entry for spiffe://<trust domain>/svc/<module> (409 if a different one is active), mints a single-use enrolment token (1-24 h, default 24 h) and returns the rendered bundle once (no-store; X-Join-Id identifies it for progress). Platform administrators only; audited (module_join_bundle, never the token).'
+      parameters: [{ $ref: '#/components/parameters/csrf' }, { $ref: '#/components/parameters/catalogueModule' }]
+      requestBody: { required: true, content: { application/json: { schema: { type: object, additionalProperties: false, properties: { inputs: { type: object, additionalProperties: { type: string, maxLength: 1024 } }, ttl_hours: { type: integer, minimum: 1, maximum: 24 } } } } } }
+      responses:
+        '200': { description: 'join bundle (zip)', content: { application/zip: { schema: { type: string, format: binary } } } }
+        '400': { description: 'validation_failed (detail.param: the host input key or ttl_hours)' }
+        '403': { description: forbidden }
+        '404': { description: not_found (no verified entry for the module) }
+        '409': { description: conflict (a different allow-list entry is active for the module) }
+        '503': { description: 'temporarily_unavailable (auth, store, or catalogue.join not configured)' }
+  /gateway/v1/ops/catalogue/{module}/join/{id}:
+    get:
+      operationId: joinProgress
+      description: 'Install progress of a join bundle: token used (auth), registered and its state (registry), the last registration refusal since the bundle was made. Kept 24 h past the token''s expiry. Platform administrators only.'
+      parameters: [{ $ref: '#/components/parameters/catalogueModule' }, { name: id, in: path, required: true, schema: { type: string } }]
+      responses:
+        '200': { description: progress, content: { application/json: { schema: { $ref: '#/components/schemas/JoinProgress' } } } }
+        '403': { description: forbidden }
+        '404': { description: not_found }
   /gateway/v1/ops/catalogue/{module}:
     patch:
       operationId: setCatalogueExpected

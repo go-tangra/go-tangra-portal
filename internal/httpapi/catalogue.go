@@ -8,6 +8,8 @@ import (
 	"sort"
 	"time"
 
+	fwcat "github.com/go-tangra/go-tangra/v4/catalogue"
+
 	"github.com/go-tangra/go-tangra-portal/v4/internal/audit"
 	"github.com/go-tangra/go-tangra-portal/v4/internal/identity"
 	"github.com/go-tangra/go-tangra-portal/v4/internal/registry"
@@ -27,7 +29,9 @@ type CatalogueView struct {
 	CanManage bool `json:"can_manage"`
 	// Partial: the known-module store could not be read; only registered
 	// modules are listed.
-	Partial bool            `json:"partial,omitempty"`
+	Partial bool `json:"partial,omitempty"`
+	// CanJoin: join bundles can be made here (catalogue.join configured).
+	CanJoin bool            `json:"can_join"`
 	Items   []CatalogueItem `json:"items"`
 }
 
@@ -46,6 +50,17 @@ type CatalogueItem struct {
 	FirstSeenAt   string   `json:"first_seen_at,omitempty"`
 	LastSeenAt    string   `json:"last_seen_at,omitempty"`
 	Expected      bool     `json:"expected"`
+	// From the module's newest verified catalogue entry (spec 035).
+	LatestVersion   string `json:"latest_version,omitempty"`
+	Summary         string `json:"summary,omitempty"`
+	Category        string `json:"category,omitempty"`
+	Image           string `json:"image,omitempty"`
+	Repository      string `json:"repository,omitempty"`
+	UpdateAvailable bool   `json:"update_available"`
+	Installable     bool   `json:"installable"`
+	// For the add-module wizard.
+	HostInputs []fwcat.HostInput `json:"host_inputs,omitempty"`
+	MinCore    map[string]string `json:"min_core,omitempty"`
 }
 
 // moduleNameRE is the catalogue's module name: a DNS label, as SPIFFE
@@ -53,6 +68,10 @@ type CatalogueItem struct {
 var moduleNameRE = regexp.MustCompile(`^[a-z0-9][a-z0-9-]{0,62}$`)
 
 func (s *Server) registerCatalogue(d OpsDeps) {
+	if d.Sources != nil && d.Refresher != nil {
+		s.registerCatalogueSources(d)
+		s.registerCatalogueJoin(d)
+	}
 	s.MustHandle("GET", "/gateway/v1/ops/catalogue", s.catalogueReader(d, func(w http.ResponseWriter, r *http.Request, id identity.Identity) {
 		WriteJSON(w, http.StatusOK, buildCatalogue(r.Context(), d, s, r, IsAdmin(id, d.AdminRoles)))
 	}))
@@ -148,7 +167,7 @@ func IsAdmin(id identity.Identity, roles []string) bool {
 }
 
 func buildCatalogue(ctx context.Context, d OpsDeps, s *Server, r *http.Request, canManage bool) CatalogueView {
-	v := CatalogueView{CanManage: canManage, Items: []CatalogueItem{}}
+	v := CatalogueView{CanManage: canManage, CanJoin: canManage && d.Join != nil && d.Enroll != nil, Items: []CatalogueItem{}}
 	live := map[string]registry.Registration{}
 	for _, reg := range d.Reg.Registrations() {
 		live[reg.Module] = reg
@@ -185,6 +204,7 @@ func buildCatalogue(ctx context.Context, d OpsDeps, s *Server, r *http.Request, 
 		}
 		v.Items = append(v.Items, it)
 	}
+	s.mergeEntries(ctx, d, &v)
 	sort.Slice(v.Items, func(i, j int) bool { return v.Items[i].Module < v.Items[j].Module })
 	return v
 }
