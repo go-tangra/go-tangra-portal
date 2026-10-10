@@ -95,3 +95,51 @@ func TestAuditAndFailure(t *testing.T) {
 		t.Fatal("fail injection")
 	}
 }
+
+// Mirrors store.TestKnownModules (integration) so tests using memstore see
+// the same known-module semantics as Postgres.
+func TestKnownModules(t *testing.T) {
+	ctx := context.Background()
+	m := New()
+	t0 := time.Date(2026, 10, 10, 8, 0, 0, 0, time.UTC)
+	m.Now = func() time.Time { return t0.Add(2 * time.Minute) }
+	see := func(k store.KnownModule) {
+		t.Helper()
+		if err := m.SeeKnown(ctx, k); err != nil {
+			t.Fatal(err)
+		}
+	}
+	see(store.KnownModule{Module: "sms-gw", Identity: "id", DisplayName: "SMS Gateway", LastVersion: "4.1.1", ManifestHash: "h1", LastSeenAt: t0})
+	see(store.KnownModule{Module: "sms-gw", Identity: "id", DisplayName: "SMS Gateway", LastVersion: "4.2.0", ManifestHash: "h2", LastSeenAt: t0.Add(time.Minute)})
+	see(store.KnownModule{Module: "sms-gw", Identity: "id", DisplayName: "SMS Gateway", ManifestHash: "h2", LastSeenAt: t0.Add(-time.Hour)})
+	got, _ := m.ListKnown(ctx)
+	if len(got) != 1 || !got[0].FirstSeenAt.Equal(t0) || !got[0].LastSeenAt.Equal(t0.Add(time.Minute)) || got[0].LastVersion != "4.2.0" || !got[0].Expected {
+		t.Fatalf("%+v", got)
+	}
+	if err := m.SetKnownExpected(ctx, "sms-gw", false); err != nil {
+		t.Fatal(err)
+	}
+	if got, _ := m.ListKnown(ctx); got[0].Expected {
+		t.Fatal("expected not cleared")
+	}
+	if err := m.ForgetKnown(ctx, "sms-gw"); err != nil {
+		t.Fatal(err)
+	}
+	if got, _ := m.ListKnown(ctx); len(got) != 0 {
+		t.Fatal("forgotten module still listed")
+	}
+	for name, err := range map[string]error{
+		"expected on forgotten": m.SetKnownExpected(ctx, "sms-gw", true),
+		"forget twice":          m.ForgetKnown(ctx, "sms-gw"),
+		"expected on unknown":   m.SetKnownExpected(ctx, "nope", true),
+		"forget unknown":        m.ForgetKnown(ctx, "nope"),
+	} {
+		if !errors.Is(err, store.ErrNotFound) {
+			t.Errorf("%s: %v", name, err)
+		}
+	}
+	see(store.KnownModule{Module: "sms-gw", Identity: "id", DisplayName: "SMS Gateway", LastVersion: "4.2.0", LastSeenAt: t0.Add(3 * time.Minute)})
+	if got, _ := m.ListKnown(ctx); len(got) != 1 || got[0].ForgottenAt != nil || !got[0].FirstSeenAt.Equal(t0) {
+		t.Fatalf("%+v", got)
+	}
+}

@@ -203,6 +203,41 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/gateway/v1/ops/catalogue": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Every module the gateway has seen register (not forgotten), merged with the live registry: state active | draining | unhealthy | revoked while registered, down (expected) or stopped (not expected) when not. Operators and platform administrators. partial = the known-module store could not be read and only registered modules are listed. */
+        get: operations["listCatalogue"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/gateway/v1/ops/catalogue/{module}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** @description Remove a module that is not registered from the known list; it reappears if it registers again. Platform administrators only; audited (known_module_forgotten). */
+        delete: operations["forgetCatalogueModule"];
+        options?: never;
+        head?: never;
+        /** @description Set whether a known module should be running (not expected: shown as stopped instead of down). Platform administrators only; audited (known_module_expected). */
+        patch: operations["setCatalogueExpected"];
+        trace?: never;
+    };
     "/gateway/v1/ops/audit": {
         parameters: {
             query?: never;
@@ -248,6 +283,28 @@ export interface components {
             expires_at: string;
             spiffe_ids: string[];
             tenant_id: string;
+        };
+        Catalogue: {
+            /** @description the caller may change the catalogue (platform administrator) */
+            can_manage: boolean;
+            partial?: boolean;
+            items: components["schemas"]["CatalogueItem"][];
+        };
+        CatalogueItem: {
+            module: string;
+            display_name: string;
+            identity: string;
+            /** @enum {string} */
+            state: "active" | "draining" | "unhealthy" | "revoked" | "down" | "stopped";
+            registered: boolean;
+            instances: number;
+            build_versions: string[];
+            last_version: string;
+            /** Format: date-time */
+            first_seen_at?: string;
+            /** Format: date-time */
+            last_seen_at?: string;
+            expected: boolean;
         };
         Error: {
             reason: string;
@@ -331,6 +388,7 @@ export interface components {
     };
     responses: never;
     parameters: {
+        catalogueModule: string;
         /** @description Double-submit token; enforced by the edge for cookie-bearing requests, not needed by bearer clients */
         csrf: string;
         /** @description 1-based page; beyond the last page returns the last page */
@@ -698,6 +756,134 @@ export interface operations {
             };
             /** @description temporarily_unavailable (auth unreachable) */
             503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    listCatalogue: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description catalogue */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Catalogue"];
+                };
+            };
+            /** @description forbidden (not an operator or administrator of the platform tenant) */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    forgetCatalogueModule: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Double-submit token; enforced by the edge for cookie-bearing requests, not needed by bearer clients */
+                "X-CSRF-Token"?: components["parameters"]["csrf"];
+            };
+            path: {
+                module: components["parameters"]["catalogueModule"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description forgotten */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description validation_failed */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description forbidden (not an administrator of the platform tenant) */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description not_found (unknown or already forgotten) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description conflict (the module is registered) */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    setCatalogueExpected: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Double-submit token; enforced by the edge for cookie-bearing requests, not needed by bearer clients */
+                "X-CSRF-Token"?: components["parameters"]["csrf"];
+            };
+            path: {
+                module: components["parameters"]["catalogueModule"];
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    expected: boolean;
+                };
+            };
+        };
+        responses: {
+            /** @description updated */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description validation_failed */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description forbidden (not an administrator of the platform tenant) */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description not_found (unknown or forgotten module) */
+            404: {
                 headers: {
                     [name: string]: unknown;
                 };

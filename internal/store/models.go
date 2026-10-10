@@ -19,6 +19,15 @@ type Mark struct {
 	ClearedAt                       *time.Time
 }
 
+// KnownModule is a module the gateway has seen register.
+type KnownModule struct {
+	Module, Identity, DisplayName string
+	LastVersion, ManifestHash     string
+	FirstSeenAt, LastSeenAt       time.Time
+	Expected                      bool
+	ForgottenAt                   *time.Time
+}
+
 // AuditRow is one gateway audit event.
 type AuditRow struct {
 	ID            int64

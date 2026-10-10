@@ -16,8 +16,9 @@ import (
 // Store keeps everything in maps; exported fields are for test setup.
 type Store struct {
 	mu        sync.Mutex
-	Allow     map[string]store.AllowEntry // by id
-	Marks     map[string]store.Mark       // by id
+	Allow     map[string]store.AllowEntry  // by id
+	Marks     map[string]store.Mark        // by id
+	Known     map[string]store.KnownModule // by module
 	AuditRows []store.AuditRow
 	auditSeq  int64
 	Now       func() time.Time
@@ -27,7 +28,7 @@ type Store struct {
 
 // New returns an empty store.
 func New() *Store {
-	return &Store{Allow: map[string]store.AllowEntry{}, Marks: map[string]store.Mark{}, Now: time.Now}
+	return &Store{Allow: map[string]store.AllowEntry{}, Marks: map[string]store.Mark{}, Known: map[string]store.KnownModule{}, Now: time.Now}
 }
 
 // InsertAllow adds an entry; a second active entry for the same identity conflicts.
@@ -154,6 +155,80 @@ func (m *Store) ActiveMarks(_ context.Context) ([]store.Mark, error) {
 	}
 	sort.Slice(out, func(i, j int) bool { return out[i].Module < out[j].Module })
 	return out, nil
+}
+
+// SeeKnown mirrors store.SeeKnown.
+func (m *Store) SeeKnown(_ context.Context, k store.KnownModule) error {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+	if m.Fail != nil {
+		return m.Fail
+	}
+	x, ok := m.Known[k.Module]
+	if !ok {
+		k.FirstSeenAt, k.Expected = k.LastSeenAt, true
+		m.Known[k.Module] = k
+		return nil
+	}
+	x.Identity, x.DisplayName, x.ManifestHash, x.ForgottenAt = k.Identity, k.DisplayName, k.ManifestHash, nil
+	if k.LastVersion != "" {
+		x.LastVersion = k.LastVersion
+	}
+	if k.LastSeenAt.After(x.LastSeenAt) {
+		x.LastSeenAt = k.LastSeenAt
+	}
+	m.Known[k.Module] = x
+	return nil
+}
+
+// ListKnown mirrors store.ListKnown.
+func (m *Store) ListKnown(_ context.Context) ([]store.KnownModule, error) {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+	if m.Fail != nil {
+		return nil, m.Fail
+	}
+	var out []store.KnownModule
+	for _, x := range m.Known {
+		if x.ForgottenAt == nil {
+			out = append(out, x)
+		}
+	}
+	sort.Slice(out, func(i, j int) bool { return out[i].Module < out[j].Module })
+	return out, nil
+}
+
+// SetKnownExpected mirrors store.SetKnownExpected.
+func (m *Store) SetKnownExpected(_ context.Context, module string, expected bool) error {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+	if m.Fail != nil {
+		return m.Fail
+	}
+	x, ok := m.Known[module]
+	if !ok || x.ForgottenAt != nil {
+		return store.ErrNotFound
+	}
+	x.Expected = expected
+	m.Known[module] = x
+	return nil
+}
+
+// ForgetKnown mirrors store.ForgetKnown.
+func (m *Store) ForgetKnown(_ context.Context, module string) error {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+	if m.Fail != nil {
+		return m.Fail
+	}
+	x, ok := m.Known[module]
+	if !ok || x.ForgottenAt != nil {
+		return store.ErrNotFound
+	}
+	now := m.Now()
+	x.ForgottenAt = &now
+	m.Known[module] = x
+	return nil
 }
 
 // InsertAuditRows appends rows (audit.Inserter).

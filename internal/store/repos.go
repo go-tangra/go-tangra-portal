@@ -102,6 +102,67 @@ func ActiveMarks(ctx context.Context, tx pgx.Tx) ([]Mark, error) {
 	return out, rows.Err()
 }
 
+// SeeKnown records that a module is registered at m.LastSeenAt: it inserts
+// the module or refreshes its identity, name, manifest and last-seen time. A
+// newer version replaces last_version (empty never does); a forgotten module
+// that registers again is known again. Repeating a call changes nothing.
+func SeeKnown(ctx context.Context, tx pgx.Tx, m KnownModule) error {
+	_, err := tx.Exec(ctx, `INSERT INTO known_modules (module, identity, display_name, last_version, manifest_hash, first_seen_at, last_seen_at)
+VALUES ($1,$2,$3,$4,$5,$6,$6)
+ON CONFLICT (module) DO UPDATE SET
+  identity = EXCLUDED.identity,
+  display_name = EXCLUDED.display_name,
+  last_version = CASE WHEN EXCLUDED.last_version = '' THEN known_modules.last_version ELSE EXCLUDED.last_version END,
+  manifest_hash = EXCLUDED.manifest_hash,
+  last_seen_at = GREATEST(known_modules.last_seen_at, EXCLUDED.last_seen_at),
+  forgotten_at = NULL`, m.Module, m.Identity, m.DisplayName, m.LastVersion, m.ManifestHash, m.LastSeenAt)
+	return err
+}
+
+// ListKnown lists the modules not forgotten, by name.
+func ListKnown(ctx context.Context, tx pgx.Tx) ([]KnownModule, error) {
+	rows, err := tx.Query(ctx, `SELECT module, identity, display_name, last_version, manifest_hash, first_seen_at, last_seen_at, expected, forgotten_at
+FROM known_modules WHERE forgotten_at IS NULL ORDER BY module`)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var out []KnownModule
+	for rows.Next() {
+		var m KnownModule
+		if err := rows.Scan(&m.Module, &m.Identity, &m.DisplayName, &m.LastVersion, &m.ManifestHash, &m.FirstSeenAt, &m.LastSeenAt, &m.Expected, &m.ForgottenAt); err != nil {
+			return nil, err
+		}
+		out = append(out, m)
+	}
+	return out, rows.Err()
+}
+
+// SetKnownExpected sets whether a known module should be running.
+func SetKnownExpected(ctx context.Context, tx pgx.Tx, module string, expected bool) error {
+	tag, err := tx.Exec(ctx, `UPDATE known_modules SET expected = $2 WHERE module = $1 AND forgotten_at IS NULL`, module, expected)
+	if err != nil {
+		return err
+	}
+	if tag.RowsAffected() == 0 {
+		return ErrNotFound
+	}
+	return nil
+}
+
+// ForgetKnown removes a module from the known list (it reappears if it
+// registers again).
+func ForgetKnown(ctx context.Context, tx pgx.Tx, module string, at time.Time) error {
+	tag, err := tx.Exec(ctx, `UPDATE known_modules SET forgotten_at = $2 WHERE module = $1 AND forgotten_at IS NULL`, module, at)
+	if err != nil {
+		return err
+	}
+	if tag.RowsAffected() == 0 {
+		return ErrNotFound
+	}
+	return nil
+}
+
 // InsertAuditRows bulk-inserts audit rows.
 func InsertAuditRows(ctx context.Context, tx pgx.Tx, rows []AuditRow) error {
 	src := make([][]any, 0, len(rows))
