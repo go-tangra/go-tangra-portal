@@ -35,13 +35,17 @@ const (
 	LimitExceeded         EventType = "limit_exceeded"
 	// An operator minted an lcm enrolment token (never the token itself).
 	EnrollmentTokenMinted EventType = "enrollment_token_minted"
+	// An administrator changed whether a known module should be running.
+	KnownModuleExpected EventType = "known_module_expected"
+	// An administrator removed a module from the known list.
+	KnownModuleForgotten EventType = "known_module_forgotten"
 )
 
 var known = map[EventType]struct{}{}
 
 func init() {
 	for _, t := range []EventType{RegistrationAccepted, RegistrationRefused, RegistrationUpdated, RegistrationWithdrawn, RenewalRefused,
-		ModuleDrained, ModuleRevoked, ModuleUnhealthy, ModuleRecovered, AllowlistChanged, IdentityRefused, PermissionRefused, StreamTerminated, LimitExceeded, EnrollmentTokenMinted} {
+		ModuleDrained, ModuleRevoked, ModuleUnhealthy, ModuleRecovered, AllowlistChanged, IdentityRefused, PermissionRefused, StreamTerminated, LimitExceeded, EnrollmentTokenMinted, KnownModuleExpected, KnownModuleForgotten} {
 		known[t] = struct{}{}
 	}
 }

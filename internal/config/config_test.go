@@ -25,7 +25,7 @@ func TestDefaultsValidateWarnings(t *testing.T) {
 	if err := c.Validate(); err != nil {
 		t.Fatal(err)
 	}
-	if c.Leases.TTL != 30*time.Second || c.Forward.BodyBytes != 1<<20 || c.Operators.Roles[0] != "operator" {
+	if c.Leases.TTL != 30*time.Second || c.Forward.BodyBytes != 1<<20 || c.Operators.Roles[0] != "operator" || strings.Join(c.Operators.AdminRoles, ",") != "owner,admin" {
 		t.Fatalf("defaults %+v", c)
 	}
 	mut := func(f func(c *Config)) Config { c := valid(); f(&c); return c }
@@ -37,6 +37,7 @@ func TestDefaultsValidateWarnings(t *testing.T) {
 		"short ttl":     mut(func(c *Config) { c.Leases.TTL = 15 * time.Second }),
 		"zero limit":    mut(func(c *Config) { c.Forward.BodyBytes = 0 }),
 		"no operators":  mut(func(c *Config) { c.Operators.Roles = nil }),
+		"no admins":     mut(func(c *Config) { c.Operators.AdminRoles = nil }),
 		"prod no cert":  mut(func(c *Config) { c.Config.Env = "production"; c.Edge.CertFile = "" }),
 		"prod plain kv": mut(func(c *Config) { c.Config.Env = "production"; c.Valkey.AllowPlaintext = true }),
 		"prod weak ssl": mut(func(c *Config) { c.Config.Env = "production"; c.DB.DSN = "postgres://u@db/g?sslmode=disable" }),
@@ -60,9 +61,11 @@ func TestDefaultsValidateWarnings(t *testing.T) {
 
 func TestLoad(t *testing.T) {
 	p := filepath.Join(t.TempDir(), "gw.yaml")
-	_ = os.WriteFile(p, []byte("service_name: gw\ntrust_domain: example.org\npublic_origin: https://x\nleases: { ttl: 40s, renew: 5s }\nforward: { body_bytes: 2048 }\n"), 0o600)
+	_ = os.WriteFile(p, []byte("service_name: gw\ntrust_domain: example.org\npublic_origin: https://x\nleases: { ttl: 40s, renew: 5s }\nforward: { body_bytes: 2048 }\noperators: { roles: [operator] }\n"), 0o600)
 	c, err := Load(p)
-	if err != nil || c.ServiceName != "gw" || c.Leases.TTL != 40*time.Second || c.Forward.BodyBytes != 2048 || c.Forward.StreamsPerClient != 32 {
+	// A config written before admin_roles existed (prod) keeps its default.
+	if err != nil || c.ServiceName != "gw" || c.Leases.TTL != 40*time.Second || c.Forward.BodyBytes != 2048 || c.Forward.StreamsPerClient != 32 ||
+		strings.Join(c.Operators.AdminRoles, ",") != "owner,admin" {
 		t.Fatalf("%+v %v", c, err)
 	}
 	if _, err := Load(filepath.Join(t.TempDir(), "missing.yaml")); err == nil || !strings.Contains(err.Error(), "config") {

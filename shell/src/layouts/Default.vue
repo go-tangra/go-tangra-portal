@@ -25,10 +25,11 @@ const groups = computed<NavGroup[]>(() => [
   // Gateway operations (platform operators): one menu with its pages.
   ...(session.operator
     ? [{ key: 'ops', title: 'Gateway operations', icon: 'mdi-server-network', testId: 'nav-ops', items: [
-        { title: 'Registrations', path: '/ops', icon: 'mdi-view-list-outline', exact: true, testId: 'nav-ops-registrations' },
+        { title: 'Modules', path: '/ops/modules', icon: 'mdi-package-variant-closed', testId: 'nav-ops-modules' },
+        { title: 'Registrations', path: '/ops', icon: 'mdi-view-module-outline', exact: true, testId: 'nav-ops-registrations' },
         { title: 'Allow-list', path: '/ops/allowlist', icon: 'mdi-shield-check-outline', testId: 'nav-ops-allowlist' },
         { title: 'Enrolment tokens', path: '/ops/enrollment', icon: 'mdi-key-plus', testId: 'nav-ops-enrollment' },
-        { title: 'Audit', path: '/ops/audit', icon: 'mdi-text-box-search-outline', testId: 'nav-ops-audit' },
+        { title: 'Audit', path: '/ops/audit', icon: 'mdi-clipboard-text-clock-outline', testId: 'nav-ops-audit' },
       ] }]
     : []),
 ])

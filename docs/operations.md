@@ -79,6 +79,26 @@ console:
   distinct host name (`https://kvm.example.com`, with a certificate naming
   it) instead of a port isolates cookies completely (see the security model).
 
+## Modules (known modules, feature 034)
+
+- **Operations → Modules** (`GET /gateway/v1/ops/catalogue`) lists every
+  module the gateway has seen register, running or not. A module whose last
+  instance left is shown `down` (or `stopped` when marked not expected) with
+  its last version and when it was last seen; the registry itself forgets it.
+- The record lives in Postgres (`known_modules`) and is written by a recorder
+  that follows registry events and refreshes registered modules every
+  5 minutes. Registration and routing never wait for it; with Postgres down
+  the page lists only what is registered now (`partial`).
+- Changing the list needs an administrator of the platform tenant
+  (`operators.admin_roles`, default `[owner, admin]`); operators only read it:
+  - **Expected** (`PATCH /gateway/v1/ops/catalogue/{module}` `{"expected":false}`):
+    a module switched off on purpose shows `stopped` instead of `down`.
+    Audited `known_module_expected`.
+  - **Forget** (`DELETE /gateway/v1/ops/catalogue/{module}`): removes a module
+    that is not registered (409 while it is). It reappears if it registers
+    again. Audited `known_module_forgotten`.
+- Refusals of non-administrators are audited `permission_refused`.
+
 ## Allow-list
 
 - Managed at **Operations → Allow-list** or `POST /gateway/v1/ops/allowlist`

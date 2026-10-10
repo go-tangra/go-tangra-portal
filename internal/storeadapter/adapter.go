@@ -76,3 +76,24 @@ func (a *Adapter) QueryAudit(ctx context.Context, module, et string, from, to, c
 	})
 	return
 }
+
+// SeeKnown implements known.Store.
+func (a *Adapter) SeeKnown(ctx context.Context, m store.KnownModule) error {
+	return a.St.Tx(ctx, func(tx pgx.Tx) error { return store.SeeKnown(ctx, tx, m) })
+}
+
+// ListKnown lists the known modules.
+func (a *Adapter) ListKnown(ctx context.Context) (out []store.KnownModule, err error) {
+	err = a.St.Tx(ctx, func(tx pgx.Tx) error { out, err = store.ListKnown(ctx, tx); return err })
+	return
+}
+
+// SetKnownExpected sets whether a known module should be running.
+func (a *Adapter) SetKnownExpected(ctx context.Context, module string, expected bool) error {
+	return a.St.Tx(ctx, func(tx pgx.Tx) error { return store.SetKnownExpected(ctx, tx, module, expected) })
+}
+
+// ForgetKnown removes a module from the known list.
+func (a *Adapter) ForgetKnown(ctx context.Context, module string) error {
+	return a.St.Tx(ctx, func(tx pgx.Tx) error { return store.ForgetKnown(ctx, tx, module, time.Now().UTC()) })
+}

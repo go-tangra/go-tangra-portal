@@ -49,6 +49,9 @@ func TestOpsAuditPages(t *testing.T) {
 	s, _, ms, _ := opsServer(t)
 	op := map[string]string{"Authorization": "Bearer operator"}
 	seedAudit(t, ms, 123, time.Now().Add(-time.Hour))
+	// opsServer's registration is audited asynchronously and may land at any
+	// point under load: the page counts cover only the seeded events.
+	const seeded = "&event_type=module_drained"
 
 	w := do(s, "GET", "/gateway/v1/ops/audit?page_size=50&module=a", "", op)
 	p := decodePage[AuditView](t, w.Body.String())
@@ -60,7 +63,7 @@ func TestOpsAuditPages(t *testing.T) {
 		for _, order := range []string{"asc", "desc"} {
 			seen := map[string]int{}
 			for page := 1; ; page++ {
-				w := do(s, "GET", fmt.Sprintf("/gateway/v1/ops/audit?page=%d&page_size=10&sort=%s&order=%s", page, sort, order), "", op)
+				w := do(s, "GET", fmt.Sprintf("/gateway/v1/ops/audit?page=%d&page_size=10&sort=%s&order=%s"+seeded, page, sort, order), "", op)
 				p := decodePage[AuditView](t, w.Body.String())
 				if p.Page != page {
 					break
@@ -80,22 +83,22 @@ func TestOpsAuditPages(t *testing.T) {
 		}
 	}
 	// Newest first by default; beyond the last page → last page.
-	w = do(s, "GET", "/gateway/v1/ops/audit?page=99&page_size=50", "", op)
+	w = do(s, "GET", "/gateway/v1/ops/audit?page=99&page_size=50"+seeded, "", op)
 	p = decodePage[AuditView](t, w.Body.String())
 	if p.Page != 3 || len(p.Items) != 23 || p.Total != 123 {
 		t.Fatalf("clamp → %+v", p)
 	}
-	first := decodePage[AuditView](t, do(s, "GET", "/gateway/v1/ops/audit?page_size=1", "", op).Body.String())
+	first := decodePage[AuditView](t, do(s, "GET", "/gateway/v1/ops/audit?page_size=1"+seeded, "", op).Body.String())
 	if first.Items[0].SubjectID != "122" {
 		t.Fatalf("default order: first is %s", first.Items[0].SubjectID)
 	}
 	// Outside the default 7-day window, an explicit from reaches older events.
 	seedAudit(t, ms, 2, time.Now().Add(-30*24*time.Hour))
-	if p := decodePage[AuditView](t, do(s, "GET", "/gateway/v1/ops/audit", "", op).Body.String()); p.Total != 123 {
+	if p := decodePage[AuditView](t, do(s, "GET", "/gateway/v1/ops/audit?"+seeded[1:], "", op).Body.String()); p.Total != 123 {
 		t.Fatalf("default window total %d", p.Total)
 	}
 	from := time.Now().Add(-60 * 24 * time.Hour).UTC().Format(time.RFC3339)
-	if p := decodePage[AuditView](t, do(s, "GET", "/gateway/v1/ops/audit?from="+from, "", op).Body.String()); p.Total != 125 {
+	if p := decodePage[AuditView](t, do(s, "GET", "/gateway/v1/ops/audit?from="+from+seeded, "", op).Body.String()); p.Total != 125 {
 		t.Fatalf("explicit window total %d", p.Total)
 	}
 }

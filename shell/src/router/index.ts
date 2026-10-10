@@ -18,6 +18,7 @@ declare module 'vue-router' {
 export const routes: RouteRecordRaw[] = [
   { path: '/', name: 'home', component: () => import('@/views/Home.vue') },
   { path: '/ops', name: 'ops', component: () => import('@/views/ops/Registrations.vue'), meta: { operator: true } },
+  { path: '/ops/modules', name: 'ops-modules', component: () => import('@/views/ops/Modules.vue'), meta: { operator: true } },
   { path: '/ops/allowlist', name: 'ops-allowlist', component: () => import('@/views/ops/Allowlist.vue'), meta: { operator: true } },
   { path: '/ops/audit', name: 'ops-audit', component: () => import('@/views/ops/Audit.vue'), meta: { operator: true } },
   { path: '/ops/enrollment', name: 'ops-enrollment', component: () => import('@/views/ops/Enrollment.vue'), meta: { operator: true } },

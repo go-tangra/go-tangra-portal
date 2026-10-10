@@ -28,6 +28,7 @@ var (
 	ErrTooLarge        = &Error{http.StatusRequestEntityTooLarge, "payload_too_large"}
 	ErrCSRF            = &Error{http.StatusForbidden, "csrf"}
 	ErrNotImplemented  = &Error{http.StatusNotImplemented, "not_implemented"}
+	ErrConflict        = &Error{http.StatusConflict, "conflict"}
 )
 
 // MaxBodyBytes bounds JSON bodies of the gateway's own API.

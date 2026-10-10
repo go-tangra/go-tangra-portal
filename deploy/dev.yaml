@@ -23,6 +23,6 @@ valkey: { addresses: ["127.0.0.1:6379"], username: gateway, password: dev, allow
 auth: { service: auth, issuer: https://localhost:8443, audience: gateway }
 leases: { ttl: 30s, renew: 10s }
 forward: { body_bytes: 1048576, streams_per_client: 32, stream_max: 10m, module_timeout: 30s }
-operators: { roles: [operator] }
+operators: { roles: [operator], admin_roles: [owner, admin] }
 limits:
   max_request_bytes: 16842752 # warden transfer/backup uploads (16 MiB + slack); avatars need 2162688

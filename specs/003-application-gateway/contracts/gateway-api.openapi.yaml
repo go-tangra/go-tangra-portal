@@ -10,6 +10,7 @@ info:
 servers: [{ url: https://platform.example.org }]
 components:
   parameters:
+    catalogueModule: { name: module, in: path, required: true, schema: { type: string, pattern: '^[a-z0-9][a-z0-9-]{0,62}$' } }
     csrf: { name: X-CSRF-Token, in: header, required: false, description: 'Double-submit token; enforced by the edge for cookie-bearing requests, not needed by bearer clients', schema: { type: string } }
     page: { name: page, in: query, description: '1-based page; beyond the last page returns the last page', schema: { type: integer, minimum: 1, maximum: 2147483647 } }
     pageSize: { name: page_size, in: query, schema: { type: integer, minimum: 1, maximum: 200 } }
@@ -23,6 +24,28 @@ components:
         expires_at: { type: string, format: date-time }
         spiffe_ids: { type: array, items: { type: string } }
         tenant_id: { type: string }
+    Catalogue:
+      type: object
+      required: [can_manage, items]
+      properties:
+        can_manage: { type: boolean, description: 'the caller may change the catalogue (platform administrator)' }
+        partial: { type: boolean }
+        items: { type: array, items: { $ref: '#/components/schemas/CatalogueItem' } }
+    CatalogueItem:
+      type: object
+      required: [module, display_name, identity, state, registered, instances, build_versions, last_version, expected]
+      properties:
+        module: { type: string }
+        display_name: { type: string }
+        identity: { type: string }
+        state: { type: string, enum: [active, draining, unhealthy, revoked, down, stopped] }
+        registered: { type: boolean }
+        instances: { type: integer }
+        build_versions: { type: array, items: { type: string } }
+        last_version: { type: string }
+        first_seen_at: { type: string, format: date-time }
+        last_seen_at: { type: string, format: date-time }
+        expected: { type: boolean }
     Error: { type: object, required: [reason], properties: { reason: { type: string } } }
     Page:
       type: object
@@ -128,6 +151,34 @@ paths:
         '400': { description: 'validation_failed (detail.param: services | tenant_id | ttl_seconds)' }
         '403': { description: forbidden (not an operator) }
         '503': { description: temporarily_unavailable (auth unreachable) }
+  /gateway/v1/ops/catalogue:
+    get:
+      operationId: listCatalogue
+      description: 'Every module the gateway has seen register (not forgotten), merged with the live registry: state active | draining | unhealthy | revoked while registered, down (expected) or stopped (not expected) when not. Operators and platform administrators. partial = the known-module store could not be read and only registered modules are listed.'
+      responses:
+        '200': { description: catalogue, content: { application/json: { schema: { $ref: '#/components/schemas/Catalogue' } } } }
+        '403': { description: forbidden (not an operator or administrator of the platform tenant) }
+  /gateway/v1/ops/catalogue/{module}:
+    patch:
+      operationId: setCatalogueExpected
+      description: 'Set whether a known module should be running (not expected: shown as stopped instead of down). Platform administrators only; audited (known_module_expected).'
+      parameters: [{ $ref: '#/components/parameters/csrf' }, { $ref: '#/components/parameters/catalogueModule' }]
+      requestBody: { required: true, content: { application/json: { schema: { type: object, additionalProperties: false, required: [expected], properties: { expected: { type: boolean } } } } } }
+      responses:
+        '204': { description: updated }
+        '400': { description: validation_failed }
+        '403': { description: forbidden (not an administrator of the platform tenant) }
+        '404': { description: not_found (unknown or forgotten module) }
+    delete:
+      operationId: forgetCatalogueModule
+      description: 'Remove a module that is not registered from the known list; it reappears if it registers again. Platform administrators only; audited (known_module_forgotten).'
+      parameters: [{ $ref: '#/components/parameters/csrf' }, { $ref: '#/components/parameters/catalogueModule' }]
+      responses:
+        '204': { description: forgotten }
+        '400': { description: validation_failed }
+        '403': { description: forbidden (not an administrator of the platform tenant) }
+        '404': { description: not_found (unknown or already forgotten) }
+        '409': { description: conflict (the module is registered) }
   /gateway/v1/ops/audit:
     get:
       operationId: gatewayAudit

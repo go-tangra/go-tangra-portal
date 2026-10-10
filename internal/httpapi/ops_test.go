@@ -23,6 +23,8 @@ func (opsIdentity) Resolve(_ context.Context, r *http.Request) (identity.Identit
 		return identity.Identity{UserID: "op1", TenantID: "platform", Roles: []string{"owner", "operator"}, Operator: true, Token: "t"}, nil
 	case "Bearer member":
 		return identity.Identity{UserID: "u1", TenantID: "t1", Roles: []string{"admin"}, Token: "t"}, nil
+	case "Bearer operator-only":
+		return identity.Identity{UserID: "op2", TenantID: "platform", Roles: []string{"operator"}, Operator: true, Token: "t"}, nil
 	case "Bearer platform-member":
 		return identity.Identity{UserID: "u2", TenantID: "platform", Roles: []string{"member"}, Operator: true, Token: "t"}, nil
 	}

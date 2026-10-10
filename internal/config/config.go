@@ -102,6 +102,9 @@ type Forward struct {
 // Operators names the roles (in the platform tenant) that may operate the gateway.
 type Operators struct {
 	Roles []string `yaml:"roles"`
+	// AdminRoles may also change the module catalogue (expected flags,
+	// forgetting modules); operators only read it.
+	AdminRoles []string `yaml:"admin_roles"`
 }
 
 // Default returns secure defaults; addresses and secrets must be provided.
@@ -113,7 +116,7 @@ func Default() Config {
 	c.Auth = Auth{Service: "auth", Audience: "gateway"}
 	c.Leases = Leases{TTL: 30 * time.Second, Renew: 10 * time.Second}
 	c.Forward = Forward{BodyBytes: 1 << 20, StreamsPerClient: 32, StreamMax: 10 * time.Minute, ModuleTimeout: 30 * time.Second}
-	c.Operators = Operators{Roles: []string{"operator"}}
+	c.Operators = Operators{Roles: []string{"operator"}, AdminRoles: []string{"owner", "admin"}}
 	c.Console = defaultConsole()
 	return c
 }
@@ -154,6 +157,8 @@ func (c Config) Validate() error {
 		return errors.New("config: forward limits must be positive")
 	case len(c.Operators.Roles) == 0:
 		return errors.New("config: operators.roles must not be empty")
+	case len(c.Operators.AdminRoles) == 0:
+		return errors.New("config: operators.admin_roles must not be empty")
 	}
 	if err := c.validateConsole(); err != nil {
 		return err

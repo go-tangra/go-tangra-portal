@@ -32,6 +32,7 @@ import (
 	"github.com/go-tangra/go-tangra-portal/v4/internal/health"
 	"github.com/go-tangra/go-tangra-portal/v4/internal/httpapi"
 	"github.com/go-tangra/go-tangra-portal/v4/internal/identity"
+	"github.com/go-tangra/go-tangra-portal/v4/internal/known"
 	"github.com/go-tangra/go-tangra-portal/v4/internal/manifest"
 	"github.com/go-tangra/go-tangra-portal/v4/internal/proxy/grpcproxy"
 	"github.com/go-tangra/go-tangra-portal/v4/internal/proxy/grpcweb"
@@ -82,8 +83,10 @@ type App struct {
 	Decider  *authz.Decider
 	GRPC     *grpcproxy.Proxy
 	Revoke   *identity.RevocationWatcher
-	Hub      *stream.Hub
-	Console  *console.Server // nil unless console.enabled
+	// Known records the modules the registry has seen (module catalogue).
+	Known   *known.Recorder
+	Hub     *stream.Hub
+	Console *console.Server // nil unless console.enabled
 
 	verifier *authclient.Verifier
 	vready   atomic.Bool
@@ -286,7 +289,8 @@ func Build(ctx context.Context, cfg config.Config, o Options) (a *App, err error
 	built.Dispatch.GRPCWeb = &grpcweb.Bridge{Proxy: built.GRPC, MaxFrame: int(cfg.Forward.BodyBytes)}
 	built.HTTP.RegisterMe(built.Identity)
 	built.HTTP.RegisterOps(httpapi.OpsDeps{Reg: built.Reg, Ops: &registry.Ops{Reg: built.Reg, Marks: adapter, Allow: adapter, Audit: built.Audit}, Identity: built.Identity, Audit: adapter, Traffic: built.Dispatch.Traffic, Roles: cfg.Operators.Roles,
-		Enroll: authv1.NewEnrollmentClient(authConn), TrustDomain: cfg.Config.TrustDomain, Events: built.Audit})
+		Enroll: authv1.NewEnrollmentClient(authConn), TrustDomain: cfg.Config.TrustDomain, Events: built.Audit, AdminRoles: cfg.Operators.AdminRoles, Known: adapter})
+	built.Known = &known.Recorder{Reg: built.Reg, Store: adapter, Logger: log}
 	built.HTTP.RegisterShell(httpapi.ShellDeps{Reg: built.Reg, Identity: built.Identity, Decide: built.Decider, Proxies: built.Dispatch.Proxies, Hub: built.Hub, Instance: hostname()})
 	built.Revoke = &identity.RevocationWatcher{Feed: authv1.NewSessionsClient(authConn), Poll: 5 * time.Second, Logger: log,
 		OnRevoke: func(subject, reason string) { built.GRPC.CancelSubject(subject, reason) }}
@@ -310,6 +314,9 @@ func (a *App) Run(ctx context.Context) error {
 	}()
 	go a.Health.Run(ctx)
 	go a.Revoke.Run(ctx)
+	if a.Known != nil {
+		go func() { _ = a.Known.Run(ctx) }()
+	}
 	go a.permissionSyncLoop(ctx)
 	if a.verifier != nil {
 		go a.startVerifier(ctx)

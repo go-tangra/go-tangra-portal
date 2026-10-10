@@ -28,8 +28,12 @@ type OpsDeps struct {
 	Enroll authv1.EnrollmentClient
 	// TrustDomain scopes the SPIFFE ids an enrolment token may name.
 	TrustDomain string
-	// Events records operator actions (enrolment tokens minted).
+	// Events records operator actions (enrolment tokens minted, catalogue changes).
 	Events *audit.Writer
+	// AdminRoles (platform tenant) may change the module catalogue.
+	AdminRoles []string
+	// Known is the known-module store (nil: no catalogue API).
+	Known KnownStore
 }
 
 // RegistrationView is one row of GET /gateway/v1/ops/registrations.
@@ -60,6 +64,9 @@ type AllowView struct {
 
 // RegisterOps mounts /gateway/v1/ops/* (operators only).
 func (s *Server) RegisterOps(d OpsDeps) {
+	if d.Known != nil {
+		s.registerCatalogue(d)
+	}
 	s.MustHandle("GET", "/gateway/v1/ops/registrations", s.operator(d, s.listRegistrations(d)))
 	s.MustHandle("POST", "/gateway/v1/ops/registrations/{module}/drain", s.operator(d, func(w http.ResponseWriter, r *http.Request, op registry.Operator) {
 		s.opsResult(w, r, d.Ops.Drain(r.Context(), r.PathValue("module"), op))
