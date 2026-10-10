@@ -46,6 +46,14 @@ type CatalogueItem struct {
 	FirstSeenAt   string   `json:"first_seen_at,omitempty"`
 	LastSeenAt    string   `json:"last_seen_at,omitempty"`
 	Expected      bool     `json:"expected"`
+	// From the module's newest verified catalogue entry (spec 035).
+	LatestVersion   string `json:"latest_version,omitempty"`
+	Summary         string `json:"summary,omitempty"`
+	Category        string `json:"category,omitempty"`
+	Image           string `json:"image,omitempty"`
+	Repository      string `json:"repository,omitempty"`
+	UpdateAvailable bool   `json:"update_available"`
+	Installable     bool   `json:"installable"`
 }
 
 // moduleNameRE is the catalogue's module name: a DNS label, as SPIFFE
@@ -53,6 +61,9 @@ type CatalogueItem struct {
 var moduleNameRE = regexp.MustCompile(`^[a-z0-9][a-z0-9-]{0,62}$`)
 
 func (s *Server) registerCatalogue(d OpsDeps) {
+	if d.Sources != nil && d.Refresher != nil {
+		s.registerCatalogueSources(d)
+	}
 	s.MustHandle("GET", "/gateway/v1/ops/catalogue", s.catalogueReader(d, func(w http.ResponseWriter, r *http.Request, id identity.Identity) {
 		WriteJSON(w, http.StatusOK, buildCatalogue(r.Context(), d, s, r, IsAdmin(id, d.AdminRoles)))
 	}))
@@ -185,6 +196,7 @@ func buildCatalogue(ctx context.Context, d OpsDeps, s *Server, r *http.Request, 
 		}
 		v.Items = append(v.Items, it)
 	}
+	s.mergeEntries(ctx, d, &v)
 	sort.Slice(v.Items, func(i, j int) bool { return v.Items[i].Module < v.Items[j].Module })
 	return v
 }

@@ -97,3 +97,57 @@ func (a *Adapter) SetKnownExpected(ctx context.Context, module string, expected 
 func (a *Adapter) ForgetKnown(ctx context.Context, module string) error {
 	return a.St.Tx(ctx, func(tx pgx.Tx) error { return store.ForgetKnown(ctx, tx, module, time.Now().UTC()) })
 }
+
+// ListAllowedOwners implements catalogue.Store.
+func (a *Adapter) ListAllowedOwners(ctx context.Context) (out []string, err error) {
+	err = a.St.Tx(ctx, func(tx pgx.Tx) error { out, err = store.ListAllowedOwners(ctx, tx); return err })
+	return
+}
+
+// ReplaceAllowedOwners implements catalogue.Store.
+func (a *Adapter) ReplaceAllowedOwners(ctx context.Context, owners []string, by string) error {
+	return a.St.Tx(ctx, func(tx pgx.Tx) error { return store.ReplaceAllowedOwners(ctx, tx, owners, by) })
+}
+
+// SeedAllowedOwners implements catalogue.Store.
+func (a *Adapter) SeedAllowedOwners(ctx context.Context, owners []string) error {
+	return a.St.Tx(ctx, func(tx pgx.Tx) error { return store.SeedAllowedOwners(ctx, tx, owners) })
+}
+
+// ListSources implements catalogue.Store.
+func (a *Adapter) ListSources(ctx context.Context) (out []store.CatalogueSource, err error) {
+	err = a.St.Tx(ctx, func(tx pgx.Tx) error { out, err = store.ListSources(ctx, tx); return err })
+	return
+}
+
+// AddSource implements catalogue.Store.
+func (a *Adapter) AddSource(ctx context.Context, repo, by string) error {
+	return a.St.Tx(ctx, func(tx pgx.Tx) error { return store.AddSource(ctx, tx, repo, by) })
+}
+
+// RemoveSource implements catalogue.Store.
+func (a *Adapter) RemoveSource(ctx context.Context, repo string) error {
+	return a.St.Tx(ctx, func(tx pgx.Tx) error { return store.RemoveSource(ctx, tx, repo) })
+}
+
+// SourceChecked implements catalogue.Store.
+func (a *Adapter) SourceChecked(ctx context.Context, repo, module, errText string) error {
+	return a.St.Tx(ctx, func(tx pgx.Tx) error { return store.SourceChecked(ctx, tx, repo, module, errText, time.Now().UTC()) })
+}
+
+// InsertEntry implements catalogue.Store.
+func (a *Adapter) InsertEntry(ctx context.Context, e store.CatalogueEntry) error {
+	return a.St.Tx(ctx, func(tx pgx.Tx) error { return store.InsertEntry(ctx, tx, e) })
+}
+
+// LatestEntries implements catalogue.Store.
+func (a *Adapter) LatestEntries(ctx context.Context) (out []store.CatalogueEntry, err error) {
+	err = a.St.Tx(ctx, func(tx pgx.Tx) error { out, err = store.LatestEntries(ctx, tx); return err })
+	return
+}
+
+// EntryBundle implements catalogue.Store.
+func (a *Adapter) EntryBundle(ctx context.Context, module, version string) (out []byte, err error) {
+	err = a.St.Tx(ctx, func(tx pgx.Tx) error { out, err = store.EntryBundle(ctx, tx, module, version); return err })
+	return
+}

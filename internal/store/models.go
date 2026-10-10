@@ -28,6 +28,25 @@ type KnownModule struct {
 	ForgottenAt                   *time.Time
 }
 
+// CatalogueSource is a GitHub repository the catalogue reads.
+type CatalogueSource struct {
+	Repo, AddedBy, Module, LastError string
+	AddedAt                          time.Time
+	LastCheckedAt                    *time.Time
+}
+
+// CatalogueEntry is a verified release entry. Bundle is only loaded by
+// EntryBundle (listing never reads it).
+type CatalogueEntry struct {
+	Module, Version, Repo     string
+	VersionKey                int64
+	Entry                     []byte
+	EntrySHA256, BundleSHA256 string
+	Bundle                    []byte
+	AttestedBy                string
+	VerifiedAt                time.Time
+}
+
 // AuditRow is one gateway audit event.
 type AuditRow struct {
 	ID            int64

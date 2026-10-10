@@ -10,6 +10,8 @@ info:
 servers: [{ url: https://platform.example.org }]
 components:
   parameters:
+    sourceOwner: { name: owner, in: path, required: true, schema: { type: string, pattern: '^[A-Za-z0-9][A-Za-z0-9-]{0,38}$' } }
+    sourceRepo: { name: repo, in: path, required: true, schema: { type: string, pattern: '^[A-Za-z0-9._-]{1,100}$' } }
     catalogueModule: { name: module, in: path, required: true, schema: { type: string, pattern: '^[a-z0-9][a-z0-9-]{0,62}$' } }
     csrf: { name: X-CSRF-Token, in: header, required: false, description: 'Double-submit token; enforced by the edge for cookie-bearing requests, not needed by bearer clients', schema: { type: string } }
     page: { name: page, in: query, description: '1-based page; beyond the last page returns the last page', schema: { type: integer, minimum: 1, maximum: 2147483647 } }
@@ -33,12 +35,12 @@ components:
         items: { type: array, items: { $ref: '#/components/schemas/CatalogueItem' } }
     CatalogueItem:
       type: object
-      required: [module, display_name, identity, state, registered, instances, build_versions, last_version, expected]
+      required: [module, display_name, state, registered, instances, build_versions, expected, update_available, installable]
       properties:
         module: { type: string }
         display_name: { type: string }
         identity: { type: string }
-        state: { type: string, enum: [active, draining, unhealthy, revoked, down, stopped] }
+        state: { type: string, enum: [active, draining, unhealthy, revoked, down, stopped, available] }
         registered: { type: boolean }
         instances: { type: integer }
         build_versions: { type: array, items: { type: string } }
@@ -46,6 +48,32 @@ components:
         first_seen_at: { type: string, format: date-time }
         last_seen_at: { type: string, format: date-time }
         expected: { type: boolean }
+        latest_version: { type: string }
+        summary: { type: string }
+        category: { type: string }
+        image: { type: string }
+        repository: { type: string }
+        update_available: { type: boolean }
+        installable: { type: boolean }
+    CatalogueSource:
+      type: object
+      required: [repo, added_by, added_at]
+      properties:
+        repo: { type: string }
+        module: { type: string }
+        last_checked_at: { type: string, format: date-time }
+        last_error: { type: string }
+        added_by: { type: string }
+        added_at: { type: string, format: date-time }
+    CatalogueRefresh:
+      type: object
+      required: [outcome]
+      properties:
+        repo: { type: string }
+        module: { type: string }
+        version: { type: string }
+        outcome: { type: string, enum: [stored, current, refused, unavailable] }
+        error: { type: string }
     Error: { type: object, required: [reason], properties: { reason: { type: string } } }
     Page:
       type: object
@@ -158,6 +186,51 @@ paths:
       responses:
         '200': { description: catalogue, content: { application/json: { schema: { $ref: '#/components/schemas/Catalogue' } } } }
         '403': { description: forbidden (not an operator or administrator of the platform tenant) }
+  /gateway/v1/ops/catalogue/sources:
+    get:
+      operationId: listCatalogueSources
+      description: 'Catalogue sources (GitHub owner/repo) and the allowed owners. Operators and platform administrators.'
+      responses: { '200': { description: 'sources and allowed owners', content: { application/json: { schema: { type: object, required: [sources, allowed_owners], properties: { sources: { type: array, items: { $ref: '#/components/schemas/CatalogueSource' } }, allowed_owners: { type: array, items: { type: string } } } } } } } }
+    post:
+      operationId: addCatalogueSource
+      description: 'Add a GitHub repository of an allowed owner as a catalogue source and read its latest release now (the result is returned). Platform administrators only; audited (catalogue_source_added).'
+      parameters: [{ $ref: '#/components/parameters/csrf' }]
+      requestBody: { required: true, content: { application/json: { schema: { type: object, additionalProperties: false, required: [repo], properties: { repo: { type: string, pattern: '^[A-Za-z0-9][A-Za-z0-9-]{0,38}/[A-Za-z0-9._-]{1,100}$' } } } } } }
+      responses:
+        '201': { description: 'added; first read', content: { application/json: { schema: { $ref: '#/components/schemas/CatalogueRefresh' } } } }
+        '400': { description: 'validation_failed (bad name or owner not allowed)' }
+        '403': { description: forbidden }
+        '409': { description: conflict (already a source) }
+  /gateway/v1/ops/catalogue/sources/{owner}/{repo}:
+    delete:
+      operationId: removeCatalogueSource
+      description: 'Remove a catalogue source; its verified entries stay. Platform administrators only; audited (catalogue_source_removed).'
+      parameters: [{ $ref: '#/components/parameters/csrf' }, { $ref: '#/components/parameters/sourceOwner' }, { $ref: '#/components/parameters/sourceRepo' }]
+      responses: { '204': { description: removed }, '403': { description: forbidden }, '404': { description: not_found } }
+  /gateway/v1/ops/catalogue/sources/{owner}/{repo}/refresh:
+    post:
+      operationId: refreshCatalogueSource
+      description: 'Read the source''s latest release now. Platform administrators only.'
+      parameters: [{ $ref: '#/components/parameters/csrf' }, { $ref: '#/components/parameters/sourceOwner' }, { $ref: '#/components/parameters/sourceRepo' }]
+      responses: { '200': { description: result, content: { application/json: { schema: { $ref: '#/components/schemas/CatalogueRefresh' } } } }, '403': { description: forbidden }, '404': { description: not_found } }
+  /gateway/v1/ops/catalogue/allowed-owners:
+    put:
+      operationId: setCatalogueAllowedOwners
+      description: 'Replace the GitHub owners whose repositories may be catalogue sources. Platform administrators only; audited (allowed_owners_changed).'
+      parameters: [{ $ref: '#/components/parameters/csrf' }]
+      requestBody: { required: true, content: { application/json: { schema: { type: object, additionalProperties: false, required: [owners], properties: { owners: { type: array, minItems: 1, maxItems: 50, items: { type: string, pattern: '^[A-Za-z0-9][A-Za-z0-9-]{0,38}$' } } } } } } }
+      responses: { '204': { description: replaced }, '400': { description: validation_failed }, '403': { description: forbidden } }
+  /gateway/v1/ops/catalogue/upload:
+    post:
+      operationId: uploadCatalogueRelease
+      description: 'Upload a release''s catalogue-entry.json (entry), bundle.zip (bundle) and catalogue.sigstore.json (attestation) for cores without GitHub access; verified exactly as when read from GitHub. Platform administrators only.'
+      parameters: [{ $ref: '#/components/parameters/csrf' }]
+      requestBody: { required: true, content: { multipart/form-data: { schema: { type: object, properties: { entry: { type: string, format: binary }, bundle: { type: string, format: binary }, attestation: { type: string, format: binary } } } } } }
+      responses:
+        '201': { description: stored or current, content: { application/json: { schema: { $ref: '#/components/schemas/CatalogueRefresh' } } } }
+        '400': { description: 'validation_failed (detail.error: why the release was refused)' }
+        '403': { description: forbidden }
+        '413': { description: payload_too_large }
   /gateway/v1/ops/catalogue/{module}:
     patch:
       operationId: setCatalogueExpected

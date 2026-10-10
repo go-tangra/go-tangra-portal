@@ -220,6 +220,92 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/gateway/v1/ops/catalogue/sources": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Catalogue sources (GitHub owner/repo) and the allowed owners. Operators and platform administrators. */
+        get: operations["listCatalogueSources"];
+        put?: never;
+        /** @description Add a GitHub repository of an allowed owner as a catalogue source and read its latest release now (the result is returned). Platform administrators only; audited (catalogue_source_added). */
+        post: operations["addCatalogueSource"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/gateway/v1/ops/catalogue/sources/{owner}/{repo}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** @description Remove a catalogue source; its verified entries stay. Platform administrators only; audited (catalogue_source_removed). */
+        delete: operations["removeCatalogueSource"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/gateway/v1/ops/catalogue/sources/{owner}/{repo}/refresh": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description Read the source's latest release now. Platform administrators only. */
+        post: operations["refreshCatalogueSource"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/gateway/v1/ops/catalogue/allowed-owners": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** @description Replace the GitHub owners whose repositories may be catalogue sources. Platform administrators only; audited (allowed_owners_changed). */
+        put: operations["setCatalogueAllowedOwners"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/gateway/v1/ops/catalogue/upload": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description Upload a release's catalogue-entry.json (entry), bundle.zip (bundle) and catalogue.sigstore.json (attestation) for cores without GitHub access; verified exactly as when read from GitHub. Platform administrators only. */
+        post: operations["uploadCatalogueRelease"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/gateway/v1/ops/catalogue/{module}": {
         parameters: {
             query?: never;
@@ -293,18 +379,43 @@ export interface components {
         CatalogueItem: {
             module: string;
             display_name: string;
-            identity: string;
+            identity?: string;
             /** @enum {string} */
-            state: "active" | "draining" | "unhealthy" | "revoked" | "down" | "stopped";
+            state: "active" | "draining" | "unhealthy" | "revoked" | "down" | "stopped" | "available";
             registered: boolean;
             instances: number;
             build_versions: string[];
-            last_version: string;
+            last_version?: string;
             /** Format: date-time */
             first_seen_at?: string;
             /** Format: date-time */
             last_seen_at?: string;
             expected: boolean;
+            latest_version?: string;
+            summary?: string;
+            category?: string;
+            image?: string;
+            repository?: string;
+            update_available: boolean;
+            installable: boolean;
+        };
+        CatalogueSource: {
+            repo: string;
+            module?: string;
+            /** Format: date-time */
+            last_checked_at?: string;
+            last_error?: string;
+            added_by: string;
+            /** Format: date-time */
+            added_at: string;
+        };
+        CatalogueRefresh: {
+            repo?: string;
+            module?: string;
+            version?: string;
+            /** @enum {string} */
+            outcome: "stored" | "current" | "refused" | "unavailable";
+            error?: string;
         };
         Error: {
             reason: string;
@@ -388,6 +499,8 @@ export interface components {
     };
     responses: never;
     parameters: {
+        sourceOwner: string;
+        sourceRepo: string;
         catalogueModule: string;
         /** @description Double-submit token; enforced by the edge for cookie-bearing requests, not needed by bearer clients */
         csrf: string;
@@ -783,6 +896,253 @@ export interface operations {
             };
             /** @description forbidden (not an operator or administrator of the platform tenant) */
             403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    listCatalogueSources: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description sources and allowed owners */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        sources: components["schemas"]["CatalogueSource"][];
+                        allowed_owners: string[];
+                    };
+                };
+            };
+        };
+    };
+    addCatalogueSource: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Double-submit token; enforced by the edge for cookie-bearing requests, not needed by bearer clients */
+                "X-CSRF-Token"?: components["parameters"]["csrf"];
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    repo: string;
+                };
+            };
+        };
+        responses: {
+            /** @description added; first read */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CatalogueRefresh"];
+                };
+            };
+            /** @description validation_failed (bad name or owner not allowed) */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description conflict (already a source) */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    removeCatalogueSource: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Double-submit token; enforced by the edge for cookie-bearing requests, not needed by bearer clients */
+                "X-CSRF-Token"?: components["parameters"]["csrf"];
+            };
+            path: {
+                owner: components["parameters"]["sourceOwner"];
+                repo: components["parameters"]["sourceRepo"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description removed */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description not_found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    refreshCatalogueSource: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Double-submit token; enforced by the edge for cookie-bearing requests, not needed by bearer clients */
+                "X-CSRF-Token"?: components["parameters"]["csrf"];
+            };
+            path: {
+                owner: components["parameters"]["sourceOwner"];
+                repo: components["parameters"]["sourceRepo"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description result */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CatalogueRefresh"];
+                };
+            };
+            /** @description forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description not_found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    setCatalogueAllowedOwners: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Double-submit token; enforced by the edge for cookie-bearing requests, not needed by bearer clients */
+                "X-CSRF-Token"?: components["parameters"]["csrf"];
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    owners: string[];
+                };
+            };
+        };
+        responses: {
+            /** @description replaced */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description validation_failed */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    uploadCatalogueRelease: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Double-submit token; enforced by the edge for cookie-bearing requests, not needed by bearer clients */
+                "X-CSRF-Token"?: components["parameters"]["csrf"];
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "multipart/form-data": {
+                    /** Format: binary */
+                    entry?: string;
+                    /** Format: binary */
+                    bundle?: string;
+                    /** Format: binary */
+                    attestation?: string;
+                };
+            };
+        };
+        responses: {
+            /** @description stored or current */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CatalogueRefresh"];
+                };
+            };
+            /** @description validation_failed (detail.error: why the release was refused) */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description payload_too_large */
+            413: {
                 headers: {
                     [name: string]: unknown;
                 };

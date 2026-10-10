@@ -60,7 +60,7 @@ describe('modules (known modules catalogue)', () => {
     expect(patch.url).toBe('/gateway/v1/ops/catalogue/billing')
     expect(patch.body).toEqual({ expected: false })
     expect(patch.csrf).toBe('tok')
-    expect(calls.filter((c) => c.method === 'GET').length).toBe(2)
+    expect(calls.filter((c) => c.method === 'GET' && c.url === '/gateway/v1/ops/catalogue').length).toBe(2)
     w.unmount()
   })
 
@@ -78,6 +78,60 @@ describe('modules (known modules catalogue)', () => {
     const del = calls.find((c) => c.method === 'DELETE')!
     expect(del.url).toBe('/gateway/v1/ops/catalogue/billing')
     expect(del.csrf).toBe('tok')
+    w.unmount()
+  })
+})
+
+describe('modules: catalogue sources (phase 2)', () => {
+  beforeEach(() => {
+    setActivePinia(createPinia())
+    document.cookie = '__Host-csrf=tok; Secure; Path=/'
+  })
+
+  const withEntries = [
+    { ...items[2]!, build_versions: ['4.2.0'], latest_version: '4.3.0', update_available: true, installable: true, summary: 'SMS API', repository: 'go-tangra/go-tangra-sms-gw' },
+    { module: 'asterisk', display_name: 'Asterisk', state: 'available', registered: false, instances: 0, build_versions: [], expected: false, latest_version: '4.1.0', update_available: false, installable: true, summary: 'PBX observation' },
+  ]
+  function sourcesBackend(): Call[] {
+    const calls: Call[] = []
+    vi.stubGlobal('fetch', vi.fn(async (url: string, init: RequestInit = {}) => {
+      const method = init.method ?? 'GET'
+      calls.push({ url, method, body: init.body ? JSON.parse(String(init.body)) : undefined, csrf: (init.headers as Record<string, string> | undefined)?.['X-CSRF-Token'] })
+      const json = (b: unknown, status = 200) => new Response(JSON.stringify(b), { status, headers: { 'Content-Type': 'application/json' } })
+      if (url === '/gateway/v1/ops/catalogue') return json({ can_manage: true, items: withEntries })
+      if (url === '/gateway/v1/ops/catalogue/sources' && method === 'GET') return json({ sources: [{ repo: 'go-tangra/go-tangra-sms-gw', module: 'sms-gw', added_by: 'op1', added_at: '2026-10-10T08:00:00Z', last_checked_at: '2026-10-10T09:00:00Z' }, { repo: 'go-tangra/broken', added_by: 'op1', added_at: '2026-10-10T08:00:00Z', last_error: 'no catalogue entry in release v1.0.0' }], allowed_owners: ['go-tangra'] })
+      if (url === '/gateway/v1/ops/catalogue/sources' && method === 'POST') return json({ repo: 'go-tangra/go-tangra-asterisk', module: 'asterisk', version: '4.1.0', outcome: 'stored' }, 201)
+      return new Response(null, { status: 204 })
+    }))
+    return calls
+  }
+
+  it('shows available modules, latest versions and update notices', async () => {
+    sourcesBackend()
+    const w = mount(Modules, { attachTo: document.body })
+    await flushPromises()
+    expect(w.find('[data-test="state-asterisk"]').text()).toContain('available')
+    expect(w.find('[data-test="update-sms-gw"]').text()).toContain('4.3.0')
+    expect(w.find('[data-test="update-asterisk"]').exists()).toBe(false)
+    expect(w.find('[data-test="mod-asterisk"]').text()).toContain('4.1.0')
+    w.unmount()
+  })
+
+  it('administrators see sources with their errors, add one and refresh one', async () => {
+    const calls = sourcesBackend()
+    const w = mount(Modules, { attachTo: document.body })
+    await flushPromises()
+    expect(w.find('[data-test="source-go-tangra/broken"]').text()).toContain('no catalogue entry')
+    await w.find('[data-test="source-add"] input').setValue('go-tangra/go-tangra-asterisk')
+    await w.find('[data-test="source-add-button"]').trigger('click')
+    await flushPromises()
+    const add = calls.find((c) => c.method === 'POST' && c.url === '/gateway/v1/ops/catalogue/sources')!
+    expect(add.body).toEqual({ repo: 'go-tangra/go-tangra-asterisk' })
+    expect(add.csrf).toBe('tok')
+    expect(w.text()).toContain('asterisk 4.1.0: stored')
+    await w.find('[data-test="source-refresh-go-tangra/go-tangra-sms-gw"]').trigger('click')
+    await flushPromises()
+    expect(calls.some((c) => c.method === 'POST' && c.url === '/gateway/v1/ops/catalogue/sources/go-tangra/go-tangra-sms-gw/refresh')).toBe(true)
     w.unmount()
   })
 })

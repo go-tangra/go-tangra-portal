@@ -39,13 +39,20 @@ const (
 	KnownModuleExpected EventType = "known_module_expected"
 	// An administrator removed a module from the known list.
 	KnownModuleForgotten EventType = "known_module_forgotten"
+	// Module catalogue sources (spec 035).
+	CatalogueEntryVerified EventType = "catalogue_entry_verified"
+	CatalogueEntryRefused  EventType = "catalogue_entry_refused"
+	CatalogueSourceAdded   EventType = "catalogue_source_added"
+	CatalogueSourceRemoved EventType = "catalogue_source_removed"
+	AllowedOwnersChanged   EventType = "allowed_owners_changed"
 )
 
 var known = map[EventType]struct{}{}
 
 func init() {
 	for _, t := range []EventType{RegistrationAccepted, RegistrationRefused, RegistrationUpdated, RegistrationWithdrawn, RenewalRefused,
-		ModuleDrained, ModuleRevoked, ModuleUnhealthy, ModuleRecovered, AllowlistChanged, IdentityRefused, PermissionRefused, StreamTerminated, LimitExceeded, EnrollmentTokenMinted, KnownModuleExpected, KnownModuleForgotten} {
+		ModuleDrained, ModuleRevoked, ModuleUnhealthy, ModuleRecovered, AllowlistChanged, IdentityRefused, PermissionRefused, StreamTerminated, LimitExceeded, EnrollmentTokenMinted, KnownModuleExpected, KnownModuleForgotten,
+		CatalogueEntryVerified, CatalogueEntryRefused, CatalogueSourceAdded, CatalogueSourceRemoved, AllowedOwnersChanged} {
 		known[t] = struct{}{}
 	}
 }

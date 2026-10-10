@@ -25,12 +25,7 @@ func catalogueServer(t *testing.T) (*Server, *registry.Registry, *memstore.Store
 	_ = ms.InsertAllow(ctx, store.AllowEntry{ID: "a", SpiffeID: "spiffe://example.org/svc/orders", Prefixes: []string{"/api/orders"}, Names: []string{"orders"}})
 	aw := audit.NewWriter(ms, nil)
 	t.Cleanup(aw.Close)
-	reg, _ := registry.New(registry.Options{KV: registry.NewMemory(), Allow: ms, Marks: ms, Audit: aw})
-	if _, err := reg.Register(ctx, "spiffe://example.org/svc/orders", &gatewayv1.RegisterRequest{InstanceId: "i1", BuildVersion: "2.1.0", Backend: &gatewayv1.Backend{HttpUrl: "https://orders"},
-		Manifest: &gatewayv1.Manifest{Module: "orders", DisplayName: "Orders", Version: "1.0.0", Prefixes: []string{"/api/orders"},
-			Routes: []*gatewayv1.Route{{Method: "GET", Path: "/api/orders", Public: true}}, Remote: &gatewayv1.Remote{Entry: "/m/orders/mf-manifest.json", Exposes: []string{"./routes"}}}}); err != nil {
-		t.Fatal(err)
-	}
+	reg := catalogueRegistry(t, ms, aw)
 	t0 := time.Date(2026, 10, 9, 10, 0, 0, 0, time.UTC)
 	_ = ms.SeeKnown(ctx, store.KnownModule{Module: "orders", Identity: "spiffe://example.org/svc/orders", DisplayName: "Orders", LastVersion: "2.0.0", LastSeenAt: t0})
 	_ = ms.SeeKnown(ctx, store.KnownModule{Module: "billing", Identity: "spiffe://example.org/svc/billing", DisplayName: "Billing", LastVersion: "1.4.2", LastSeenAt: t0.Add(time.Hour)})
@@ -40,6 +35,18 @@ func catalogueServer(t *testing.T) (*Server, *registry.Registry, *memstore.Store
 	s.RegisterOps(OpsDeps{Reg: reg, Ops: &registry.Ops{Reg: reg, Marks: ms, Allow: ms, Audit: aw}, Identity: opsIdentity{}, Audit: ms, Roles: []string{"operator"},
 		AdminRoles: []string{"owner", "admin"}, Known: ms, Events: aw})
 	return s, reg, ms, aw
+}
+
+// catalogueRegistry has orders registered, one instance on build 2.1.0.
+func catalogueRegistry(t *testing.T, ms *memstore.Store, aw *audit.Writer) *registry.Registry {
+	t.Helper()
+	reg, _ := registry.New(registry.Options{KV: registry.NewMemory(), Allow: ms, Marks: ms, Audit: aw})
+	if _, err := reg.Register(context.Background(), "spiffe://example.org/svc/orders", &gatewayv1.RegisterRequest{InstanceId: "i1", BuildVersion: "2.1.0", Backend: &gatewayv1.Backend{HttpUrl: "https://orders"},
+		Manifest: &gatewayv1.Manifest{Module: "orders", DisplayName: "Orders", Version: "1.0.0", Prefixes: []string{"/api/orders"},
+			Routes: []*gatewayv1.Route{{Method: "GET", Path: "/api/orders", Public: true}}, Remote: &gatewayv1.Remote{Entry: "/m/orders/mf-manifest.json", Exposes: []string{"./routes"}}}}); err != nil {
+		t.Fatal(err)
+	}
+	return reg
 }
 
 func catalogue(t *testing.T, s *Server, who string) (CatalogueView, int) {

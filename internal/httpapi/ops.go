@@ -34,6 +34,9 @@ type OpsDeps struct {
 	AdminRoles []string
 	// Known is the known-module store (nil: no catalogue API).
 	Known KnownStore
+	// Sources and Refresher back the catalogue sources (nil: phase 1 only).
+	Sources   CatalogueSources
+	Refresher CatalogueRefresher
 }
 
 // RegistrationView is one row of GET /gateway/v1/ops/registrations.

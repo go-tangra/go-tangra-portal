@@ -25,7 +25,8 @@ func TestDefaultsValidateWarnings(t *testing.T) {
 	if err := c.Validate(); err != nil {
 		t.Fatal(err)
 	}
-	if c.Leases.TTL != 30*time.Second || c.Forward.BodyBytes != 1<<20 || c.Operators.Roles[0] != "operator" || strings.Join(c.Operators.AdminRoles, ",") != "owner,admin" {
+	if c.Leases.TTL != 30*time.Second || c.Forward.BodyBytes != 1<<20 || c.Operators.Roles[0] != "operator" || strings.Join(c.Operators.AdminRoles, ",") != "owner,admin" ||
+		c.Catalogue.Poll != 6*time.Hour || strings.Join(c.Catalogue.AllowedOwners, ",") != "go-tangra" || c.Catalogue.GitHubAPI != "https://api.github.com" {
 		t.Fatalf("defaults %+v", c)
 	}
 	mut := func(f func(c *Config)) Config { c := valid(); f(&c); return c }
@@ -38,6 +39,9 @@ func TestDefaultsValidateWarnings(t *testing.T) {
 		"zero limit":    mut(func(c *Config) { c.Forward.BodyBytes = 0 }),
 		"no operators":  mut(func(c *Config) { c.Operators.Roles = nil }),
 		"no admins":     mut(func(c *Config) { c.Operators.AdminRoles = nil }),
+		"fast poll":     mut(func(c *Config) { c.Catalogue.Poll = time.Minute }),
+		"bad owner":     mut(func(c *Config) { c.Catalogue.AllowedOwners = []string{"https://github.com/x"} }),
+		"http api":      mut(func(c *Config) { c.Catalogue.GitHubAPI = "http://api.github.com" }),
 		"prod no cert":  mut(func(c *Config) { c.Config.Env = "production"; c.Edge.CertFile = "" }),
 		"prod plain kv": mut(func(c *Config) { c.Config.Env = "production"; c.Valkey.AllowPlaintext = true }),
 		"prod weak ssl": mut(func(c *Config) { c.Config.Env = "production"; c.DB.DSN = "postgres://u@db/g?sslmode=disable" }),

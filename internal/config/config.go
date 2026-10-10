@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"regexp"
 	"strings"
 	"time"
 
@@ -28,6 +29,19 @@ type Config struct {
 	Operators    Operators `yaml:"operators"`
 	Enroll       Enroll    `yaml:"enroll"`
 	Console      Console   `yaml:"console"`
+	Catalogue    Catalogue `yaml:"catalogue"`
+}
+
+// Catalogue configures the module catalogue's sources (spec 035): how often
+// they are read, the GitHub owners whose repositories may be sources (a seed:
+// administrators manage the list afterwards), the GitHub API, and an
+// optional token (read from the named environment variable) that raises
+// GitHub's rate limits.
+type Catalogue struct {
+	Poll           time.Duration `yaml:"poll"`
+	AllowedOwners  []string      `yaml:"allowed_owners"`
+	GitHubAPI      string        `yaml:"github_api"`
+	GitHubTokenEnv string        `yaml:"github_token_env"`
 }
 
 // Enroll makes the gateway obtain its SVID by enrolling with lcm over the
@@ -107,6 +121,8 @@ type Operators struct {
 	AdminRoles []string `yaml:"admin_roles"`
 }
 
+var githubOwnerRE = regexp.MustCompile(`^[A-Za-z0-9][A-Za-z0-9-]{0,38}$`)
+
 // Default returns secure defaults; addresses and secrets must be provided.
 func Default() Config {
 	c := Config{Config: fconfig.Default()}
@@ -117,6 +133,7 @@ func Default() Config {
 	c.Leases = Leases{TTL: 30 * time.Second, Renew: 10 * time.Second}
 	c.Forward = Forward{BodyBytes: 1 << 20, StreamsPerClient: 32, StreamMax: 10 * time.Minute, ModuleTimeout: 30 * time.Second}
 	c.Operators = Operators{Roles: []string{"operator"}, AdminRoles: []string{"owner", "admin"}}
+	c.Catalogue = Catalogue{Poll: 6 * time.Hour, AllowedOwners: []string{"go-tangra"}, GitHubAPI: "https://api.github.com"}
 	c.Console = defaultConsole()
 	return c
 }
@@ -159,6 +176,15 @@ func (c Config) Validate() error {
 		return errors.New("config: operators.roles must not be empty")
 	case len(c.Operators.AdminRoles) == 0:
 		return errors.New("config: operators.admin_roles must not be empty")
+	case c.Catalogue.Poll < 10*time.Minute:
+		return errors.New("config: catalogue.poll must be at least 10m")
+	case !strings.HasPrefix(c.Catalogue.GitHubAPI, "https://"):
+		return errors.New("config: catalogue.github_api must be an https URL")
+	}
+	for _, o := range c.Catalogue.AllowedOwners {
+		if !githubOwnerRE.MatchString(o) {
+			return fmt.Errorf("config: catalogue.allowed_owners: %q is not a GitHub owner name", o)
+		}
 	}
 	if err := c.validateConsole(); err != nil {
 		return err
