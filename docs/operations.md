@@ -145,6 +145,10 @@ console:
   `inventory.v1.ModuleBundleSource/RenderModuleBundle`), and on the
   inventory `module_delivery.enabled: true` with `gateway` in
   `module_delivery.sources`.
+- The gateway dials the inventory as a client, so `discovery.static` must
+  also list it (`inventory: ["inventory:9975"]`, the inventory's mesh gRPC
+  address). Without it the gateway refuses to start with
+  `inventory module: client: discovery: unknown service "inventory"`.
 - **Modules → Add → Deliver to a host**: pick a host of your tenant whose
   agent supports module delivery (the picker shows why other hosts are not
   eligible), check the inputs (pre-filled from the host's reported name and

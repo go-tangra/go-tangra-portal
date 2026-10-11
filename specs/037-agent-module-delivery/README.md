@@ -9,5 +9,5 @@ Gateway side (tasks T017–T020, T021 gateway docs):
 - migration `0008_catalogue_join_agent.sql`: join channel, tenant, host, inputs, render counter, nullable JTI
 - `internal/grpcapi/modulebundle.go`: serves `inventory.v1.ModuleBundleSource/RenderModuleBundle`
 - `internal/httpapi/catalogue_deliver.go`: `GET …/{module}/targets`, `POST …/{module}/deliver`, delivery in join progress
-- config `catalogue.agent_delivery.inventory_service`; policy rule `inventory-module-bundle`
+- config `catalogue.agent_delivery.inventory_service`; policy rule `inventory-module-bundle`; `discovery.static` entry for the inventory
 - shell: the wizard offers **Deliver to a host**
