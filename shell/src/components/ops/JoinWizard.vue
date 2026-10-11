@@ -146,6 +146,8 @@ async function poll(): Promise<void> {
     if (progress.value.registered && progress.value.state === 'active') {
       stop()
       emit('installed')
+    } else if (deliveryEnded.value) {
+      stop()
     }
   } catch {
     /* transient: keep polling */
@@ -246,7 +248,39 @@ const deliveryText: Record<string, string> = {
   failed: 'failed', hook_failed: 'written, but the host hook failed', unsupported: 'the host cannot receive it', superseded: 'replaced by a newer delivery',
   expired: 'expired before the agent fetched it',
 }
-const deliveryFailed = computed(() => ['failed', 'hook_failed', 'unsupported', 'expired'].includes(delivery.value?.state ?? ''))
+// Why a delivery ended (the inventory's closed reason set, spec 037).
+const reasonText: Record<string, string> = {
+  fetch_budget: "the host's agent could not get the bundle (5 attempts); check the inventory and gateway logs",
+  fetch_failed: "the host's agent could not download the bundle",
+  source_refused: 'the gateway refused to render the bundle (the delivery expired or was used up)',
+  report_timeout: "the host's agent did not report back in time",
+  already_installed: 'the module directory already exists on the host; remove it to reinstall',
+  invalid_module: 'the agent refused the module name', invalid_bundle: 'the agent refused the bundle',
+  checksum_mismatch: 'the bundle was corrupted in transit', too_large: 'the bundle is larger than the agent accepts',
+  write_failed: 'the agent could not write the module directory', disk_full: 'the host is out of disk space',
+  hook_failed: 'the deploy hook exited with an error', hook_timeout: 'the deploy hook timed out',
+  hook_refused: "the agent refused to run the deploy hook (check its owner and permissions)",
+  disabled_locally: 'module delivery is turned off in the agent configuration', busy: 'the agent was busy with another delivery',
+  ...capabilityText,
+  retired: 'the host is retired',
+}
+// A delivery that ends without the bundle on the host stops the wizard;
+// after a failed hook the bundle is there and the module can still be
+// started by hand, so the wizard keeps following it.
+const deliveryEnded = computed(() => ['failed', 'unsupported', 'expired', 'superseded'].includes(delivery.value?.state ?? ''))
+const deliveryFailed = computed(() => deliveryEnded.value || delivery.value?.state === 'hook_failed')
+const deliveryReason = computed(() => {
+  const r = delivery.value?.reason ?? ''
+  return reasonText[r] ?? r
+})
+
+// Back to the form with the same host and inputs, for a new delivery.
+function again(): void {
+  stop()
+  joinId.value = ''
+  progress.value = null
+  error.value = ''
+}
 
 onBeforeUnmount(stop)
 </script>
@@ -282,12 +316,15 @@ onBeforeUnmount(stop)
       <template v-else>
         <p v-if="progress?.channel !== 'agent'" class="mb-3 text-sm">Bundle downloaded. On the module host: <code>unzip {{ item.module }}-join.zip &amp;&amp; cd {{ item.module }} &amp;&amp; docker compose up -d</code></p>
         <ul class="text-sm" data-test="join-progress">
-          <li v-if="delivery" data-test="step-delivery">Delivery to {{ delivery.hostname }}: {{ deliveryText[delivery.state] ?? delivery.state }}<span v-if="delivery.reason"> ({{ delivery.reason }})</span><span v-if="!delivery.agent_online && delivery.state === 'pending'">, agent offline</span></li>
-          <li data-test="step-token">Join token used: {{ step(progress?.token_used) }}</li>
-          <li data-test="step-registered">Registered with the gateway: {{ step(progress?.registered) }}<span v-if="progress?.state"> ({{ progress.state }})</span></li>
+          <li v-if="delivery" data-test="step-delivery">Delivery to {{ delivery.hostname }}: {{ deliveryText[delivery.state] ?? delivery.state }}<span v-if="delivery.reason"> ({{ deliveryReason }})</span><span v-if="!delivery.agent_online && delivery.state === 'pending'">, agent offline</span></li>
+          <template v-if="!deliveryEnded">
+            <li data-test="step-token">Join token used: {{ step(progress?.token_used) }}</li>
+            <li data-test="step-registered">Registered with the gateway: {{ step(progress?.registered) }}<span v-if="progress?.state"> ({{ progress.state }})</span></li>
+          </template>
         </ul>
         <UiAlert v-if="delivery?.state === 'installed' && !progress?.token_used" kind="info" class="mt-2" data-test="join-start-hint">The bundle is in the agent's modules directory on {{ delivery.hostname }}. If the host has no deploy hook, start it there with <code>docker compose up -d</code>.</UiAlert>
-        <UiAlert v-if="deliveryFailed" kind="error" class="mt-2" data-test="join-delivery-failed">The delivery did not complete. Fix the cause on the host, then deliver again.</UiAlert>
+        <UiAlert v-if="deliveryEnded" kind="error" class="mt-2" data-test="join-delivery-failed">The delivery to {{ delivery?.hostname }} failed<span v-if="delivery?.reason">: {{ deliveryReason }}</span>. Nothing was installed. Fix the cause, then deliver again.</UiAlert>
+        <UiAlert v-else-if="deliveryFailed" kind="warning" class="mt-2" data-test="join-delivery-failed">The bundle is on {{ delivery?.hostname }}, but {{ deliveryReason || 'the deploy hook failed' }}. Start the module there by hand (<code>docker compose up -d</code>) or fix the hook and deliver again.</UiAlert>
         <UiAlert v-if="progress?.last_refusal" kind="warning" class="mt-2" data-test="join-refusal">Registration refused: {{ progress.last_refusal.reason }}</UiAlert>
       </template>
     </div>
@@ -295,6 +332,7 @@ onBeforeUnmount(stop)
       <UiButton variant="text" data-test="join-close" @click="emit('close')">{{ joinId ? 'Close' : 'Cancel' }}</UiButton>
       <UiButton v-if="!joinId && channel === 'download'" :loading="busy" data-test="join-download" @click="download()">Download bundle</UiButton>
       <UiButton v-if="!joinId && channel === 'agent'" :loading="busy" :disabled="!hostId" data-test="join-deliver" @click="deliver()">Deliver</UiButton>
+      <UiButton v-if="joinId && deliveryFailed" data-test="join-again" @click="again()">Deliver again</UiButton>
     </template>
   </UiDialog>
 </template>
