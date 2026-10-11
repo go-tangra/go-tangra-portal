@@ -53,6 +53,36 @@ const hostOptions = computed<SelectOption[]>(() => eligible.value.map((t) => ({
   title: `${t.hostname} · ${t.os_name}${t.agent_online ? '' : ' (offline: delivered when it reconnects)'}`, value: t.host_id,
 })))
 const delivery = computed<Delivery | undefined>(() => progress.value?.delivery)
+const target = computed(() => targets.value.find((x) => x.host_id === hostId.value))
+
+// Private addresses (RFC 1918, shared 100.64/10, IPv6 ULA) are what mesh
+// members usually reach a module host at, so they come first; IPv4 before
+// IPv6, otherwise in the order the agent reported them.
+function isPrivate(ip: string): boolean {
+  const v4 = ip.split('.').map(Number)
+  if (v4.length === 4) {
+    const [a, b] = v4 as [number, number]
+    return a === 10 || (a === 172 && b >= 16 && b <= 31) || (a === 192 && b === 168) || (a === 100 && b >= 64 && b <= 127)
+  }
+  return /^f[cd]/i.test(ip)
+}
+function rank(ip: string): number {
+  return (isPrivate(ip) ? 0 : 2) + (ip.includes(':') ? 1 : 0)
+}
+const addresses = computed(() => [...(target.value?.ip_addresses ?? [])].sort((a, b) => rank(a) - rank(b)))
+const addressOptions = computed<SelectOption[]>(() => addresses.value.map((ip) => ({
+  title: `${ip} (${isPrivate(ip) ? 'private' : 'public'})`, value: ip,
+})))
+// The address picker is offered for *_IP inputs when the chosen host reports
+// more than one address; the input stays editable for any other address.
+function picksAddress(key: string): boolean {
+  return channel.value === 'agent' && key.endsWith('_IP') && addressOptions.value.length > 1
+}
+function pickAddress(key: string, ip: unknown): void {
+  if (typeof ip !== 'string' || !ip) return
+  values[key] = ip
+  prefilled[key] = ip
+}
 
 watch(() => props.item, (it) => {
   stop()
@@ -69,15 +99,15 @@ watch(() => props.item, (it) => {
   for (const h of it?.host_inputs ?? []) values[h.key] = h.default ?? ''
 }, { immediate: true })
 
-// Pre-fill *_HOST with the host name and *_IP with its first address, unless
-// the administrator typed something else.
-watch(hostId, (id) => {
-  const t = targets.value.find((x) => x.host_id === id)
+// Pre-fill *_HOST with the host name and *_IP with its preferred address
+// (private first), unless the administrator typed something else.
+watch(hostId, () => {
+  const t = target.value
   if (!t) return
   for (const h of props.item?.host_inputs ?? []) {
     let v = ''
     if (h.key.endsWith('_HOST')) v = t.hostname
-    else if (h.key.endsWith('_IP')) v = t.ip_addresses[0] ?? ''
+    else if (h.key.endsWith('_IP')) v = addresses.value[0] ?? ''
     if (!v) continue
     if (values[h.key] === '' || values[h.key] === (h.default ?? '') || values[h.key] === prefilled[h.key]) {
       values[h.key] = v
@@ -242,7 +272,10 @@ onBeforeUnmount(stop)
         </template>
         <p v-else class="mb-3 text-sm">Unzip it on the module host and run <code>docker compose up -d</code>.</p>
         <UiAlert v-if="minCore" kind="info" class="mb-3">Needs at least {{ minCore }}.</UiAlert>
-        <UiInput v-for="h in item.host_inputs ?? []" :id="'input-' + h.key" :key="h.key" v-model="values[h.key]" :label="h.label" :hint="h.key" class="mb-2" :data-test="'input-' + h.key" />
+        <template v-for="h in item.host_inputs ?? []" :key="h.key">
+          <UiSelect v-if="picksAddress(h.key)" :id="'pick-' + h.key" :model-value="addresses.includes(values[h.key] ?? '') ? values[h.key] : null" :label="`${h.label}: addresses of ${target?.hostname}`" :options="addressOptions" :clearable="false" class="mb-1" :data-test="'pick-' + h.key" @update:model-value="pickAddress(h.key, $event)" />
+          <UiInput :id="'input-' + h.key" v-model="values[h.key]" :label="h.label" :hint="h.key" class="mb-2" :data-test="'input-' + h.key" />
+        </template>
         <UiInput id="join-ttl" v-model="ttl" type="number" :label="channel === 'agent' ? 'Delivery valid for (hours, 1-24)' : 'Join token valid for (hours, 1-24)'" class="mb-2" data-test="join-ttl" />
         <UiAlert v-if="error" kind="error" class="mt-2" data-test="join-error">{{ error }}</UiAlert>
       </template>

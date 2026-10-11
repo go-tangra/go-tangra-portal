@@ -15,7 +15,7 @@ const sms: components['schemas']['CatalogueItem'] = { module: 'sms-gw', display_
     { key: 'SMS_PUBLIC_PORT', label: 'Port', pattern: '^[0-9]+$', default: '9901' }] }
 
 const hosts = [
-  { host_id: 'h1', hostname: 'pbx1.example.org', os_name: 'Ubuntu', agent_online: true, capability: 'enabled', ip_addresses: ['10.0.0.5', '192.168.1.5'] },
+  { host_id: 'h1', hostname: 'pbx1.example.org', os_name: 'Ubuntu', agent_online: true, capability: 'enabled', ip_addresses: ['203.0.113.7', '2001:db8::7', 'fd00::5', '10.0.0.5'] },
   { host_id: 'h2', hostname: 'win1', os_name: 'Windows', agent_online: true, capability: 'not_supported_platform', ip_addresses: [] },
 ]
 
@@ -98,6 +98,28 @@ describe('add-module wizard: deliver through the inventory agent', () => {
     expect(document.querySelector('[data-test="step-registered"]')?.textContent).toContain('done')
     expect(w.emitted('installed')).toBeTruthy()
     vi.useRealTimers()
+    w.unmount()
+  })
+
+  it('offers the host\'s addresses for *_IP inputs, private first, and keeps the input editable', async () => {
+    const calls = backend()
+    const w = mount(JoinWizard, { props: { item: sms, canDeliver: true }, attachTo: document.body })
+    await flushPromises()
+    await chooseAgent(w)
+    const picker = w.findAllComponents(UiSelect).find((c) => c.attributes('data-test') === 'pick-MODULE_BIND_IP')!
+    expect((picker.props('options') as { value: string }[]).map((o) => o.value)).toEqual(['10.0.0.5', 'fd00::5', '203.0.113.7', '2001:db8::7'])
+    expect((picker.props('options') as { title: string }[])[2]!.title).toBe('203.0.113.7 (public)')
+    expect(document.querySelector('[data-test="pick-MODULE_ADVERTISE_HOST"]')).toBeNull()
+    picker.vm.$emit('update:modelValue', '203.0.113.7')
+    await flushPromises()
+    expect(input('MODULE_BIND_IP').value).toBe('203.0.113.7')
+    const el = input('MODULE_BIND_IP')
+    el.value = '172.16.0.9'
+    el.dispatchEvent(new Event('input'))
+    await flushPromises()
+    ;(document.querySelector('[data-test="join-deliver"]') as HTMLButtonElement).click()
+    await flushPromises()
+    expect((calls.find((c) => c.method === 'POST')!.body as { inputs: Record<string, string> }).inputs.MODULE_BIND_IP).toBe('172.16.0.9')
     w.unmount()
   })
 
