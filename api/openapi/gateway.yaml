@@ -57,7 +57,7 @@ components:
         repository: { type: string }
         update_available: { type: boolean }
         installable: { type: boolean }
-        host_inputs: { type: array, items: { type: object, required: [key, label, pattern], properties: { key: { type: string }, label: { type: string }, pattern: { type: string }, default: { type: string } } } }
+        host_inputs: { type: array, items: { type: object, required: [key, label, pattern], properties: { key: { type: string }, label: { type: string }, pattern: { type: string }, default: { type: string }, optional: { type: boolean } } } }
         min_core: { type: object, additionalProperties: { type: string } }
     JoinProgress:
       type: object

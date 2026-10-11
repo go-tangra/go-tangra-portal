@@ -44,7 +44,8 @@ type InputError struct{ Key, Msg string }
 func (e *InputError) Error() string { return e.Key + ": " + e.Msg }
 
 // CheckInputs validates the operator's host inputs against the entry: every
-// declared input present (or defaulted) and matching its pattern, nothing
+// declared input present (or defaulted, or empty when optional) and matching
+// its pattern, nothing
 // undeclared, and no character that could break out of .env or YAML.
 func CheckInputs(e fwcat.Entry, in map[string]string) (map[string]string, error) {
 	declared := map[string]fwcat.HostInput{}
@@ -63,6 +64,9 @@ func CheckInputs(e fwcat.Entry, in map[string]string) (map[string]string, error)
 			v = h.Default
 		}
 		switch {
+		case v == "" && h.Optional:
+			out[h.Key] = ""
+			continue
 		case v == "":
 			return nil, &InputError{h.Key, "required"}
 		case len(v) > maxInputLength:

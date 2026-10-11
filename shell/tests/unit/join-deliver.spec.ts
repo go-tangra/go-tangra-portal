@@ -175,4 +175,19 @@ describe('add-module wizard: deliver through the inventory agent', () => {
     expect((document.querySelector('[data-test="join-deliver"]') as HTMLButtonElement).disabled).toBe(true)
     w.unmount()
   })
+
+  it('marks optional inputs and hides secrets', async () => {
+    backend()
+    const pbx = { ...sms, host_inputs: [...(sms.host_inputs ?? []),
+      { key: 'ASTERISK_AMI_ADDRESS', label: 'AMI address', pattern: '^[a-z0-9.]+:[0-9]+$', optional: true },
+      { key: 'ASTERISK_AMI_SECRET', label: 'AMI secret', pattern: '^[^ ]+$', optional: true }] }
+    const w = mount(JoinWizard, { props: { item: pbx, canDeliver: false }, attachTo: document.body })
+    await flushPromises()
+    const label = (key: string) => document.querySelector(`[data-test="input-${key}"]`)?.textContent ?? ''
+    expect(label('ASTERISK_AMI_ADDRESS')).toContain('AMI address (optional)')
+    expect(label('MODULE_ADVERTISE_HOST')).not.toContain('(optional)')
+    expect(input('ASTERISK_AMI_SECRET').type).toBe('password')
+    expect(input('ASTERISK_AMI_ADDRESS').type).toBe('text')
+    w.unmount()
+  })
 })

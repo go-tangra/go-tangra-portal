@@ -475,6 +475,7 @@ export interface components {
                 label: string;
                 pattern: string;
                 default?: string;
+                optional?: boolean;
             }[];
             min_core?: {
                 [key: string]: string;
