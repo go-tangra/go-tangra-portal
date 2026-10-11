@@ -19,7 +19,7 @@ const hosts = [
   { host_id: 'h2', hostname: 'win1', os_name: 'Windows', agent_online: true, capability: 'not_supported_platform', ip_addresses: [] },
 ]
 
-function backend(opts: { deliverStatus?: number; deliverBody?: unknown; targetsStatus?: number } = {}): Call[] {
+function backend(opts: { deliverStatus?: number; deliverBody?: unknown; targetsStatus?: number; failWith?: string } = {}): Call[] {
   const calls: Call[] = []
   let polls = 0
   vi.stubGlobal('fetch', vi.fn(async (url: string, init: RequestInit = {}) => {
@@ -35,6 +35,10 @@ function backend(opts: { deliverStatus?: number; deliverBody?: unknown; targetsS
     }
     if (url === '/gateway/v1/ops/catalogue/sms-gw/join/j1') {
       polls++
+      if (opts.failWith) {
+        return json({ id: 'j1', module: 'sms-gw', version: '4.3.0', created_at: '2026-10-10T08:00:00Z', expires_at: '2026-10-11T08:00:00Z', channel: 'agent',
+          token_used: false, registered: false, delivery: { host_id: 'h1', hostname: 'pbx1.example.org', state: 'failed', reason: opts.failWith, agent_online: true } })
+      }
       return json({ id: 'j1', module: 'sms-gw', version: '4.3.0', created_at: '2026-10-10T08:00:00Z', expires_at: '2026-10-11T08:00:00Z', channel: 'agent',
         token_used: polls > 1, registered: polls > 2, state: polls > 2 ? 'active' : undefined,
         delivery: { host_id: 'h1', hostname: 'pbx1.example.org', state: polls > 0 ? 'installed' : 'pending', agent_online: true } })
@@ -120,6 +124,34 @@ describe('add-module wizard: deliver through the inventory agent', () => {
     ;(document.querySelector('[data-test="join-deliver"]') as HTMLButtonElement).click()
     await flushPromises()
     expect((calls.find((c) => c.method === 'POST')!.body as { inputs: Record<string, string> }).inputs.MODULE_BIND_IP).toBe('172.16.0.9')
+    w.unmount()
+  })
+
+  it('a failed delivery is explained, stops polling and can be delivered again', async () => {
+    const calls = backend({ failWith: 'fetch_budget' })
+    vi.useFakeTimers({ shouldAdvanceTime: true })
+    const w = mount(JoinWizard, { props: { item: sms, canDeliver: true }, attachTo: document.body })
+    await flushPromises()
+    await chooseAgent(w)
+    ;(document.querySelector('[data-test="join-deliver"]') as HTMLButtonElement).click()
+    await flushPromises()
+    await vi.advanceTimersByTimeAsync(5000)
+    await flushPromises()
+    const alert = document.querySelector('[data-test="join-delivery-failed"]')?.textContent ?? ''
+    expect(alert).toContain('failed')
+    expect(alert).toContain("the host's agent could not get the bundle")
+    expect(alert).not.toContain('fetch_budget')
+    expect(document.querySelector('[data-test="step-token"]')).toBeNull()
+    const polls = calls.filter((c) => c.url.endsWith('/join/j1')).length
+    await vi.advanceTimersByTimeAsync(20000)
+    await flushPromises()
+    expect(calls.filter((c) => c.url.endsWith('/join/j1')).length).toBe(polls)
+    ;(document.querySelector('[data-test="join-again"]') as HTMLButtonElement).click()
+    await flushPromises()
+    expect(document.querySelector('[data-test="join-deliver"]')).not.toBeNull()
+    expect(input('MODULE_ADVERTISE_HOST').value).toBe('pbx1.example.org')
+    expect(w.emitted('installed')).toBeFalsy()
+    vi.useRealTimers()
     w.unmount()
   })
 
