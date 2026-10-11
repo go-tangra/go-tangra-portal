@@ -212,8 +212,8 @@ github.com/go-tangra/go-tangra-inventory/sdk/v4 v4.5.0 h1:e8eWpppqiutYUP+tS5YiOb
 github.com/go-tangra/go-tangra-inventory/sdk/v4 v4.5.0/go.mod h1:Vj2/MYHQM3W1/SpFlvZ5FB1c8HrlCd4iff0D46Mh3Co=
 github.com/go-tangra/go-tangra-lcm/sdk/v4 v4.1.0 h1:KjAVJn8jAZbcIyL6B3yasngtFTxwBA1s9y7TW1ylqjc=
 github.com/go-tangra/go-tangra-lcm/sdk/v4 v4.1.0/go.mod h1:j/24DHoyBPfYcHzehJKkQLL/s1jDPToGr/LqV/qA/HM=
-github.com/go-tangra/go-tangra/v4 v4.7.0 h1:RviVGY6uQfcZ47h8OjJyxoLXoqC4jM8R3xFZi0FhxXM=
-github.com/go-tangra/go-tangra/v4 v4.7.0/go.mod h1:NzD0r1e1eIeLofboJfKAGrKtBKfIa7LlUxaLXOtyvVo=
+github.com/go-tangra/go-tangra/v4 v4.8.0 h1:nkg/AjcKaM1Z1Z8GV5aZZgwKlP3J5agKWGVwDNU9ZRk=
+github.com/go-tangra/go-tangra/v4 v4.8.0/go.mod h1:NzD0r1e1eIeLofboJfKAGrKtBKfIa7LlUxaLXOtyvVo=
 github.com/go-test/deep v1.1.1 h1:0r/53hagsehfO4bzD2Pgr/+RgHqhmf+k1Bpse2cTu1U=
 github.com/go-test/deep v1.1.1/go.mod h1:5C2ZWiW0ErCdrYzpqxLbTX7MG14M9iiw8DgHncVwcsE=
 github.com/go-viper/mapstructure/v2 v2.5.0 h1:vM5IJoUAy3d7zRSVtIwQgBj7BiWtMPfmPEgAXnvj1Ro=
