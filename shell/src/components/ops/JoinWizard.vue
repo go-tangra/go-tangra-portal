@@ -308,7 +308,7 @@ onBeforeUnmount(stop)
         <UiAlert v-if="minCore" kind="info" class="mb-3">Needs at least {{ minCore }}.</UiAlert>
         <template v-for="h in item.host_inputs ?? []" :key="h.key">
           <UiSelect v-if="picksAddress(h.key)" :id="'pick-' + h.key" :model-value="addresses.includes(values[h.key] ?? '') ? values[h.key] : null" :label="`${h.label}: addresses of ${target?.hostname}`" :options="addressOptions" :clearable="false" class="mb-1" :data-test="'pick-' + h.key" @update:model-value="pickAddress(h.key, $event)" />
-          <UiInput :id="'input-' + h.key" v-model="values[h.key]" :label="h.label" :hint="h.key" class="mb-2" :data-test="'input-' + h.key" />
+          <UiInput :id="'input-' + h.key" v-model="values[h.key]" :type="h.key.endsWith('_SECRET') ? 'password' : 'text'" :label="h.optional ? `${h.label} (optional)` : h.label" :hint="h.optional ? `${h.key}; leave empty if this host has none` : h.key" class="mb-2" :data-test="'input-' + h.key" />
         </template>
         <UiInput id="join-ttl" v-model="ttl" type="number" :label="channel === 'agent' ? 'Delivery valid for (hours, 1-24)' : 'Join token valid for (hours, 1-24)'" class="mb-2" data-test="join-ttl" />
         <UiAlert v-if="error" kind="error" class="mt-2" data-test="join-error">{{ error }}</UiAlert>

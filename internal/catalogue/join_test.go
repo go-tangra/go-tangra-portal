@@ -44,6 +44,7 @@ func joinEntry(t *testing.T, templates map[string]string, tlsHosts ...string) (f
 		{Key: "MODULE_ADVERTISE_HOST", Label: "host", Pattern: `^[a-z0-9.-]+$`},
 		{Key: "SMS_PUBLIC_PORT", Label: "port", Pattern: `^[0-9]+$`, Default: "9901"},
 		{Key: "FREE_TEXT", Label: "anything", Pattern: `^.*$`, Default: "x"},
+		{Key: "AMI_ADDRESS", Label: "AMI", Pattern: `^[a-z0-9.]+:[0-9]+$`, Optional: true},
 	}
 	e, err := fwcat.BuildEntry(d, "4.3.0", "go-tangra/go-tangra-sms-gw", nil, bundle)
 	if err != nil {
@@ -58,20 +59,32 @@ func TestCheckInputs(t *testing.T) {
 	if err != nil || got["SMS_PUBLIC_PORT"] != "9901" || got["MODULE_ADVERTISE_HOST"] != "sms.example.org" {
 		t.Fatalf("%v %v", got, err)
 	}
+	// An optional input may stay empty; a given value must still match.
+	if got["AMI_ADDRESS"] != "" {
+		t.Fatalf("optional default: %q", got["AMI_ADDRESS"])
+	}
+	if got, err := CheckInputs(e, map[string]string{"MODULE_ADVERTISE_HOST": "a.b", "AMI_ADDRESS": "127.0.0.1:5038"}); err != nil || got["AMI_ADDRESS"] != "127.0.0.1:5038" {
+		t.Fatalf("optional value: %v %v", got, err)
+	}
+	if _, ok := got["AMI_ADDRESS"]; !ok {
+		t.Fatal("an empty optional input is not rendered (templates would see an unknown placeholder)")
+	}
 	for name, tc := range map[string]struct {
 		in  map[string]string
 		key string
 	}{
-		"missing":       {map[string]string{}, "MODULE_ADVERTISE_HOST"},
-		"extra":         {map[string]string{"MODULE_ADVERTISE_HOST": "a.b", "EVIL": "1"}, "EVIL"},
-		"pattern":       {map[string]string{"MODULE_ADVERTISE_HOST": "A_B"}, "MODULE_ADVERTISE_HOST"},
-		"newline":       {map[string]string{"MODULE_ADVERTISE_HOST": "a.b", "FREE_TEXT": "a\nGATEWAY_ISSUER=x"}, "FREE_TEXT"},
-		"dollar":        {map[string]string{"MODULE_ADVERTISE_HOST": "a.b", "FREE_TEXT": "${TRUST_DOMAIN}"}, "FREE_TEXT"},
-		"quote":         {map[string]string{"MODULE_ADVERTISE_HOST": "a.b", "FREE_TEXT": `a"b`}, "FREE_TEXT"},
-		"backtick":      {map[string]string{"MODULE_ADVERTISE_HOST": "a.b", "FREE_TEXT": "`id`"}, "FREE_TEXT"},
-		"backslash":     {map[string]string{"MODULE_ADVERTISE_HOST": "a.b", "FREE_TEXT": `a\b`}, "FREE_TEXT"},
-		"reserved name": {map[string]string{"MODULE_ADVERTISE_HOST": "a.b", "GATEWAY_ISSUER": "https://evil"}, "GATEWAY_ISSUER"},
-		"too long":      {map[string]string{"MODULE_ADVERTISE_HOST": "a.b", "FREE_TEXT": strings.Repeat("a", 1025)}, "FREE_TEXT"},
+		"optional pattern": {map[string]string{"MODULE_ADVERTISE_HOST": "a.b", "AMI_ADDRESS": "not an address"}, "AMI_ADDRESS"},
+		"optional quote":   {map[string]string{"MODULE_ADVERTISE_HOST": "a.b", "AMI_ADDRESS": `"`}, "AMI_ADDRESS"},
+		"missing":          {map[string]string{}, "MODULE_ADVERTISE_HOST"},
+		"extra":            {map[string]string{"MODULE_ADVERTISE_HOST": "a.b", "EVIL": "1"}, "EVIL"},
+		"pattern":          {map[string]string{"MODULE_ADVERTISE_HOST": "A_B"}, "MODULE_ADVERTISE_HOST"},
+		"newline":          {map[string]string{"MODULE_ADVERTISE_HOST": "a.b", "FREE_TEXT": "a\nGATEWAY_ISSUER=x"}, "FREE_TEXT"},
+		"dollar":           {map[string]string{"MODULE_ADVERTISE_HOST": "a.b", "FREE_TEXT": "${TRUST_DOMAIN}"}, "FREE_TEXT"},
+		"quote":            {map[string]string{"MODULE_ADVERTISE_HOST": "a.b", "FREE_TEXT": `a"b`}, "FREE_TEXT"},
+		"backtick":         {map[string]string{"MODULE_ADVERTISE_HOST": "a.b", "FREE_TEXT": "`id`"}, "FREE_TEXT"},
+		"backslash":        {map[string]string{"MODULE_ADVERTISE_HOST": "a.b", "FREE_TEXT": `a\b`}, "FREE_TEXT"},
+		"reserved name":    {map[string]string{"MODULE_ADVERTISE_HOST": "a.b", "GATEWAY_ISSUER": "https://evil"}, "GATEWAY_ISSUER"},
+		"too long":         {map[string]string{"MODULE_ADVERTISE_HOST": "a.b", "FREE_TEXT": strings.Repeat("a", 1025)}, "FREE_TEXT"},
 	} {
 		_, err := CheckInputs(e, tc.in)
 		var ie *InputError
