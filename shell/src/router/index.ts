@@ -17,6 +17,9 @@ declare module 'vue-router' {
 // boot (see main.ts) under their own error boundary.
 export const routes: RouteRecordRaw[] = [
   { path: '/', name: 'home', component: () => import('@/views/Home.vue') },
+  // Help center: search and browse module documentation; one page per slug (it may span segments).
+  { path: '/help', name: 'help', component: () => import('@/views/help/HelpCenter.vue') },
+  { path: '/help/:module/:slug(.*)*', name: 'help-page', component: () => import('@/views/help/HelpPage.vue') },
   { path: '/ops', name: 'ops', component: () => import('@/views/ops/Registrations.vue'), meta: { operator: true } },
   { path: '/ops/modules', name: 'ops-modules', component: () => import('@/views/ops/Modules.vue'), meta: { operator: true } },
   { path: '/ops/allowlist', name: 'ops-allowlist', component: () => import('@/views/ops/Allowlist.vue'), meta: { operator: true } },
