@@ -8,6 +8,7 @@ import { live, type LiveBus } from '@/api/live'
 import { SESSION_CHANGED_EVENT } from '@/stores/session'
 import { checkSession, keeper } from '@/session'
 import { useRegistry } from '@/stores/registry'
+import { useHelp } from '@/stores/help'
 import { loadExpose, registerModules, RemoteLoadError } from '@/federation/runtime'
 import ModuleBoundary from '@/components/ModuleBoundary.vue'
 
@@ -156,6 +157,8 @@ export async function boot(router: Router): Promise<() => void> {
         /* the next event or reload recovers */
       }
     },
+    // Help pages of a module changed: drop the cached tree and pages (an open help view refetches).
+    onDocs: (module) => useHelp().invalidate(module),
     onAbilities: async () => {
       try {
         await loadAbilities()
