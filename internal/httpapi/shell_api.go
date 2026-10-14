@@ -26,6 +26,14 @@ type ShellDeps struct {
 	// Hub is the platform realtime event bus; Instance names this gateway.
 	Hub      EventHub
 	Instance string
+	// Docs announces module documentation changes on /gateway/v1/events
+	// (nil: none).
+	Docs DocsEvents
+}
+
+// DocsEvents subscribes to module documentation changes (docs.Notifier).
+type DocsEvents interface {
+	Subscribe() (<-chan string, func())
 }
 
 // ModuleView is one entry of GET /gateway/v1/me/modules.

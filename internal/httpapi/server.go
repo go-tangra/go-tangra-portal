@@ -87,12 +87,25 @@ func DeclaredRoutes(doc *openapi3.T) []Route {
 	return out
 }
 
+// DocsPrefix is the help (module documentation) API.
+const DocsPrefix = APIPrefix + "docs/"
+
 // muxPattern turns an OpenAPI path into a Go 1.22 mux pattern; a trailing
-// {asset} parameter under /m/ matches the rest of the path.
+// {asset} parameter under /m/, and a trailing {slug} or {path} under the
+// help API, match the rest of the path (OpenAPI path parameters are single
+// segments; such multi-segment requests skip the document's validation and
+// are checked by their handlers).
 func muxPattern(rt Route) string {
 	p := rt.Path
 	if strings.HasPrefix(p, RemotePrefix) && strings.HasSuffix(p, "/{asset}") {
 		p = strings.TrimSuffix(p, "{asset}") + "{asset...}"
+	}
+	if strings.HasPrefix(p, DocsPrefix) {
+		for _, rest := range []string{"slug", "path"} {
+			if strings.HasSuffix(p, "/{"+rest+"}") {
+				p = strings.TrimSuffix(p, "{"+rest+"}") + "{" + rest + "...}"
+			}
+		}
 	}
 	return rt.Method + " " + p
 }

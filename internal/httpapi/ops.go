@@ -1,6 +1,7 @@
 package httpapi
 
 import (
+	"context"
 	"errors"
 
 	authv1 "github.com/go-tangra/go-tangra-auth/sdk/v4/api/proto/auth/v1"
@@ -43,6 +44,22 @@ type OpsDeps struct {
 	// Inventory delivers join bundles through inventory agents (spec 037;
 	// nil: catalogue.agent_delivery not configured).
 	Inventory inventoryv1.ModuleDeliveryServiceClient
+	// Docs reads the module documentation index state (nil: not shown).
+	Docs DocsStates
+}
+
+// DocsStates lists the indexed documentation per module.
+type DocsStates interface {
+	DocsStates(ctx context.Context) ([]store.DocsState, error)
+}
+
+// DocsStateView is a module's indexed documentation in the registrations view.
+type DocsStateView struct {
+	Digest    string `json:"digest"`
+	IndexedAt string `json:"indexed_at,omitempty"`
+	PageCount int    `json:"page_count"`
+	Error     string `json:"error,omitempty"`
+	ErrorAt   string `json:"error_at,omitempty"`
 }
 
 // RegistrationView is one row of GET /gateway/v1/ops/registrations.
@@ -60,7 +77,10 @@ type RegistrationView struct {
 	// DocsDigests are the distinct documentation bundles the instances ship
 	// (hex SHA-256, sorted; empty when none ships documentation).
 	DocsDigests []string `json:"docs_digests"`
-	Traffic     Snapshot `json:"traffic"`
+	// Docs is the indexed documentation (absent when nothing was indexed
+	// or attempted, or the store could not be read).
+	Docs    *DocsStateView `json:"docs,omitempty"`
+	Traffic Snapshot       `json:"traffic"`
 }
 
 // AllowView is one allow-list row.
@@ -215,6 +235,17 @@ func allowView(e store.AllowEntry) AllowView {
 	return v
 }
 
+func docsStateView(st store.DocsState) *DocsStateView {
+	v := &DocsStateView{Digest: st.Digest, PageCount: st.PageCount, Error: st.Error}
+	if st.IndexedAt != nil {
+		v.IndexedAt = st.IndexedAt.UTC().Format(time.RFC3339)
+	}
+	if st.ErrorAt != nil {
+		v.ErrorAt = st.ErrorAt.UTC().Format(time.RFC3339)
+	}
+	return v
+}
+
 func (s *Server) listRegistrations(d OpsDeps) opsHandler {
 	return func(w http.ResponseWriter, r *http.Request, _ registry.Operator) {
 		req, ok := parseList(w, r, store.RegistrationList)
@@ -222,6 +253,15 @@ func (s *Server) listRegistrations(d OpsDeps) opsHandler {
 			return
 		}
 		regs := d.Reg.Registrations()
+		docs := map[string]*DocsStateView{}
+		if d.Docs != nil {
+			// Best effort: the view stays useful without the store.
+			if states, err := d.Docs.DocsStates(r.Context()); err == nil {
+				for _, st := range states {
+					docs[st.Module] = docsStateView(st)
+				}
+			}
+		}
 		out := make([]RegistrationView, 0, len(regs))
 		for _, reg := range regs {
 			v := RegistrationView{Module: reg.Module, Identity: reg.Identity, State: string(d.Reg.State(reg.Module)), Instances: len(reg.Instances), Unhealthy: len(reg.Unhealthy), BuildVersions: nonNil(reg.BuildVersions()), DocsDigests: nonNil(reg.DocsDigests()),
@@ -238,6 +278,7 @@ func (s *Server) listRegistrations(d OpsDeps) opsHandler {
 			if d.Traffic != nil {
 				v.Traffic = d.Traffic.Snapshot(reg.Module)
 			}
+			v.Docs = docs[reg.Module]
 			out = append(out, v)
 		}
 		views := make([]*RegistrationView, 0, len(out))

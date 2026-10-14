@@ -160,6 +160,76 @@ components:
         roles: { type: array, items: { type: string } }
         version: { type: string }
         modules: { type: object, additionalProperties: { type: array, description: CASL packed rules } }
+    DocsState:
+      type: object
+      description: 'Indexed module documentation (help pages)'
+      required: [digest, page_count]
+      properties:
+        digest: { type: string, description: 'indexed bundle digest; empty before the first success' }
+        indexed_at: { type: string, format: date-time }
+        page_count: { type: integer }
+        error: { type: string, description: 'last fetch or index failure (the previous index stays); empty after a success' }
+        error_at: { type: string, format: date-time }
+    DocsSearchPage:
+      type: object
+      required: [items, total, page, page_size, sort, order, facets, fuzzy]
+      properties:
+        items:
+          type: array
+          items:
+            type: object
+            required: [module, module_title, slug, title, kind, snippet, rank]
+            properties:
+              module: { type: string }
+              module_title: { type: string }
+              slug: { type: string }
+              title: { type: string }
+              kind: { type: string, enum: [guide, example, reference, faq] }
+              snippet: { type: string, description: 'HTML: matched text escaped, matches in <mark>; the escaped summary when the match is not in the body' }
+              rank: { type: number }
+        total: { type: integer }
+        page: { type: integer }
+        page_size: { type: integer }
+        sort: { type: string }
+        order: { type: string, enum: [asc, desc] }
+        facets:
+          type: object
+          required: [modules, kinds]
+          description: 'hits per module (within the kind filter) and per kind (within the module filter)'
+          properties:
+            modules: { type: object, additionalProperties: { type: integer } }
+            kinds: { type: object, additionalProperties: { type: integer } }
+        fuzzy: { type: boolean, description: 'nothing matched the text search; items are titles similar to the query' }
+    DocsTree:
+      type: object
+      required: [modules]
+      properties:
+        modules:
+          type: array
+          items:
+            type: object
+            required: [module, title, groups]
+            properties:
+              module: { type: string }
+              title: { type: string }
+              icon: { type: string }
+              groups: { type: array, items: { type: object, required: [kind, pages], properties: { kind: { type: string, enum: [guide, example, reference, faq] }, pages: { type: array, items: { type: object, required: [slug, title], properties: { slug: { type: string }, title: { type: string }, summary: { type: string } } } } } } }
+    DocPage:
+      type: object
+      required: [module, module_title, slug, title, summary, kind, tags, html, outline, prev, next, version]
+      properties:
+        module: { type: string }
+        module_title: { type: string }
+        slug: { type: string }
+        title: { type: string }
+        summary: { type: string }
+        kind: { type: string, enum: [guide, example, reference, faq] }
+        tags: { type: array, items: { type: string } }
+        html: { type: string, description: 'rendered and sanitized; page links point at /help/<module>/<slug>, images at /gateway/v1/docs/<module>/assets/<path>; code highlighted with chroma CSS classes' }
+        outline: { type: array, items: { type: object, required: [id, text, level], properties: { id: { type: string }, text: { type: string }, level: { type: integer } } } }
+        prev: { type: ['object', 'null'], properties: { slug: { type: string }, title: { type: string } } }
+        next: { type: ['object', 'null'], properties: { slug: { type: string }, title: { type: string } } }
+        version: { type: string, description: 'newest release the module instances run' }
     Registration:
       type: object
       properties:
@@ -171,6 +241,7 @@ components:
         manifest: { type: object }
         build_versions: { type: array, items: { type: string }, description: 'distinct releases the instances run, ascending' }
         docs_digests: { type: array, items: { type: string }, description: 'distinct documentation bundle digests (hex sha256) the instances ship, ascending; empty when none ships documentation' }
+        docs: { $ref: '#/components/schemas/DocsState' }
         traffic: { type: object, properties: { requests_1m: { type: integer }, refusals_1m: { type: integer }, p95_ms: { type: number } } }
 paths:
   /gateway/v1/me:
@@ -180,9 +251,51 @@ paths:
   /gateway/v1/me/abilities:
     get: { operationId: myAbilities, summary: 'CASL rules derived from the caller API permissions, per module', responses: { '200': { description: abilities, content: { application/json: { schema: { $ref: '#/components/schemas/Abilities' } } } } } }
   /gateway/v1/events:
-    get: { operationId: events, summary: 'Server-sent events for registry and ability version changes (shell refetch trigger)', responses: { '200': { description: text/event-stream } } }
+    get: { operationId: events, summary: 'Server-sent events for registry and ability version changes and module documentation changes (event docs_updated, data {module}) (shell refetch trigger)', responses: { '200': { description: text/event-stream } } }
   /gateway/v1/stream:
     get: { operationId: userStream, summary: 'Per-signed-in-user SSE bus: realtime events any module publishes to the shared platform stream', parameters: [{ name: Last-Event-ID, in: header, schema: { type: string, maxLength: 64 } }], responses: { '200': { description: text/event-stream } } }
+  /gateway/v1/docs/search:
+    get:
+      operationId: searchDocs
+      description: 'Full-text search over the module documentation the caller may see (registered modules; pages whose requires the caller holds; operator pages for platform operators). websearch syntax ("quoted phrase", -exclude, or); ranked by relevance; falls back to title similarity when nothing matches (fuzzy). Totals and facets count only visible pages.'
+      parameters:
+        - { name: q, in: query, required: true, schema: { type: string, minLength: 1, maxLength: 1024 }, description: 'search text (at most 256 characters after trimming)' }
+        - { name: module, in: query, schema: { type: string } }
+        - { name: kind, in: query, schema: { type: string, enum: [guide, example, reference, faq] } }
+        - { $ref: '#/components/parameters/page' }
+        - { name: page_size, in: query, schema: { type: integer, minimum: 1, maximum: 50 } }
+        - { name: sort, in: query, schema: { type: string, enum: [rank] } }
+        - { $ref: '#/components/parameters/order' }
+      responses:
+        '200': { description: hits, content: { application/json: { schema: { $ref: '#/components/schemas/DocsSearchPage' } } } }
+        '400': { description: 'validation_failed (detail.param: q | module | kind | page | page_size | sort | order)' }
+        '401': { description: unauthenticated }
+  /gateway/v1/docs/tree:
+    get:
+      operationId: docsTree
+      description: 'The help pages the caller may see, per module (by title) and kind (guide, example, reference, faq), by order then title. Modules without a visible page are left out.'
+      responses:
+        '200': { description: tree, content: { application/json: { schema: { $ref: '#/components/schemas/DocsTree' } } } }
+        '401': { description: unauthenticated }
+  /gateway/v1/docs/{module}/{slug}:
+    get:
+      operationId: docsPage
+      description: 'One help page with its rendered HTML, outline and neighbours. The slug may span several path segments (guides/subnets). A page the caller may not see is not_found, exactly like a missing one.'
+      parameters: [{ name: module, in: path, required: true, schema: { type: string } }, { name: slug, in: path, required: true, schema: { type: string } }]
+      responses:
+        '200': { description: page, content: { application/json: { schema: { $ref: '#/components/schemas/DocPage' } } } }
+        '401': { description: unauthenticated }
+        '404': { description: not_found }
+  /gateway/v1/docs/{module}/assets/{path}:
+    get:
+      operationId: docsAsset
+      description: 'An image of a registered module''s documentation (the path may span several segments). ETag is the sha256; with v (a prefix of it, as rendered pages link) the response is cacheable for a year. A page slug starting with assets/ is shadowed by this route.'
+      parameters: [{ name: module, in: path, required: true, schema: { type: string } }, { name: path, in: path, required: true, schema: { type: string } }, { name: v, in: query, schema: { type: string, maxLength: 64 } }]
+      responses:
+        '200': { description: 'image bytes (png, jpeg, webp or gif)' }
+        '304': { description: not modified }
+        '401': { description: unauthenticated }
+        '404': { description: not_found }
   /gateway/v1/ops/registrations:
     get: { operationId: listRegistrations, summary: 'Every registration with health and traffic (operators)', parameters: [{ $ref: '#/components/parameters/page' }, { $ref: '#/components/parameters/pageSize' }, { name: sort, in: query, schema: { type: string, enum: [module, state, instances, last_renewal] } }, { $ref: '#/components/parameters/order' }], responses: { '200': { description: 'page of registrations', content: { application/json: { schema: { allOf: [{ $ref: '#/components/schemas/Page' }, { type: object, properties: { items: { type: array, items: { $ref: '#/components/schemas/Registration' } } } }] } } } }, '400': { description: validation_failed }, '403': { description: forbidden } } }
   /gateway/v1/ops/registrations/{module}/drain:

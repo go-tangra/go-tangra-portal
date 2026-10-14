@@ -32,6 +32,7 @@ import (
 	"github.com/go-tangra/go-tangra-portal/v4/internal/catalogue"
 	"github.com/go-tangra/go-tangra-portal/v4/internal/config"
 	"github.com/go-tangra/go-tangra-portal/v4/internal/console"
+	"github.com/go-tangra/go-tangra-portal/v4/internal/docs"
 	"github.com/go-tangra/go-tangra-portal/v4/internal/grpcapi"
 	"github.com/go-tangra/go-tangra-portal/v4/internal/health"
 	"github.com/go-tangra/go-tangra-portal/v4/internal/httpapi"
@@ -93,6 +94,8 @@ type App struct {
 	Catalogue *catalogue.Service
 	Hub       *stream.Hub
 	Console   *console.Server // nil unless console.enabled
+	// Docs indexes module documentation (help pages) as modules register.
+	Docs *docs.Indexer
 
 	verifier *authclient.Verifier
 	vready   atomic.Bool
@@ -324,12 +327,18 @@ func Build(ctx context.Context, cfg config.Config, o Options) (a *App, err error
 	}
 	built.HTTP.RegisterOps(httpapi.OpsDeps{Reg: built.Reg, Ops: &registry.Ops{Reg: built.Reg, Marks: adapter, Allow: adapter, Audit: built.Audit}, Identity: built.Identity, Audit: adapter, Traffic: built.Dispatch.Traffic, Roles: cfg.Operators.Roles,
 		Enroll: authv1.NewEnrollmentClient(authConn), TrustDomain: cfg.Config.TrustDomain, Events: built.Audit, AdminRoles: cfg.Operators.AdminRoles, Known: adapter,
-		Sources: adapter, Refresher: built.Catalogue, Join: join, Inventory: inventory})
+		Sources: adapter, Refresher: built.Catalogue, Join: join, Inventory: inventory, Docs: adapter})
 	built.Known = &known.Recorder{Reg: built.Reg, Store: adapter, Logger: log}
 	if err := adapter.SeedAllowedOwners(ctx, cfg.Catalogue.AllowedOwners); err != nil {
 		log.Warn("catalogue: allowed owners not seeded; retried at next start")
 	}
-	built.HTTP.RegisterShell(httpapi.ShellDeps{Reg: built.Reg, Identity: built.Identity, Decide: built.Decider, Proxies: built.Dispatch.Proxies, Hub: built.Hub, Instance: hostname()})
+	// Module documentation: fetched from module instances over the mesh
+	// when the registered digest changes, served to the shell.
+	docsEvents := &docs.Notifier{}
+	fetcher := &docs.HTTPFetcher{Clients: func(id fidentity.SPIFFEID) (*http.Client, error) { return thttp.NewClient(built.Freya, id) }}
+	built.Docs = &docs.Indexer{Reg: built.Reg, Store: adapter, Fetch: fetcher.Fetch, Notify: docsEvents.Publish, Logger: log}
+	built.HTTP.RegisterShell(httpapi.ShellDeps{Reg: built.Reg, Identity: built.Identity, Decide: built.Decider, Proxies: built.Dispatch.Proxies, Hub: built.Hub, Instance: hostname(), Docs: docsEvents})
+	built.HTTP.RegisterDocs(httpapi.DocsDeps{Reg: built.Reg, Identity: built.Identity, Decide: built.Decider, Store: adapter, Roles: cfg.Operators.Roles})
 	built.Revoke = &identity.RevocationWatcher{Feed: authv1.NewSessionsClient(authConn), Poll: 5 * time.Second, Logger: log,
 		OnRevoke: func(subject, reason string) { built.GRPC.CancelSubject(subject, reason) }}
 	rs := o.Registry
@@ -358,6 +367,9 @@ func (a *App) Run(ctx context.Context) error {
 	}
 	if a.Catalogue != nil {
 		go a.Catalogue.Run(ctx)
+	}
+	if a.Docs != nil {
+		go func() { _ = a.Docs.Run(ctx) }()
 	}
 	go a.permissionSyncLoop(ctx)
 	if a.verifier != nil {
