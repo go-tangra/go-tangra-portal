@@ -7,7 +7,24 @@ services:
     volumes: ["./init-db.sql:/docker-entrypoint-initdb.d/10-init.sql:ro"]
   valkey:
     image: valkey/valkey:8
-    command: ["valkey-server", "--requirepass", "dev", "--user", "gateway", "on", ">dev", "~*", "&*", "+@all", "--user", "auth", "on", ">dev", "~*", "&*", "+@all", "--user", "lcm", "on", ">dev", "~*", "&*", "+@all"]
+    # One ACL user per service, named after it, as on a production core. Modules
+    # joined from another host log in as their own user (see docs/operations.md).
+    command: ["valkey-server", "--requirepass", "dev",
+      "--user", "gateway", "on", ">dev", "~*", "&*", "+@all",
+      "--user", "auth", "on", ">dev", "~*", "&*", "+@all",
+      "--user", "lcm", "on", ">dev", "~*", "&*", "+@all",
+      "--user", "notification", "on", ">dev", "~*", "&*", "+@all",
+      "--user", "warden", "on", ">dev", "~*", "&*", "+@all",
+      "--user", "deployer", "on", ">dev", "~*", "&*", "+@all",
+      "--user", "paperless", "on", ">dev", "~*", "&*", "+@all",
+      "--user", "inventory", "on", ">dev", "~*", "&*", "+@all",
+      "--user", "ipam", "on", ">dev", "~*", "&*", "+@all",
+      "--user", "asset", "on", ">dev", "~*", "&*", "+@all",
+      "--user", "ticket", "on", ">dev", "~*", "&*", "+@all",
+      "--user", "dns", "on", ">dev", "~*", "&*", "+@all",
+      "--user", "scheduler", "on", ">dev", "~*", "&*", "+@all",
+      "--user", "signing", "on", ">dev", "~*", "&*", "+@all",
+      "--user", "hr", "on", ">dev", "~*", "&*", "+@all"]
     ports: ["6379:6379"]
   openfga:
     image: openfga/openfga:v1.20.0

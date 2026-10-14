@@ -207,6 +207,17 @@ The gateway's Valkey user needs key and channel access (`~* &*`): registry
 changes are published on `gateway:registry`, and the auth service publishes
 revocations the same way (an ACL without `&*` makes sign-out fail).
 
+Every module connects as its own Valkey user, named after the module
+(`notification`, `warden`, `deployer`, `paperless`, `inventory`, `ipam`,
+`asset`, `ticket`, `dns`, `scheduler`, `signing`, `hr`), next to `gateway`,
+`auth` and `lcm`. Create the user on the core's Valkey before adding a module,
+including one joined from another host through the catalogue: its join bundle
+asks for the core's Valkey address, this user's password and the core's CA,
+and connects over TLS. Modules that publish realtime events must use the
+core's Valkey, because the gateway reads `platform:events:<tenant>` from it;
+a module with its own Valkey has its events dropped silently. Without the user
+the module fails at start-up with an authentication error.
+
 ## Valkey loss
 
 Registrations, leases and caches live in Valkey. If it becomes unreachable:
