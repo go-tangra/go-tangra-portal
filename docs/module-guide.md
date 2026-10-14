@@ -54,7 +54,31 @@ applies the same rule and refuses a malformed value with
 `docs_digest_invalid`. A re-registration whose only change is a new digest is
 accepted, stored on the instance and announced as an `updated` registry
 event; the operations view lists the digests the instances report
-(`docs_digests`). The gateway will use a new digest to fetch and index the bundle (not yet implemented).
+(`docs_digests`).
+
+When the wanted digest differs from the one it indexed, the gateway fetches
+`GET /docs/v1/bundle` (`helpdocs.BundlePath`) from an instance that announced
+it, on the instance's Freya HTTP server over the mTLS mesh (its own SVID; the
+module's `helpdocs.NewHandler` admits only the gateway service), with
+`If-None-Match: "<indexed digest>"`. Mount the handler as `docs/help-docs.md`
+in go-tangra describes. During a rollout the newest registered instance's
+digest wins (a rollback re-registers the old release, making it newest
+again). The gateway renders the Markdown itself and sanitizes the HTML:
+
+- GitHub-flavoured Markdown (tables, task lists, strikethrough, autolinks);
+  headings get ids; raw HTML in the source is dropped.
+- Relative page links (`[x](guides/subnets.md#fields)`) become portal routes
+  `/help/<module>/<slug>#fields`; relative images become
+  `/gateway/v1/docs/<module>/assets/<path>`. Remote images are dropped.
+  External links keep `http`, `https` and `mailto` only and open in a new tab
+  (`rel="noopener noreferrer nofollow"`).
+- Fenced code is highlighted with CSS classes (chroma), never inline styles.
+- `requires` (`resource:action`, like a nav entry) is qualified with your
+  module and checked for the reader; `audience: operator` pages are shown
+  only to platform operators. A page the reader may not see is `not_found`
+  and never counted in search results or facets.
+- A page slug starting with `assets/` is shadowed by the asset route: avoid a
+  `docs/help/assets/` directory of pages (images there are fine).
 
 ## 2. API permissions vs UI abilities
 
