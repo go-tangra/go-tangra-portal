@@ -51,6 +51,7 @@ const (
 	ReasonModuleDraining     = "module_draining"
 	ReasonUnknownLease       = "unknown_lease"
 	ReasonBackendRequired    = "backend_required"
+	ReasonDocsDigestInvalid  = "docs_digest_invalid"
 	ReasonUnavailable        = "registry_unavailable"
 )
 
@@ -71,6 +72,10 @@ type Instance struct {
 	// BuildVersion is the release the instance runs ("" when it did not
 	// report one). Informational only: it never affects drift detection.
 	BuildVersion string `json:"build_version,omitempty"`
+	// DocsDigest identifies the documentation bundle the instance ships (hex
+	// SHA-256, "" for none). Like BuildVersion it never affects drift
+	// detection: documentation changes need no manifest version bump.
+	DocsDigest string `json:"docs_digest,omitempty"`
 }
 
 // Registration is a module with its manifest and instances.
@@ -99,6 +104,39 @@ func (r Registration) BuildVersions() []string {
 	}
 	sort.Slice(out, func(i, j int) bool { return newer(out[j], out[i]) || !newer(out[i], out[j]) && out[i] < out[j] })
 	return out
+}
+
+// DocsDigests lists the distinct documentation digests the instances report,
+// sorted; empty when none ships documentation. More than one means a rollout
+// with changed documentation is in progress.
+func (r Registration) DocsDigests() []string {
+	seen := map[string]bool{}
+	var out []string
+	for _, in := range r.Instances {
+		if in.DocsDigest != "" && !seen[in.DocsDigest] {
+			seen[in.DocsDigest] = true
+			out = append(out, in.DocsDigest)
+		}
+	}
+	sort.Strings(out)
+	return out
+}
+
+// ValidDocsDigest reports whether d is "" (no documentation) or exactly 64
+// lowercase hexadecimal characters (a SHA-256 digest).
+func ValidDocsDigest(d string) bool {
+	if d == "" {
+		return true
+	}
+	if len(d) != 64 {
+		return false
+	}
+	for i := 0; i < len(d); i++ {
+		if c := d[i]; (c < '0' || c > '9') && (c < 'a' || c > 'f') {
+			return false
+		}
+	}
+	return true
 }
 
 // CleanBuildVersion normalises a reported build version: surrounding space
@@ -525,6 +563,10 @@ func (r *Registry) Register(ctx context.Context, identity string, req *gatewayv1
 	if instance == "" || len(instance) > 64 {
 		return r.refuse(identity, m.Module, &Error{codes.InvalidArgument, ReasonManifestInvalid}, map[string]any{"error": "instance_id required (≤ 64 chars)"})
 	}
+	docs := req.GetDocsDigest()
+	if !ValidDocsDigest(docs) {
+		return r.refuse(identity, m.Module, &Error{codes.InvalidArgument, ReasonDocsDigestInvalid}, map[string]any{"error": "docs_digest must be empty or 64 lowercase hex characters (sha256)"})
+	}
 	entry, err := r.o.Allow.AllowBySpiffeID(ctx, identity)
 	if errors.Is(err, store.ErrNotFound) {
 		return r.refuse(identity, m.Module, &Error{codes.PermissionDenied, ReasonIdentityNotAllowed}, nil)
@@ -600,7 +642,7 @@ func (r *Registry) Register(ctx context.Context, identity string, req *gatewayv1
 	if old, ok := reg.Instances[instance]; ok {
 		r.leases = without(r.leases, old.LeaseID)
 	}
-	reg.Instances[instance] = Instance{ID: instance, Backend: be, LeaseID: leaseID, ManifestHash: hash, RegisteredAt: now, RenewedAt: now, BuildVersion: build}
+	reg.Instances[instance] = Instance{ID: instance, Backend: be, LeaseID: leaseID, ManifestHash: hash, RegisteredAt: now, RenewedAt: now, BuildVersion: build, DocsDigest: docs}
 	reg.UpdatedAt = now
 	r.regs[m.Module] = reg
 	r.leases[leaseID] = leaseRef{m.Module, instance}
@@ -625,7 +667,7 @@ func (r *Registry) Register(ctx context.Context, identity string, req *gatewayv1
 	r.mu.Unlock()
 	v := r.announce(ctx, kind, m.Module)
 	r.emit(audit.Event{Type: auditType, Module: m.Module, ActorKind: "service", ActorID: identity, Outcome: "ok", Reason: kind, SubjectKind: "instance", SubjectID: instance,
-		Details: map[string]any{"prefixes": m.Prefixes, "version": m.Version, "build_version": build, "routes": len(m.Routes), "methods": len(m.Methods)}})
+		Details: map[string]any{"prefixes": m.Prefixes, "version": m.Version, "build_version": build, "docs_digest": docs, "routes": len(m.Routes), "methods": len(m.Methods)}})
 	if r.o.OnAccepted != nil && kind == EventRegistered || r.o.OnAccepted != nil && auditType == audit.RegistrationUpdated {
 		r.o.OnAccepted(ctx, m)
 	}

@@ -36,6 +36,26 @@ the process build version set once at start-up:
 func init() { gatewayclient.SetBuildVersion(version) }
 ```
 
+Documentation shipped in your binary (the `helpdocs` package) is identified
+by its digest, which also travels per instance beside the manifest, in
+`RegisterRequest.docs_digest`: the lowercase hex SHA-256 of the bundle
+(64 characters), or `""` when the module ships no documentation. It is not
+part of the manifest, so editing documentation never needs a manifest
+`version` bump and never causes `manifest_drift`. `gatewayclient` sends
+`Options.DocsDigest`, else the process digest set once at start-up:
+
+```go
+gatewayclient.SetDocsDigest(digest) // digest from helpdocs; "" when no docs
+```
+
+`gatewayclient.New` returns an error for anything other than `""` or 64
+lowercase hex characters (`gatewayclient.ValidateDocsDigest`); the gateway
+applies the same rule and refuses a malformed value with
+`docs_digest_invalid`. A re-registration whose only change is a new digest is
+accepted, stored on the instance and announced as an `updated` registry
+event; the operations view lists the digests the instances report
+(`docs_digests`). The gateway will use a new digest to fetch and index the bundle (not yet implemented).
+
 ## 2. API permissions vs UI abilities
 
 - **API permissions** are enforced by the gateway on every request before it

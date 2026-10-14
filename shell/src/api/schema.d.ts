@@ -614,6 +614,8 @@ export interface components {
             manifest?: Record<string, never>;
             /** @description distinct releases the instances run, ascending */
             build_versions?: string[];
+            /** @description distinct documentation bundle digests (hex sha256) the instances ship, ascending; empty when none ships documentation */
+            docs_digests?: string[];
             traffic?: {
                 requests_1m?: number;
                 refusals_1m?: number;

@@ -57,7 +57,10 @@ type RegistrationView struct {
 	// BuildVersions are the distinct releases the instances run (sorted;
 	// more than one during a rollout). manifest.version is the contract version.
 	BuildVersions []string `json:"build_versions"`
-	Traffic       Snapshot `json:"traffic"`
+	// DocsDigests are the distinct documentation bundles the instances ship
+	// (hex SHA-256, sorted; empty when none ships documentation).
+	DocsDigests []string `json:"docs_digests"`
+	Traffic     Snapshot `json:"traffic"`
 }
 
 // AllowView is one allow-list row.
@@ -221,7 +224,7 @@ func (s *Server) listRegistrations(d OpsDeps) opsHandler {
 		regs := d.Reg.Registrations()
 		out := make([]RegistrationView, 0, len(regs))
 		for _, reg := range regs {
-			v := RegistrationView{Module: reg.Module, Identity: reg.Identity, State: string(d.Reg.State(reg.Module)), Instances: len(reg.Instances), Unhealthy: len(reg.Unhealthy), BuildVersions: nonNil(reg.BuildVersions()),
+			v := RegistrationView{Module: reg.Module, Identity: reg.Identity, State: string(d.Reg.State(reg.Module)), Instances: len(reg.Instances), Unhealthy: len(reg.Unhealthy), BuildVersions: nonNil(reg.BuildVersions()), DocsDigests: nonNil(reg.DocsDigests()),
 				Manifest: map[string]any{"version": reg.Manifest.Version, "display_name": reg.Manifest.DisplayName, "prefixes": reg.Manifest.Prefixes, "routes": len(reg.Manifest.Routes), "methods": len(reg.Manifest.Methods), "permissions": len(reg.Manifest.Permissions), "abilities": len(reg.Manifest.Abilities)}}
 			var last time.Time
 			for _, in := range reg.Instances {

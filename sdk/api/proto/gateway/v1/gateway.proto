@@ -29,6 +29,13 @@ message RegisterRequest {
   // at build time. It is informational and per instance: it never takes part
   // in manifest drift detection (manifest.version is the contract version).
   string build_version = 4;
+  // docs_digest identifies the documentation bundle this instance ships: the
+  // lowercase hex SHA-256 (64 characters) of the bundle, or "" when the module
+  // ships no documentation. Like build_version it is per instance and never
+  // takes part in manifest drift detection, so editing documentation needs no
+  // manifest version bump. A malformed value is refused (docs_digest_invalid).
+  // The gateway will use a new digest to fetch and index the bundle.
+  string docs_digest = 5;
 }
 message RenewRequest { string lease_id = 1; }
 message DeregisterRequest { string lease_id = 1; }

@@ -170,6 +170,7 @@ components:
         last_renewal: { type: string, format: date-time }
         manifest: { type: object }
         build_versions: { type: array, items: { type: string }, description: 'distinct releases the instances run, ascending' }
+        docs_digests: { type: array, items: { type: string }, description: 'distinct documentation bundle digests (hex sha256) the instances ship, ascending; empty when none ships documentation' }
         traffic: { type: object, properties: { requests_1m: { type: integer }, refusals_1m: { type: integer }, p95_ms: { type: number } } }
 paths:
   /gateway/v1/me:
