@@ -18,8 +18,15 @@ declare module 'vue-router' {
 export const routes: RouteRecordRaw[] = [
   { path: '/', name: 'home', component: () => import('@/views/Home.vue') },
   // Help center: search and browse module documentation; one page per slug (it may span segments).
-  { path: '/help', name: 'help', component: () => import('@/views/help/HelpCenter.vue') },
-  { path: '/help/:module/:slug(.*)*', name: 'help-page', component: () => import('@/views/help/HelpPage.vue') },
+  // Children of one /help record, so a link to /help (the "Help center" nav entry) is active
+  // on every help page too: RouterLink treats an empty-path child as its parent.
+  {
+    path: '/help',
+    children: [
+      { path: '', name: 'help', component: () => import('@/views/help/HelpCenter.vue') },
+      { path: ':module/:slug(.*)*', name: 'help-page', component: () => import('@/views/help/HelpPage.vue') },
+    ],
+  },
   { path: '/ops', name: 'ops', component: () => import('@/views/ops/Registrations.vue'), meta: { operator: true } },
   { path: '/ops/modules', name: 'ops-modules', component: () => import('@/views/ops/Modules.vue'), meta: { operator: true } },
   { path: '/ops/allowlist', name: 'ops-allowlist', component: () => import('@/views/ops/Allowlist.vue'), meta: { operator: true } },
