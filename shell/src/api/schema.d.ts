@@ -62,7 +62,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Server-sent events for registry and ability version changes (shell refetch trigger) */
+        /** Server-sent events for registry and ability version changes and module documentation changes (event docs_updated, data {module}) (shell refetch trigger) */
         get: operations["events"];
         put?: never;
         post?: never;
@@ -81,6 +81,74 @@ export interface paths {
         };
         /** Per-signed-in-user SSE bus: realtime events any module publishes to the shared platform stream */
         get: operations["userStream"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/gateway/v1/docs/search": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Full-text search over the module documentation the caller may see (registered modules; pages whose requires the caller holds; operator pages for platform operators). websearch syntax ("quoted phrase", -exclude, or); ranked by relevance; falls back to title similarity when nothing matches (fuzzy). Totals and facets count only visible pages. */
+        get: operations["searchDocs"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/gateway/v1/docs/tree": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description The help pages the caller may see, per module (by title) and kind (guide, example, reference, faq), by order then title. Modules without a visible page are left out. */
+        get: operations["docsTree"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/gateway/v1/docs/{module}/{slug}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description One help page with its rendered HTML, outline and neighbours. The slug may span several path segments (guides/subnets). A page the caller may not see is not_found, exactly like a missing one. */
+        get: operations["docsPage"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/gateway/v1/docs/{module}/assets/{path}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description An image of a registered module's documentation (the path may span several segments). ETag is the sha256; with v (a prefix of it, as rendered pages link) the response is cacheable for a year. A page slug starting with assets/ is shadowed by this route. */
+        get: operations["docsAsset"];
         put?: never;
         post?: never;
         delete?: never;
@@ -603,6 +671,91 @@ export interface components {
                 [key: string]: unknown[];
             };
         };
+        /** @description Indexed module documentation (help pages) */
+        DocsState: {
+            /** @description indexed bundle digest; empty before the first success */
+            digest: string;
+            /** Format: date-time */
+            indexed_at?: string;
+            page_count: number;
+            /** @description last fetch or index failure (the previous index stays); empty after a success */
+            error?: string;
+            /** Format: date-time */
+            error_at?: string;
+        };
+        DocsSearchPage: {
+            items: {
+                module: string;
+                module_title: string;
+                slug: string;
+                title: string;
+                /** @enum {string} */
+                kind: "guide" | "example" | "reference" | "faq";
+                /** @description HTML: matched text escaped, matches in <mark>; the escaped summary when the match is not in the body */
+                snippet: string;
+                rank: number;
+            }[];
+            total: number;
+            page: number;
+            page_size: number;
+            sort: string;
+            /** @enum {string} */
+            order: "asc" | "desc";
+            /** @description hits per module (within the kind filter) and per kind (within the module filter) */
+            facets: {
+                modules: {
+                    [key: string]: number;
+                };
+                kinds: {
+                    [key: string]: number;
+                };
+            };
+            /** @description nothing matched the text search; items are titles similar to the query */
+            fuzzy: boolean;
+        };
+        DocsTree: {
+            modules: {
+                module: string;
+                title: string;
+                icon?: string;
+                groups: {
+                    /** @enum {string} */
+                    kind: "guide" | "example" | "reference" | "faq";
+                    pages: {
+                        slug: string;
+                        title: string;
+                        summary?: string;
+                    }[];
+                }[];
+            }[];
+        };
+        DocPage: {
+            module: string;
+            module_title: string;
+            slug: string;
+            title: string;
+            summary: string;
+            /** @enum {string} */
+            kind: "guide" | "example" | "reference" | "faq";
+            tags: string[];
+            /** @description rendered and sanitized; page links point at /help/<module>/<slug>, images at /gateway/v1/docs/<module>/assets/<path>; code highlighted with chroma CSS classes */
+            html: string;
+            outline: {
+                id: string;
+                text: string;
+                level: number;
+            }[];
+            prev: {
+                slug?: string;
+                title?: string;
+            } | null;
+            next: {
+                slug?: string;
+                title?: string;
+            } | null;
+            /** @description newest release the module instances run */
+            version: string;
+        };
         Registration: {
             module?: string;
             identity?: string;
@@ -614,6 +767,9 @@ export interface components {
             manifest?: Record<string, never>;
             /** @description distinct releases the instances run, ascending */
             build_versions?: string[];
+            /** @description distinct documentation bundle digests (hex sha256) the instances ship, ascending; empty when none ships documentation */
+            docs_digests?: string[];
+            docs?: components["schemas"]["DocsState"];
             traffic?: {
                 requests_1m?: number;
                 refusals_1m?: number;
@@ -737,6 +893,158 @@ export interface operations {
         responses: {
             /** @description text/event-stream */
             200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    searchDocs: {
+        parameters: {
+            query: {
+                /** @description search text (at most 256 characters after trimming) */
+                q: string;
+                module?: string;
+                kind?: "guide" | "example" | "reference" | "faq";
+                /** @description 1-based page; beyond the last page returns the last page */
+                page?: components["parameters"]["page"];
+                page_size?: number;
+                sort?: "rank";
+                order?: components["parameters"]["order"];
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description hits */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DocsSearchPage"];
+                };
+            };
+            /** @description validation_failed (detail.param: q | module | kind | page | page_size | sort | order) */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description unauthenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    docsTree: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description tree */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DocsTree"];
+                };
+            };
+            /** @description unauthenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    docsPage: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                module: string;
+                slug: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description page */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DocPage"];
+                };
+            };
+            /** @description unauthenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description not_found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    docsAsset: {
+        parameters: {
+            query?: {
+                v?: string;
+            };
+            header?: never;
+            path: {
+                module: string;
+                path: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description image bytes (png, jpeg, webp or gif) */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description not modified */
+            304: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description unauthenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description not_found */
+            404: {
                 headers: {
                     [name: string]: unknown;
                 };

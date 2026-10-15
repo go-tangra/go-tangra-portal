@@ -36,6 +36,11 @@ type Options struct {
 	// gateway shows it to users. Empty means the process build version
 	// (see SetBuildVersion and BuildVersion).
 	BuildVersion string
+	// DocsDigest identifies the documentation bundle this process ships: the
+	// lowercase hex SHA-256 (64 characters) from the helpdocs package, or ""
+	// for none. Empty means the process digest (see SetDocsDigest). New
+	// refuses a malformed value.
+	DocsDigest string
 }
 
 // State is the lease state visible to the module.
@@ -85,6 +90,12 @@ func New(conn grpc.ClientConnInterface, o Options) (*Client, error) {
 	if o.BuildVersion == "" {
 		o.BuildVersion = BuildVersion()
 	}
+	if o.DocsDigest == "" {
+		o.DocsDigest = DocsDigest()
+	}
+	if err := ValidateDocsDigest(o.DocsDigest); err != nil {
+		return nil, err
+	}
 	return &Client{reg: gatewayv1.NewRegistryClient(conn), opts: o, rand: jitter, now: time.Now}, nil
 }
 
@@ -108,7 +119,7 @@ func (c *Client) Run(ctx context.Context) error {
 		return err
 	}
 	req := &gatewayv1.RegisterRequest{Manifest: pm, InstanceId: c.opts.InstanceID, Backend: &gatewayv1.Backend{HttpUrl: c.opts.HTTPURL, GrpcTarget: c.opts.GRPCTarget},
-		BuildVersion: c.opts.BuildVersion}
+		BuildVersion: c.opts.BuildVersion, DocsDigest: c.opts.DocsDigest}
 	backoff := time.Second
 	for {
 		lease, err := c.reg.Register(ctx, req)

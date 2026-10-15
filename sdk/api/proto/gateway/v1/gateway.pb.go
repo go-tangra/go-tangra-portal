@@ -35,7 +35,14 @@ type RegisterRequest struct {
 	// build_version is the release this instance runs (e.g. "4.10.2"), stamped
 	// at build time. It is informational and per instance: it never takes part
 	// in manifest drift detection (manifest.version is the contract version).
-	BuildVersion  string `protobuf:"bytes,4,opt,name=build_version,json=buildVersion,proto3" json:"build_version,omitempty"`
+	BuildVersion string `protobuf:"bytes,4,opt,name=build_version,json=buildVersion,proto3" json:"build_version,omitempty"`
+	// docs_digest identifies the documentation bundle this instance ships: the
+	// lowercase hex SHA-256 (64 characters) of the bundle, or "" when the module
+	// ships no documentation. Like build_version it is per instance and never
+	// takes part in manifest drift detection, so editing documentation needs no
+	// manifest version bump. A malformed value is refused (docs_digest_invalid).
+	// The gateway will use a new digest to fetch and index the bundle.
+	DocsDigest    string `protobuf:"bytes,5,opt,name=docs_digest,json=docsDigest,proto3" json:"docs_digest,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -94,6 +101,13 @@ func (x *RegisterRequest) GetBackend() *Backend {
 func (x *RegisterRequest) GetBuildVersion() string {
 	if x != nil {
 		return x.BuildVersion
+	}
+	return ""
+}
+
+func (x *RegisterRequest) GetDocsDigest() string {
+	if x != nil {
+		return x.DocsDigest
 	}
 	return ""
 }
@@ -1048,13 +1062,15 @@ var File_gateway_v1_gateway_proto protoreflect.FileDescriptor
 const file_gateway_v1_gateway_proto_rawDesc = "" +
 	"\n" +
 	"\x18gateway/v1/gateway.proto\x12\n" +
-	"gateway.v1\x1a\x1egoogle/protobuf/duration.proto\x1a\x1cgoogle/protobuf/struct.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xb8\x01\n" +
+	"gateway.v1\x1a\x1egoogle/protobuf/duration.proto\x1a\x1cgoogle/protobuf/struct.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xd9\x01\n" +
 	"\x0fRegisterRequest\x120\n" +
 	"\bmanifest\x18\x01 \x01(\v2\x14.gateway.v1.ManifestR\bmanifest\x12\x1f\n" +
 	"\vinstance_id\x18\x02 \x01(\tR\n" +
 	"instanceId\x12-\n" +
 	"\abackend\x18\x03 \x01(\v2\x13.gateway.v1.BackendR\abackend\x12#\n" +
-	"\rbuild_version\x18\x04 \x01(\tR\fbuildVersion\")\n" +
+	"\rbuild_version\x18\x04 \x01(\tR\fbuildVersion\x12\x1f\n" +
+	"\vdocs_digest\x18\x05 \x01(\tR\n" +
+	"docsDigest\")\n" +
 	"\fRenewRequest\x12\x19\n" +
 	"\blease_id\x18\x01 \x01(\tR\aleaseId\".\n" +
 	"\x11DeregisterRequest\x12\x19\n" +

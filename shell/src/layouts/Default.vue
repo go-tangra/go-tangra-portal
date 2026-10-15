@@ -10,6 +10,7 @@ import { api } from '@/api/client'
 import { live } from '@/api/live'
 import ModuleBoundary from '@/components/ModuleBoundary.vue'
 import SessionWarning from '@/components/SessionWarning.vue'
+import HelpSearch from '@/components/HelpSearch.vue'
 
 const session = useSession()
 const headerCtx: BootContext = { ability, session, api, live }
@@ -18,10 +19,12 @@ const headerModules = computed(() => {
   const order = new Map(session.navGroups.map((g, i) => [g.module, i]))
   return [...headerSlots.entries()].sort(([a], [b]) => (order.get(a) ?? 1e9) - (order.get(b) ?? 1e9))
 })
-// One collapsible menu per module (the kit opens the one owning the active route), Home above, operations below.
+// One collapsible menu per module (the kit opens the one owning the active route), Home above,
+// the help center and operations below.
 const groups = computed<NavGroup[]>(() => [
   { items: [{ title: 'Home', path: '/', icon: 'mdi-home-outline', exact: true, testId: 'nav-home' }] },
   ...session.navGroups.map((g) => ({ key: g.module, title: g.title, icon: g.icon, testId: 'nav-group-' + g.module, items: g.entries.map((n) => ({ title: n.title, path: n.path, icon: n.icon || 'mdi-circle-small', testId: 'nav-' + n.module })) })),
+  { key: 'help', items: [{ title: 'Help center', path: '/help', icon: 'mdi-help-circle-outline', testId: 'nav-help' }] },
   // Gateway operations (platform operators): one menu with its pages.
   ...(session.operator
     ? [{ key: 'ops', title: 'Gateway operations', icon: 'mdi-server-network', testId: 'nav-ops', items: [
@@ -56,6 +59,8 @@ async function signOut(): Promise<void> {
       </RouterLink>
     </template>
     <template #app-bar>
+      <!-- Documentation search (Ctrl/Cmd+K), ahead of the module header slots. -->
+      <HelpSearch v-if="session.signedIn" />
       <UiButton variant="text" size="sm" icon-only :icon="dark ? 'mdi-weather-sunny' : 'mdi-weather-night'" :label="dark ? 'Switch to the light theme' : 'Switch to the dark theme'" data-test="theme-toggle" @click="theme.toggle()" />
       <!-- Module header slots (./header): each inside its own boundary so a failing one shows nothing. -->
       <template v-if="session.signedIn">

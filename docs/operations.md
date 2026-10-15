@@ -119,6 +119,40 @@ console:
 - Modules shows `available` modules (entry, never installed) and
   `update <version>` when an instance runs an older release.
 
+## Module documentation (help pages)
+
+- Modules embed help pages (Markdown + images, go-tangra `helpdocs`) and
+  announce the bundle's digest when they register. The gateway's indexer
+  compares the newest registered instance's digest with what it indexed
+  (`module_docs_state`) at start, on every `registered`/`updated` registry
+  event and every 5 minutes; when they differ it fetches
+  `GET /docs/v1/bundle` from an instance announcing that digest over the
+  mesh (30 s timeout, at most 8 MiB), verifies it (`helpdocs.Decode`: schema,
+  limits, image types, asset hashes, digest; module name and digest must
+  match the registration), renders and sanitizes every page and replaces the
+  module's rows (`module_docs`, `module_doc_assets`) in one transaction.
+  One fetch runs per module at a time.
+- A failed fetch or a refused bundle keeps the previous index; the error is
+  recorded and shown in **Operations → Registrations** (`docs.error`,
+  `docs.error_at` beside `docs.digest`, `docs.indexed_at`,
+  `docs.page_count`) and retried with backoff (10 s doubling to 10 min) and
+  at the next reconcile. A module whose instances announce no digest has its
+  documentation removed. A module that is not registered keeps its rows but
+  is left out of search and the help tree until it registers again.
+- Browsers read `/gateway/v1/docs/search` (Postgres full-text search,
+  `websearch_to_tsquery` syntax, `ts_rank_cd` ranking with title > summary,
+  tags and headings > body; trigram title similarity when nothing matches),
+  `/gateway/v1/docs/tree`, `/gateway/v1/docs/{module}/{slug}` and
+  `/gateway/v1/docs/{module}/assets/{path}`. Page `requires` are checked in
+  one decision batch per request and filtered in SQL, so totals and facets
+  count only what the reader may see; operator pages need a platform
+  operator (`operators.roles`).
+- After a module's documentation is indexed or removed, `/gateway/v1/events`
+  carries `event: docs_updated` with `{"module": ...}`; replicas that notice
+  an index another replica wrote announce it too.
+- Migration 0009 creates the `pg_trgm` extension (a trusted extension: the
+  migration role needs CREATE on the database, as the database owner has).
+
 ## Adding a module (feature 036)
 
 - Needs `catalogue.join` in the gateway configuration: the mesh addresses a

@@ -14,6 +14,12 @@ import (
 // module's current manifest and the given build version.
 func reRegister(t *testing.T, reg *registry.Registry, module, instance, build string) {
 	t.Helper()
+	reRegisterWith(t, reg, module, instance, func(r *gatewayv1.RegisterRequest) { r.BuildVersion = build })
+}
+
+// reRegisterWith is reRegister with the request adjusted by set.
+func reRegisterWith(t *testing.T, reg *registry.Registry, module, instance string, set func(*gatewayv1.RegisterRequest)) {
+	t.Helper()
 	cur, ok := reg.Get(module)
 	if !ok {
 		t.Fatalf("%s not registered", module)
@@ -33,8 +39,9 @@ func reRegister(t *testing.T, reg *registry.Registry, module, instance, build st
 	for _, n := range m.Nav {
 		pm.Nav = append(pm.Nav, &gatewayv1.NavEntry{Title: n.Title, Path: n.Path, Icon: n.Icon, Order: int32(n.Order), Requires: n.Requires})
 	}
-	if _, err := reg.Register(context.Background(), cur.Identity, &gatewayv1.RegisterRequest{InstanceId: instance, BuildVersion: build,
-		Backend: &gatewayv1.Backend{HttpUrl: "https://" + module}, Manifest: pm}); err != nil {
+	rr := &gatewayv1.RegisterRequest{InstanceId: instance, Backend: &gatewayv1.Backend{HttpUrl: "https://" + module}, Manifest: pm}
+	set(rr)
+	if _, err := reg.Register(context.Background(), cur.Identity, rr); err != nil {
 		t.Fatalf("re-register %s/%s: %v", module, instance, err)
 	}
 }
@@ -91,5 +98,30 @@ func TestOpsRegistrationsReportBuildVersions(t *testing.T) {
 	}
 	if len(page.Items) != 1 || !reflect.DeepEqual(page.Items[0].BuildVersions, []string{"4.6.2"}) || page.Items[0].Manifest["version"] != "1.0.0" {
 		t.Fatalf("%+v", page.Items)
+	}
+}
+
+func TestOpsRegistrationsReportDocsDigests(t *testing.T) {
+	const digest = "9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08"
+	s, reg, _, _ := opsServer(t)
+	page := func() []RegistrationView {
+		w := do(s, "GET", "/gateway/v1/ops/registrations", "", map[string]string{"Authorization": "Bearer operator"})
+		if w.Code != 200 {
+			t.Fatalf("%d %s", w.Code, w.Body.String())
+		}
+		var p struct {
+			Items []RegistrationView `json:"items"`
+		}
+		if err := json.Unmarshal(w.Body.Bytes(), &p); err != nil {
+			t.Fatal(err)
+		}
+		return p.Items
+	}
+	if items := page(); len(items) != 1 || items[0].DocsDigests == nil || len(items[0].DocsDigests) != 0 {
+		t.Fatalf("no documentation must be an empty list: %+v", items)
+	}
+	reRegisterWith(t, reg, "orders", "i1", func(r *gatewayv1.RegisterRequest) { r.DocsDigest = digest })
+	if items := page(); len(items) != 1 || !reflect.DeepEqual(items[0].DocsDigests, []string{digest}) {
+		t.Fatalf("%+v", items)
 	}
 }

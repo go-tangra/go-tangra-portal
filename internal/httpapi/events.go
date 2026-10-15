@@ -15,9 +15,11 @@ const (
 	eventsPoll      = 2 * time.Second
 )
 
-// events streams registry changes and ability-version changes as
-// server-sent events: `event: registry` (kind, module, version) and
-// `event: abilities` (version). The shell refetches on either.
+// events streams registry changes, ability-version changes and module
+// documentation changes as server-sent events: `event: registry` (kind,
+// module, version), `event: abilities` (version) and `event: docs_updated`
+// (module; no id, so it never moves the registry replay cursor). The shell
+// refetches on any.
 func (s *Server) events(d ShellDeps) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		id, ok := RequireIdentity(w, r, d.Identity)
@@ -35,6 +37,12 @@ func (s *Server) events(d ShellDeps) http.HandlerFunc {
 		}
 		events, stop := d.Reg.Watch(cursor)
 		defer stop()
+		var docs <-chan string // nil: never ready
+		if d.Docs != nil {
+			ch, cancel := d.Docs.Subscribe()
+			defer cancel()
+			docs = ch
+		}
 		w.Header().Set("Content-Type", "text/event-stream")
 		w.Header().Set("Cache-Control", "no-store")
 		w.Header().Set("X-Accel-Buffering", "no")
@@ -63,6 +71,9 @@ func (s *Server) events(d ShellDeps) http.HandlerFunc {
 					_, _ = fmt.Fprintf(w, "event: abilities\ndata: {\"version\":%q}\n\n", v)
 					flusher.Flush()
 				}
+			case module := <-docs:
+				_, _ = fmt.Fprintf(w, "event: docs_updated\ndata: {\"module\":%q}\n\n", module)
+				flusher.Flush()
 			case ev, open := <-events:
 				if !open {
 					return // overflow: the client reconnects from Last-Event-ID

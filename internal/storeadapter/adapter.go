@@ -4,6 +4,7 @@ package storeadapter
 
 import (
 	"context"
+	"errors"
 	"time"
 
 	"github.com/jackc/pgx/v5"
@@ -182,5 +183,72 @@ func (a *Adapter) SetJoinJTI(ctx context.Context, id, jti string) error {
 // GetJoin returns a join record.
 func (a *Adapter) GetJoin(ctx context.Context, id string) (out store.CatalogueJoin, err error) {
 	err = a.St.Tx(ctx, func(tx pgx.Tx) error { out, err = store.GetJoin(ctx, tx, id, time.Now().UTC()); return err })
+	return
+}
+
+// DocsState implements docs.Store (found false when the module has none).
+func (a *Adapter) DocsState(ctx context.Context, module string) (out store.DocsState, found bool, err error) {
+	err = a.St.Tx(ctx, func(tx pgx.Tx) error { out, err = store.GetDocsState(ctx, tx, module); return err })
+	if errors.Is(err, store.ErrNotFound) {
+		return out, false, nil
+	}
+	return out, err == nil, err
+}
+
+// ReplaceDocs implements docs.Store: one transaction per module.
+func (a *Adapter) ReplaceDocs(ctx context.Context, module, digest string, pages []store.DocPage, assets []store.DocAsset) error {
+	return a.St.Tx(ctx, func(tx pgx.Tx) error {
+		return store.ReplaceDocs(ctx, tx, module, digest, pages, assets, time.Now().UTC())
+	})
+}
+
+// RemoveDocs implements docs.Store.
+func (a *Adapter) RemoveDocs(ctx context.Context, module string) error {
+	return a.St.Tx(ctx, func(tx pgx.Tx) error { return store.RemoveDocs(ctx, tx, module) })
+}
+
+// DocsFailed implements docs.Store.
+func (a *Adapter) DocsFailed(ctx context.Context, module, errText string) error {
+	return a.St.Tx(ctx, func(tx pgx.Tx) error { return store.DocsFailed(ctx, tx, module, errText, time.Now().UTC()) })
+}
+
+// ClearDocsError implements docs.Store.
+func (a *Adapter) ClearDocsError(ctx context.Context, module string) error {
+	return a.St.Tx(ctx, func(tx pgx.Tx) error { return store.ClearDocsError(ctx, tx, module) })
+}
+
+// DocsStates lists every module's docs state (ops view).
+func (a *Adapter) DocsStates(ctx context.Context) (out []store.DocsState, err error) {
+	err = a.St.Tx(ctx, func(tx pgx.Tx) error { out, err = store.ListDocsStates(ctx, tx); return err })
+	return
+}
+
+// DocsRequires lists the distinct page requires per module.
+func (a *Adapter) DocsRequires(ctx context.Context, modules []string) (out map[string][]string, err error) {
+	err = a.St.Tx(ctx, func(tx pgx.Tx) error { out, err = store.DocsRequires(ctx, tx, modules); return err })
+	return
+}
+
+// SearchDocs counts and pages a search in one transaction.
+func (a *Adapter) SearchDocs(ctx context.Context, q store.DocsSearch, req listquery.Request) (out store.DocsResult, err error) {
+	err = a.St.Tx(ctx, func(tx pgx.Tx) error { out, err = store.SearchDocs(ctx, tx, q, req); return err })
+	return
+}
+
+// DocsTree lists the pages in scope.
+func (a *Adapter) DocsTree(ctx context.Context, s store.DocsScope) (out []store.DocEntry, err error) {
+	err = a.St.Tx(ctx, func(tx pgx.Tx) error { out, err = store.DocsTree(ctx, tx, s); return err })
+	return
+}
+
+// GetDoc reads one page in scope.
+func (a *Adapter) GetDoc(ctx context.Context, s store.DocsScope, module, slug string) (out store.DocPage, err error) {
+	err = a.St.Tx(ctx, func(tx pgx.Tx) error { out, err = store.GetDoc(ctx, tx, s, module, slug); return err })
+	return
+}
+
+// GetDocAsset reads one asset.
+func (a *Adapter) GetDocAsset(ctx context.Context, module, path string) (out store.DocAsset, err error) {
+	err = a.St.Tx(ctx, func(tx pgx.Tx) error { out, err = store.GetDocAsset(ctx, tx, module, path); return err })
 	return
 }

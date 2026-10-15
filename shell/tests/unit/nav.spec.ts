@@ -1,8 +1,9 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { createPinia, setActivePinia } from 'pinia'
 import { flushPromises, mount } from '@vue/test-utils'
-import { createRouter, createMemoryHistory } from 'vue-router'
+import { createRouter, createMemoryHistory, type RouteRecordRaw } from 'vue-router'
 import Default from '@/layouts/Default.vue'
+import { routes } from '@/router'
 import { useSession } from '@/stores/session'
 
 describe('navigation from manifests', () => {
@@ -56,5 +57,28 @@ describe('navigation from manifests', () => {
     await w.vm.$nextTick()
     await w.vm.$nextTick()
     expect(w.find('[data-test="nav-ops"]').exists()).toBe(false)
+  })
+
+  it('highlights the help center entry on the help center and on every help page', async () => {
+    const s = useSession()
+    s.apply({ user_id: 'u1', tenant_id: 't1', operator: false })
+    vi.stubGlobal('fetch', vi.fn(async () => new Response('[]', { status: 200 })))
+    await s.loadModules()
+    // The shell's own route table, with stub components (the views are not under test).
+    const stub = { template: '<div />' }
+    const stubbed = (rs: RouteRecordRaw[]): RouteRecordRaw[] => rs.map((r) => ({ ...r, ...('component' in r ? { component: stub } : {}), ...(r.children ? { children: stubbed(r.children) } : {}) }) as RouteRecordRaw)
+    const router = createRouter({ history: createMemoryHistory(), routes: stubbed(routes) })
+    const w = mount(Default, { slots: { default: '<p>content</p>' }, global: { plugins: [router] } })
+    const active = async (path: string): Promise<boolean> => {
+      await router.push(path)
+      await flushPromises()
+      return w.find('[data-test="nav-help"]').classes().includes('menu-active')
+    }
+    expect(await active('/help')).toBe(true)
+    expect(await active('/help?q=deploy')).toBe(true)
+    expect(await active('/help/deployer/index')).toBe(true)
+    expect(await active('/help/deployer/guides/auto-deploy')).toBe(true)
+    expect(await active('/')).toBe(false)
+    expect(await active('/helpdesk')).toBe(false)
   })
 })
