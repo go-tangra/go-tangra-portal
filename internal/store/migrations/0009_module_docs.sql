@@ -24,7 +24,8 @@ CREATE TABLE module_docs (
   updated_at timestamptz NOT NULL,
   -- Filled on insert, not GENERATED: the text-search configuration depends on
   -- lang (en → english, anything else → simple). Weights: A title,
-  -- B summary + tags + headings, C body.
+  -- B summary + tags + headings, C body, D a copy of all text with . and _
+  -- split, so parts of identifiers like jobs.lease_seconds match.
   tsv        tsvector NOT NULL,
   PRIMARY KEY (module, slug, lang)
 );

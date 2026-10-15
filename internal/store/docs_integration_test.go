@@ -44,6 +44,7 @@ func TestModuleDocs(t *testing.T) {
 		{Slug: "admin", Kind: "reference", Title: "Subnet administration", Body: "Delete a subnet.", Requires: "subnets:admin", HTML: "<p>d</p>"},
 		{Slug: "install", Kind: "reference", Title: "Install the subnet service", Body: "Operators install it.", Audience: "operator", HTML: "<p>o</p>"},
 		{Slug: "faq", Kind: "faq", Title: "Questions", Body: "Why is my subnet full?", HTML: "<p>f</p>"},
+		{Slug: "config", Kind: "reference", Title: "Configuration", Body: "Set ipam.scan_interval_seconds to tune scans.", HTML: "<p>c</p>"},
 	}
 	tx(func(tx pgx.Tx) error {
 		if err := ReplaceDocs(ctx, tx, "ipam", "d1", ipam, []DocAsset{{Path: "images/a.png", MIME: "image/png", SHA256: "s1", Bytes: []byte{1, 2}}}, at); err != nil {
@@ -102,6 +103,12 @@ func TestModuleDocs(t *testing.T) {
 			modules: map[string]int{"ipam": 3, "dns": 1}, kinds: map[string]int{"guide": 1}},
 		{name: "fuzzy fallback on titles", scope: member, q: "subnet planing", want: []string{"ipam/subnets"}, total: 1,
 			modules: map[string]int{"ipam": 1}, kinds: map[string]int{"guide": 1}, fuzzy: true},
+		{name: "full dotted key", scope: member, q: "ipam.scan_interval_seconds", want: []string{"ipam/config"}, total: 1,
+			modules: map[string]int{"ipam": 1}, kinds: map[string]int{"reference": 1}},
+		{name: "part of a dotted snake_case key", scope: member, q: "scan_interval_seconds", want: []string{"ipam/config"}, total: 1,
+			modules: map[string]int{"ipam": 1}, kinds: map[string]int{"reference": 1}},
+		{name: "one word of a key", scope: member, q: "interval", want: []string{"ipam/config"}, total: 1,
+			modules: map[string]int{"ipam": 1}, kinds: map[string]int{"reference": 1}},
 		{name: "nothing at all", scope: member, q: "kubernetes", total: 0, fuzzy: true},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
@@ -155,7 +162,7 @@ func TestModuleDocs(t *testing.T) {
 		for _, e := range tree {
 			got = append(got, e.Module+"/"+e.Slug)
 		}
-		if !slices.Equal(got, []string{"dns/index", "ipam/index", "ipam/subnets", "ipam/addresses", "ipam/faq"}) {
+		if !slices.Equal(got, []string{"dns/index", "ipam/index", "ipam/subnets", "ipam/addresses", "ipam/config", "ipam/faq"}) {
 			t.Fatalf("tree %v", got)
 		}
 		p, err := GetDoc(ctx, tx, member, "ipam", "subnets")
@@ -191,7 +198,7 @@ func TestModuleDocs(t *testing.T) {
 		return s, err
 	}
 	tx(func(tx pgx.Tx) error { return DocsFailed(ctx, tx, "ipam", "fetch: refused", at) })
-	if s, err := state("ipam"); err != nil || s.Digest != "d1" || s.Error != "fetch: refused" || s.PageCount != 6 || s.IndexedAt == nil || s.ErrorAt == nil {
+	if s, err := state("ipam"); err != nil || s.Digest != "d1" || s.Error != "fetch: refused" || s.PageCount != 7 || s.IndexedAt == nil || s.ErrorAt == nil {
 		t.Fatalf("%+v %v", s, err)
 	}
 	tx(func(tx pgx.Tx) error { return DocsFailed(ctx, tx, "new", "first fetch failed", at) })

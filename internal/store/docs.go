@@ -131,6 +131,15 @@ func plainSQL(expr string) string {
 
 var unmark = strings.NewReplacer(markLT, "<", markGT, ">")
 
+// splitSQL turns '.' and '_' into spaces. The parser keeps "jobs.lease_seconds"
+// as the host-like token "jobs.lease" plus "seconds", so a search for
+// "lease_seconds" or "lease" would miss it; a split copy of the text, at the
+// lowest weight, makes the parts of dotted and snake_case identifiers
+// searchable while the whole identifier still matches the original tokens.
+func splitSQL(expr string) string {
+	return "translate(" + expr + ", '._', '  ')"
+}
+
 // DocsList pages search hits by relevance.
 var DocsList = listquery.Spec{
 	Fields:   map[string]listquery.Field{"rank": {Expr: "rank", DefaultDir: listquery.Desc, NotNull: true}},
@@ -182,7 +191,8 @@ func ReplaceDocs(ctx context.Context, tx pgx.Tx, module, digest string, pages []
 VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,
   setweight(to_tsvector($17::regconfig, `+plainSQL("$6")+`), 'A') ||
   setweight(to_tsvector($17::regconfig, `+plainSQL("$7 || ' ' || array_to_string($8::text[], ' ') || ' ' || $11")+`), 'B') ||
-  setweight(to_tsvector($17::regconfig, `+plainSQL("$13")+`), 'C'))`,
+  setweight(to_tsvector($17::regconfig, `+plainSQL("$13")+`), 'C') ||
+  setweight(to_tsvector($17::regconfig, `+plainSQL(splitSQL("$6 || ' ' || $7 || ' ' || $11 || ' ' || $13"))+`), 'D'))`,
 			module, p.Slug, lang, p.Kind, audience, p.Title, p.Summary, tags, nullable(p.Requires), p.Order, p.Headings, ol, p.Body, p.HTML, digest, at, textConfig(lang)); err != nil {
 			return err
 		}
