@@ -137,8 +137,10 @@ func TestRegisterRenewDeregister(t *testing.T) {
 	}
 	mu.Lock()
 	defer mu.Unlock()
-	if len(states) < 2 || !states[0].Registered {
-		t.Fatalf("%+v", states)
+	// Registered once, then withdrawn: renewals of the same lease are not
+	// transitions, so they do not call OnState (each module logs it).
+	if len(states) != 2 || !states[0].Registered || states[1].Registered {
+		t.Fatalf("want [registered, withdrawn], got %+v", states)
 	}
 }
 

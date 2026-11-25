@@ -30,7 +30,9 @@ type Options struct {
 	Logger     *slog.Logger
 	// MaxBackoff bounds the re-registration delay (default 30s).
 	MaxBackoff time.Duration
-	// OnState is called on every transition (registered, lost, refused).
+	// OnState is called on every transition (registered, lost, refused,
+	// a new lease, a different error) — not on each successful renewal, and
+	// not when only State.Version moves (read State for that).
 	OnState func(State)
 	// BuildVersion is the release this process runs (e.g. "4.10.2"); the
 	// gateway shows it to users. Empty means the process build version
@@ -59,12 +61,13 @@ var ErrRefused = errors.New("gatewayclient: registration refused")
 
 // Client drives Register → Renew → Deregister.
 type Client struct {
-	reg  gatewayv1.RegistryClient
-	opts Options
-	mu   sync.Mutex
-	st   State
-	rand func() float64
-	now  func() time.Time
+	reg      gatewayv1.RegistryClient
+	opts     Options
+	mu       sync.Mutex
+	st       State
+	notified bool // OnState has seen a state
+	rand     func() float64
+	now      func() time.Time
 }
 
 // New wraps a connection to the gateway.
@@ -104,11 +107,24 @@ func (c *Client) State() State { c.mu.Lock(); defer c.mu.Unlock(); return c.st }
 
 func (c *Client) set(st State) {
 	c.mu.Lock()
-	c.st = st
+	changed := !c.notified || transition(c.st, st)
+	c.st, c.notified = st, true
 	c.mu.Unlock()
-	if c.opts.OnState != nil {
+	if changed && c.opts.OnState != nil {
 		c.opts.OnState(st)
 	}
+}
+
+// transition reports whether b differs from a in anything but Version.
+func transition(a, b State) bool {
+	return a.Registered != b.Registered || a.LeaseID != b.LeaseID || a.Module != b.Module || errText(a.Err) != errText(b.Err)
+}
+
+func errText(err error) string {
+	if err == nil {
+		return ""
+	}
+	return err.Error()
 }
 
 // Run registers and renews until ctx is cancelled, then deregisters. It only
